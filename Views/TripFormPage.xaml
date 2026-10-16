@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
+             x:Class="TravelPlanner.Views.TripFormPage"
+             x:DataType="vm:TripFormViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{Binding PageTitle}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,20,16,24" Spacing="24">
+
+                <!-- ════════ Trip ════════ -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.TripForm_NameLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding Name}" MaxLength="100" Placeholder="{x:Static res:AppResources.TripForm_NamePlaceholder}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.TripForm_DestinationLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-3}" />
+                                    <Entry Keyboard="{x:Static helpers:AppKeyboards.Words}" Grid.Column="1" Text="{Binding City}" MaxLength="100" Placeholder="{x:Static res:AppResources.TripForm_CityPlaceholder}" />
+                                </Grid>
+                            </Border>
+                            <Label IsVisible="{Binding IsOffline}" Text="{x:Static res:AppResources.TripForm_CityOffline}" Style="{StaticResource Text.Caption}"
+                                   TextColor="{DynamicResource tp-warning}" />
+                            <Border Style="{StaticResource SuggestionsBorder}" IsVisible="{Binding IsCitySuggestionsVisible}">
+                                <CollectionView ItemsSource="{Binding CitySuggestions}" SelectionMode="None" MaximumHeightRequest="240">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:CitySuggestion">
+                                            <Grid Padding="10,10" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                                <Grid.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TripFormViewModel}}, Path=SelectCityCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Grid.GestureRecognizers>
+                                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" />
+                                                <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                                    <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" FontSize="14" />
+                                                    <Label Text="{Binding DisplayRegion}" Style="{StaticResource Text.Caption}" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                <Label Text="{x:Static res:AppResources.TripForm_StartLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <DatePicker Date="{Binding StartDate}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="{x:Static res:AppResources.TripForm_EndLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <DatePicker Date="{Binding EndDate}" MinimumDate="{Binding StartDate}" MaximumDate="{Binding MaximumEndDate}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ════════ Budget ════════ -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="16">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{x:Static res:AppResources.TripForm_BudgetLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <Entry Text="{Binding PlannedBudget}" Keyboard="Numeric" MaxLength="16" Placeholder="0" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{x:Static res:AppResources.TripForm_CurrencyLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}"
+                                            Title="{x:Static res:AppResources.TripForm_CurrencyLabel}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <Label Text="{x:Static res:AppResources.TripForm_CurrencyHint}" Style="{StaticResource Text.Caption}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ════════ Notes ════════ -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{x:Static res:AppResources.Common_DescriptionLabel}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Border Style="{StaticResource Input.Multiline}" MinimumHeightRequest="96">
+                        <Editor Text="{Binding Description}" AutoSize="TextChanges" MaxLength="500" Placeholder="{x:Static res:AppResources.TripForm_DescriptionPlaceholder}" />
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ════════ Action bar ════════ -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12">
+                <Border IsVisible="{Binding HasValidationError}" Style="{StaticResource Banner.Error}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{Binding ValidationMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" />
+                    </Grid>
+                </Border>
+                <Grid ColumnDefinitions="*,2*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Secondary}" />
+                    <Button Grid.Column="1" Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,29 @@
+<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TravelPlanner"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
+             x:Class="TravelPlanner.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/DesignTokens.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Icons.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <helpers:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <helpers:PercentageToFractionConverter x:Key="PercentageToFractionConverter" />
+            <helpers:CompletedToStrikethroughConverter x:Key="CompletedToStrikethroughConverter" />
+            <helpers:ObjectNotNullConverter x:Key="ObjectNotNullConverter" />
+            <helpers:VisitedTextConverter x:Key="VisitedTextConverter" />
+            <helpers:ExpenseCategoryDisplayConverter x:Key="ExpenseCategoryDisplayConverter" />
+            <helpers:TripTagColorConverter x:Key="TripTagColorConverter" />
+            <helpers:CurrencyConverter x:Key="CurrencyConverter" />
+            <helpers:WeatherGlyphConverter x:Key="WeatherGlyphConverter" />
+            <helpers:CategoryGlyphConverter x:Key="CategoryGlyphConverter" />
+            <helpers:InvertBoolConverter x:Key="InvertBoolConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

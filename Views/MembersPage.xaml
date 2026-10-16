@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             x:Class="TravelPlanner.Views.MembersPage"
+             x:DataType="vm:MembersViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <!-- G6: members of a trip, invites, roles, leaving. Everything here needs a connection. -->
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" Margin="4,0,0,0">
+                <Label Text="{x:Static res:AppResources.Members_Title}" Style="{StaticResource Text.AppBarTitle}" />
+                <Label Text="{Binding TripName}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+            </VerticalStackLayout>
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16,20,16,28" Spacing="24">
+
+                    <!-- ════════ Guest / offline / error ════════ -->
+                    <Border IsVisible="{Binding IsGuest}" Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="{x:Static res:AppResources.Members_SignInHint}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
+                            <Button Text="{x:Static res:AppResources.Account_SignInOrCreate}" Command="{Binding OpenSignInCommand}" Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Sharing_ErrorOffline}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
+                        </Grid>
+                    </Border>
+
+                    <Border IsVisible="{Binding HasError}" Style="{StaticResource Banner.Error}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding ErrorText}" FontSize="13" TextColor="{DynamicResource tp-danger}" LineBreakMode="WordWrap" />
+                        </Grid>
+                    </Border>
+
+                    <!-- ════════ Members ════════ -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding IsSignedIn}">
+                        <Grid ColumnDefinitions="*,Auto" Margin="4,0">
+                            <Label Grid.Column="0" Text="{x:Static res:AppResources.Members_ListTitle}" Style="{StaticResource Text.Overline}" />
+                            <Label Grid.Column="1" Text="{Binding MyRoleText}" Style="{StaticResource Text.Caption}" />
+                        </Grid>
+                        <controls:LoadingLogo IsVisible="{Binding IsBusy}" Size="40" Margin="0,12" />
+                        <Border Style="{StaticResource Card.List}" IsVisible="{Binding HasMembers}">
+                            <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding Members}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MemberItem">
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="60">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MembersViewModel}}, Path=ManageMemberCommand}"
+                                                                      CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" Padding="0" StrokeShape="RoundRectangle 20"
+                                                    Stroke="Transparent" BackgroundColor="{DynamicResource tp-primary}" VerticalOptions="Center">
+                                                <Label Text="{Binding Initials}" FontFamily="InterSemiBold" FontSize="15" TextColor="{DynamicResource tp-on-primary}"
+                                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                                <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding Email}" IsVisible="{Binding HasEmail}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                            <HorizontalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                                                <Border Style="{StaticResource Tag}">
+                                                    <Label Text="{Binding RoleText}" Style="{StaticResource Tag.Text}" />
+                                                </Border>
+                                                <Label IsVisible="{Binding CanManage}" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.More}" TextColor="{DynamicResource tp-text-3}" />
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Label IsVisible="{Binding IsNotShared}" Text="{x:Static res:AppResources.Members_NotShared}" Style="{StaticResource Text.Caption}"
+                               Margin="4,0" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+
+                    <!-- ════════ Invite (owner) ════════ -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding CanInvite}">
+                        <Label Text="{x:Static res:AppResources.Members_InviteTitle}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="{x:Static res:AppResources.Members_InviteHint}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <Button Grid.Column="0" Text="{x:Static res:AppResources.Members_InviteEditor}" Command="{Binding InviteEditorCommand}"
+                                            Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40" />
+                                    <Button Grid.Column="1" Text="{x:Static res:AppResources.Members_InviteViewer}" Command="{Binding InviteViewerCommand}"
+                                            Style="{StaticResource Btn.Secondary.Sm}" HeightRequest="40" />
+                                </Grid>
+                                <VerticalStackLayout IsVisible="{Binding HasInvite}" Spacing="2" HorizontalOptions="Center">
+                                    <Label Text="{Binding LastInviteCode}" FontFamily="InterBold" FontSize="26" CharacterSpacing="4"
+                                           HorizontalTextAlignment="Center" TextColor="{DynamicResource tp-text}" />
+                                    <Label Text="{Binding LastInviteText}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ════════ Leave (editor / viewer) ════════ -->
+                    <Button Text="{x:Static res:AppResources.Members_Leave}" Command="{Binding LeaveCommand}" Style="{StaticResource Btn.Danger}"
+                            IsVisible="{Binding CanLeave}" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

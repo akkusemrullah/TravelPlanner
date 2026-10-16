@@ -1,0 +1,9 @@
+# Normalise line endings in the repo; Visual Studio files keep CRLF on checkout.
+* text=auto
+*.cs     text diff=csharp
+*.xaml   text
+*.csproj text eol=crlf
+*.sln    text eol=crlf
+*.png    binary
+*.ttf    binary
+*.jpg    binary

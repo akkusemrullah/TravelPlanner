@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- android:theme: the application-level theme must be a MaterialComponents descendant too. MAUI only switches
+	     the Activity from Maui.SplashTheme to Maui.MainTheme; anything inflated with the Application context
+	     (e.g. while the Activity is being recreated after returning from the camera / file picker / share sheet,
+	     or when Platform.CurrentActivity is briefly null) otherwise falls back to the platform default theme and
+	     Material views crash with "This component requires that you specify a valid TextAppearance attribute". -->
+	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:supportsRtl="true" android:theme="@style/Maui.MainTheme">
+	</application>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<!-- TP-107: trip reminders are scheduled for an exact time; Android 12+ needs the exact-alarm
+	     permission, and RECEIVE_BOOT_COMPLETED lets Plugin.LocalNotification restore them after a reboot. -->
+	<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<!-- TP-501: taking a photo for a trip attachment. Picking from the gallery uses the system photo picker
+	     on Android 13+; older versions need read access to shared storage. -->
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+	<uses-feature android:name="android.hardware.camera" android:required="false" />
+	<!-- Android 11+ package visibility: the camera app (MediaPicker.CapturePhotoAsync) and viewers that can
+	     open an attached PDF/photo (Launcher.OpenAsync). -->
+	<queries>
+		<intent>
+			<action android:name="android.media.action.IMAGE_CAPTURE" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:mimeType="*/*" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.SEND" />
+			<data android:mimeType="*/*" />
+		</intent>
+		<!-- G3: Google sign-in opens in a Custom Tab (WebAuthenticator). -->
+		<intent>
+			<action android:name="android.support.customtabs.action.CustomTabsService" />
+		</intent>
+	</queries>
+</manifest>

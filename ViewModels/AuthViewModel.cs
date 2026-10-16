@@ -1,0 +1,331 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using TravelPlanner.Models;
+using TravelPlanner.Resources.Strings;
+using TravelPlanner.Services;
+
+namespace TravelPlanner.ViewModels
+{
+    public enum AuthMode
+    {
+        SignIn,
+        SignUp,
+        /// <summary>Enter the code from the "Confirm signup" e-mail.</summary>
+        VerifySignUp,
+        /// <summary>Ask for a password reset code.</summary>
+        ForgotPassword,
+        /// <summary>Enter the reset code + the new password.</summary>
+        ResetPassword
+    }
+
+    /// <summary>
+    /// Sign in / create account / confirm code / reset password (G3), one page that switches between modes.
+    /// Shown once at first start (the user may continue as a guest) and from Profile → "Giriş yap".
+    /// Problems are shown inline under the form, not as dialogs.
+    /// </summary>
+    public partial class AuthViewModel : ViewModelBase
+    {
+        public const int MinPasswordLength = 6;
+        public const int MaxDisplayNameLength = 40;
+
+        private readonly IAuthService _auth;
+        private readonly IAccountService _account;
+        private readonly IConnectivity _connectivity;
+
+        public AuthViewModel(IAuthService auth, IAccountService account, IConnectivity connectivity, IDialogService dialogs)
+            : base(dialogs)
+        {
+            _auth = auth;
+            _account = account;
+            _connectivity = connectivity;
+        }
+
+        /// <summary>Closes the page (Shell modal). Replaced in tests.</summary>
+        internal Func<Task> CloseAction { get; set; } = async () =>
+        {
+            try
+            {
+                if (Shell.Current?.Navigation.ModalStack.Count > 0)
+                    await Shell.Current.GoToAsync("..");
+            }
+            catch (Exception ex)
+            {
+                // The shell may be rebuilding after a sign-in (App.RebuildShellAsync) - nothing left to close.
+                System.Diagnostics.Debug.WriteLine($"[Auth] Close: {ex.Message}");
+            }
+        };
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsSignIn), nameof(IsSignUp), nameof(IsVerifySignUp), nameof(IsForgotPassword),
+                                  nameof(IsResetPassword), nameof(IsCodeMode), nameof(ShowEmailField), nameof(ShowPasswordField),
+                                  nameof(ShowGoogle), nameof(Title), nameof(Subtitle))]
+        private AuthMode mode = AuthMode.SignIn;
+
+        [ObservableProperty]
+        private string displayName = string.Empty;
+
+        [ObservableProperty]
+        private string email = string.Empty;
+
+        [ObservableProperty]
+        private string password = string.Empty;
+
+        [ObservableProperty]
+        private string code = string.Empty;
+
+        [ObservableProperty]
+        private string newPassword = string.Empty;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasError))]
+        private string? errorMessage;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasInfo))]
+        private string? infoMessage;
+
+        [ObservableProperty]
+        private bool isWorking;
+
+        public bool IsSignIn => Mode == AuthMode.SignIn;
+        public bool IsSignUp => Mode == AuthMode.SignUp;
+        public bool IsVerifySignUp => Mode == AuthMode.VerifySignUp;
+        public bool IsForgotPassword => Mode == AuthMode.ForgotPassword;
+        public bool IsResetPassword => Mode == AuthMode.ResetPassword;
+        public bool IsCodeMode => Mode is AuthMode.VerifySignUp or AuthMode.ResetPassword;
+        public bool ShowEmailField => Mode is AuthMode.SignIn or AuthMode.SignUp or AuthMode.ForgotPassword;
+        public bool ShowPasswordField => Mode is AuthMode.SignIn or AuthMode.SignUp;
+        public bool ShowGoogle => Mode is AuthMode.SignIn or AuthMode.SignUp;
+        public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
+        public bool HasInfo => !string.IsNullOrEmpty(InfoMessage);
+
+        public string Title => Mode switch
+        {
+            AuthMode.SignUp => AppResources.Auth_SignUpTitle,
+            AuthMode.VerifySignUp => AppResources.Auth_VerifyTitle,
+            AuthMode.ForgotPassword or AuthMode.ResetPassword => AppResources.Auth_ResetTitle,
+            _ => AppResources.Auth_SignInTitle,
+        };
+
+        public string Subtitle => Mode switch
+        {
+            AuthMode.SignUp => AppResources.Auth_SignUpSubtitle,
+            AuthMode.VerifySignUp => string.Format(AppResources.Auth_CodeSentFormat, Email.Trim()),
+            AuthMode.ForgotPassword => AppResources.Auth_ForgotSubtitle,
+            AuthMode.ResetPassword => string.Format(AppResources.Auth_CodeSentFormat, Email.Trim()),
+            _ => AppResources.Auth_SignInSubtitle,
+        };
+
+        partial void OnEmailChanged(string value) => OnPropertyChanged(nameof(Subtitle));
+
+        partial void OnModeChanged(AuthMode value)
+        {
+            ErrorMessage = null;
+            InfoMessage = null;
+            Code = string.Empty;
+            NewPassword = string.Empty;
+        }
+
+        // ------------------------------------------------------------------ mode switches
+
+        [RelayCommand]
+        private void ShowSignIn() => Mode = AuthMode.SignIn;
+
+        [RelayCommand]
+        private void ShowSignUp() => Mode = AuthMode.SignUp;
+
+        [RelayCommand]
+        private void ShowForgotPassword() => Mode = AuthMode.ForgotPassword;
+
+        /// <summary>"Misafir olarak devam et" / close: the app keeps working on this device's data only.</summary>
+        [RelayCommand]
+        private Task CloseAsync() => CloseAction();
+
+        // ------------------------------------------------------------------ actions
+
+        [RelayCommand]
+        private Task SignInAsync() => RunAuthAsync(async () =>
+        {
+            if (!ValidateEmail() || !ValidatePassword(Password))
+                return;
+
+            try
+            {
+                await _auth.SignInWithPasswordAsync(Email, Password);
+            }
+            catch (AuthException ex) when (ex.Kind == AuthErrorKind.EmailNotConfirmed)
+            {
+                // Signed up but never entered the code: send a fresh one and ask for it.
+                await _auth.ResendSignUpCodeAsync(Email);
+                Mode = AuthMode.VerifySignUp;
+                InfoMessage = AppResources.Auth_NotConfirmedResent;
+                return;
+            }
+
+            await FinishSignInAsync();
+        });
+
+        [RelayCommand]
+        private Task SignUpAsync() => RunAuthAsync(async () =>
+        {
+            if (string.IsNullOrWhiteSpace(DisplayName))
+            {
+                ErrorMessage = AppResources.Auth_NameRequired;
+                return;
+            }
+            if (!ValidateEmail() || !ValidatePassword(Password))
+                return;
+
+            var name = Helpers.InputLimits.Truncate(DisplayName.Trim(), MaxDisplayNameLength)!;
+            var outcome = await _auth.SignUpAsync(name, Email, Password);
+            if (outcome == SignUpOutcome.SignedIn)
+            {
+                await FinishSignInAsync();
+                return;
+            }
+
+            Mode = AuthMode.VerifySignUp;
+        });
+
+        [RelayCommand]
+        private Task SignInWithGoogleAsync() => RunAuthAsync(async () =>
+        {
+            await _auth.SignInWithGoogleAsync();
+            await FinishSignInAsync();
+        });
+
+        [RelayCommand]
+        private Task VerifyCodeAsync() => RunAuthAsync(async () =>
+        {
+            if (!ValidateCode())
+                return;
+
+            await _auth.VerifySignUpCodeAsync(Email, Code);
+            await FinishSignInAsync();
+        });
+
+        [RelayCommand]
+        private Task ResendCodeAsync() => RunAuthAsync(async () =>
+        {
+            if (Mode == AuthMode.ResetPassword)
+                await _auth.SendPasswordResetCodeAsync(Email);
+            else
+                await _auth.ResendSignUpCodeAsync(Email);
+
+            InfoMessage = AppResources.Auth_CodeResent;
+        });
+
+        [RelayCommand]
+        private Task SendResetCodeAsync() => RunAuthAsync(async () =>
+        {
+            if (!ValidateEmail())
+                return;
+
+            await _auth.SendPasswordResetCodeAsync(Email);
+            Mode = AuthMode.ResetPassword;
+        });
+
+        [RelayCommand]
+        private Task ResetPasswordAsync() => RunAuthAsync(async () =>
+        {
+            if (!ValidateCode() || !ValidatePassword(NewPassword))
+                return;
+
+            await _auth.ResetPasswordWithCodeAsync(Email, Code, NewPassword);
+            await FinishSignInAsync();
+        });
+
+        private async Task FinishSignInAsync()
+        {
+            Password = string.Empty;
+            NewPassword = string.Empty;
+            await _account.ActivateSignedInAccountAsync();
+            await CloseAction();
+        }
+
+        // ------------------------------------------------------------------ helpers
+
+        private async Task RunAuthAsync(Func<Task> action)
+        {
+            if (IsWorking)
+                return;
+
+            ErrorMessage = null;
+            InfoMessage = null;
+
+            if (_connectivity.NetworkAccess != NetworkAccess.Internet)
+            {
+                ErrorMessage = AppResources.Auth_Offline;
+                return;
+            }
+
+            IsWorking = true;
+            try
+            {
+                await action();
+            }
+            catch (AuthException ex) when (ex.Kind == AuthErrorKind.Cancelled)
+            {
+                // closed the browser - nothing to say
+            }
+            catch (AuthException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Auth] {ex.Kind}: {ex.Message}");
+                ErrorMessage = MessageFor(ex.Kind);
+            }
+            catch (Exception ex)
+            {
+                await Dialogs.ShowErrorAsync(AppResources.Common_GenericError, ex);
+            }
+            finally
+            {
+                IsWorking = false;
+            }
+        }
+
+        internal static string MessageFor(AuthErrorKind kind) => kind switch
+        {
+            AuthErrorKind.Network => AppResources.Auth_ErrorNetwork,
+            AuthErrorKind.InvalidCredentials => AppResources.Auth_ErrorInvalidCredentials,
+            AuthErrorKind.EmailNotConfirmed => AppResources.Auth_ErrorNotConfirmed,
+            AuthErrorKind.UserAlreadyExists => AppResources.Auth_ErrorUserExists,
+            AuthErrorKind.WeakPassword => AppResources.Auth_ErrorWeakPassword,
+            AuthErrorKind.InvalidEmail => AppResources.Auth_ErrorInvalidEmail,
+            AuthErrorKind.InvalidCode => AppResources.Auth_ErrorInvalidCode,
+            AuthErrorKind.RateLimited => AppResources.Auth_ErrorRateLimited,
+            AuthErrorKind.NotSupported => AppResources.Auth_ErrorNotSupported,
+            AuthErrorKind.Banned => AppResources.Auth_ErrorBanned,
+            _ => AppResources.Auth_ErrorUnknown,
+        };
+
+        private bool ValidateEmail()
+        {
+            var value = Email.Trim();
+            var at = value.IndexOf('@');
+            if (at > 0 && at < value.Length - 3 && value.IndexOf('.', at) > at + 1 && !value.Contains(' '))
+                return true;
+
+            ErrorMessage = AppResources.Auth_ErrorInvalidEmail;
+            return false;
+        }
+
+        private bool ValidatePassword(string value)
+        {
+            if ((value ?? string.Empty).Length >= MinPasswordLength)
+                return true;
+
+            ErrorMessage = string.Format(AppResources.Auth_PasswordTooShortFormat, MinPasswordLength);
+            return false;
+        }
+
+        private bool ValidateCode()
+        {
+            var digits = new string((Code ?? string.Empty).Where(char.IsLetterOrDigit).ToArray());
+            if (digits.Length >= 6)
+                return true;
+
+            ErrorMessage = AppResources.Auth_ErrorInvalidCode;
+            return false;
+        }
+    }
+}

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
+             x:Class="TravelPlanner.Views.PlaceFormPage"
+             x:DataType="vm:PlaceFormViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Page_Place}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,20,16,24" Spacing="24">
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Place_NameLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-3}" />
+                                    <Entry Keyboard="{x:Static helpers:AppKeyboards.Words}" Grid.Column="1" Text="{Binding Name}" MaxLength="150" Placeholder="{x:Static res:AppResources.Place_NamePlaceholder}" />
+                                </Grid>
+                            </Border>
+                            <Border IsVisible="{Binding IsLocationFromMap}" Style="{StaticResource Banner.Info}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.MapPinned}" TextColor="{DynamicResource tp-info}" />
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Place_FromMapHint}" FontSize="13" TextColor="{DynamicResource tp-info}" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                            <Label IsVisible="{Binding IsOffline}" Text="{x:Static res:AppResources.Place_SuggestionsOffline}" Style="{StaticResource Text.Caption}"
+                                   TextColor="{DynamicResource tp-warning}" />
+                            <Border Style="{StaticResource SuggestionsBorder}" IsVisible="{Binding IsNameSuggestionsVisible}">
+                                <CollectionView ItemsSource="{Binding NameSuggestions}" SelectionMode="None" MaximumHeightRequest="240">
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:PlaceSuggestion">
+                                            <Grid Padding="10,10" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                                <Grid.GestureRecognizers>
+                                                    <TapGestureRecognizer
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceFormViewModel}}, Path=SelectPlaceCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                                </Grid.GestureRecognizers>
+                                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" />
+                                                <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                                    <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" FontSize="14" />
+                                                    <Label Text="{Binding DisplayRegion}" Style="{StaticResource Text.Caption}" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Common_DescriptionLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input.Multiline}" MinimumHeightRequest="88">
+                                <Editor Text="{Binding Description}" AutoSize="TextChanges" MaxLength="500" Placeholder="{x:Static res:AppResources.Common_OptionalNote}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ════════ Action bar ════════ -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12">
+                <Border IsVisible="{Binding HasValidationError}" Style="{StaticResource Banner.Error}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{Binding ValidationMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" />
+                    </Grid>
+                </Border>
+                <Grid ColumnDefinitions="*,2*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Secondary}" />
+                    <Button Grid.Column="1" Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Unit tests for TravelPlanner (TP-204).
+
+    The app is a multi-targeted MAUI executable (android/ios/maccatalyst/windows), which a plain
+    net9.0 test project can't reference directly. Instead the platform-independent source files
+    (Models, Helpers, Services, ViewModels) are LINKED in and compiled against the platform-neutral
+    net9.0 build of Microsoft.Maui.Controls. Views, Platforms, App/AppShell, MauiProgram and
+    NotificationService (Plugin.LocalNotification has no net9.0 build) are left out.
+
+    Run:  dotnet test Tests/TravelPlanner.Tests
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>TravelPlanner.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Models\**\*.cs" Link="App\Models\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\Helpers\**\*.cs" Link="App\Helpers\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\ViewModels\**\*.cs" Link="App\ViewModels\%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- NotificationService needs Plugin.LocalNotification (no net9.0 build); ThemeService needs the XAML theme dictionaries;
+         Services/Pdf (PDFsharp renderer) reads app-package fonts and is exercised on device, not in unit tests. -->
+    <Compile Include="..\..\Services\**\*.cs" Exclude="..\..\Services\NotificationService.cs;..\..\Services\ThemeService.cs;..\..\Services\Pdf\**" Link="App\Services\%(RecursiveDir)%(Filename)%(Extension)" />
+
+    <!-- Localized strings: the generated class + the neutral (Turkish) .resx under the same manifest name as in the app.
+         Tests pin the culture to tr-TR (see TestCulture.cs), so the English satellite is not needed here. -->
+    <Compile Include="..\..\Resources\Strings\AppResources.Designer.cs" Link="App\Resources\AppResources.Designer.cs" />
+    <EmbeddedResource Include="..\..\Resources\Strings\AppResources.resx" Link="App\Resources\AppResources.resx"
+                      LogicalName="TravelPlanner.Resources.Strings.AppResources.resources" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Same libraries the app uses (platform-neutral builds). -->
+    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
+    <!-- G3/G4: IHttpClientFactory (SupabaseAuthService, SupabaseClient) -->
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.18" />
+
+    <!-- Test tooling -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+  </ItemGroup>
+
+</Project>

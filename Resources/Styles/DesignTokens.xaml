@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<!-- TravelPlanner design system - Light colour tokens (royal blue - Travel Planner logo palette).
+     Same keys in LightTheme.xaml and DarkTheme.xaml; ThemeService swaps them at runtime and pages pick the
+     values up through DynamicResource. Add a key to BOTH files (and to DesignTokens.xaml for the static
+     light defaults) - generated from one table so the three never drift. -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Color x:Key="tp-bg">#F3F4F6</Color>  <!-- page canvas -->
+    <Color x:Key="tp-surface">#FFFFFF</Color>  <!-- cards, app bar, sheets -->
+    <Color x:Key="tp-surface-alt">#F7F8FA</Color>  <!-- subtle fills: icon tiles, inputs read-only, segmented -->
+    <Color x:Key="tp-surface-sunken">#EEF0F3</Color>  <!-- progress tracks, pressed rows -->
+    <Color x:Key="tp-border">#E2E5EA</Color>  <!-- card + divider strokes -->
+    <Color x:Key="tp-border-strong">#C9CED6</Color>  <!-- input strokes, secondary buttons -->
+    <Color x:Key="tp-divider">#ECEEF1</Color>  <!-- list separators -->
+    <Color x:Key="tp-text">#14161B</Color>  <!-- primary text -->
+    <Color x:Key="tp-text-2">#4A505C</Color>  <!-- secondary text -->
+    <Color x:Key="tp-text-3">#6B7280</Color>  <!-- captions, placeholders, inactive icons -->
+    <Color x:Key="tp-primary">#1E3A8A</Color>  <!-- royal blue - primary actions -->
+    <Color x:Key="tp-primary-hover">#1A3278</Color>  <!-- primary pressed/hover -->
+    <Color x:Key="tp-on-primary">#FFFFFF</Color>  <!-- text/icons on primary -->
+    <Color x:Key="tp-accent">#2563EB</Color>  <!-- bright blue - brand accent, FAB, selection -->
+    <Color x:Key="tp-accent-text">#1D4ED8</Color>  <!-- accent blue used as text on surfaces -->
+    <Color x:Key="tp-accent-soft">#E6EDFC</Color>  <!-- accent tint backgrounds -->
+    <Color x:Key="tp-on-accent">#FFFFFF</Color>  <!-- text/icons on accent -->
+    <Color x:Key="tp-success">#1B7543</Color>  <!-- success / completed -->
+    <Color x:Key="tp-success-soft">#E7F4EC</Color>
+    <Color x:Key="tp-warning">#A15C00</Color>  <!-- warning / pending -->
+    <Color x:Key="tp-warning-soft">#FFF3E0</Color>
+    <Color x:Key="tp-danger">#C42B2B</Color>  <!-- destructive / over budget -->
+    <Color x:Key="tp-danger-soft">#FCEAEA</Color>
+    <Color x:Key="tp-info">#0E7490</Color>  <!-- informational / planned -->
+    <Color x:Key="tp-info-soft">#E3F3F6</Color>
+    <Color x:Key="tp-hero">#1E3A8A</Color>  <!-- hero card background (royal blue) -->
+    <Color x:Key="tp-hero-line">#2F4C9E</Color>  <!-- hero card inner strokes -->
+    <Color x:Key="tp-hero-muted">#C3CEEB</Color>  <!-- secondary text on hero -->
+    <Color x:Key="tp-on-hero">#FFFFFF</Color>  <!-- primary text on hero -->
+    <Color x:Key="tp-overlay">#14161B</Color>  <!-- scrims -->
+
+    <!-- Legacy Frame Design System keys, remapped onto the TravelPlanner palette. -->
+    <Color x:Key="fds-color-blue-5">#E6EDFC</Color>
+    <Color x:Key="fds-color-blue-10">#E6EDFC</Color>
+    <Color x:Key="fds-color-blue-20">#C3CEEB</Color>
+    <Color x:Key="fds-color-blue-60">#2563EB</Color>
+    <Color x:Key="fds-color-blue-70">#1D4ED8</Color>
+    <Color x:Key="fds-color-gray-5">#F7F8FA</Color>
+    <Color x:Key="fds-color-gray-10">#E2E5EA</Color>
+    <Color x:Key="fds-color-gray-20">#C9CED6</Color>
+    <Color x:Key="fds-color-gray-50">#6B7280</Color>
+    <Color x:Key="fds-color-gray-60">#4A505C</Color>
+    <Color x:Key="fds-color-gray-90">#14161B</Color>
+    <Color x:Key="fds-color-cool-gray-5">#F3F4F6</Color>
+    <Color x:Key="fds-color-cool-gray-10">#EEF0F3</Color>
+    <Color x:Key="fds-color-cool-gray-20">#E2E5EA</Color>
+    <Color x:Key="fds-color-cool-gray-30">#C9CED6</Color>
+    <Color x:Key="fds-color-cool-gray-40">#6B7280</Color>
+    <Color x:Key="fds-color-cool-gray-50">#6B7280</Color>
+    <Color x:Key="fds-color-cool-gray-60">#4A505C</Color>
+    <Color x:Key="fds-color-cool-gray-70">#14161B</Color>
+    <Color x:Key="fds-color-green-5">#E7F4EC</Color>
+    <Color x:Key="fds-color-green-60">#1B7543</Color>
+    <Color x:Key="fds-color-purple-5">#E3F3F6</Color>
+    <Color x:Key="fds-color-purple-60">#0E7490</Color>
+    <Color x:Key="fds-color-bronze-5">#FFF3E0</Color>
+    <Color x:Key="fds-color-red-60">#C42B2B</Color>
+    <Color x:Key="fds-color-white">#FFFFFF</Color>
+    <Color x:Key="fds-surface">#FFFFFF</Color>
+    <Color x:Key="fds-hero-gradient-end">#1E3A8A</Color>
+    <Color x:Key="fds-danger">#C42B2B</Color>
+    <Color x:Key="fds-feedback-error-bg">#FCEAEA</Color>
+    <Color x:Key="fds-feedback-error-fg">#C42B2B</Color>
+    <Color x:Key="fds-feedback-warning-bg">#FFF3E0</Color>
+    <Color x:Key="fds-feedback-warning-fg">#A15C00</Color>
+
+    <!-- Loading animation (Controls/LoadingLogo): the logo pin, its paper plane, and its ground shadow/ring. -->
+    <Color x:Key="tp-loader-pin">#2563EB</Color>  <!-- logo bright blue -->
+    <Color x:Key="tp-loader-plane">#FFFFFF</Color>
+    <Color x:Key="tp-loader-shadow">#1E3A8A</Color>  <!-- royal-blue tinted shadow -->
+
+</ResourceDictionary>

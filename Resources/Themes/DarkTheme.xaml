@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<!-- TravelPlanner design system - Dark colour tokens (royal blue - Travel Planner logo palette).
+     Same keys in LightTheme.xaml and DarkTheme.xaml; ThemeService swaps them at runtime and pages pick the
+     values up through DynamicResource. Add a key to BOTH files (and to DesignTokens.xaml for the static
+     light defaults) - generated from one table so the three never drift. -->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="TravelPlanner.Resources.Themes.DarkTheme">
+
+    <Color x:Key="tp-bg">#0E1013</Color>
+    <Color x:Key="tp-surface">#16191E</Color>
+    <Color x:Key="tp-surface-alt">#1C2026</Color>
+    <Color x:Key="tp-surface-sunken">#111317</Color>
+    <Color x:Key="tp-border">#272B33</Color>
+    <Color x:Key="tp-border-strong">#363C46</Color>
+    <Color x:Key="tp-divider">#20242B</Color>
+    <Color x:Key="tp-text">#F1F2F4</Color>
+    <Color x:Key="tp-text-2">#B3B9C4</Color>
+    <Color x:Key="tp-text-3">#858C99</Color>
+    <Color x:Key="tp-primary">#2563EB</Color>
+    <Color x:Key="tp-primary-hover">#3B6FF0</Color>
+    <Color x:Key="tp-on-primary">#FFFFFF</Color>
+    <Color x:Key="tp-accent">#2F6FED</Color>
+    <Color x:Key="tp-accent-text">#60A5FA</Color>
+    <Color x:Key="tp-accent-soft">#172447</Color>
+    <Color x:Key="tp-on-accent">#FFFFFF</Color>
+    <Color x:Key="tp-success">#4CC27E</Color>
+    <Color x:Key="tp-success-soft">#13281C</Color>
+    <Color x:Key="tp-warning">#F2B14C</Color>
+    <Color x:Key="tp-warning-soft">#2E2311</Color>
+    <Color x:Key="tp-danger">#FF6B6B</Color>
+    <Color x:Key="tp-danger-soft">#3A1818</Color>
+    <Color x:Key="tp-info">#22B8CF</Color>
+    <Color x:Key="tp-info-soft">#0F2A30</Color>
+    <Color x:Key="tp-hero">#172554</Color>
+    <Color x:Key="tp-hero-line">#24377A</Color>
+    <Color x:Key="tp-hero-muted">#A9B8DD</Color>
+    <Color x:Key="tp-on-hero">#FFFFFF</Color>
+    <Color x:Key="tp-overlay">#000000</Color>
+
+    <!-- Legacy Frame Design System keys, remapped onto the TravelPlanner palette. -->
+    <Color x:Key="fds-color-blue-5">#172447</Color>
+    <Color x:Key="fds-color-blue-10">#172447</Color>
+    <Color x:Key="fds-color-blue-20">#A9B8DD</Color>
+    <Color x:Key="fds-color-blue-60">#2F6FED</Color>
+    <Color x:Key="fds-color-blue-70">#60A5FA</Color>
+    <Color x:Key="fds-color-gray-5">#1C2026</Color>
+    <Color x:Key="fds-color-gray-10">#272B33</Color>
+    <Color x:Key="fds-color-gray-20">#363C46</Color>
+    <Color x:Key="fds-color-gray-50">#858C99</Color>
+    <Color x:Key="fds-color-gray-60">#B3B9C4</Color>
+    <Color x:Key="fds-color-gray-90">#F1F2F4</Color>
+    <Color x:Key="fds-color-cool-gray-5">#0E1013</Color>
+    <Color x:Key="fds-color-cool-gray-10">#111317</Color>
+    <Color x:Key="fds-color-cool-gray-20">#272B33</Color>
+    <Color x:Key="fds-color-cool-gray-30">#363C46</Color>
+    <Color x:Key="fds-color-cool-gray-40">#858C99</Color>
+    <Color x:Key="fds-color-cool-gray-50">#858C99</Color>
+    <Color x:Key="fds-color-cool-gray-60">#B3B9C4</Color>
+    <Color x:Key="fds-color-cool-gray-70">#F1F2F4</Color>
+    <Color x:Key="fds-color-green-5">#13281C</Color>
+    <Color x:Key="fds-color-green-60">#4CC27E</Color>
+    <Color x:Key="fds-color-purple-5">#0F2A30</Color>
+    <Color x:Key="fds-color-purple-60">#22B8CF</Color>
+    <Color x:Key="fds-color-bronze-5">#2E2311</Color>
+    <Color x:Key="fds-color-red-60">#FF6B6B</Color>
+    <Color x:Key="fds-color-white">#16191E</Color>
+    <Color x:Key="fds-surface">#16191E</Color>
+    <Color x:Key="fds-hero-gradient-end">#172554</Color>
+    <Color x:Key="fds-danger">#FF6B6B</Color>
+    <Color x:Key="fds-feedback-error-bg">#3A1818</Color>
+    <Color x:Key="fds-feedback-error-fg">#FF6B6B</Color>
+    <Color x:Key="fds-feedback-warning-bg">#2E2311</Color>
+    <Color x:Key="fds-feedback-warning-fg">#F2B14C</Color>
+
+    <!-- Loading animation (Controls/LoadingLogo): the logo pin, its paper plane, and its ground shadow/ring. -->
+    <Color x:Key="tp-loader-pin">#3B82F6</Color>  <!-- a step lighter than the accent: 5.2:1 on the dark canvas -->
+    <Color x:Key="tp-loader-plane">#FFFFFF</Color>
+    <Color x:Key="tp-loader-shadow">#60A5FA</Color>  <!-- a dark shadow vanishes on dark - a soft blue glow instead -->
+
+</ResourceDictionary>

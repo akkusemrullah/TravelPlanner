@@ -1,0 +1,2336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common_SaveShort" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common_DeleteConfirm" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Common_GenericError" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+  <data name="Common_DescriptionLabel" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Common_OptionalNote" xml:space="preserve">
+    <value>Optional note</value>
+  </data>
+  <data name="Common_New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Common_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Common_DaysFormat" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="Nav_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Nav_Trips" xml:space="preserve">
+    <value>Trips</value>
+  </data>
+  <data name="Nav_Expenses" xml:space="preserve">
+    <value>Expenses</value>
+  </data>
+  <data name="Nav_Profile" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Section_MyTrips" xml:space="preserve">
+    <value>My trips</value>
+  </data>
+  <data name="Section_Tasks" xml:space="preserve">
+    <value>Tasks</value>
+  </data>
+  <data name="Section_Expenses" xml:space="preserve">
+    <value>Expenses</value>
+  </data>
+  <data name="Section_Places" xml:space="preserve">
+    <value>Places</value>
+  </data>
+  <data name="Section_Map" xml:space="preserve">
+    <value>Map</value>
+  </data>
+  <data name="Section_Weather" xml:space="preserve">
+    <value>Weather</value>
+  </data>
+  <data name="Page_Expense" xml:space="preserve">
+    <value>Expense</value>
+  </data>
+  <data name="Page_Place" xml:space="preserve">
+    <value>Place</value>
+  </data>
+  <data name="A11y_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="A11y_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="A11y_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="A11y_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="A11y_Notifications" xml:space="preserve">
+    <value>Notifications</value>
+  </data>
+  <data name="A11y_AddTask" xml:space="preserve">
+    <value>Add task</value>
+  </data>
+  <data name="A11y_Loading" xml:space="preserve">
+    <value>Loading</value>
+  </data>
+  <data name="Dashboard_Greeting" xml:space="preserve">
+    <value>Hi {0}</value>
+  </data>
+  <data name="Dashboard_GreetingNoName" xml:space="preserve">
+    <value>Hi there</value>
+  </data>
+  <data name="Dashboard_TodayFormat" xml:space="preserve">
+    <value>Today, {0}</value>
+  </data>
+  <data name="Dashboard_Subtitle" xml:space="preserve">
+    <value>Ready to plan your trips?</value>
+  </data>
+  <data name="Dashboard_WeatherShort" xml:space="preserve">
+    <value>Weather</value>
+  </data>
+  <data name="Dashboard_MapShort" xml:space="preserve">
+    <value>Map</value>
+  </data>
+  <data name="Dashboard_Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Dashboard_BudgetHeader" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Dashboard_EmptyTitle" xml:space="preserve">
+    <value>You don't have any trip plans yet.</value>
+  </data>
+  <data name="Dashboard_EmptyBody" xml:space="preserve">
+    <value>Create your first plan, add dates and a budget; we'll remind you of the rest.</value>
+  </data>
+  <data name="Dashboard_CreateTrip" xml:space="preserve">
+    <value>Create new trip</value>
+  </data>
+  <data name="Dashboard_TotalTrips" xml:space="preserve">
+    <value>Total trips</value>
+  </data>
+  <data name="Dashboard_VisitedCountries" xml:space="preserve">
+    <value>Countries visited</value>
+  </data>
+  <data name="Dashboard_TotalExpenses" xml:space="preserve">
+    <value>Total spent</value>
+  </data>
+  <data name="Dashboard_BadgeOngoing" xml:space="preserve">
+    <value>Trip in progress</value>
+  </data>
+  <data name="Dashboard_BadgeUpcoming" xml:space="preserve">
+    <value>Upcoming trip</value>
+  </data>
+  <data name="Dashboard_EndsIn" xml:space="preserve">
+    <value>Ends in</value>
+  </data>
+  <data name="Dashboard_StartsIn" xml:space="preserve">
+    <value>Starts in</value>
+  </data>
+  <data name="Dashboard_LoadError" xml:space="preserve">
+    <value>Couldn't load the home screen.</value>
+  </data>
+  <data name="Status_Ongoing" xml:space="preserve">
+    <value>In progress</value>
+  </data>
+  <data name="Status_Upcoming" xml:space="preserve">
+    <value>Upcoming</value>
+  </data>
+  <data name="Status_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="TripList_Empty" xml:space="preserve">
+    <value>No trips added yet.</value>
+  </data>
+  <data name="TripList_EmptyHint" xml:space="preserve">
+    <value>Tap + at the top right to get started.</value>
+  </data>
+  <data name="TripList_LoadError" xml:space="preserve">
+    <value>Couldn't load your trips.</value>
+  </data>
+  <data name="TripList_DeleteError" xml:space="preserve">
+    <value>Couldn't delete the trip.</value>
+  </data>
+  <data name="TripDelete_Title" xml:space="preserve">
+    <value>Delete trip</value>
+  </data>
+  <data name="TripDelete_Message" xml:space="preserve">
+    <value>"{0}" will be deleted. If you change your mind, you can restore it from Profile → Trash for 30 days.</value>
+  </data>
+  <data name="TripDelete_MessageWithRelated" xml:space="preserve">
+    <value>"{0}" will be deleted, together with: {1}. If you change your mind, you can restore it from Profile → Trash for 30 days.</value>
+  </data>
+  <data name="TripDelete_TodosFormat" xml:space="preserve">
+    <value>{0} task(s)</value>
+  </data>
+  <data name="TripDelete_ExpensesFormat" xml:space="preserve">
+    <value>{0} expense(s)</value>
+  </data>
+  <data name="TripDelete_PlacesFormat" xml:space="preserve">
+    <value>{0} place(s)</value>
+  </data>
+  <data name="TripDetail_PlannedBudgetFormat" xml:space="preserve">
+    <value>Planned budget: {0}</value>
+  </data>
+  <data name="TripDetail_NoBudget" xml:space="preserve">
+    <value>No budget set for this trip.</value>
+  </data>
+  <data name="TripDetail_OverBudget" xml:space="preserve">
+    <value>You're over budget</value>
+  </data>
+  <data name="TripDetail_Delete" xml:space="preserve">
+    <value>Delete trip</value>
+  </data>
+  <data name="TripDetail_LoadError" xml:space="preserve">
+    <value>Couldn't load the trip details.</value>
+  </data>
+  <data name="TripDetail_DeleteError" xml:space="preserve">
+    <value>Couldn't delete the trip.</value>
+  </data>
+  <data name="Budget_Planned" xml:space="preserve">
+    <value>Planned</value>
+  </data>
+  <data name="Budget_Spent" xml:space="preserve">
+    <value>Spent</value>
+  </data>
+  <data name="Budget_Remaining" xml:space="preserve">
+    <value>Remaining</value>
+  </data>
+  <data name="Budget_Used" xml:space="preserve">
+    <value>Used</value>
+  </data>
+  <data name="TripForm_TitleAdd" xml:space="preserve">
+    <value>Add trip</value>
+  </data>
+  <data name="TripForm_TitleEdit" xml:space="preserve">
+    <value>Edit trip</value>
+  </data>
+  <data name="TripForm_NameLabel" xml:space="preserve">
+    <value>Trip name</value>
+  </data>
+  <data name="TripForm_NamePlaceholder" xml:space="preserve">
+    <value>e.g. Summer in Italy</value>
+  </data>
+  <data name="TripForm_DestinationLabel" xml:space="preserve">
+    <value>Destination</value>
+  </data>
+  <data name="TripForm_CityPlaceholder" xml:space="preserve">
+    <value>Type a city or region, e.g. Rome</value>
+  </data>
+  <data name="TripForm_StartLabel" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="TripForm_EndLabel" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="TripForm_BudgetLabel" xml:space="preserve">
+    <value>Planned budget</value>
+  </data>
+  <data name="TripForm_DescriptionPlaceholder" xml:space="preserve">
+    <value>Notes about this trip (optional)</value>
+  </data>
+  <data name="TripForm_CityOffline" xml:space="preserve">
+    <value>No internet connection; city suggestions are unavailable. You can still type the city yourself.</value>
+  </data>
+  <data name="TripForm_NameRequired" xml:space="preserve">
+    <value>Please enter a trip name.</value>
+  </data>
+  <data name="TripForm_CityRequired" xml:space="preserve">
+    <value>Please enter the destination city.</value>
+  </data>
+  <data name="TripForm_EndBeforeStart" xml:space="preserve">
+    <value>The end date can't be before the start date.</value>
+  </data>
+  <data name="TripForm_NegativeBudget" xml:space="preserve">
+    <value>The planned budget can't be negative.</value>
+  </data>
+  <data name="TripForm_LoadError" xml:space="preserve">
+    <value>Couldn't load the trip.</value>
+  </data>
+  <data name="TripForm_SaveError" xml:space="preserve">
+    <value>Couldn't save the trip.</value>
+  </data>
+  <data name="Todo_NewPlaceholder" xml:space="preserve">
+    <value>New task...</value>
+  </data>
+  <data name="Todo_Empty" xml:space="preserve">
+    <value>No tasks yet - add one above.</value>
+  </data>
+  <data name="Todo_EditTitle" xml:space="preserve">
+    <value>Edit task</value>
+  </data>
+  <data name="Todo_EditMessage" xml:space="preserve">
+    <value>Task name:</value>
+  </data>
+  <data name="Todo_DeleteTitle" xml:space="preserve">
+    <value>Delete task</value>
+  </data>
+  <data name="Todo_DeleteMessage" xml:space="preserve">
+    <value>"{0}" will be deleted.</value>
+  </data>
+  <data name="Todo_LoadError" xml:space="preserve">
+    <value>Couldn't load the tasks.</value>
+  </data>
+  <data name="Todo_AddError" xml:space="preserve">
+    <value>Couldn't add the task.</value>
+  </data>
+  <data name="Todo_UpdateError" xml:space="preserve">
+    <value>Couldn't update the task.</value>
+  </data>
+  <data name="Todo_DeleteError" xml:space="preserve">
+    <value>Couldn't delete the task.</value>
+  </data>
+  <data name="Expense_CategoryLabel" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Expense_AmountLabel" xml:space="preserve">
+    <value>Amount</value>
+  </data>
+  <data name="Expense_DateLabel" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Expense_AmountRequired" xml:space="preserve">
+    <value>Please enter an amount greater than zero.</value>
+  </data>
+  <data name="Expense_DateOutsideTrip" xml:space="preserve">
+    <value>This date is outside the trip dates ({0}). You can still save it.</value>
+  </data>
+  <data name="Expense_LoadError" xml:space="preserve">
+    <value>Couldn't load the expense.</value>
+  </data>
+  <data name="Expense_SaveError" xml:space="preserve">
+    <value>Couldn't save the expense.</value>
+  </data>
+  <data name="ExpenseList_FilterTitle" xml:space="preserve">
+    <value>Filter by category</value>
+  </data>
+  <data name="ExpenseList_Total" xml:space="preserve">
+    <value>Total spent</value>
+  </data>
+  <data name="ExpenseList_Empty" xml:space="preserve">
+    <value>No expenses recorded for this filter.</value>
+  </data>
+  <data name="ExpenseList_DeleteTitle" xml:space="preserve">
+    <value>Delete expense</value>
+  </data>
+  <data name="ExpenseList_DeleteMessage" xml:space="preserve">
+    <value>"{0}" will be deleted. If you change your mind, you can restore it from Profile → Trash for 30 days.</value>
+  </data>
+  <data name="ExpenseList_LoadError" xml:space="preserve">
+    <value>Couldn't load the expenses.</value>
+  </data>
+  <data name="ExpenseList_DeleteError" xml:space="preserve">
+    <value>Couldn't delete the expense.</value>
+  </data>
+  <data name="Category_All" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="Category_Transportation" xml:space="preserve">
+    <value>Transport</value>
+  </data>
+  <data name="Category_Accommodation" xml:space="preserve">
+    <value>Accommodation</value>
+  </data>
+  <data name="Category_Food" xml:space="preserve">
+    <value>Food</value>
+  </data>
+  <data name="Category_Entertainment" xml:space="preserve">
+    <value>Entertainment</value>
+  </data>
+  <data name="Category_Shopping" xml:space="preserve">
+    <value>Shopping</value>
+  </data>
+  <data name="Category_Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Place_NameLabel" xml:space="preserve">
+    <value>Place name</value>
+  </data>
+  <data name="Place_NamePlaceholder" xml:space="preserve">
+    <value>Start typing, e.g. Colosseum</value>
+  </data>
+  <data name="Place_SuggestionsOffline" xml:space="preserve">
+    <value>No internet connection; location suggestions need a connection.</value>
+  </data>
+  <data name="Place_NameRequired" xml:space="preserve">
+    <value>Please enter a place name.</value>
+  </data>
+  <data name="Place_PickSuggestion" xml:space="preserve">
+    <value>Please pick a location from the suggestions that appear while you type.</value>
+  </data>
+  <data name="Place_LoadError" xml:space="preserve">
+    <value>Couldn't load the place.</value>
+  </data>
+  <data name="Place_SaveError" xml:space="preserve">
+    <value>Couldn't save the place.</value>
+  </data>
+  <data name="Place_Visited" xml:space="preserve">
+    <value>Visited</value>
+  </data>
+  <data name="Place_NotVisited" xml:space="preserve">
+    <value>Not visited</value>
+  </data>
+  <data name="PlaceList_Empty" xml:space="preserve">
+    <value>No saved places yet.</value>
+  </data>
+  <data name="PlaceList_DeleteTitle" xml:space="preserve">
+    <value>Delete place</value>
+  </data>
+  <data name="PlaceList_DeleteMessage" xml:space="preserve">
+    <value>"{0}" will be deleted. If you change your mind, you can restore it from Profile → Trash for 30 days.</value>
+  </data>
+  <data name="PlaceList_LoadError" xml:space="preserve">
+    <value>Couldn't load the places.</value>
+  </data>
+  <data name="PlaceList_VisitedError" xml:space="preserve">
+    <value>Couldn't update the visited status.</value>
+  </data>
+  <data name="PlaceList_DeleteError" xml:space="preserve">
+    <value>Couldn't delete the place.</value>
+  </data>
+  <data name="Map_LocatingCity" xml:space="preserve">
+    <value>Finding the city...</value>
+  </data>
+  <data name="Map_Offline" xml:space="preserve">
+    <value>No internet connection. The map can't load; your saved places are listed below.</value>
+  </data>
+  <data name="Map_TileError" xml:space="preserve">
+    <value>The map couldn't load. Check your internet connection; your saved places are still shown.</value>
+  </data>
+  <data name="Map_Empty" xml:space="preserve">
+    <value>No places saved for this trip yet; add some from the Places section.</value>
+  </data>
+  <data name="Map_LoadError" xml:space="preserve">
+    <value>Couldn't load the map data.</value>
+  </data>
+  <data name="Map_RenderError" xml:space="preserve">
+    <value>Couldn't show the map.</value>
+  </data>
+  <data name="Map_Attribution" xml:space="preserve">
+    <value>OpenStreetMap contributors</value>
+  </data>
+  <data name="Weather_Error" xml:space="preserve">
+    <value>Couldn't get the weather :( Check your internet connection and pull down to refresh.</value>
+  </data>
+  <data name="Weather_Offline" xml:space="preserve">
+    <value>No internet connection. Weather needs a connection; pull down to refresh once you're back online.</value>
+  </data>
+  <data name="Weather_Wind" xml:space="preserve">
+    <value>Wind</value>
+  </data>
+  <data name="Weather_Humidity" xml:space="preserve">
+    <value>Humidity</value>
+  </data>
+  <data name="Weather_LoadError" xml:space="preserve">
+    <value>Couldn't load the weather.</value>
+  </data>
+  <data name="Weather_Clear" xml:space="preserve">
+    <value>Clear sky</value>
+  </data>
+  <data name="Weather_MainlyClear" xml:space="preserve">
+    <value>Mainly clear</value>
+  </data>
+  <data name="Weather_PartlyCloudy" xml:space="preserve">
+    <value>Partly cloudy</value>
+  </data>
+  <data name="Weather_Overcast" xml:space="preserve">
+    <value>Overcast</value>
+  </data>
+  <data name="Weather_Fog" xml:space="preserve">
+    <value>Fog</value>
+  </data>
+  <data name="Weather_Drizzle" xml:space="preserve">
+    <value>Drizzle</value>
+  </data>
+  <data name="Weather_FreezingDrizzle" xml:space="preserve">
+    <value>Freezing drizzle</value>
+  </data>
+  <data name="Weather_Rain" xml:space="preserve">
+    <value>Rain</value>
+  </data>
+  <data name="Weather_FreezingRain" xml:space="preserve">
+    <value>Freezing rain</value>
+  </data>
+  <data name="Weather_Snow" xml:space="preserve">
+    <value>Snow</value>
+  </data>
+  <data name="Weather_RainShowers" xml:space="preserve">
+    <value>Rain showers</value>
+  </data>
+  <data name="Weather_SnowShowers" xml:space="preserve">
+    <value>Snow showers</value>
+  </data>
+  <data name="Weather_Thunderstorm" xml:space="preserve">
+    <value>Thunderstorm</value>
+  </data>
+  <data name="Weather_ThunderstormHail" xml:space="preserve">
+    <value>Thunderstorm with hail</value>
+  </data>
+  <data name="Weather_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Geo_Monument" xml:space="preserve">
+    <value>Monument</value>
+  </data>
+  <data name="Geo_Museum" xml:space="preserve">
+    <value>Museum</value>
+  </data>
+  <data name="Geo_Castle" xml:space="preserve">
+    <value>Castle</value>
+  </data>
+  <data name="Geo_Ruins" xml:space="preserve">
+    <value>Archaeological site</value>
+  </data>
+  <data name="Geo_Attraction" xml:space="preserve">
+    <value>Attraction</value>
+  </data>
+  <data name="Geo_Viewpoint" xml:space="preserve">
+    <value>Viewpoint</value>
+  </data>
+  <data name="Geo_PlaceOfWorship" xml:space="preserve">
+    <value>Place of worship</value>
+  </data>
+  <data name="Geo_Mosque" xml:space="preserve">
+    <value>Mosque</value>
+  </data>
+  <data name="Geo_Church" xml:space="preserve">
+    <value>Church</value>
+  </data>
+  <data name="Geo_Synagogue" xml:space="preserve">
+    <value>Synagogue</value>
+  </data>
+  <data name="Geo_Palace" xml:space="preserve">
+    <value>Palace</value>
+  </data>
+  <data name="Geo_City" xml:space="preserve">
+    <value>City</value>
+  </data>
+  <data name="Geo_Town" xml:space="preserve">
+    <value>Town</value>
+  </data>
+  <data name="Geo_Village" xml:space="preserve">
+    <value>Village</value>
+  </data>
+  <data name="Geo_Neighbourhood" xml:space="preserve">
+    <value>Neighbourhood</value>
+  </data>
+  <data name="Geo_Historic" xml:space="preserve">
+    <value>Historic site</value>
+  </data>
+  <data name="Geo_Amenity" xml:space="preserve">
+    <value>Amenity</value>
+  </data>
+  <data name="Geo_Leisure" xml:space="preserve">
+    <value>Leisure area</value>
+  </data>
+  <data name="Geo_Natural" xml:space="preserve">
+    <value>Natural area</value>
+  </data>
+  <data name="Geo_Settlement" xml:space="preserve">
+    <value>Settlement</value>
+  </data>
+  <data name="Notification_TravelDayTitle" xml:space="preserve">
+    <value>Trip day!</value>
+  </data>
+  <data name="Notification_TravelDayBody" xml:space="preserve">
+    <value>Today's the day! Safe travels to {0}.</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_NameLabel" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="Settings_NamePlaceholder" xml:space="preserve">
+    <value>Your first and last name</value>
+  </data>
+  <data name="Settings_CurrencyLabel" xml:space="preserve">
+    <value>Default currency</value>
+  </data>
+  <data name="Settings_ReminderLabel" xml:space="preserve">
+    <value>Reminder time</value>
+  </data>
+  <data name="Settings_ReminderHint" xml:space="preserve">
+    <value>Prep, daily plan and after-trip reminders are sent at this time. If a day starts with an earlier activity, its reminder comes an hour before it.</value>
+  </data>
+  <data name="Settings_ThemeLabel" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Settings_LanguageLabel" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_LanguageHint" xml:space="preserve">
+    <value>A language change applies to every screen after the app restarts.</value>
+  </data>
+  <data name="Settings_Saved" xml:space="preserve">
+    <value>Settings saved.</value>
+  </data>
+  <data name="Settings_SaveError" xml:space="preserve">
+    <value>Couldn't save the settings.</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>System default</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Language_System" xml:space="preserve">
+    <value>Device language</value>
+  </data>
+  <data name="Language_Turkish" xml:space="preserve">
+    <value>Türkçe</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Currency_TRY" xml:space="preserve">
+    <value>₺ Turkish lira (TRY)</value>
+  </data>
+  <data name="Currency_EUR" xml:space="preserve">
+    <value>€ Euro (EUR)</value>
+  </data>
+  <data name="Currency_USD" xml:space="preserve">
+    <value>$ US dollar (USD)</value>
+  </data>
+  <data name="Currency_GBP" xml:space="preserve">
+    <value>£ British pound (GBP)</value>
+  </data>
+  <data name="TripDelete_ActivitiesFormat" xml:space="preserve">
+    <value>{0} plan activities</value>
+  </data>
+  <data name="Forecast_PrecipitationChanceFormat" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+  <data name="Forecast_PrecipitationAmountFormat" xml:space="preserve">
+    <value>{0:0.#} mm</value>
+  </data>
+  <data name="Forecast_KindForecast" xml:space="preserve">
+    <value>Forecast</value>
+  </data>
+  <data name="Forecast_KindObserved" xml:space="preserve">
+    <value>Observed</value>
+  </data>
+  <data name="Forecast_KindAverage" xml:space="preserve">
+    <value>Average</value>
+  </data>
+  <data name="Forecast_Title" xml:space="preserve">
+    <value>Trip days</value>
+  </data>
+  <data name="Forecast_Note" xml:space="preserve">
+    <value>Days more than 16 days ahead show the average of the same days over the past 3 years.</value>
+  </data>
+  <data name="Forecast_Unavailable" xml:space="preserve">
+    <value>The forecast for the trip days could not be loaded.</value>
+  </data>
+  <data name="Currency_CHF" xml:space="preserve">
+    <value>CHF Swiss franc (CHF)</value>
+  </data>
+  <data name="Currency_JPY" xml:space="preserve">
+    <value>¥ Japanese yen (JPY)</value>
+  </data>
+  <data name="Currency_CAD" xml:space="preserve">
+    <value>C$ Canadian dollar (CAD)</value>
+  </data>
+  <data name="Currency_AUD" xml:space="preserve">
+    <value>A$ Australian dollar (AUD)</value>
+  </data>
+  <data name="Currency_SEK" xml:space="preserve">
+    <value>kr Swedish krona (SEK)</value>
+  </data>
+  <data name="Currency_NOK" xml:space="preserve">
+    <value>kr Norwegian krone (NOK)</value>
+  </data>
+  <data name="Currency_DKK" xml:space="preserve">
+    <value>kr Danish krone (DKK)</value>
+  </data>
+  <data name="Currency_PLN" xml:space="preserve">
+    <value>zł Polish złoty (PLN)</value>
+  </data>
+  <data name="Currency_CZK" xml:space="preserve">
+    <value>Kč Czech koruna (CZK)</value>
+  </data>
+  <data name="Currency_HUF" xml:space="preserve">
+    <value>Ft Hungarian forint (HUF)</value>
+  </data>
+  <data name="Currency_RON" xml:space="preserve">
+    <value>lei Romanian leu (RON)</value>
+  </data>
+  <data name="Currency_CNY" xml:space="preserve">
+    <value>¥ Chinese yuan (CNY)</value>
+  </data>
+  <data name="Packing_Charger" xml:space="preserve">
+    <value>Phone charger</value>
+  </data>
+  <data name="Packing_Toiletries" xml:space="preserve">
+    <value>Toiletry bag</value>
+  </data>
+  <data name="Packing_Medicine" xml:space="preserve">
+    <value>Medicines and first-aid kit</value>
+  </data>
+  <data name="Packing_ClothesFormat" xml:space="preserve">
+    <value>Clothes for {0} days</value>
+  </data>
+  <data name="Packing_PowerBank" xml:space="preserve">
+    <value>Power bank</value>
+  </data>
+  <data name="Packing_LaundryBag" xml:space="preserve">
+    <value>Laundry bag</value>
+  </data>
+  <data name="Packing_Passport" xml:space="preserve">
+    <value>Passport</value>
+  </data>
+  <data name="Packing_TravelInsurance" xml:space="preserve">
+    <value>Travel health insurance</value>
+  </data>
+  <data name="Packing_Adapter" xml:space="preserve">
+    <value>Plug adapter</value>
+  </data>
+  <data name="Packing_IdCard" xml:space="preserve">
+    <value>ID card</value>
+  </data>
+  <data name="Packing_Umbrella" xml:space="preserve">
+    <value>Umbrella</value>
+  </data>
+  <data name="Packing_RainJacket" xml:space="preserve">
+    <value>Rain jacket</value>
+  </data>
+  <data name="Packing_Coat" xml:space="preserve">
+    <value>Warm coat</value>
+  </data>
+  <data name="Packing_GlovesHat" xml:space="preserve">
+    <value>Gloves and beanie</value>
+  </data>
+  <data name="Packing_ThermalWear" xml:space="preserve">
+    <value>Thermal underwear</value>
+  </data>
+  <data name="Packing_SnowBoots" xml:space="preserve">
+    <value>Snow boots</value>
+  </data>
+  <data name="Packing_Sunscreen" xml:space="preserve">
+    <value>Sunscreen</value>
+  </data>
+  <data name="Packing_Sunglasses" xml:space="preserve">
+    <value>Sunglasses</value>
+  </data>
+  <data name="Packing_SunHat" xml:space="preserve">
+    <value>Sun hat</value>
+  </data>
+  <data name="Packing_Swimwear" xml:space="preserve">
+    <value>Swimwear</value>
+  </data>
+  <data name="Packing_BeachTowel" xml:space="preserve">
+    <value>Beach towel</value>
+  </data>
+  <data name="Packing_FlipFlops" xml:space="preserve">
+    <value>Flip-flops</value>
+  </data>
+  <data name="Packing_SeasicknessPills" xml:space="preserve">
+    <value>Seasickness tablets</value>
+  </data>
+  <data name="Packing_HikingShoes" xml:space="preserve">
+    <value>Hiking shoes</value>
+  </data>
+  <data name="Packing_WaterBottle" xml:space="preserve">
+    <value>Water bottle</value>
+  </data>
+  <data name="Packing_Daypack" xml:space="preserve">
+    <value>Daypack</value>
+  </data>
+  <data name="Packing_SleepingBag" xml:space="preserve">
+    <value>Sleeping bag</value>
+  </data>
+  <data name="Packing_Flashlight" xml:space="preserve">
+    <value>Flashlight</value>
+  </data>
+  <data name="Packing_SkiWear" xml:space="preserve">
+    <value>Ski clothing</value>
+  </data>
+  <data name="Packing_SkiGoggles" xml:space="preserve">
+    <value>Ski goggles</value>
+  </data>
+  <data name="Packing_FormalWear" xml:space="preserve">
+    <value>Business attire</value>
+  </data>
+  <data name="Packing_Laptop" xml:space="preserve">
+    <value>Laptop and charger</value>
+  </data>
+  <data name="Packing_BusinessCards" xml:space="preserve">
+    <value>Business cards</value>
+  </data>
+  <data name="Packing_ModestClothes" xml:space="preserve">
+    <value>Clothes covering shoulders and knees</value>
+  </data>
+  <data name="Packing_Scarf" xml:space="preserve">
+    <value>Headscarf or shawl</value>
+  </data>
+  <data name="Packing_SmartOutfit" xml:space="preserve">
+    <value>Smart outfit and shoes</value>
+  </data>
+  <data name="Packing_NeckPillow" xml:space="preserve">
+    <value>Neck pillow</value>
+  </data>
+  <data name="Packing_Headphones" xml:space="preserve">
+    <value>Headphones</value>
+  </data>
+  <data name="Packing_ReasonPlanFormat" xml:space="preserve">
+    <value>In your plan: “{0}”</value>
+  </data>
+  <data name="Packing_ReasonDayTrip" xml:space="preserve">
+    <value>Day trip</value>
+  </data>
+  <data name="Packing_UnderwearFormat" xml:space="preserve">
+    <value>Underwear and socks ({0} sets)</value>
+  </data>
+  <data name="Packing_Pajamas" xml:space="preserve">
+    <value>Pyjamas</value>
+  </data>
+  <data name="Packing_ReasonIdCardFormat" xml:space="preserve">
+    <value>The new ID card is enough for {0}, no passport needed</value>
+  </data>
+  <data name="Packing_SchengenVisa" xml:space="preserve">
+    <value>Schengen visa</value>
+  </data>
+  <data name="Packing_ReasonSchengenFormat" xml:space="preserve">
+    <value>{0} is in the Schengen area</value>
+  </data>
+  <data name="Packing_VisaCheck" xml:space="preserve">
+    <value>Check whether you need a visa</value>
+  </data>
+  <data name="Packing_ExitFee" xml:space="preserve">
+    <value>Türkiye departure fee</value>
+  </data>
+  <data name="Packing_ReasonExitFee" xml:space="preserve">
+    <value>Paid when leaving Türkiye</value>
+  </data>
+  <data name="Packing_Roaming" xml:space="preserve">
+    <value>Roaming data package</value>
+  </data>
+  <data name="Packing_CardAbroad" xml:space="preserve">
+    <value>Enable your card for use abroad</value>
+  </data>
+  <data name="Packing_CashFormat" xml:space="preserve">
+    <value>Some cash in {0}</value>
+  </data>
+  <data name="Packing_ReasonSeasonFormat" xml:space="preserve">
+    <value>Based on {0} (no forecast)</value>
+  </data>
+  <data name="Packing_ReasonBasic" xml:space="preserve">
+    <value>Every trip</value>
+  </data>
+  <data name="Packing_ReasonDurationFormat" xml:space="preserve">
+    <value>{0}-day trip</value>
+  </data>
+  <data name="Packing_ReasonAbroad" xml:space="preserve">
+    <value>Trip abroad</value>
+  </data>
+  <data name="Packing_ReasonPlugFormat" xml:space="preserve">
+    <value>{0} uses a different plug type</value>
+  </data>
+  <data name="Packing_ReasonRainFormat" xml:space="preserve">
+    <value>Rain expected on {0} day(s)</value>
+  </data>
+  <data name="Packing_ReasonColdFormat" xml:space="preserve">
+    <value>Temperatures drop to {0}°C</value>
+  </data>
+  <data name="Packing_ReasonHotFormat" xml:space="preserve">
+    <value>Temperatures reach {0}°C</value>
+  </data>
+  <data name="Packing_ReasonSnow" xml:space="preserve">
+    <value>Snow expected</value>
+  </data>
+  <data name="Packing_SuggestionsTitle" xml:space="preserve">
+    <value>Smart packing suggestions</value>
+  </data>
+  <data name="Packing_SuggestionsHint" xml:space="preserve">
+    <value>Based on the forecast, trip length and your plan (activities, places). Untick anything you don't need.</value>
+  </data>
+  <data name="Packing_NoForecastHint" xml:space="preserve">
+    <value>No forecast available; suggestions are based on trip length, destination and your plan.</value>
+  </data>
+  <data name="Packing_NoSuggestions" xml:space="preserve">
+    <value>Nothing new to suggest - your list looks complete.</value>
+  </data>
+  <data name="Packing_AddSelected" xml:space="preserve">
+    <value>Add selected</value>
+  </data>
+  <data name="Packing_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Packing_Suggest" xml:space="preserve">
+    <value>Suggest</value>
+  </data>
+  <data name="Packing_Templates" xml:space="preserve">
+    <value>Templates</value>
+  </data>
+  <data name="Packing_TemplateMenuTitle" xml:space="preserve">
+    <value>Packing templates</value>
+  </data>
+  <data name="Packing_SaveAsTemplate" xml:space="preserve">
+    <value>Save this list as a template</value>
+  </data>
+  <data name="Packing_ApplyTemplate" xml:space="preserve">
+    <value>Add from a template</value>
+  </data>
+  <data name="Packing_DeleteTemplate" xml:space="preserve">
+    <value>Delete a template</value>
+  </data>
+  <data name="Packing_TemplateNameTitle" xml:space="preserve">
+    <value>Template name</value>
+  </data>
+  <data name="Packing_TemplateNameMessage" xml:space="preserve">
+    <value>What should this list be called? (e.g. Winter holiday)</value>
+  </data>
+  <data name="Packing_TemplateSavedFormat" xml:space="preserve">
+    <value>Template "{0}" saved with {1} items.</value>
+  </data>
+  <data name="Packing_TemplateAppliedFormat" xml:space="preserve">
+    <value>{1} items added from "{0}".</value>
+  </data>
+  <data name="Packing_TemplateDeletedFormat" xml:space="preserve">
+    <value>Template "{0}" deleted.</value>
+  </data>
+  <data name="Packing_NoTemplates" xml:space="preserve">
+    <value>No templates yet. Save a list as a template first.</value>
+  </data>
+  <data name="Packing_EmptyListForTemplate" xml:space="preserve">
+    <value>Add at least one task before saving a template.</value>
+  </data>
+  <data name="Packing_ChooseTemplate" xml:space="preserve">
+    <value>Choose a template</value>
+  </data>
+  <data name="Packing_Error" xml:space="preserve">
+    <value>Packing suggestions could not be processed.</value>
+  </data>
+  <data name="Common_Info" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="BudgetAlert_WarningTitle" xml:space="preserve">
+    <value>Budget warning</value>
+  </data>
+  <data name="BudgetAlert_WarningBody" xml:space="preserve">
+    <value>You've spent {1}% of the budget for "{0}".</value>
+  </data>
+  <data name="BudgetAlert_ExceededTitle" xml:space="preserve">
+    <value>Budget exceeded</value>
+  </data>
+  <data name="BudgetAlert_ExceededBody" xml:space="preserve">
+    <value>The budget for "{0}" has been exceeded ({1}%).</value>
+  </data>
+  <data name="TripList_SearchPlaceholder" xml:space="preserve">
+    <value>Search trips, cities or countries</value>
+  </data>
+  <data name="TripList_FilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="TripList_SortTitle" xml:space="preserve">
+    <value>Sort by</value>
+  </data>
+  <data name="TripList_SortDateAsc" xml:space="preserve">
+    <value>Date (soonest first)</value>
+  </data>
+  <data name="TripList_SortDateDesc" xml:space="preserve">
+    <value>Date (latest first)</value>
+  </data>
+  <data name="TripList_SortBudgetDesc" xml:space="preserve">
+    <value>Budget (high → low)</value>
+  </data>
+  <data name="TripList_SortBudgetAsc" xml:space="preserve">
+    <value>Budget (low → high)</value>
+  </data>
+  <data name="TripList_SortName" xml:space="preserve">
+    <value>Name (A → Z)</value>
+  </data>
+  <data name="TripList_NoResults" xml:space="preserve">
+    <value>No trips match your search.</value>
+  </data>
+  <data name="TripList_ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="TripForm_CurrencyLabel" xml:space="preserve">
+    <value>Budget currency</value>
+  </data>
+  <data name="TripForm_CurrencyHint" xml:space="preserve">
+    <value>The budget and all expenses are kept in this currency. Expenses entered in another currency are converted automatically.</value>
+  </data>
+  <data name="TripForm_CurrencyChangeTitle" xml:space="preserve">
+    <value>Changing the currency</value>
+  </data>
+  <data name="TripForm_CurrencyChangeMessage" xml:space="preserve">
+    <value>This trip has {0} expenses recorded in {1}. Convert them to {2} at today's rate? The budget you entered is taken as {2}.</value>
+  </data>
+  <data name="TripForm_CurrencyChangeAccept" xml:space="preserve">
+    <value>Convert</value>
+  </data>
+  <data name="Fx_Unavailable" xml:space="preserve">
+    <value>The exchange rate couldn't be loaded. Check your connection or enter the amount in the trip's currency.</value>
+  </data>
+  <data name="Expense_CurrencyLabel" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="Expense_ConversionPreviewFormat" xml:space="preserve">
+    <value>≈ {0} · 1 {1} = {2} {3} ({4})</value>
+  </data>
+  <data name="Expense_ConvertedFromFormat" xml:space="preserve">
+    <value>Entered as {0}</value>
+  </data>
+  <data name="Section_Analysis" xml:space="preserve">
+    <value>Analysis</value>
+  </data>
+  <data name="Section_Itinerary" xml:space="preserve">
+    <value>Day plan</value>
+  </data>
+  <data name="TripDetail_TodayTitleFormat" xml:space="preserve">
+    <value>Today · day {0}</value>
+  </data>
+  <data name="TripDetail_TodayEmpty" xml:space="preserve">
+    <value>Nothing planned for today. Tap to add activities to the day plan.</value>
+  </data>
+  <data name="TripDetail_OpenPlan" xml:space="preserve">
+    <value>Open plan</value>
+  </data>
+  <data name="Analysis_Title" xml:space="preserve">
+    <value>Spending analysis</value>
+  </data>
+  <data name="Analysis_Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="Analysis_DailyAverage" xml:space="preserve">
+    <value>Daily average</value>
+  </data>
+  <data name="Analysis_HighestDay" xml:space="preserve">
+    <value>Highest day</value>
+  </data>
+  <data name="Analysis_ByCategory" xml:space="preserve">
+    <value>By category</value>
+  </data>
+  <data name="Analysis_ByDay" xml:space="preserve">
+    <value>Spending per day</value>
+  </data>
+  <data name="Analysis_DailyBudgetFormat" xml:space="preserve">
+    <value>Dashed line: daily budget ({0})</value>
+  </data>
+  <data name="Analysis_Empty" xml:space="preserve">
+    <value>No expenses to analyse yet.</value>
+  </data>
+  <data name="Analysis_LoadError" xml:space="preserve">
+    <value>The spending analysis could not be loaded.</value>
+  </data>
+  <data name="Analysis_CountFormat" xml:space="preserve">
+    <value>{0} expenses</value>
+  </data>
+  <data name="Itinerary_Title" xml:space="preserve">
+    <value>Day plan</value>
+  </data>
+  <data name="Itinerary_DayFormat" xml:space="preserve">
+    <value>Day {0}</value>
+  </data>
+  <data name="Itinerary_Empty" xml:space="preserve">
+    <value>Nothing planned for this day yet. Tap + to add an activity.</value>
+  </data>
+  <data name="Itinerary_DragHint" xml:space="preserve">
+    <value>Hold the handle (⋮⋮) on the right and drag it up or down to reorder.</value>
+  </data>
+  <data name="Itinerary_AnyTime" xml:space="preserve">
+    <value>Any time</value>
+  </data>
+  <data name="Itinerary_DeleteTitle" xml:space="preserve">
+    <value>Delete activity</value>
+  </data>
+  <data name="Itinerary_DeleteMessage" xml:space="preserve">
+    <value>"{0}" will be removed from the plan.</value>
+  </data>
+  <data name="Itinerary_LoadError" xml:space="preserve">
+    <value>The plan could not be loaded.</value>
+  </data>
+  <data name="Itinerary_DeleteError" xml:space="preserve">
+    <value>The activity could not be deleted.</value>
+  </data>
+  <data name="Itinerary_ReorderError" xml:space="preserve">
+    <value>The new order could not be saved.</value>
+  </data>
+  <data name="Itinerary_TodayBadge" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="Itinerary_ActivityCountFormat" xml:space="preserve">
+    <value>{0} activities</value>
+  </data>
+  <data name="Activity_TitleAdd" xml:space="preserve">
+    <value>Add Activity</value>
+  </data>
+  <data name="Activity_TitleEdit" xml:space="preserve">
+    <value>Edit Activity</value>
+  </data>
+  <data name="Activity_NameLabel" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="Activity_NamePlaceholder" xml:space="preserve">
+    <value>e.g. Colosseum tour</value>
+  </data>
+  <data name="Activity_DateLabel" xml:space="preserve">
+    <value>Day</value>
+  </data>
+  <data name="Activity_HasTime" xml:space="preserve">
+    <value>Set a time</value>
+  </data>
+  <data name="Activity_StartLabel" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Activity_HasEndTime" xml:space="preserve">
+    <value>Add an end time</value>
+  </data>
+  <data name="Activity_EndLabel" xml:space="preserve">
+    <value>End</value>
+  </data>
+  <data name="Activity_PlaceLabel" xml:space="preserve">
+    <value>Place</value>
+  </data>
+  <data name="Activity_NoPlace" xml:space="preserve">
+    <value>No place</value>
+  </data>
+  <data name="Activity_NoPlacesHint" xml:space="preserve">
+    <value>To link a place, add it in the Places section first.</value>
+  </data>
+  <data name="Activity_TitleRequired" xml:space="preserve">
+    <value>Please enter the activity name.</value>
+  </data>
+  <data name="Activity_EndBeforeStart" xml:space="preserve">
+    <value>The end time must be after the start time.</value>
+  </data>
+  <data name="Activity_LoadError" xml:space="preserve">
+    <value>The activity could not be loaded.</value>
+  </data>
+  <data name="Activity_SaveError" xml:space="preserve">
+    <value>The activity could not be saved.</value>
+  </data>
+  <data name="Report_Budget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Report_Footer" xml:space="preserve">
+    <value>Made with TravelPlanner · EAKSOFT</value>
+  </data>
+  <data name="Report_GeneratedFormat" xml:space="preserve">
+    <value>Generated: {0}</value>
+  </data>
+  <data name="Report_Tasks" xml:space="preserve">
+    <value>To-do</value>
+  </data>
+  <data name="Report_PageFormat" xml:space="preserve">
+    <value>Page {0}</value>
+  </data>
+  <data name="Split_WhoOwesWhom" xml:space="preserve">
+    <value>Who owes whom</value>
+  </data>
+  <data name="Split_SettlementFormat" xml:space="preserve">
+    <value>{0} pays {1} {2}</value>
+  </data>
+  <data name="Section_Attachments" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="Attachments_Title" xml:space="preserve">
+    <value>Documents &amp; photos</value>
+  </data>
+  <data name="Attachments_Hint" xml:space="preserve">
+    <value>Tickets, bookings, visas and photos are copied into the app and open without internet.</value>
+  </data>
+  <data name="Attachments_TakePhoto" xml:space="preserve">
+    <value>Take photo</value>
+  </data>
+  <data name="Attachments_PickPhoto" xml:space="preserve">
+    <value>From gallery</value>
+  </data>
+  <data name="Attachments_PickDocument" xml:space="preserve">
+    <value>Choose file</value>
+  </data>
+  <data name="Attachments_Empty" xml:space="preserve">
+    <value>No documents yet. Add a ticket, booking or photo.</value>
+  </data>
+  <data name="Attachments_NotSupported" xml:space="preserve">
+    <value>This device doesn't support that.</value>
+  </data>
+  <data name="Attachments_PermissionDenied" xml:space="preserve">
+    <value>Permission denied. You can allow camera/photo access in the device settings.</value>
+  </data>
+  <data name="Attachments_TooLargeFormat" xml:space="preserve">
+    <value>The file is too large (max {0}).</value>
+  </data>
+  <data name="Attachments_FileMissing" xml:space="preserve">
+    <value>The file is missing. It may not have been restored from the backup.</value>
+  </data>
+  <data name="Attachments_RenameTitle" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Attachments_RenameMessage" xml:space="preserve">
+    <value>New name for the document</value>
+  </data>
+  <data name="Attachments_Rename" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Attachments_DeleteTitle" xml:space="preserve">
+    <value>Delete document</value>
+  </data>
+  <data name="Attachments_DeleteMessage" xml:space="preserve">
+    <value>"{0}" will be deleted. If you change your mind, you can restore it from Profile → Trash for 30 days.</value>
+  </data>
+  <data name="Attachments_LoadError" xml:space="preserve">
+    <value>The documents could not be loaded.</value>
+  </data>
+  <data name="Attachments_AddError" xml:space="preserve">
+    <value>The document could not be added.</value>
+  </data>
+  <data name="Attachments_OpenError" xml:space="preserve">
+    <value>The document could not be opened. No app may be installed for this file type.</value>
+  </data>
+  <data name="Attachments_DeleteError" xml:space="preserve">
+    <value>The document could not be deleted.</value>
+  </data>
+  <data name="Section_Split" xml:space="preserve">
+    <value>Split costs</value>
+  </data>
+  <data name="Split_Title" xml:space="preserve">
+    <value>Split costs</value>
+  </data>
+  <data name="Split_ParticipantsTitle" xml:space="preserve">
+    <value>Participants</value>
+  </data>
+  <data name="Split_AddPlaceholder" xml:space="preserve">
+    <value>Participant name (e.g. Alex)</value>
+  </data>
+  <data name="Split_NoParticipants" xml:space="preserve">
+    <value>To split costs, first add the people on the trip. Then, for each expense, choose who paid and who shares it.</value>
+  </data>
+  <data name="Split_PaidFormat" xml:space="preserve">
+    <value>Paid: {0}</value>
+  </data>
+  <data name="Split_ShareFormat" xml:space="preserve">
+    <value>Share: {0}</value>
+  </data>
+  <data name="Split_GetsBack" xml:space="preserve">
+    <value>gets back</value>
+  </data>
+  <data name="Split_Owes" xml:space="preserve">
+    <value>owes</value>
+  </data>
+  <data name="Split_Settled" xml:space="preserve">
+    <value>settled</value>
+  </data>
+  <data name="Split_TotalFormat" xml:space="preserve">
+    <value>Split total: {0}</value>
+  </data>
+  <data name="Split_UnsplitFormat" xml:space="preserve">
+    <value>{0} expenses aren't split yet (no payer or participants chosen).</value>
+  </data>
+  <data name="Split_AllSettled" xml:space="preserve">
+    <value>Everyone is square - nobody owes anything.</value>
+  </data>
+  <data name="Split_GoToExpenses" xml:space="preserve">
+    <value>Go to expenses</value>
+  </data>
+  <data name="Split_DuplicateFormat" xml:space="preserve">
+    <value>"{0}" is already on the list.</value>
+  </data>
+  <data name="Split_RenameTitle" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="Split_RenameMessage" xml:space="preserve">
+    <value>New name for the participant</value>
+  </data>
+  <data name="Split_DeleteTitle" xml:space="preserve">
+    <value>Remove participant</value>
+  </data>
+  <data name="Split_DeleteFormat" xml:space="preserve">
+    <value>"{0}" will be removed.</value>
+  </data>
+  <data name="Split_DeleteUsedFormat" xml:space="preserve">
+    <value>"{0}" paid for or shares {1} expenses. Removing them takes them off those expenses too.</value>
+  </data>
+  <data name="Split_LoadError" xml:space="preserve">
+    <value>The cost split could not be loaded.</value>
+  </data>
+  <data name="Split_SaveError" xml:space="preserve">
+    <value>The participant could not be saved.</value>
+  </data>
+  <data name="Split_PaidByLabel" xml:space="preserve">
+    <value>Paid by</value>
+  </data>
+  <data name="Split_NoPayer" xml:space="preserve">
+    <value>Don't split</value>
+  </data>
+  <data name="Split_SharedByLabel" xml:space="preserve">
+    <value>Split equally between</value>
+  </data>
+  <data name="Split_ParticipantsRequired" xml:space="preserve">
+    <value>Choose at least one participant to split with.</value>
+  </data>
+  <data name="Split_Hint" xml:space="preserve">
+    <value>Add participants in the Split costs section.</value>
+  </data>
+  <data name="Share_Title" xml:space="preserve">
+    <value>Share trip</value>
+  </data>
+  <data name="Share_AsText" xml:space="preserve">
+    <value>Share as text</value>
+  </data>
+  <data name="Share_AsPdf" xml:space="preserve">
+    <value>Share / save as PDF</value>
+  </data>
+  <data name="Share_Error" xml:space="preserve">
+    <value>The trip could not be shared.</value>
+  </data>
+  <data name="A11y_Share" xml:space="preserve">
+    <value>Share</value>
+  </data>
+  <data name="Backup_Title" xml:space="preserve">
+    <value>Backup</value>
+  </data>
+  <data name="Backup_Hint" xml:space="preserve">
+    <value>All trips, expenses, plans and documents go into a single .zip file. Keep it in Drive, Files or e-mail and restore it on any device.</value>
+  </data>
+  <data name="Backup_Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Backup_Import" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Backup_ShareTitle" xml:space="preserve">
+    <value>TravelPlanner backup</value>
+  </data>
+  <data name="Backup_ImportTitle" xml:space="preserve">
+    <value>Restore from backup</value>
+  </data>
+  <data name="Backup_ImportWarning" xml:space="preserve">
+    <value>Restoring replaces ALL data on this device with the backup. Continue?</value>
+  </data>
+  <data name="Backup_ImportAccept" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Backup_Invalid" xml:space="preserve">
+    <value>The selected file isn't a TravelPlanner backup.</value>
+  </data>
+  <data name="Backup_ImportedFormat" xml:space="preserve">
+    <value>Restored {0} trips, {1} expenses and {2} documents (backup from {3}).</value>
+  </data>
+  <data name="Backup_ExportError" xml:space="preserve">
+    <value>The backup could not be created.</value>
+  </data>
+  <data name="Backup_ImportError" xml:space="preserve">
+    <value>The backup could not be restored. Your existing data was not changed.</value>
+  </data>
+  <data name="Settings_VersionFormat" xml:space="preserve">
+    <value>Version {0} ({1})</value>
+  </data>
+  <data name="Privacy_Title" xml:space="preserve">
+    <value>Privacy policy</value>
+  </data>
+  <data name="Privacy_Open" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="Privacy_Body" xml:space="preserve">
+    <value>TravelPlanner respects your privacy. In short: your data stays on your device.
+
+What is stored?
+Your trips, plans, expenses, to-dos, saved places, participant names and the documents/photos you add are stored only in the app's storage on this device. There is no account, sign-up or cloud server; we cannot see this data.
+
+What is sent over the internet?
+The app only contacts these free services, when you use the related feature:
+• Open-Meteo: weather and city search (city name, coordinates).
+• Photon (komoot): place search and the name of a point picked on the map (search text, coordinates).
+• OpenFreeMap: map images (the area shown).
+• Frankfurter: exchange rates (currency pair, date).
+Like any internet request, these services can see your IP address. No personal information (your name, expenses, documents) is sent.
+
+Permissions
+The camera and photos are used only when you choose to add a document or photo. Notifications are scheduled on the device (trip reminders, budget alerts).
+
+Ads, analytics, tracking
+The app contains no ads, no analytics and no user tracking.
+
+Backups and sharing
+Backup (.zip) and PDF files are created only when you ask and are sent only where you choose (e.g. Files, Drive, e-mail).
+
+Deleting data
+Uninstalling the app deletes all of its data from the device. You can delete individual trips inside the app.
+
+For questions, please use the developer contact address on the store page.</value>
+  </data>
+  <data name="Map_NoRoute" xml:space="preserve">
+    <value>No route</value>
+  </data>
+  <data name="Map_RouteLabel" xml:space="preserve">
+    <value>Day route</value>
+  </data>
+  <data name="Map_RouteLegend" xml:space="preserve">
+    <value>Route</value>
+  </data>
+  <data name="Map_LongPressHint" xml:space="preserve">
+    <value>Long-press the map to add a place</value>
+  </data>
+  <data name="Place_FromMapHint" xml:space="preserve">
+    <value>Location picked on the map. Type a name or choose a suggestion.</value>
+  </data>
+  <data name="Dashboard_Overview" xml:space="preserve">
+    <value>Overview</value>
+  </data>
+  <data name="Profile_Account" xml:space="preserve">
+    <value>Account</value>
+  </data>
+  <data name="Profile_Preferences" xml:space="preserve">
+    <value>Preferences</value>
+  </data>
+  <data name="Profile_Data" xml:space="preserve">
+    <value>Data &amp; backup</value>
+  </data>
+  <data name="Profile_About" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="TripDetail_SectionPlanning" xml:space="preserve">
+    <value>Planning</value>
+  </data>
+  <data name="TripDetail_SectionFinance" xml:space="preserve">
+    <value>Finance</value>
+  </data>
+  <data name="TripDetail_SectionFiles" xml:space="preserve">
+    <value>Documents</value>
+  </data>
+  <data name="Budget_Title" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="TripForm_TooLongFormat" xml:space="preserve">
+    <value>A trip can be at most {0} days long.</value>
+  </data>
+  <data name="TripForm_OutsideTitleFormat" xml:space="preserve">
+    <value>{0} activities fall outside the new dates. What should happen to them?</value>
+  </data>
+  <data name="TripForm_OutsideMove" xml:space="preserve">
+    <value>Move to the nearest trip day</value>
+  </data>
+  <data name="TripForm_OutsideDelete" xml:space="preserve">
+    <value>Delete these activities</value>
+  </data>
+  <data name="Itinerary_TruncatedFormat" xml:space="preserve">
+    <value>This trip lasts {0} days; the plan can only show the first {1}.</value>
+  </data>
+  <data name="Itinerary_HiddenActivitiesFormat" xml:space="preserve">
+    <value>{0} activities are hidden because they fall outside the trip days. Edit and save the trip to move them into the plan or delete them.</value>
+  </data>
+  <data name="Weather_TruncatedFormat" xml:space="preserve">
+    <value>Weather is shown for the first {0} days of the trip only.</value>
+  </data>
+  <data name="Money_TooLargeFormat" xml:space="preserve">
+    <value>The amount can be at most {0}.</value>
+  </data>
+  <data name="Common_TextTooLongFormat" xml:space="preserve">
+    <value>Text can be at most {0} characters.</value>
+  </data>
+  <data name="Splash_Tagline" xml:space="preserve">
+    <value>Plan your whole trip in one place</value>
+  </data>
+  <data name="Splash_By" xml:space="preserve">
+    <value>by</value>
+  </data>
+  <data name="About_Developer" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="About_CopyrightFormat" xml:space="preserve">
+    <value>© {0} EAKSOFT. All rights reserved.</value>
+  </data>
+  <data name="Ticket_Departure" xml:space="preserve">
+    <value>Departure</value>
+  </data>
+  <data name="Ticket_Return" xml:space="preserve">
+    <value>Return</value>
+  </data>
+  <data name="Ticket_Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="Ticket_Tomorrow" xml:space="preserve">
+    <value>Tomorrow</value>
+  </data>
+  <data name="Ticket_DayOfFormat" xml:space="preserve">
+    <value>Day {0} of {1}</value>
+  </data>
+  <data name="Ticket_DaysLeftFormat" xml:space="preserve">
+    <value>{0} days left</value>
+  </data>
+  <data name="Ticket_LastDay" xml:space="preserve">
+    <value>Last day</value>
+  </data>
+  <data name="Ticket_Done" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Ticket_NoBudget" xml:space="preserve">
+    <value>Not set</value>
+  </data>
+  <data name="Account_GuestTitle" xml:space="preserve">
+    <value>Guest (this device only)</value>
+  </data>
+  <data name="Account_SignedInHint" xml:space="preserve">
+    <value>Your trips belong to this account and will be available on every device you sign in on.</value>
+  </data>
+  <data name="Account_SignInOrCreate" xml:space="preserve">
+    <value>Sign in / Create account</value>
+  </data>
+  <data name="Account_Delete" xml:space="preserve">
+    <value>Delete my account</value>
+  </data>
+  <data name="Account_DeleteTitle" xml:space="preserve">
+    <value>Delete account</value>
+  </data>
+  <data name="Account_DeleteMessage" xml:space="preserve">
+    <value>Your account will be deleted permanently. This can't be undone:
+
+• Trips you own, everything in them and their documents are deleted from the cloud; people you shared them with lose access.
+• You are removed from trips shared with you.
+• The account's data on this device is deleted and the app continues as a guest.
+
+If you want a copy of your trips, export a backup first (Backup → Export).</value>
+  </data>
+  <data name="Account_DeleteContinue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Account_DeleteKeyword" xml:space="preserve">
+    <value>DELETE</value>
+  </data>
+  <data name="Account_DeleteTypeFormat" xml:space="preserve">
+    <value>Type {0} to confirm.</value>
+  </data>
+  <data name="Account_DeleteConfirm" xml:space="preserve">
+    <value>Delete account</value>
+  </data>
+  <data name="Account_DeleteKeywordMismatch" xml:space="preserve">
+    <value>The text didn't match; the account was not deleted.</value>
+  </data>
+  <data name="Account_DeleteOffline" xml:space="preserve">
+    <value>Deleting the account needs an internet connection. Nothing was deleted; try again when you're online.</value>
+  </data>
+  <data name="Account_DeleteError" xml:space="preserve">
+    <value>The account couldn't be deleted. Please try again later.</value>
+  </data>
+  <data name="Account_Deleting" xml:space="preserve">
+    <value>Deleting account…</value>
+  </data>
+  <data name="Account_Deleted" xml:space="preserve">
+    <value>Your account and its cloud data have been deleted. The app continues as a guest.</value>
+  </data>
+  <data name="Auth_ErrorBanned" xml:space="preserve">
+    <value>This account has been suspended and can't sign in. If you think this is a mistake, please contact us.</value>
+  </data>
+  <data name="Account_EndedTitle" xml:space="preserve">
+    <value>Signed out</value>
+  </data>
+  <data name="Account_EndedDeleted" xml:space="preserve">
+    <value>You were signed out because your account was deleted. You can keep using the app as a guest or create a new account.</value>
+  </data>
+  <data name="Account_EndedBanned" xml:space="preserve">
+    <value>You were signed out because your account has been suspended. It can't be used to sign in again. If you think this is a mistake, please contact us.</value>
+  </data>
+  <data name="Account_EndedExpired" xml:space="preserve">
+    <value>Your session has ended. Sign in again to get to your data.</value>
+  </data>
+  <data name="Account_SignOut" xml:space="preserve">
+    <value>Sign out</value>
+  </data>
+  <data name="Account_SignOutTitle" xml:space="preserve">
+    <value>Sign out?</value>
+  </data>
+  <data name="Account_SignOutMessage" xml:space="preserve">
+    <value>Your account's data stays on this device and comes back when you sign in again. After signing out, the guest data is shown.</value>
+  </data>
+  <data name="Account_MoveGuestTitle" xml:space="preserve">
+    <value>Move your trips to your account?</value>
+  </data>
+  <data name="Account_MoveGuestFormat" xml:space="preserve">
+    <value>There are {0} trips saved on this device without an account. Moving them to your account backs them up and shows them on your other devices.</value>
+  </data>
+  <data name="Account_MoveGuestAccept" xml:space="preserve">
+    <value>Move to my account</value>
+  </data>
+  <data name="Account_MoveGuestDecline" xml:space="preserve">
+    <value>Keep on this device</value>
+  </data>
+  <data name="Auth_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Auth_SignInTitle" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Auth_SignUpTitle" xml:space="preserve">
+    <value>Create account</value>
+  </data>
+  <data name="Auth_VerifyTitle" xml:space="preserve">
+    <value>Verify your e-mail</value>
+  </data>
+  <data name="Auth_ResetTitle" xml:space="preserve">
+    <value>Reset your password</value>
+  </data>
+  <data name="Auth_SignInSubtitle" xml:space="preserve">
+    <value>Back up your trips, sync them across devices and share them with friends.</value>
+  </data>
+  <data name="Auth_SignUpSubtitle" xml:space="preserve">
+    <value>It only takes a moment. We'll e-mail you a verification code.</value>
+  </data>
+  <data name="Auth_ForgotSubtitle" xml:space="preserve">
+    <value>Enter your account's e-mail address and we'll send you a code to set a new password.</value>
+  </data>
+  <data name="Auth_CodeSentFormat" xml:space="preserve">
+    <value>Enter the code we sent to {0}.</value>
+  </data>
+  <data name="Auth_ContinueWithGoogle" xml:space="preserve">
+    <value>Continue with Google</value>
+  </data>
+  <data name="Auth_Or" xml:space="preserve">
+    <value>or</value>
+  </data>
+  <data name="Auth_NameLabel" xml:space="preserve">
+    <value>Full name</value>
+  </data>
+  <data name="Auth_EmailLabel" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="Auth_PasswordLabel" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Auth_NewPasswordLabel" xml:space="preserve">
+    <value>New password</value>
+  </data>
+  <data name="Auth_CodeLabel" xml:space="preserve">
+    <value>Verification code</value>
+  </data>
+  <data name="Auth_ForgotPassword" xml:space="preserve">
+    <value>Forgot password?</value>
+  </data>
+  <data name="Auth_SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Auth_CreateAccount" xml:space="preserve">
+    <value>Create account</value>
+  </data>
+  <data name="Auth_Confirm" xml:space="preserve">
+    <value>Verify</value>
+  </data>
+  <data name="Auth_SendCode" xml:space="preserve">
+    <value>Send code</value>
+  </data>
+  <data name="Auth_SetNewPassword" xml:space="preserve">
+    <value>Save password</value>
+  </data>
+  <data name="Auth_ResendCode" xml:space="preserve">
+    <value>Resend code</value>
+  </data>
+  <data name="Auth_NoAccount" xml:space="preserve">
+    <value>No account yet?</value>
+  </data>
+  <data name="Auth_BackToSignIn" xml:space="preserve">
+    <value>Back to sign in</value>
+  </data>
+  <data name="Auth_ContinueAsGuest" xml:space="preserve">
+    <value>Continue as guest</value>
+  </data>
+  <data name="Auth_GuestHint" xml:space="preserve">
+    <value>You can use the app without an account; your data then stays on this device only. You can sign in any time from Profile.</value>
+  </data>
+  <data name="Auth_NameRequired" xml:space="preserve">
+    <value>Enter your name.</value>
+  </data>
+  <data name="Auth_PasswordTooShortFormat" xml:space="preserve">
+    <value>The password must be at least {0} characters.</value>
+  </data>
+  <data name="Auth_NotConfirmedResent" xml:space="preserve">
+    <value>Your e-mail address isn't verified yet. We've sent you a new code.</value>
+  </data>
+  <data name="Auth_CodeResent" xml:space="preserve">
+    <value>A new code has been sent.</value>
+  </data>
+  <data name="Auth_Offline" xml:space="preserve">
+    <value>Signing in needs an internet connection.</value>
+  </data>
+  <data name="Auth_ErrorNetwork" xml:space="preserve">
+    <value>Couldn't reach the server. Check your connection and try again.</value>
+  </data>
+  <data name="Auth_ErrorInvalidCredentials" xml:space="preserve">
+    <value>Wrong e-mail or password.</value>
+  </data>
+  <data name="Auth_ErrorNotConfirmed" xml:space="preserve">
+    <value>Your e-mail address isn't verified yet.</value>
+  </data>
+  <data name="Auth_ErrorUserExists" xml:space="preserve">
+    <value>An account with this e-mail already exists. Try signing in.</value>
+  </data>
+  <data name="Auth_ErrorWeakPassword" xml:space="preserve">
+    <value>This password is too weak. Choose a longer, harder to guess one.</value>
+  </data>
+  <data name="Auth_ErrorInvalidEmail" xml:space="preserve">
+    <value>Enter a valid e-mail address.</value>
+  </data>
+  <data name="Auth_ErrorInvalidCode" xml:space="preserve">
+    <value>The code is wrong or has expired.</value>
+  </data>
+  <data name="Auth_ErrorRateLimited" xml:space="preserve">
+    <value>Too many attempts. Please wait a little and try again.</value>
+  </data>
+  <data name="Auth_ErrorNotSupported" xml:space="preserve">
+    <value>Google sign-in isn't supported on this device. You can sign in with e-mail.</value>
+  </data>
+  <data name="Auth_ErrorUnknown" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+  <data name="Sync_StatusSyncing" xml:space="preserve">
+    <value>Syncing…</value>
+  </data>
+  <data name="Sync_StatusOffline" xml:space="preserve">
+    <value>Offline – will sync when connected</value>
+  </data>
+  <data name="Sync_StatusOfflinePendingFormat" xml:space="preserve">
+    <value>Offline – {0} changes waiting</value>
+  </data>
+  <data name="Sync_StatusPendingFormat" xml:space="preserve">
+    <value>{0} changes waiting</value>
+  </data>
+  <data name="Sync_StatusError" xml:space="preserve">
+    <value>Couldn't sync, will retry</value>
+  </data>
+  <data name="Sync_StatusUpToDateFormat" xml:space="preserve">
+    <value>Synced · {0}</value>
+  </data>
+  <data name="Sync_StatusUpToDate" xml:space="preserve">
+    <value>Synced</value>
+  </data>
+  <data name="Sync_Now" xml:space="preserve">
+    <value>Sync now</value>
+  </data>
+  <data name="Access_ReadOnly" xml:space="preserve">
+    <value>You're a viewer on this trip and can't make changes. Ask the trip's owner for edit access.</value>
+  </data>
+  <data name="Access_OwnerOnly" xml:space="preserve">
+    <value>Only the trip's owner can delete it. You can leave the trip from the Members page.</value>
+  </data>
+  <data name="Role_Owner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="Role_Editor" xml:space="preserve">
+    <value>Editor</value>
+  </data>
+  <data name="Role_Viewer" xml:space="preserve">
+    <value>Viewer</value>
+  </data>
+  <data name="Members_Title" xml:space="preserve">
+    <value>Members &amp; invites</value>
+  </data>
+  <data name="Members_ListTitle" xml:space="preserve">
+    <value>On this trip</value>
+  </data>
+  <data name="Members_MyRoleFormat" xml:space="preserve">
+    <value>Your role: {0}</value>
+  </data>
+  <data name="Members_MeFormat" xml:space="preserve">
+    <value>{0} (you)</value>
+  </data>
+  <data name="Members_You" xml:space="preserve">
+    <value>You</value>
+  </data>
+  <data name="Members_NotShared" xml:space="preserve">
+    <value>You haven't shared this trip yet. Create an invite code below and send it.</value>
+  </data>
+  <data name="Members_SignInHint" xml:space="preserve">
+    <value>Sign in to share this trip or see its members.</value>
+  </data>
+  <data name="Members_InviteTitle" xml:space="preserve">
+    <value>Invite</value>
+  </data>
+  <data name="Members_InviteHint" xml:space="preserve">
+    <value>An invite code is created and the share menu opens. The person joins in the app via Profile → Join with a code. The code works for 7 days.</value>
+  </data>
+  <data name="Members_InviteEditor" xml:space="preserve">
+    <value>Invite an editor</value>
+  </data>
+  <data name="Members_InviteViewer" xml:space="preserve">
+    <value>Invite a viewer</value>
+  </data>
+  <data name="Members_InviteInfoFormat" xml:space="preserve">
+    <value>{0} invite · valid until {1}</value>
+  </data>
+  <data name="Members_InviteShareTitle" xml:space="preserve">
+    <value>Trip invite</value>
+  </data>
+  <data name="Members_InviteShareFormat" xml:space="preserve">
+    <value>Join my trip "{0}" on Travel Planner!
+Invite code: {1}
+In the app tap Profile → Join with a code and enter it. The code works until {2}.</value>
+  </data>
+  <data name="Members_MakeEditor" xml:space="preserve">
+    <value>Make editor</value>
+  </data>
+  <data name="Members_MakeViewer" xml:space="preserve">
+    <value>Make viewer</value>
+  </data>
+  <data name="Members_Remove" xml:space="preserve">
+    <value>Remove from trip</value>
+  </data>
+  <data name="Members_RemoveTitle" xml:space="preserve">
+    <value>Remove member?</value>
+  </data>
+  <data name="Members_RemoveMessageFormat" xml:space="preserve">
+    <value>{0} will be removed from "{1}" and the trip will disappear from their devices.</value>
+  </data>
+  <data name="Members_Leave" xml:space="preserve">
+    <value>Leave trip</value>
+  </data>
+  <data name="Members_LeaveTitle" xml:space="preserve">
+    <value>Leave this trip?</value>
+  </data>
+  <data name="Members_LeaveMessageFormat" xml:space="preserve">
+    <value>"{0}" will be removed from this device and your account. You'll need a new invite code to rejoin.</value>
+  </data>
+  <data name="Members_LoadError" xml:space="preserve">
+    <value>Couldn't load the members.</value>
+  </data>
+  <data name="Members_ActionError" xml:space="preserve">
+    <value>Couldn't complete that.</value>
+  </data>
+  <data name="Sharing_ErrorOffline" xml:space="preserve">
+    <value>This needs an internet connection.</value>
+  </data>
+  <data name="Sharing_ErrorNotSignedIn" xml:space="preserve">
+    <value>You need to sign in for this.</value>
+  </data>
+  <data name="Sharing_ErrorNotUploaded" xml:space="preserve">
+    <value>The trip hasn't reached the cloud yet. Check your connection and try again shortly.</value>
+  </data>
+  <data name="Sharing_ErrorInvalidInvite" xml:space="preserve">
+    <value>The invite code is wrong, expired or already used.</value>
+  </data>
+  <data name="Sharing_ErrorForbidden" xml:space="preserve">
+    <value>You aren't allowed to do this. Your role may have changed; refresh the page.</value>
+  </data>
+  <data name="Sharing_ErrorUnknown" xml:space="preserve">
+    <value>Something went wrong. Please try again.</value>
+  </data>
+  <data name="Join_Title" xml:space="preserve">
+    <value>Join with a code</value>
+  </data>
+  <data name="Join_Message" xml:space="preserve">
+    <value>Enter the 8-character invite code you received.</value>
+  </data>
+  <data name="Join_Accept" xml:space="preserve">
+    <value>Join</value>
+  </data>
+  <data name="Join_PendingFormat" xml:space="preserve">
+    <value>You joined "{0}". It appears in your trips once syncing finishes.</value>
+  </data>
+  <data name="TripDetail_SectionSharing" xml:space="preserve">
+    <value>SHARING</value>
+  </data>
+  <data name="TripDetail_SharingSignIn" xml:space="preserve">
+    <value>Sign in to share</value>
+  </data>
+  <data name="TripDetail_ReadOnlyBanner" xml:space="preserve">
+    <value>You can only view this trip.</value>
+  </data>
+  <data name="TripDetail_LastChangeFormat" xml:space="preserve">
+    <value>Last change: {0} · {1}</value>
+  </data>
+  <data name="Time_JustNow" xml:space="preserve">
+    <value>just now</value>
+  </data>
+  <data name="Time_MinutesAgoFormat" xml:space="preserve">
+    <value>{0} min ago</value>
+  </data>
+  <data name="Time_HoursAgoFormat" xml:space="preserve">
+    <value>{0} h ago</value>
+  </data>
+  <data name="Time_DaysAgoFormat" xml:space="preserve">
+    <value>{0} days ago</value>
+  </data>
+  <data name="Split_AddMembers" xml:space="preserve">
+    <value>Add trip members</value>
+  </data>
+  <data name="Split_MembersAddedFormat" xml:space="preserve">
+    <value>{0} members added as participants.</value>
+  </data>
+  <data name="Split_MembersAlreadyAdded" xml:space="preserve">
+    <value>All members are already participants.</value>
+  </data>
+  <data name="Sync_RejectedFormat" xml:space="preserve">
+    <value>{0} of your changes couldn't be applied: the item was deleted by someone else or your role on the trip changed. The current version has been loaded.</value>
+  </data>
+  <data name="Trash_Title" xml:space="preserve">
+    <value>Trash</value>
+  </data>
+  <data name="Trash_Hint" xml:space="preserve">
+    <value>Deleted items can be restored for 30 days.</value>
+  </data>
+  <data name="Trash_Empty" xml:space="preserve">
+    <value>The trash is empty.</value>
+  </data>
+  <data name="Trash_Restore" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="Trash_RestoredFormat" xml:space="preserve">
+    <value>"{0}" has been restored.</value>
+  </data>
+  <data name="Trash_RestoreParentMissing" xml:space="preserve">
+    <value>Couldn't restore: the trip it belonged to is gone. Restore the trip first.</value>
+  </data>
+  <data name="Trash_RestoreError" xml:space="preserve">
+    <value>Couldn't restore.</value>
+  </data>
+  <data name="Trash_LoadError" xml:space="preserve">
+    <value>Couldn't load the trash.</value>
+  </data>
+  <data name="Trash_DaysLeftFormat" xml:space="preserve">
+    <value>Deleted for good in {0} days</value>
+  </data>
+  <data name="Trash_ItemCountFormat" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="Trash_KindTrip" xml:space="preserve">
+    <value>Trip</value>
+  </data>
+  <data name="Trash_KindExpense" xml:space="preserve">
+    <value>Expense</value>
+  </data>
+  <data name="Trash_KindTodo" xml:space="preserve">
+    <value>To-do</value>
+  </data>
+  <data name="Trash_KindPlace" xml:space="preserve">
+    <value>Place</value>
+  </data>
+  <data name="Trash_KindActivity" xml:space="preserve">
+    <value>Plan item</value>
+  </data>
+  <data name="Trash_KindAttachment" xml:space="preserve">
+    <value>Document</value>
+  </data>
+  <data name="Trash_KindParticipant" xml:space="preserve">
+    <value>Participant</value>
+  </data>
+  <data name="Trash_KindTemplate" xml:space="preserve">
+    <value>Packing template</value>
+  </data>
+  <data name="Trash_KindOther" xml:space="preserve">
+    <value>Item</value>
+  </data>
+  <data name="TripDetail_Duplicate" xml:space="preserve">
+    <value>Duplicate trip</value>
+  </data>
+  <data name="TripDuplicate_Title" xml:space="preserve">
+    <value>Duplicate trip</value>
+  </data>
+  <data name="TripDuplicate_Message" xml:space="preserve">
+    <value>A new trip will be created from "{0}": its to-dos (unticked), places, day plan and participants are copied. Expenses and files are not.</value>
+  </data>
+  <data name="TripDuplicate_Accept" xml:space="preserve">
+    <value>Duplicate</value>
+  </data>
+  <data name="TripDuplicate_NameFormat" xml:space="preserve">
+    <value>{0} (copy)</value>
+  </data>
+  <data name="TripDuplicate_Done" xml:space="preserve">
+    <value>The copy is ready. Tap Edit to change its dates - the day plan moves along with them.</value>
+  </data>
+  <data name="TripDuplicate_Error" xml:space="preserve">
+    <value>The trip couldn't be duplicated.</value>
+  </data>
+  <data name="TripDetail_TripRemoved" xml:space="preserve">
+    <value>This trip is no longer on this device: its owner deleted it, or you were removed from it.</value>
+  </data>
+  <data name="ExpenseList_Export" xml:space="preserve">
+    <value>Export expenses (CSV)</value>
+  </data>
+  <data name="ExpenseList_ExportEmpty" xml:space="preserve">
+    <value>There are no expenses to export.</value>
+  </data>
+  <data name="ExpenseList_ExportError" xml:space="preserve">
+    <value>The expenses couldn't be exported.</value>
+  </data>
+  <data name="ExpenseCsv_Columns" xml:space="preserve">
+    <value>Date|Category|Description|Amount|Currency|Amount entered|Currency entered|Rate|Paid by</value>
+  </data>
+  <data name="ExpenseCsv_FileSuffix" xml:space="preserve">
+    <value>expenses</value>
+  </data>
+  <data name="Itinerary_ReorderHandle" xml:space="preserve">
+    <value>Drag to reorder</value>
+  </data>
+  <data name="AiPlan_Title" xml:space="preserve">
+    <value>Plan with AI</value>
+  </data>
+  <data name="AiPlan_EntrySubtitle" xml:space="preserve">
+    <value>Answer 4 questions and get a day-by-day plan, places to see and to-dos.</value>
+  </data>
+  <data name="AiPlan_IntroFormat" xml:space="preserve">
+    <value>Let's plan {1} days in {0}.</value>
+  </data>
+  <data name="AiPlan_QInterests" xml:space="preserve">
+    <value>What do you enjoy?</value>
+  </data>
+  <data name="AiPlan_QInterestsHint" xml:space="preserve">
+    <value>Pick up to 4.</value>
+  </data>
+  <data name="AiPlan_QPace" xml:space="preserve">
+    <value>What pace?</value>
+  </data>
+  <data name="AiPlan_QBudget" xml:space="preserve">
+    <value>Your budget?</value>
+  </data>
+  <data name="AiPlan_QCompanions" xml:space="preserve">
+    <value>Who's coming?</value>
+  </data>
+  <data name="AiPlan_QNotes" xml:space="preserve">
+    <value>Anything special? (optional)</value>
+  </data>
+  <data name="AiPlan_NotesPlaceholder" xml:space="preserve">
+    <value>E.g. we're vegetarian, we have a museum pass, we don't want to walk much</value>
+  </data>
+  <data name="AiPlan_I_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="AiPlan_I_Food" xml:space="preserve">
+    <value>Food</value>
+  </data>
+  <data name="AiPlan_I_Museums" xml:space="preserve">
+    <value>Museums</value>
+  </data>
+  <data name="AiPlan_I_Nature" xml:space="preserve">
+    <value>Nature</value>
+  </data>
+  <data name="AiPlan_I_Beach" xml:space="preserve">
+    <value>Sea and beach</value>
+  </data>
+  <data name="AiPlan_I_Architecture" xml:space="preserve">
+    <value>Architecture</value>
+  </data>
+  <data name="AiPlan_I_Art" xml:space="preserve">
+    <value>Art</value>
+  </data>
+  <data name="AiPlan_I_Shopping" xml:space="preserve">
+    <value>Shopping</value>
+  </data>
+  <data name="AiPlan_I_Nightlife" xml:space="preserve">
+    <value>Nightlife</value>
+  </data>
+  <data name="AiPlan_I_Family" xml:space="preserve">
+    <value>Kid-friendly</value>
+  </data>
+  <data name="AiPlan_I_Adventure" xml:space="preserve">
+    <value>Adventure</value>
+  </data>
+  <data name="AiPlan_I_Relax" xml:space="preserve">
+    <value>Relaxing</value>
+  </data>
+  <data name="AiPlan_Pace_Relaxed" xml:space="preserve">
+    <value>Relaxed</value>
+  </data>
+  <data name="AiPlan_Pace_Balanced" xml:space="preserve">
+    <value>Balanced</value>
+  </data>
+  <data name="AiPlan_Pace_Packed" xml:space="preserve">
+    <value>Packed</value>
+  </data>
+  <data name="AiPlan_Budget_Low" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="AiPlan_Budget_Mid" xml:space="preserve">
+    <value>Mid-range</value>
+  </data>
+  <data name="AiPlan_Budget_High" xml:space="preserve">
+    <value>Luxury</value>
+  </data>
+  <data name="AiPlan_With_Solo" xml:space="preserve">
+    <value>Solo</value>
+  </data>
+  <data name="AiPlan_With_Couple" xml:space="preserve">
+    <value>Couple</value>
+  </data>
+  <data name="AiPlan_With_Family" xml:space="preserve">
+    <value>Family</value>
+  </data>
+  <data name="AiPlan_With_Friends" xml:space="preserve">
+    <value>Friends</value>
+  </data>
+  <data name="AiPlan_Generate" xml:space="preserve">
+    <value>Create the plan</value>
+  </data>
+  <data name="AiPlan_Generating" xml:space="preserve">
+    <value>Preparing your plan</value>
+  </data>
+  <data name="AiPlan_QuotaFormat" xml:space="preserve">
+    <value>{0} of {1} plans left today.</value>
+  </data>
+  <data name="AiPlan_QuotaLeftFormat" xml:space="preserve">
+    <value>{0} plans left today.</value>
+  </data>
+  <data name="AiPlan_QuotaNone" xml:space="preserve">
+    <value>You've used today's plans. Try again tomorrow.</value>
+  </data>
+  <data name="AiPlan_DayFormat" xml:space="preserve">
+    <value>Day {0} · {1}</value>
+  </data>
+  <data name="AiPlan_TruncatedFormat" xml:space="preserve">
+    <value>Your trip is long, so its first {0} days were planned.</value>
+  </data>
+  <data name="AiPlan_Disclaimer" xml:space="preserve">
+    <value>This is an AI suggestion. Check opening hours, prices and bookings.</value>
+  </data>
+  <data name="AiPlan_PreviewDays" xml:space="preserve">
+    <value>Day by day</value>
+  </data>
+  <data name="AiPlan_PreviewPlaces" xml:space="preserve">
+    <value>Places to see</value>
+  </data>
+  <data name="AiPlan_PreviewTodos" xml:space="preserve">
+    <value>Before you go</value>
+  </data>
+  <data name="AiPlan_PreviewTips" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="AiPlan_PackingHint" xml:space="preserve">
+    <value>For packing, tap the star on the To-dos page - it reads the new plan.</value>
+  </data>
+  <data name="AiPlan_AddSelected" xml:space="preserve">
+    <value>Add selected to the trip</value>
+  </data>
+  <data name="AiPlan_Adding" xml:space="preserve">
+    <value>Adding… finding the places on the map.</value>
+  </data>
+  <data name="AiPlan_StartOver" xml:space="preserve">
+    <value>Change the answers</value>
+  </data>
+  <data name="AiPlan_AddedFormat" xml:space="preserve">
+    <value>Added: {0} activities, {1} places, {2} to-dos.</value>
+  </data>
+  <data name="AiPlan_ApproximateFormat" xml:space="preserve">
+    <value>{0} places couldn't be found on the map and were left out; their activities still name them.</value>
+  </data>
+  <data name="AiPlan_ApproximateLocation" xml:space="preserve">
+    <value>approximate location</value>
+  </data>
+  <data name="AiPlan_NothingSelected" xml:space="preserve">
+    <value>Select at least one item to add.</value>
+  </data>
+  <data name="AiPlan_SignInHint" xml:space="preserve">
+    <value>Sign in to plan with AI - the daily plan allowance belongs to your account.</value>
+  </data>
+  <data name="AiPlan_ReadOnly" xml:space="preserve">
+    <value>You can't add a plan because you can't edit this trip.</value>
+  </data>
+  <data name="AiPlan_ErrorOffline" xml:space="preserve">
+    <value>Planning with AI needs an internet connection.</value>
+  </data>
+  <data name="AiPlan_ErrorSignIn" xml:space="preserve">
+    <value>Your session has ended. Please sign in again.</value>
+  </data>
+  <data name="AiPlan_ErrorDisabled" xml:space="preserve">
+    <value>This isn't available because your account is suspended.</value>
+  </data>
+  <data name="AiPlan_ErrorNotConfigured" xml:space="preserve">
+    <value>Planning with AI isn't switched on yet.</value>
+  </data>
+  <data name="AiPlan_ErrorFailed" xml:space="preserve">
+    <value>The plan couldn't be created. Please try again in a moment.</value>
+  </data>
+  <data name="AiPlan_ApplyError" xml:space="preserve">
+    <value>Something went wrong while adding the plan to the trip.</value>
+  </data>
+  <data name="AiPlan_LoadError" xml:space="preserve">
+    <value>The planner couldn't be opened.</value>
+  </data>
+  <data name="AiPlan_EntrySignIn" xml:space="preserve">
+    <value>Sign in to use it - you get 5 plans a day.</value>
+  </data>
+  <data name="AiPlan_QuotaRule" xml:space="preserve">
+    <value>The allowance belongs to your account and this device, and renews every day.</value>
+  </data>
+  <data name="AiPlan_Cat_Landmark" xml:space="preserve">
+    <value>Landmark</value>
+  </data>
+  <data name="AiPlan_Cat_Museum" xml:space="preserve">
+    <value>Museum</value>
+  </data>
+  <data name="AiPlan_Cat_Historic" xml:space="preserve">
+    <value>Historic site</value>
+  </data>
+  <data name="AiPlan_Cat_Religious" xml:space="preserve">
+    <value>Place of worship</value>
+  </data>
+  <data name="AiPlan_Cat_Park" xml:space="preserve">
+    <value>Park</value>
+  </data>
+  <data name="AiPlan_Cat_Nature" xml:space="preserve">
+    <value>Nature</value>
+  </data>
+  <data name="AiPlan_Cat_Beach" xml:space="preserve">
+    <value>Beach</value>
+  </data>
+  <data name="AiPlan_Cat_Viewpoint" xml:space="preserve">
+    <value>Viewpoint</value>
+  </data>
+  <data name="AiPlan_Cat_Restaurant" xml:space="preserve">
+    <value>Restaurant</value>
+  </data>
+  <data name="AiPlan_Cat_Cafe" xml:space="preserve">
+    <value>Café</value>
+  </data>
+  <data name="AiPlan_Cat_Market" xml:space="preserve">
+    <value>Market</value>
+  </data>
+  <data name="AiPlan_Cat_Shopping" xml:space="preserve">
+    <value>Shopping</value>
+  </data>
+  <data name="AiPlan_Cat_Nightlife" xml:space="preserve">
+    <value>Nightlife</value>
+  </data>
+  <data name="AiPlan_Cat_Neighborhood" xml:space="preserve">
+    <value>Neighbourhood</value>
+  </data>
+  <data name="AiPlan_Cat_Experience" xml:space="preserve">
+    <value>Experience</value>
+  </data>
+  <data name="AiPlan_Step_Places" xml:space="preserve">
+    <value>Picking the places worth seeing…</value>
+  </data>
+  <data name="AiPlan_Step_Group" xml:space="preserve">
+    <value>Grouping nearby places into days…</value>
+  </data>
+  <data name="AiPlan_Step_Times" xml:space="preserve">
+    <value>Setting each day's route and times…</value>
+  </data>
+  <data name="AiPlan_Step_Food" xml:space="preserve">
+    <value>Finding places for your meals…</value>
+  </data>
+  <data name="AiPlan_Step_Map" xml:space="preserve">
+    <value>Checking the places on the map…</value>
+  </data>
+  <data name="AiPlan_Step_Finish" xml:space="preserve">
+    <value>Adding the finishing touches…</value>
+  </data>
+  <data name="Selection_MenuA11y" xml:space="preserve">
+    <value>Select items to delete</value>
+  </data>
+  <data name="Selection_CountFormat" xml:space="preserve">
+    <value>{0} selected</value>
+  </data>
+  <data name="Selection_NoneSelected" xml:space="preserve">
+    <value>Tap items to select</value>
+  </data>
+  <data name="Selection_SelectAll" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="Selection_ClearAll" xml:space="preserve">
+    <value>Deselect all</value>
+  </data>
+  <data name="Selection_Done" xml:space="preserve">
+    <value>Done selecting</value>
+  </data>
+  <data name="Selection_DeleteSelectedTitle" xml:space="preserve">
+    <value>Delete selected</value>
+  </data>
+  <data name="Selection_DeleteAllTitle" xml:space="preserve">
+    <value>Delete all</value>
+  </data>
+  <data name="Selection_DeleteMessageFormat" xml:space="preserve">
+    <value>{0} will be deleted. If that was a mistake, you can restore them from Profile → Trash for 30 days.</value>
+  </data>
+  <data name="Selection_AttachmentsFormat" xml:space="preserve">
+    <value>{0} documents</value>
+  </data>
+  <data name="Selection_TripsFormat" xml:space="preserve">
+    <value>{0} trip(s)</value>
+  </data>
+  <data name="Selection_TripsRelatedNote" xml:space="preserve">
+    <value>Their to-dos, expenses, places and plans go with them.</value>
+  </data>
+  <data name="Selection_TripsNotOwnerFormat" xml:space="preserve">
+    <value>{0} trip(s) shared with you won't be deleted - only their owner can do that.</value>
+  </data>
+  <data name="Selection_TripsOfflineFormat" xml:space="preserve">
+    <value>{0} trip(s) stored in the cloud can't be deleted right now - that needs an internet connection.</value>
+  </data>
+  <data name="Notification_PrepTitleFormat" xml:space="preserve">
+    <value>{1} days until {0}</value>
+  </data>
+  <data name="Notification_PrepBodyFormat" xml:space="preserve">
+    <value>{0} items are still open on your to-do list - a good time to get ready.</value>
+  </data>
+  <data name="Notification_DayTitleFormat" xml:space="preserve">
+    <value>Day {0} · {1}</value>
+  </data>
+  <data name="Notification_DayBodyFormat" xml:space="preserve">
+    <value>{0} activities today, first up: {1}</value>
+  </data>
+  <data name="Notification_DayBodySingleFormat" xml:space="preserve">
+    <value>Today's plan: {0}</value>
+  </data>
+  <data name="Notification_AfterTripTitleFormat" xml:space="preserve">
+    <value>How was {0}?</value>
+  </data>
+  <data name="Notification_AfterTripBody" xml:space="preserve">
+    <value>See your spending summary and who owes whom.</value>
+  </data>
+</root>

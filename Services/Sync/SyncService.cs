@@ -1,0 +1,544 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using SQLite;
+using TravelPlanner.Helpers;
+using TravelPlanner.Models;
+
+namespace TravelPlanner.Services.Sync
+{
+    public class SyncService : ISyncService
+    {
+        /// <summary>Storage bucket for attachment files (supabase/migrations/…05_storage.sql).</summary>
+        public const string Bucket = "trip-files";
+
+        internal const string CursorKey = "pull_cursor";
+        internal const string LastSyncKey = "last_sync_utc";
+        internal const int BatchSize = 200;
+        internal const int MaxAttemptsBeforeBackoff = 5;
+        internal static readonly TimeSpan BackoffDelay = TimeSpan.FromMinutes(30);
+        internal static readonly TimeSpan DefaultDelay = TimeSpan.FromSeconds(1);
+        internal static readonly TimeSpan Period = TimeSpan.FromSeconds(30);
+
+        /// <summary>RequestRefresh does nothing if a round finished less than this long ago.</summary>
+        internal static readonly TimeSpan RefreshGap = TimeSpan.FromSeconds(5);
+
+        /// <summary>Server answers that mean "this change will never be accepted" - drop it and re-read the server's copy.</summary>
+        private static readonly HashSet<string> FinalRejections = new(StringComparer.Ordinal)
+        {
+            "forbidden", "row_deleted", "trip_deleted", "trip_mismatch", "unknown_entity"
+        };
+
+        private readonly IAuthService _auth;
+        private readonly IAccountService _account;
+        private readonly IDatabaseService _database;
+        private readonly ISupabaseClient _client;
+        private readonly IAttachmentService _attachments;
+        private readonly INotificationService _notifications;
+        private readonly IConnectivity _connectivity;
+        private readonly SemaphoreSlim _gate = new(1, 1);
+        private CancellationTokenSource? _debounce;
+        private CancellationTokenSource? _timer;
+        private bool _subscribed;
+        private int _roundsRunning;
+        private DateTime _lastRoundEndedUtc = DateTime.MinValue;
+
+        public SyncService(
+            IAuthService auth,
+            IAccountService account,
+            IDatabaseService database,
+            ISupabaseClient client,
+            IAttachmentService attachments,
+            INotificationService notifications,
+            IConnectivity connectivity)
+        {
+            _auth = auth;
+            _account = account;
+            _database = database;
+            _client = client;
+            _attachments = attachments;
+            _notifications = notifications;
+            _connectivity = connectivity;
+        }
+
+        /// <summary>Clock (replaceable in tests).</summary>
+        internal Func<DateTime> UtcNow { get; set; } = () => DateTime.UtcNow;
+
+        public SyncStatus Status { get; private set; } = SyncStatus.Disabled;
+
+        public int PendingCount { get; private set; }
+
+        public DateTime? LastSyncedAtUtc { get; private set; }
+
+        public event EventHandler? StatusChanged;
+
+        public event EventHandler? RemoteChangesApplied;
+
+        public event EventHandler<int>? ChangesRejected;
+
+        // ------------------------------------------------------------------ triggers
+
+        public void Start()
+        {
+            if (!_subscribed)
+            {
+                _subscribed = true;
+                ChangeTracker.LocalChangeQueued += OnLocalChangeQueued;
+                _connectivity.ConnectivityChanged += OnConnectivityChanged;
+                _account.AccountChanged += OnAccountChanged;
+            }
+
+            var timer = new CancellationTokenSource();
+            Interlocked.Exchange(ref _timer, timer)?.Cancel();
+            RunTimerAsync(timer.Token).FireAndForget();
+
+            RequestSync(TimeSpan.Zero);
+        }
+
+        public void Stop() => Interlocked.Exchange(ref _timer, null)?.Cancel();
+
+        private async Task RunTimerAsync(CancellationToken cancellationToken)
+        {
+            using var timer = new PeriodicTimer(Period);
+            while (await timer.WaitForNextTickAsync(cancellationToken))
+                RequestSync(TimeSpan.Zero);
+        }
+
+        private void OnLocalChangeQueued() => RequestSync();
+
+        private void OnConnectivityChanged(object? sender, ConnectivityChangedEventArgs e)
+        {
+            if (e.NetworkAccess == NetworkAccess.Internet)
+                RequestSync(TimeSpan.FromSeconds(1));
+            else
+                SetStatus(_auth.IsSignedIn ? SyncStatus.Offline : SyncStatus.Disabled);
+        }
+
+        private void OnAccountChanged(object? sender, EventArgs e)
+        {
+            LastSyncedAtUtc = null;
+            PendingCount = 0;
+            RequestSync(TimeSpan.Zero);
+        }
+
+        public void RequestSync(TimeSpan? delay = null)
+        {
+            var debounce = new CancellationTokenSource();
+            Interlocked.Exchange(ref _debounce, debounce)?.Cancel();
+            DelayedSyncAsync(delay ?? DefaultDelay, debounce.Token).FireAndForget();
+        }
+
+        public void RequestRefresh()
+        {
+            if (!_auth.IsSignedIn || Volatile.Read(ref _roundsRunning) > 0)
+                return;
+            if (UtcNow() - _lastRoundEndedUtc < RefreshGap)
+                return;
+
+            RequestSync(TimeSpan.Zero);
+        }
+
+        private async Task DelayedSyncAsync(TimeSpan delay, CancellationToken cancellationToken)
+        {
+            if (delay > TimeSpan.Zero)
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+
+            // Off the UI thread: requests come from page loads, saves and the timer (all on the UI thread), and a
+            // round's JSON and SQLite work would otherwise run between its awaits right there - during a page
+            // transition that is a visible stutter. Listeners dispatch to the UI themselves (App, SettingsViewModel).
+            await Task.Run(() => SyncNowAsync(CancellationToken.None), CancellationToken.None).ConfigureAwait(false);
+        }
+
+        // ------------------------------------------------------------------ one round
+
+        public async Task<SyncResult> SyncNowAsync(CancellationToken cancellationToken = default)
+        {
+            var empty = new SyncResult(0, 0, 0, 0, 0, PendingCount);
+
+            if (!_auth.IsSignedIn)
+            {
+                SetStatus(SyncStatus.Disabled);
+                return empty;
+            }
+
+            if (_connectivity.NetworkAccess != NetworkAccess.Internet)
+            {
+                await RefreshPendingCountAsync();
+                SetStatus(SyncStatus.Offline);
+                return empty;
+            }
+
+            Interlocked.Increment(ref _roundsRunning);
+            try
+            {
+                await _gate.WaitAsync(cancellationToken);
+            }
+            catch
+            {
+                Interlocked.Decrement(ref _roundsRunning);
+                throw;
+            }
+            try
+            {
+                SetStatus(SyncStatus.Syncing);
+                var db = await _database.Connection;
+
+                var push = await PushAsync(db, cancellationToken);
+                var uploaded = await UploadFilesAsync(db, cancellationToken);
+                if (uploaded > 0)
+                    push = push.Add(await PushAsync(db, cancellationToken));
+
+                var pulled = await PullAsync(db, push.NeedsFullPull, cancellationToken);
+
+                PendingCount = await db.Table<PendingChange>().CountAsync();
+                LastSyncedAtUtc = UtcNow();
+                await db.InsertOrReplaceAsync(new SyncStateEntry { Key = LastSyncKey, Value = LastSyncedAtUtc.Value.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture) });
+                SetStatus(PendingCount == 0 ? SyncStatus.UpToDate : SyncStatus.Pending);
+
+                if (push.Rejected > 0)
+                    ChangesRejected?.Invoke(this, push.Rejected);
+
+                return new SyncResult(push.Pushed, push.Rejected, push.Conflicts, uploaded, pulled, PendingCount);
+            }
+            catch (SyncException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Sync] {ex.Kind}: {ex.Message}");
+                SetStatus(ex.Kind switch
+                {
+                    SyncErrorKind.Network => SyncStatus.Offline,
+                    SyncErrorKind.NotSignedIn => _auth.IsSignedIn ? SyncStatus.Offline : SyncStatus.Disabled,
+                    _ => SyncStatus.Error,
+                });
+                return empty;
+            }
+            catch (OperationCanceledException)
+            {
+                SetStatus(SyncStatus.Pending);
+                return empty;
+            }
+            catch (Exception ex)
+            {
+                // e.g. the account was switched mid-round and its connection closed - the next round starts clean
+                System.Diagnostics.Debug.WriteLine($"[Sync] Round failed: {ex}");
+                SetStatus(SyncStatus.Error);
+                return empty;
+            }
+            finally
+            {
+                _lastRoundEndedUtc = UtcNow();
+                Interlocked.Decrement(ref _roundsRunning);
+                _gate.Release();
+            }
+        }
+
+        private async Task RefreshPendingCountAsync()
+        {
+            try
+            {
+                var db = await _database.Connection;
+                PendingCount = await db.Table<PendingChange>().CountAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Sync] Pending count: {ex.Message}");
+            }
+        }
+
+        private void SetStatus(SyncStatus status)
+        {
+            Status = status;
+            StatusChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        // ------------------------------------------------------------------ push (outbox → apply_changes)
+
+        internal sealed record PushOutcome(int Pushed, int Rejected, int Conflicts, int Failed, bool NeedsFullPull)
+        {
+            public static PushOutcome Empty { get; } = new(0, 0, 0, 0, false);
+
+            public PushOutcome Add(PushOutcome other) => new(
+                Pushed + other.Pushed, Rejected + other.Rejected, Conflicts + other.Conflicts, Failed + other.Failed,
+                NeedsFullPull || other.NeedsFullPull);
+        }
+
+        private sealed record BatchItem(PendingChange Pending, JsonObject? Change);
+
+        internal async Task<PushOutcome> PushAsync(SQLiteAsyncConnection db, CancellationToken cancellationToken)
+        {
+            var total = PushOutcome.Empty;
+
+            for (var round = 0; round < 50; round++)
+            {
+                var now = UtcNow();
+                List<BatchItem> batch = new();
+                await db.RunInTransactionAsync(conn => batch = BuildBatch(conn, now));
+                if (batch.Count == 0)
+                    break;
+
+                var toSend = batch.Where(b => b.Change is not null).ToList();
+                var response = default(JsonElement);
+                if (toSend.Count > 0)
+                {
+                    var changes = new JsonArray();
+                    foreach (var item in toSend)
+                        changes.Add(item.Change);
+                    response = await _client.RpcAsync("apply_changes", new JsonObject { ["p_changes"] = changes }, cancellationToken);
+                }
+
+                var outcome = PushOutcome.Empty;
+                await db.RunInTransactionAsync(conn => outcome = ProcessResults(conn, batch, toSend, response, now));
+                total = total.Add(outcome);
+
+                if (batch.Count < BatchSize)
+                    break;
+            }
+
+            return total;
+        }
+
+        private static List<BatchItem> BuildBatch(SQLiteConnection conn, DateTime now)
+        {
+            var pendings = conn.Query<PendingChange>(
+                "SELECT * FROM PendingChange WHERE Attempts < ? OR LastAttemptAtUtc IS NULL OR LastAttemptAtUtc < ? ORDER BY Sequence LIMIT ?",
+                MaxAttemptsBeforeBackoff, now - BackoffDelay, BatchSize);
+
+            var batch = new List<BatchItem>(pendings.Count);
+            foreach (var pending in pendings)
+            {
+                if (!SyncSchema.TryForEntityType(pending.EntityType, out var info))
+                {
+                    batch.Add(new BatchItem(pending, null)); // unknown type - drop
+                    continue;
+                }
+
+                var change = new JsonObject
+                {
+                    ["entity"] = pending.EntityType,
+                    ["id"] = pending.EntitySyncId,
+                    ["base_version"] = pending.BaseVersion,
+                };
+
+                if (pending.Operation == ChangeOperation.Delete)
+                {
+                    change["op"] = "delete";
+                    change["trip_id"] = pending.TripSyncId;
+                    batch.Add(new BatchItem(pending, change));
+                    continue;
+                }
+
+                var map = conn.GetMapping(info.ClrType);
+                if (conn.Query(map, $"SELECT * FROM \"{map.TableName}\" WHERE SyncId = ?", pending.EntitySyncId).FirstOrDefault() is not ISyncEntity entity)
+                {
+                    batch.Add(new BatchItem(pending, null)); // row gone (its delete is queued separately)
+                    continue;
+                }
+
+                var only = pending.ChangedFieldList;
+                var fields = SyncFieldMapper.ToFields(conn, info, entity, only);
+                if (only is not null && fields.Count == 0)
+                {
+                    batch.Add(new BatchItem(pending, null)); // only device-local columns changed
+                    continue;
+                }
+
+                change["op"] = "upsert";
+                change["full"] = only is null;
+                change["trip_id"] = info.ResolveTripSyncId(conn, entity) ?? pending.TripSyncId;
+                change["fields"] = fields;
+                batch.Add(new BatchItem(pending, change));
+            }
+
+            return batch;
+        }
+
+        private static PushOutcome ProcessResults(SQLiteConnection conn, List<BatchItem> batch, List<BatchItem> sent, JsonElement response, DateTime now)
+        {
+            foreach (var dropped in batch.Where(b => b.Change is null))
+                DeletePendingIfUnchanged(conn, dropped.Pending);
+
+            int pushed = 0, rejected = 0, conflicts = 0, failed = 0;
+            var needsFullPull = false;
+            var results = response.ValueKind == JsonValueKind.Array ? response : default;
+
+            for (var i = 0; i < sent.Count; i++)
+            {
+                var pending = sent[i].Pending;
+                var result = results.ValueKind == JsonValueKind.Array && i < results.GetArrayLength() ? results[i] : default;
+                var status = SyncFieldMapper.GetString(result, "status");
+                var reason = SyncFieldMapper.GetString(result, "reason");
+
+                if (status is "applied" or "deleted" or "ignored")
+                {
+                    pushed++;
+                    if (result.TryGetProperty("conflict", out var conflict) && conflict.ValueKind == JsonValueKind.True)
+                        conflicts++;
+
+                    DeletePendingIfUnchanged(conn, pending);
+
+                    if (status == "applied" && pending.Operation == ChangeOperation.Upsert &&
+                        result.TryGetProperty("version", out var version) && version.ValueKind == JsonValueKind.Number &&
+                        result.TryGetProperty("change_seq", out var seq) && seq.ValueKind == JsonValueKind.Number &&
+                        SyncSchema.TryForEntityType(pending.EntityType, out var info))
+                    {
+                        // Our own write: remember its version and change_seq so the pull doesn't apply it back.
+                        conn.Execute($"UPDATE \"{info.EntityType}\" SET Version = ?, ChangeSeq = ? WHERE SyncId = ? AND ChangeSeq <= ?",
+                                     version.GetInt64(), seq.GetInt64(), pending.EntitySyncId, seq.GetInt64());
+                    }
+                }
+                else if (status == "rejected" && reason is not null && FinalRejections.Contains(reason))
+                {
+                    rejected++;
+                    needsFullPull = true; // the server's copy wins - read it back
+                    conn.Execute("DELETE FROM PendingChange WHERE Sequence = ?", pending.Sequence);
+                    System.Diagnostics.Debug.WriteLine($"[Sync] {pending.EntityType} {pending.EntitySyncId} rejected: {reason}");
+                }
+                else
+                {
+                    // "invalid" (e.g. its parent isn't uploaded yet), "trip_missing", or no answer: retry later
+                    failed++;
+                    var error = SyncFieldMapper.GetString(result, "error") ?? reason ?? status ?? "no result";
+                    conn.Execute("UPDATE PendingChange SET Attempts = Attempts + 1, LastError = ?, LastAttemptAtUtc = ? WHERE Sequence = ?",
+                                 Helpers.InputLimits.Truncate(error, 500), now, pending.Sequence);
+                }
+            }
+
+            return new PushOutcome(pushed, rejected, conflicts, failed, needsFullPull);
+        }
+
+        /// <summary>Removes an outbox entry unless it was changed again while being sent (then it goes next round).</summary>
+        private static void DeletePendingIfUnchanged(SQLiteConnection conn, PendingChange pending) =>
+            conn.Execute("DELETE FROM PendingChange WHERE Sequence = ? AND UpdatedAtUtc = ?", pending.Sequence, pending.UpdatedAtUtc);
+
+        // ------------------------------------------------------------------ files (G5)
+
+        /// <summary>
+        /// Uploads attachment files whose row is already on the server but whose file isn't, then records where
+        /// the file went (RemotePath → storage_path), which the next push sends to the other devices.
+        /// </summary>
+        internal async Task<int> UploadFilesAsync(SQLiteAsyncConnection db, CancellationToken cancellationToken)
+        {
+            var candidates = await db.QueryAsync<TripAttachment>(
+                "SELECT * FROM Attachment WHERE (RemotePath IS NULL OR RemotePath = '') AND ChangeSeq > 0");
+
+            var uploaded = 0;
+            foreach (var attachment in candidates)
+            {
+                var fullPath = _attachments.GetFullPath(attachment);
+                if (!File.Exists(fullPath))
+                    continue;
+
+                var tripSyncId = await db.ExecuteScalarAsync<string>("SELECT SyncId FROM Trip WHERE Id = ?", attachment.TripId);
+                if (string.IsNullOrEmpty(tripSyncId))
+                    continue;
+
+                var remotePath = RemotePathFor(tripSyncId, attachment);
+                try
+                {
+                    await using var stream = File.OpenRead(fullPath);
+                    await _client.UploadAsync(Bucket, remotePath, stream, attachment.ContentType, cancellationToken);
+                }
+                catch (SyncException ex) when (ex.Kind == SyncErrorKind.Rejected)
+                {
+                    // e.g. a viewer's device, or a file type the bucket refuses - leave it local
+                    System.Diagnostics.Debug.WriteLine($"[Sync] Upload of {attachment.SyncId} refused: {ex.Message}");
+                    continue;
+                }
+
+                attachment.RemotePath = remotePath;
+                try
+                {
+                    await db.UpdateTrackedAsync(attachment);
+                }
+                catch (TripAccessException)
+                {
+                    continue; // became a viewer meanwhile - the owner's devices will record the path
+                }
+                uploaded++;
+            }
+
+            return uploaded;
+        }
+
+        internal static string RemotePathFor(string tripSyncId, TripAttachment attachment)
+        {
+            var extension = Path.GetExtension(attachment.RelativePath).ToLowerInvariant();
+            if (extension.Length > 10)
+                extension = string.Empty;
+            return $"trips/{tripSyncId}/{attachment.SyncId}{extension}";
+        }
+
+        // ------------------------------------------------------------------ pull (pull_changes → local)
+
+        internal async Task<int> PullAsync(SQLiteAsyncConnection db, bool fromStart, CancellationToken cancellationToken)
+        {
+            var since = fromStart ? 0L : await ReadCursorAsync(db);
+            var response = await _client.RpcAsync("pull_changes", new JsonObject { ["p_since"] = since }, cancellationToken);
+
+            RemoteApplier.Outcome outcome = new();
+            await db.RunInTransactionAsync(conn => outcome = RemoteApplier.Apply(conn, response));
+
+            // Outside SQLite: files of rows/trips that disappeared, and reminders of trips that changed.
+            foreach (var relativePath in outcome.FilesToDelete)
+                TryDelete(Path.Combine(_attachments.RootDirectory, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+
+            foreach (var tripId in outcome.RemovedTripIds)
+            {
+                _attachments.DeleteFilesForTrip(tripId);
+                TryNotify(() => _notifications.CancelTripNotifications(tripId));
+            }
+
+            foreach (var tripId in outcome.ChangedTripIds.Except(outcome.RemovedTripIds))
+            {
+                var trip = await db.FindAsync<Trip>(tripId);
+                if (trip is null)
+                    continue;
+                TryNotify(() => _notifications.CancelTripNotifications(tripId));
+                try
+                {
+                    await _notifications.ScheduleTripNotificationsAsync(trip);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Sync] Reminder for trip {tripId}: {ex.Message}");
+                }
+            }
+
+            if (outcome.Changed > 0)
+                RemoteChangesApplied?.Invoke(this, EventArgs.Empty);
+
+            return outcome.Changed;
+        }
+
+        private static async Task<long> ReadCursorAsync(SQLiteAsyncConnection db)
+        {
+            var entry = await db.FindAsync<SyncStateEntry>(CursorKey);
+            return long.TryParse(entry?.Value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var cursor)
+                ? cursor
+                : 0L;
+        }
+
+        private static void TryDelete(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                    File.Delete(path);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Sync] Could not delete {path}: {ex.Message}");
+            }
+        }
+
+        private static void TryNotify(Action action)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Sync] Notification: {ex.Message}");
+            }
+        }
+    }
+}

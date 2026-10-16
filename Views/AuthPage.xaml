@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             x:Class="TravelPlanner.Views.AuthPage"
+             x:DataType="vm:AuthViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
+             Shell.PresentationMode="ModalAnimated"
+             BackgroundColor="{DynamicResource tp-surface}">
+
+    <!-- G3: sign in / create account / confirm code / reset password - one page, the ViewModel's Mode picks the fields. -->
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Auth_Close}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="24,4,24,32" Spacing="20">
+
+                <!-- ════════ Heading ════════ -->
+                <VerticalStackLayout Spacing="10">
+                    <Border Style="{StaticResource IconTile.Accent}" HorizontalOptions="Start">
+                        <Label Style="{StaticResource Icon.Accent}" Text="{StaticResource Ic.Plane}" />
+                    </Border>
+                    <Label Text="{Binding Title}" Style="{StaticResource Text.H1}" SemanticProperties.HeadingLevel="Level1" />
+                    <Label Text="{Binding Subtitle}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+
+                <!-- ════════ Google ════════ -->
+                <VerticalStackLayout Spacing="16" IsVisible="{Binding ShowGoogle}">
+                    <Button Text="{x:Static res:AppResources.Auth_ContinueWithGoogle}" Command="{Binding SignInWithGoogleCommand}"
+                            Style="{StaticResource Btn.Secondary}" />
+                    <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="12">
+                        <BoxView Grid.Column="0" Style="{StaticResource Divider}" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="{x:Static res:AppResources.Auth_Or}" Style="{StaticResource Text.Caption}" />
+                        <BoxView Grid.Column="2" Style="{StaticResource Divider}" VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- ════════ Form ════════ -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="16">
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding IsSignUp}">
+                            <Label Text="{x:Static res:AppResources.Auth_NameLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding DisplayName}" MaxLength="40" Placeholder="{x:Static res:AppResources.Settings_NamePlaceholder}"
+                                       Keyboard="Text" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding ShowEmailField}">
+                            <Label Text="{x:Static res:AppResources.Auth_EmailLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding Email}" Keyboard="Email" MaxLength="254" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
+                                       Placeholder="ornek@eposta.com" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding ShowPasswordField}">
+                            <Label Text="{x:Static res:AppResources.Auth_PasswordLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding Password}" IsPassword="True" MaxLength="72" />
+                            </Border>
+                            <Label Text="{x:Static res:AppResources.Auth_ForgotPassword}" Style="{StaticResource Text.Link}" HorizontalOptions="End"
+                                   IsVisible="{Binding IsSignIn}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ShowForgotPasswordCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding IsCodeMode}">
+                            <Label Text="{x:Static res:AppResources.Auth_CodeLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding Code}" Keyboard="Numeric" MaxLength="10" HorizontalTextAlignment="Center"
+                                       FontSize="22" CharacterSpacing="6" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding IsResetPassword}">
+                            <Label Text="{x:Static res:AppResources.Auth_NewPasswordLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding NewPassword}" IsPassword="True" MaxLength="72" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Border IsVisible="{Binding HasError}" Style="{StaticResource Banner.Error}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                                <Label Grid.Column="1" Text="{Binding ErrorMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" LineBreakMode="WordWrap" />
+                            </Grid>
+                        </Border>
+
+                        <Border IsVisible="{Binding HasInfo}" Style="{StaticResource Banner.Info}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-info}" VerticalOptions="Start" />
+                                <Label Grid.Column="1" Text="{Binding InfoMessage}" FontSize="13" TextColor="{DynamicResource tp-info}" LineBreakMode="WordWrap" />
+                            </Grid>
+                        </Border>
+
+                        <Button Text="{x:Static res:AppResources.Auth_SignIn}" Command="{Binding SignInCommand}" Style="{StaticResource Btn.Primary}" IsVisible="{Binding IsSignIn}" />
+                        <Button Text="{x:Static res:AppResources.Auth_CreateAccount}" Command="{Binding SignUpCommand}" Style="{StaticResource Btn.Primary}" IsVisible="{Binding IsSignUp}" />
+                        <Button Text="{x:Static res:AppResources.Auth_Confirm}" Command="{Binding VerifyCodeCommand}" Style="{StaticResource Btn.Primary}" IsVisible="{Binding IsVerifySignUp}" />
+                        <Button Text="{x:Static res:AppResources.Auth_SendCode}" Command="{Binding SendResetCodeCommand}" Style="{StaticResource Btn.Primary}" IsVisible="{Binding IsForgotPassword}" />
+                        <Button Text="{x:Static res:AppResources.Auth_SetNewPassword}" Command="{Binding ResetPasswordCommand}" Style="{StaticResource Btn.Primary}" IsVisible="{Binding IsResetPassword}" />
+
+                        <controls:LoadingDots IsVisible="{Binding IsWorking}" DotSize="8" DotColor="{DynamicResource tp-primary}" />
+
+                        <Label Text="{x:Static res:AppResources.Auth_ResendCode}" Style="{StaticResource Text.Link}" HorizontalOptions="Center" IsVisible="{Binding IsCodeMode}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ResendCodeCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ════════ Switch mode ════════ -->
+                <Label HorizontalOptions="Center" IsVisible="{Binding IsSignIn}" HorizontalTextAlignment="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{x:Static res:AppResources.Auth_NoAccount}" TextColor="{DynamicResource tp-text-2}" />
+                            <Span Text=" " />
+                            <Span Text="{x:Static res:AppResources.Auth_CreateAccount}" TextColor="{DynamicResource tp-primary}" FontFamily="InterSemiBold">
+                                <Span.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ShowSignUpCommand}" />
+                                </Span.GestureRecognizers>
+                            </Span>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+                <Label Text="{x:Static res:AppResources.Auth_BackToSignIn}" Style="{StaticResource Text.Link}" HorizontalOptions="Center"
+                       IsVisible="{Binding IsSignIn, Converter={StaticResource InvertBoolConverter}}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ShowSignInCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <!-- ════════ Guest ════════ -->
+                <VerticalStackLayout Spacing="6" IsVisible="{Binding IsSignIn}">
+                    <Button Text="{x:Static res:AppResources.Auth_ContinueAsGuest}" Command="{Binding CloseCommand}" Style="{StaticResource Btn.Ghost}" />
+                    <Label Text="{x:Static res:AppResources.Auth_GuestHint}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

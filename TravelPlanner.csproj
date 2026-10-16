@@ -1,0 +1,144 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks Condition="'$(Configuration)' == 'Debug'">net9.0-android</TargetFrameworks>
+		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
+		<!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
+
+		<!-- Note for MacCatalyst:
+		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
+		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
+		The Mac App Store will NOT accept apps with ONLY maccatalyst-arm64 indicated;
+		either BOTH runtimes must be indicated or ONLY macatalyst-x64. -->
+		<!-- For example: <RuntimeIdentifiers>maccatalyst-x64;maccatalyst-arm64</RuntimeIdentifiers> -->
+
+		<OutputType>Exe</OutputType>
+		<RootNamespace>TravelPlanner</RootNamespace>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- TP-301: Turkish is the default (neutral) UI language; English is a satellite (AppResources.en.resx). -->
+		<NeutralLanguage>tr</NeutralLanguage>
+		<SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+
+		<!-- Display name -->
+		<ApplicationTitle>Travel Planner</ApplicationTitle>
+
+		<!-- Publisher -->
+		<Company>EAKSOFT</Company>
+		<Authors>EAKSOFT</Authors>
+		<Copyright>© EAKSOFT</Copyright>
+		<Product>TravelPlanner</Product>
+
+		<!-- App Identifier -->
+		<ApplicationId>com.eaksoft.travelplanner</ApplicationId>
+
+		<!-- Versions (TP-507, see docs/RELEASE.md): ApplicationDisplayVersion is the user-visible SemVer
+		     (MAJOR.MINOR.PATCH), bumped by hand for each release. ApplicationVersion is the store build number
+		     (Android versionCode / iOS CFBundleVersion); it must always increase, so CI overrides it with the
+		     GitHub Actions run number: -p:ApplicationVersion=$(github.run_number). -->
+		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+		<ApplicationVersion>1</ApplicationVersion>
+
+		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
+		<WindowsPackageType>None</WindowsPackageType>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- App Icon: royal blue (#1E3A8A) tile with the white map-pin + paper-plane logo mark; 1024 px master,
+		     Resizetizer makes every platform size. Source: docs/store/icon-source.svg -->
+		<MauiIcon Include="Resources\AppIcon\appicon.png" />
+		<!-- Splash Screen: plain royal blue, NO logo. The OS splash (Android 12+ always shows one) must not show the
+		     logo before the animated in-app splash (Views/SplashPage) - so it gets a fully transparent image and
+		     only the colour shows; SplashPage uses the same colour, so the hand-over is invisible.
+		     The old logo splash is still in Resources/Splash/splash.png if it's ever wanted back. -->
+		<MauiSplashScreen Include="Resources\Splash\splash_blank.png" Color="#1E3A8A" BaseSize="160,160" />
+
+		<!-- Images -->
+		<MauiImage Include="Resources\Images\*" />
+		<!-- Template leftover, not used anywhere (TP-209) - safe to delete the file itself. -->
+		<MauiImage Remove="Resources\Images\dotnet_bot.png" />
+		
+		<!-- Custom Fonts: Inter (UI, SIL OFL), Lucide (icons, ISC), OpenSans (PDF export). Licences: docs/licenses -->
+		<MauiFont Include="Resources\Fonts\*" />
+
+		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+		<!-- Sprint 4: the map moved from Leaflet + CARTO raster tiles (CARTO now needs an API key for raster tiles)
+		     to MapLibre GL JS + OpenFreeMap (free, keyless). Leaflet is no longer packaged; the folder can be deleted. -->
+		<MauiAsset Remove="Resources\Raw\leaflet\**" />
+		<!-- TP-502: PDFsharp needs the TTF bytes to embed the font in trip PDFs; MAUI fonts aren't readable
+		     files at runtime, so two Inter files are also packaged as assets (Inter covers every currency
+		     symbol the app uses, incl. the Turkish lira sign that OpenSans lacks). -->
+		<MauiAsset Include="Resources\Fonts\Inter-Regular.ttf" LogicalName="fonts/Inter-Regular.ttf" />
+		<MauiAsset Include="Resources\Fonts\Inter-Bold.ttf" LogicalName="fonts/Inter-Bold.ttf" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- Localized strings (TP-301). Edit AppResources.resx in Visual Studio's resource editor; it regenerates
+		     AppResources.Designer.cs (public, so XAML can use {x:Static res:AppResources.Key}). -->
+		<EmbeddedResource Update="Resources\Strings\AppResources.resx" Generator="PublicResXFileCodeGenerator" LastGenOutput="AppResources.Designer.cs" />
+		<Compile Update="Resources\Strings\AppResources.Designer.cs" DesignTime="True" AutoGen="True" DependentUpon="AppResources.resx" />
+		<EmbeddedResource Update="Resources\Strings\AppResources.en.resx" DependentUpon="AppResources.resx" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- TP-209: MAUI template leftovers - excluded from the build; the files can be deleted. -->
+		<Compile Remove="MainPage.xaml.cs" />
+		<MauiXaml Remove="MainPage.xaml" />
+
+		<!-- The unit-test project lives inside this folder; keep its sources and build output out of the
+		     app (the SDK would otherwise glob them in). Same for the Sprint 1 backup copies. -->
+		<Compile Remove="Tests\**" />
+		<MauiXaml Remove="Tests\**" />
+		<None Remove="Tests\**" />
+		<Content Remove="Tests\**" />
+		<EmbeddedResource Remove="Tests\**" />
+		<Compile Remove="_backup_sprint*\**" />
+		<None Remove="_backup_sprint*\**" />
+		<MauiXaml Remove="_backup_sprint*\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+		<!-- TP-502: trip summary PDF. MIT licence - free for any use, works offline, no service behind it. -->
+		<PackageReference Include="PDFsharp" Version="6.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.18" />
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.9" />
+		<PackageReference Include="Plugin.LocalNotification" Version="12.0.2" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
+		<PackageReference Include="System.Text.Json" Version="9.0.18" />
+	</ItemGroup>
+
+	<!-- TP-506/507: store builds. Play Store wants an .aab; signing values come only from CI secrets or the
+	     command line (-p:AndroidSigningKeyStore=... etc.), never from this file - see docs/RELEASE.md. -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release' And $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<!-- Smooth first use: every method is compiled ahead of time (full AOT) instead of only the start-up ones
+		     (profiled AOT, the default), so opening a page for the first time no longer waits for the JIT. -->
+		<RunAOTCompilation>true</RunAOTCompilation>
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+		<!-- Package size: with full AOT the IL of every compiled method is never run again - strip it from the
+		     packaged assemblies (only methods that couldn't be AOT-compiled keep their IL). -->
+		<AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+		<!-- 64-bit ARM only. Every phone from the last ~8 years (and both test phones) is arm64; packing the 32-bit
+		     ARM build too (android-arm) doubled the APK (52 MB -> ~26 MB without it). Emulators (x86/x64) are left out.
+		     For old 32-bit-only phones add ";android-arm" back - or build one APK per ABI with
+		     -p:AndroidCreatePackagePerAbi=true. -->
+		<RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
+	</PropertyGroup>
+
+</Project>

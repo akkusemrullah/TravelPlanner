@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Royal blue logo palette (see Resources/Styles/DesignTokens.xaml). -->
+    <color name="colorPrimary">#1E3A8A</color>
+    <color name="colorPrimaryDark">#172554</color>
+    <color name="colorAccent">#2563EB</color>
+</resources>

@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
+             x:Class="TravelPlanner.Views.TripDetailPage"
+             x:DataType="vm:TripDetailViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*,Auto,Auto">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{Binding Trip.Name}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Border Grid.Column="2" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Share}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ShareCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Share}" />
+            </Border>
+            <Border Grid.Column="3" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Edit}"
+                    IsVisible="{Binding CanEdit}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding EditTripCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Edit}" />
+            </Border>
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16,20,16,28" Spacing="24">
+
+                    <!-- G6: shared with the user as a viewer -->
+                    <Border IsVisible="{Binding IsReadOnly}" Style="{StaticResource Banner.Info}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Eye}" TextColor="{DynamicResource tp-info}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.TripDetail_ReadOnlyBanner}" FontSize="13" TextColor="{DynamicResource tp-info}" LineBreakMode="WordWrap" />
+                        </Grid>
+                    </Border>
+
+                    <!-- ════════ Summary (boarding-pass ticket, see Card.Ticket in Styles.xaml) ════════ -->
+                    <Border Style="{StaticResource Card.Ticket}" IsVisible="{Binding Ticket, Converter={StaticResource ObjectNotNullConverter}}">
+                        <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="24" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Top: royal-blue gradient - status, countdown, destination, departure ✈ return. -->
+                        <!-- BindingContext is set on a wrapper so the inner x:DataType (TripTicket) doesn't apply to it. -->
+                        <ContentView Grid.Row="0" BindingContext="{Binding Ticket}">
+                        <Grid Padding="20,18,20,18" RowSpacing="16" RowDefinitions="Auto,Auto,Auto" x:DataType="vm:TripTicket">
+                            <Grid.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{StaticResource TicketStart}" Offset="0" />
+                                    <GradientStop Color="{StaticResource TicketEnd}" Offset="1" />
+                                </LinearGradientBrush>
+                            </Grid.Background>
+
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Border Grid.Column="0" Style="{StaticResource Ticket.Pill}">
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Plane}" TextColor="{StaticResource White}" VerticalOptions="Center" />
+                                        <Label Text="{Binding StatusText}" Style="{StaticResource Ticket.PillText}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="0" HorizontalOptions="End">
+                                    <Label Text="{Binding CountdownValue}" Style="{StaticResource Ticket.Countdown}" />
+                                    <Label Text="{Binding CountdownLabel}" IsVisible="{Binding HasCountdownLabel}" Style="{StaticResource Ticket.Muted}"
+                                           HorizontalTextAlignment="End" />
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <VerticalStackLayout Grid.Row="1" Spacing="2">
+                                <Label Text="{Binding City}" Style="{StaticResource Ticket.City}" SemanticProperties.HeadingLevel="Level2" />
+                                <Label Text="{Binding Country}" IsVisible="{Binding HasCountry}" Style="{StaticResource Ticket.Sub}" />
+                                <Label Text="{Binding Name}" IsVisible="{Binding ShowName}" Style="{StaticResource Ticket.Muted}" Margin="0,2,0,0" />
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <VerticalStackLayout Grid.Column="0" Spacing="0">
+                                    <Label Text="{x:Static res:AppResources.Ticket_Departure}" Style="{StaticResource Ticket.Caption}" />
+                                    <Label Text="{Binding StartDay}" Style="{StaticResource Ticket.Day}" />
+                                    <Label Text="{Binding StartMonth}" Style="{StaticResource Ticket.Muted}" />
+                                </VerticalStackLayout>
+                                <!-- Route line: fills as the trip goes by; the plane rides above it. -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Plane}" Rotation="45"
+                                           TextColor="{StaticResource White}" HorizontalOptions="Center" />
+                                    <ProgressBar Progress="{Binding Progress}" ProgressColor="{StaticResource White}"
+                                                 BackgroundColor="Transparent" HeightRequest="4" />
+                                    <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.Muted}" HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="2" Spacing="0">
+                                    <Label Text="{x:Static res:AppResources.Ticket_Return}" Style="{StaticResource Ticket.Caption}" HorizontalTextAlignment="End" />
+                                    <Label Text="{Binding EndDay}" Style="{StaticResource Ticket.Day}" HorizontalTextAlignment="End" />
+                                    <Label Text="{Binding EndMonth}" Style="{StaticResource Ticket.Muted}" HorizontalTextAlignment="End" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Grid>
+                        </ContentView>
+
+                        <!-- Tear line: dashed rule between two page-coloured notches (clipped into half circles). -->
+                        <Grid Grid.Row="1">
+                            <Grid IsClippedToBounds="True" Margin="24,0" HeightRequest="2" VerticalOptions="Center">
+                                <Line X1="0" Y1="1" X2="3000" Y2="1" Stroke="{DynamicResource tp-border-strong}"
+                                      StrokeThickness="1.5" StrokeDashArray="3,3" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="Start" Margin="-12,0,0,0" />
+                            <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="End" Margin="0,0,-12,0" />
+                        </Grid>
+
+                        <!-- Bottom: duration and budget. -->
+                        <ContentView Grid.Row="2" BindingContext="{Binding Ticket}">
+                        <Grid Padding="20,4,20,16" ColumnDefinitions="*,1,*" ColumnSpacing="16" x:DataType="vm:TripTicket">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="{x:Static res:AppResources.Ticket_Duration}" Style="{StaticResource Ticket.StatLabel}" />
+                                <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.StatValue}" />
+                            </VerticalStackLayout>
+                            <BoxView Grid.Column="1" WidthRequest="1" Color="{DynamicResource tp-divider}" />
+                            <VerticalStackLayout Grid.Column="2" Spacing="4">
+                                <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Ticket.StatLabel}" />
+                                <Label Text="{Binding BudgetText}" Style="{StaticResource Ticket.StatValue}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        </ContentView>
+
+                        <!-- The trip's own note, when there is one. -->
+                        <Label Grid.Row="3" Text="{Binding Trip.Description}" Style="{StaticResource Text.Body2}" Margin="20,0,20,18"
+                               IsVisible="{Binding Trip.Description, Converter={StaticResource StringNotEmptyConverter}}" />
+                        </Grid>
+                    </Border>
+
+                    <!-- ════════ Today (ongoing trips) ════════ -->
+                    <Border IsVisible="{Binding IsTripOngoing}" Style="{StaticResource Card}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToItineraryCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" WidthRequest="32" HeightRequest="32">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Clock}" TextColor="{DynamicResource tp-accent-text}" />
+                                </Border>
+                                <Label Grid.Column="1" Text="{Binding TodayTitle}" Style="{StaticResource Text.Title}" VerticalOptions="Center" SemanticProperties.HeadingLevel="Level2" />
+                                <Label Grid.Column="2" Text="{x:Static res:AppResources.TripDetail_OpenPlan}" Style="{StaticResource Text.Link}" FontSize="13" VerticalOptions="Center" />
+                            </Grid>
+                            <Label IsVisible="{Binding HasNoTodayActivities}" Text="{x:Static res:AppResources.TripDetail_TodayEmpty}" Style="{StaticResource Text.Body2}" />
+                            <VerticalStackLayout IsVisible="{Binding HasTodayActivities}" Spacing="10" BindableLayout.ItemsSource="{Binding TodayActivities}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:TripActivity">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                            <Label Grid.Column="0" Text="{Binding TimeDisplay}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-text}" MinimumWidthRequest="44" />
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                                <Label Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" />
+                                                <Label Text="{Binding PlaceName}" IsVisible="{Binding HasPlace}" Style="{StaticResource Text.Caption}" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ════════ Budget ════════ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="16">
+                                <Label Text="{x:Static res:AppResources.TripDetail_NoBudget}" IsVisible="{Binding NoBudgetSet}" Style="{StaticResource Text.Body2}" />
+
+                                <VerticalStackLayout IsVisible="{Binding HasBudget}" Spacing="16">
+                                    <Border IsVisible="{Binding IsOverBudget}" Style="{StaticResource Banner.Error}">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" />
+                                            <Label Grid.Column="1" Text="{x:Static res:AppResources.TripDetail_OverBudget}" FontFamily="InterSemiBold" FontSize="13"
+                                                   TextColor="{DynamicResource tp-danger}" VerticalOptions="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="{x:Static res:AppResources.Budget_Spent}" Style="{StaticResource Text.Caption}" />
+                                            <Label Text="{Binding TotalExpensesFormatted}" Style="{StaticResource Text.Metric}" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="{Binding BudgetUsagePercentage, StringFormat='{0:F0}%'}" FontFamily="InterSemiBold" FontSize="15"
+                                               TextColor="{DynamicResource tp-text-2}" VerticalOptions="End">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsOverBudget}" Value="True">
+                                                    <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Grid>
+
+                                    <ProgressBar Progress="{Binding BudgetUsagePercentage, Converter={StaticResource PercentageToFractionConverter}}"
+                                                 ProgressColor="{DynamicResource tp-primary}" HeightRequest="6">
+                                        <ProgressBar.Triggers>
+                                            <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOverBudget}" Value="True">
+                                                <Setter Property="ProgressColor" Value="{DynamicResource tp-danger}" />
+                                            </DataTrigger>
+                                        </ProgressBar.Triggers>
+                                    </ProgressBar>
+
+                                    <BoxView Style="{StaticResource Divider}" />
+
+                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                            <Label Text="{x:Static res:AppResources.Budget_Planned}" Style="{StaticResource Text.Caption}" />
+                                            <Label Text="{Binding Trip.FormattedBudget}" Style="{StaticResource Text.Value}" />
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                            <Label Text="{x:Static res:AppResources.Budget_Remaining}" Style="{StaticResource Text.Caption}" />
+                                            <Label Text="{Binding RemainingBudgetFormatted}" Style="{StaticResource Text.Value}">
+                                                <Label.Triggers>
+                                                    <DataTrigger TargetType="Label" Binding="{Binding IsOverBudget}" Value="True">
+                                                        <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
+                                                    </DataTrigger>
+                                                </Label.Triggers>
+                                            </Label>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ════════ AI trip planner ════════ -->
+                    <Border Style="{StaticResource Card}" IsVisible="{Binding CanEdit}"
+                            SemanticProperties.Description="{x:Static res:AppResources.AiPlan_Title}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToAiPlannerCommand}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" WidthRequest="40" HeightRequest="40" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Star}" TextColor="{DynamicResource tp-accent-text}" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.Title}" />
+                                <Label Text="{Binding AiPlannerSubtitle}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- ════════ Planning ════════ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.TripDetail_SectionPlanning}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Border Style="{StaticResource Card.List}">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Itinerary}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToItineraryCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CalendarDays}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Itinerary}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                                <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Tasks}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToTasksCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Checklist}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                                <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Places}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToPlacesCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Places}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                                <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Map}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToMapCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Map}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Map}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                                <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Weather}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToWeatherCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Weather}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Weather}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ════════ Finance ════════ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.TripDetail_SectionFinance}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Border Style="{StaticResource Card.List}">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Expenses}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToExpensesCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Receipt}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Expenses}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                                <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Analysis}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToAnalysisCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.PieChart}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Analysis}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                                <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Split}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToSplitCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Split}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ════════ Sharing (G6) ════════ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.TripDetail_SectionSharing}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Border Style="{StaticResource Card.List}">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Members_Title}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToMembersCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{x:Static res:AppResources.Members_Title}" Style="{StaticResource Text.Body}" />
+                                        <Label Text="{Binding SharingSubtitle}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                                        <Label Text="{Binding LastChangeText}" IsVisible="{Binding HasLastChange}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+                                    </VerticalStackLayout>
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ════════ Documents ════════ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.TripDetail_SectionFiles}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Border Style="{StaticResource Card.List}">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56"
+                                      SemanticProperties.Description="{x:Static res:AppResources.Section_Attachments}">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding GoToAttachmentsCommand}" />
+                                    </Grid.GestureRecognizers>
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Attachment}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Attachments}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- ════════ Duplicate: a new trip from this one (to-dos, places, plan, participants) ════════ -->
+                    <Button Text="{x:Static res:AppResources.TripDetail_Duplicate}" Command="{Binding DuplicateTripCommand}" Style="{StaticResource Btn.Secondary}" />
+
+                    <!-- ════════ Danger zone ════════ -->
+                    <Button Text="{x:Static res:AppResources.TripDetail_Delete}" Command="{Binding DeleteTripCommand}" Style="{StaticResource Btn.Danger}"
+                            IsVisible="{Binding IsOwner}" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

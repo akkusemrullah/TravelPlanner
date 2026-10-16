@@ -1,0 +1,32 @@
+using System.Globalization;
+
+namespace TravelPlanner.Helpers
+{
+    /// <summary>
+    /// The user's "Ad Soyad" (Settings → Hesap) split into the bits the UI needs: the first name for the
+    /// dashboard greeting and the avatar initials (first letter of the first and the last name).
+    /// </summary>
+    public static class PersonName
+    {
+        private static string[] Parts(string? fullName) =>
+            (fullName ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        /// <summary>"Emrullah Can Akkuş" → "Emrullah"; empty when no name is set.</summary>
+        public static string FirstName(string? fullName) => Parts(fullName).FirstOrDefault() ?? string.Empty;
+
+        /// <summary>
+        /// "Emrullah Akkuş" → "EA", "Emrullah Can Akkuş" → "EA" (first + last name), "Emrullah" → "E",
+        /// empty when no name is set. Upper-cased in the current culture ("ismail" → "İ" in Turkish).
+        /// </summary>
+        public static string Initials(string? fullName, CultureInfo? culture = null)
+        {
+            var parts = Parts(fullName).Where(p => char.IsLetterOrDigit(p[0])).ToArray();
+            if (parts.Length == 0)
+                return string.Empty;
+
+            culture ??= CultureInfo.CurrentCulture;
+            var first = parts[0][..1].ToUpper(culture);
+            return parts.Length == 1 ? first : first + parts[^1][..1].ToUpper(culture);
+        }
+    }
+}

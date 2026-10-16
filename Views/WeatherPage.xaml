@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
+             x:Class="TravelPlanner.Views.WeatherPage"
+             x:DataType="vm:WeatherViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" Margin="4,0,0,0">
+                <Label Text="{x:Static res:AppResources.Section_Weather}" Style="{StaticResource Text.AppBarTitle}" />
+                <Label Text="{Binding Trip.City}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+            </VerticalStackLayout>
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16,20,16,28" Spacing="20">
+
+                    <controls:LoadingLogo IsVisible="{Binding IsBusy}" Size="56" />
+
+                    <!-- ════════ Current conditions ════════ -->
+                    <Border Style="{StaticResource Card.Hero}" IsVisible="{Binding Weather, Converter={StaticResource ObjectNotNullConverter}}">
+                        <VerticalStackLayout Spacing="18">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+                                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-hero-muted}" />
+                                        <Label Grid.Column="1" Text="{Binding Trip.City}" Style="{StaticResource Text.Body2}" TextColor="{DynamicResource tp-hero-muted}"
+                                               LineBreakMode="TailTruncation" VerticalOptions="Center" />
+                                    </Grid>
+                                    <Label Text="{Binding Weather.Temperature, StringFormat='{0:F1}°'}" FontFamily="InterBold" FontSize="56" CharacterSpacing="-1.5"
+                                           TextColor="{DynamicResource tp-on-hero}" />
+                                    <Label Text="{Binding Weather.Condition}" Style="{StaticResource Text.Body}" TextColor="{DynamicResource tp-on-hero}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="1" FontFamily="Lucide" FontSize="64" TextColor="{DynamicResource tp-on-hero}" VerticalOptions="Center"
+                                       Text="{Binding Weather.IconEmoji, Converter={StaticResource WeatherGlyphConverter}}"
+                                       AutomationProperties.IsInAccessibleTree="False" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Divider}" Color="{DynamicResource tp-hero-line}" />
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon}" Text="{StaticResource Ic.Droplets}" TextColor="{DynamicResource tp-hero-muted}" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                        <Label Text="{x:Static res:AppResources.Weather_Humidity}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-hero-muted}" />
+                                        <Label Text="{Binding Weather.Humidity, StringFormat='{0}%'}" Style="{StaticResource Text.Value}" TextColor="{DynamicResource tp-on-hero}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                                <Grid Grid.Column="1" ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon}" Text="{StaticResource Ic.Wind}" TextColor="{DynamicResource tp-hero-muted}" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                        <Label Text="{x:Static res:AppResources.Weather_Wind}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-hero-muted}" />
+                                        <Label Text="{Binding Weather.WindSpeed, StringFormat='{0:F1} m/s'}" Style="{StaticResource Text.Value}" TextColor="{DynamicResource tp-on-hero}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- ════════ Error ════════ -->
+                    <Border Style="{StaticResource Banner.Error}" IsVisible="{Binding HasError}" Padding="14">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon}" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding ErrorMessage}" FontSize="14" TextColor="{DynamicResource tp-danger}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <!-- ════════ Trip forecast ════════ -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding HasTripForecast}">
+                        <Label Text="{x:Static res:AppResources.Forecast_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
+                        <Border Style="{StaticResource Card.List}">
+                            <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding TripForecast}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="models:DailyForecast">
+                                        <VerticalStackLayout Spacing="0">
+                                            <Grid ColumnDefinitions="96,Auto,*,Auto" ColumnSpacing="12" Padding="16,12">
+                                                <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                                                    <Label Text="{Binding DateDisplay}" Style="{StaticResource Text.Title}" FontSize="13" />
+                                                    <Label Text="{Binding KindLabel}" Style="{StaticResource Text.Caption}" FontSize="10" />
+                                                </VerticalStackLayout>
+                                                <Label Grid.Column="1" Style="{StaticResource Icon.Lg}" TextColor="{DynamicResource tp-text}"
+                                                       Text="{Binding IconEmoji, Converter={StaticResource WeatherGlyphConverter}}" />
+                                                <VerticalStackLayout Grid.Column="2" Spacing="2" VerticalOptions="Center">
+                                                    <Label Text="{Binding Condition}" Style="{StaticResource Text.Body2}" FontSize="13" LineBreakMode="TailTruncation" />
+                                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="3" IsVisible="{Binding HasPrecipitation}">
+                                                        <Label Grid.Column="0" Style="{StaticResource Icon.Xs}" FontSize="12" Text="{StaticResource Ic.Umbrella}" TextColor="{DynamicResource tp-info}" />
+                                                        <Label Grid.Column="1" Text="{Binding PrecipitationDisplay}" FontSize="11" TextColor="{DynamicResource tp-info}" VerticalOptions="Center" />
+                                                    </Grid>
+                                                </VerticalStackLayout>
+                                                <Label Grid.Column="3" Text="{Binding TemperatureRange}" Style="{StaticResource Text.Value}" FontSize="14" VerticalOptions="Center">
+                                                    <Label.Triggers>
+                                                        <DataTrigger TargetType="Label" Binding="{Binding IsClimateAverage}" Value="True">
+                                                            <Setter Property="TextColor" Value="{DynamicResource tp-text-3}" />
+                                                        </DataTrigger>
+                                                    </Label.Triggers>
+                                                </Label>
+                                            </Grid>
+                                            <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                                        </VerticalStackLayout>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Grid IsVisible="{Binding HasClimateAverages}" ColumnDefinitions="Auto,*" ColumnSpacing="6" Margin="4,4,4,0">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Forecast_Note}" Style="{StaticResource Text.Caption}" />
+                        </Grid>
+                        <Grid IsVisible="{Binding HasForecastNotice}" ColumnDefinitions="Auto,*" ColumnSpacing="6" Margin="4,4,4,0">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding ForecastNotice}" Style="{StaticResource Text.Caption}" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <Label IsVisible="{Binding TripForecastUnavailable}" Text="{x:Static res:AppResources.Forecast_Unavailable}"
+                           Style="{StaticResource Text.Body2}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

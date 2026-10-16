@@ -1,0 +1,114 @@
+# TP-506: CI/CD for TravelPlanner
+#  - every pull request and push: unit tests + Android build
+#  - push to main: signed Android App Bundle (.aab) as a build artifact
+# Signing material lives ONLY in GitHub secrets (see docs/RELEASE.md) - never in the repository.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  APP_PROJECT: TravelPlanner.csproj
+  TEST_PROJECT: Tests/TravelPlanner.Tests/TravelPlanner.Tests.csproj
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Test
+        run: dotnet test ${{ env.TEST_PROJECT }} --configuration Release --logger trx --results-directory TestResults --collect:"XPlat Code Coverage"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults
+
+  android:
+    name: Android build
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: microsoft
+          java-version: '17'
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+
+      - name: Restore
+        run: dotnet restore ${{ env.APP_PROJECT }} -p:TargetFrameworks=net9.0-android
+
+      # Pull requests: compile-check only (no secrets are available to PRs from forks).
+      - name: Build (unsigned)
+        if: github.event_name == 'pull_request'
+        run: >
+          dotnet build ${{ env.APP_PROJECT }} -c Release -f net9.0-android --no-restore
+          -p:TargetFrameworks=net9.0-android
+
+      # main: signed .aab. The build number always increases with the workflow run number.
+      - name: Decode keystore
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
+            echo "::error::ANDROID_KEYSTORE_BASE64 secret is not set - see docs/RELEASE.md"
+            exit 1
+          fi
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/travelplanner.keystore"
+
+      - name: Publish signed AAB
+        if: github.event_name != 'pull_request'
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: >
+          dotnet publish ${{ env.APP_PROJECT }} -c Release -f net9.0-android --no-restore
+          -p:TargetFrameworks=net9.0-android
+          -p:AndroidPackageFormat=aab
+          -p:ApplicationVersion=${{ github.run_number }}
+          -p:AndroidKeyStore=true
+          -p:AndroidSigningKeyStore="$RUNNER_TEMP/travelplanner.keystore"
+          -p:AndroidSigningKeyAlias="$ANDROID_KEY_ALIAS"
+          -p:AndroidSigningStorePass=env:ANDROID_KEYSTORE_PASSWORD
+          -p:AndroidSigningKeyPass=env:ANDROID_KEY_PASSWORD
+          -o artifacts/android
+
+      - name: Remove keystore
+        if: always() && github.event_name != 'pull_request'
+        run: rm -f "$RUNNER_TEMP/travelplanner.keystore"
+
+      - name: Upload AAB
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: travelplanner-android-${{ github.run_number }}
+          path: artifacts/android/*-Signed.aab
+          if-no-files-found: error

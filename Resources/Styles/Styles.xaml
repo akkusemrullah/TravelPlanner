@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<!--
+    TravelPlanner design system - styles.
+
+    Principles (corporate / enterprise look):
+      * Flat surfaces, 1px hairline borders, no gradients or drop shadows.
+      * Graphite (tp-primary) for primary actions and text, coral (tp-accent) used sparingly as the brand accent.
+      * One typeface (Inter) on a fixed type scale, one icon set (Lucide) at fixed sizes (16 / 20 / 24).
+      * 4pt spacing grid: 4 / 8 / 12 / 16 / 20 / 24. Radii: 12 cards, 10 controls, 6 tags.
+
+    Colours always come from the tp- tokens (DesignTokens.xaml + Themes/*.xaml) through DynamicResource so
+    light/dark switching recolours open pages in place.
+-->
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
+    xmlns:controls="clr-namespace:TravelPlanner.Controls">
+
+    <!-- ═══════════════════════════ Implicit styles ═══════════════════════════ -->
+
+    <Style TargetType="Page" ApplyToDerivedTypes="True">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-bg}" />
+    </Style>
+
+    <Style TargetType="Shell" ApplyToDerivedTypes="True">
+        <Setter Property="Shell.BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Shell.ForegroundColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="Shell.TitleColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="Shell.DisabledColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="Shell.UnselectedColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="Shell.NavBarHasShadow" Value="False" />
+        <Setter Property="Shell.TabBarBackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource tp-accent}" />
+        <Setter Property="Shell.TabBarTitleColor" Value="{DynamicResource tp-accent}" />
+        <Setter Property="Shell.TabBarUnselectedColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="Shell.TabBarDisabledColor" Value="{DynamicResource tp-border-strong}" />
+    </Style>
+
+    <Style TargetType="NavigationPage">
+        <Setter Property="BarBackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="BarTextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="IconColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <Style TargetType="Span">
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style TargetType="Border">
+        <Setter Property="Stroke" Value="{DynamicResource tp-border}" />
+        <Setter Property="StrokeShape" Value="Rectangle" />
+        <Setter Property="StrokeThickness" Value="1" />
+    </Style>
+
+    <Style TargetType="BoxView">
+        <Setter Property="Color" Value="{DynamicResource tp-divider}" />
+    </Style>
+
+    <Style TargetType="ActivityIndicator">
+        <Setter Property="Color" Value="{DynamicResource tp-accent}" />
+    </Style>
+
+    <!-- The app's one loading animation (logo pin hopping). Pages set only Size; colours follow the light/dark theme
+         (tp-loader-* tokens). The splash sets its own brand colours (it is royal blue in both themes). -->
+    <Style TargetType="controls:LoadingLogo">
+        <Setter Property="PinColor" Value="{DynamicResource tp-loader-pin}" />
+        <Setter Property="PlaneColor" Value="{DynamicResource tp-loader-plane}" />
+        <Setter Property="ShadowColor" Value="{DynamicResource tp-loader-shadow}" />
+    </Style>
+
+    <Style TargetType="RefreshView">
+        <Setter Property="RefreshColor" Value="{DynamicResource tp-accent}" />
+    </Style>
+
+    <Style TargetType="IndicatorView">
+        <Setter Property="IndicatorColor" Value="{DynamicResource tp-border-strong}" />
+        <Setter Property="SelectedIndicatorColor" Value="{DynamicResource tp-primary}" />
+    </Style>
+
+    <Style TargetType="ProgressBar">
+        <Setter Property="ProgressColor" Value="{DynamicResource tp-accent}" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface-sunken}" />
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Color" Value="{DynamicResource tp-primary}" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+        <Setter Property="MinimumWidthRequest" Value="44" />
+    </Style>
+
+    <Style TargetType="Switch">
+        <Setter Property="OnColor" Value="{DynamicResource tp-accent}" />
+        <Setter Property="ThumbColor" Value="{StaticResource White}" />
+    </Style>
+
+    <Style TargetType="RadioButton">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+    </Style>
+
+    <!-- Text inputs are transparent: the visible field chrome is the "Input" Border around them. -->
+    <!-- Keyboard: typing starts with a capital letter by default (fields that need digits set Keyboard="Numeric"
+         locally; names/places use AppKeyboards.Words). Saved text is also capitalised by the services (TextCase). -->
+    <Style TargetType="Entry">
+        <Setter Property="Keyboard" Value="{x:Static helpers:AppKeyboards.Sentence}" />
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+    </Style>
+
+    <Style TargetType="Editor">
+        <Setter Property="Keyboard" Value="{x:Static helpers:AppKeyboards.Sentence}" />
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <Style TargetType="SearchBar">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="PlaceholderColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="CancelButtonColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+    </Style>
+
+    <Style TargetType="Picker">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="TitleColor" Value="{DynamicResource tp-text-3}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+    </Style>
+
+    <Style TargetType="DatePicker">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+    </Style>
+
+    <Style TargetType="TimePicker">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="MinimumHeightRequest" Value="44" />
+    </Style>
+
+    <!-- ═══════════════════════════ Typography ═══════════════════════════ -->
+
+    <Style x:Key="Text.Display" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="CharacterSpacing" Value="-0.4" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style x:Key="Text.H1" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="CharacterSpacing" Value="-0.3" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style x:Key="Text.H2" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style x:Key="Text.H3" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style x:Key="Text.Title" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+    </Style>
+
+    <Style x:Key="Text.Body" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="LineHeight" Value="1.25" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style x:Key="Text.Body2" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-2}" />
+    </Style>
+
+    <Style x:Key="Text.Caption" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-3}" />
+    </Style>
+
+    <Style x:Key="Text.Overline" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="CharacterSpacing" Value="0.9" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-3}" />
+    </Style>
+
+    <!-- Form field label (above an Input). -->
+    <Style x:Key="Text.Field" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterMedium" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-2}" />
+    </Style>
+
+    <Style x:Key="Text.Link" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+    </Style>
+
+    <Style x:Key="Text.Value" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <!-- Big numbers in KPI tiles. -->
+    <Style x:Key="Text.Metric" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="CharacterSpacing" Value="-0.3" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+    </Style>
+
+    <Style x:Key="Text.Error" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
+    </Style>
+
+    <!-- App-bar title of pushed pages. -->
+    <Style x:Key="Text.AppBarTitle" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="SemanticProperties.HeadingLevel" Value="Level1" />
+    </Style>
+
+    <!-- ═══════════════════════════ Icons (Lucide font) ═══════════════════════════ -->
+
+    <Style x:Key="Icon" TargetType="Label">
+        <Setter Property="FontFamily" Value="Lucide" />
+        <Setter Property="FontSize" Value="20" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-2}" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="AutomationProperties.IsInAccessibleTree" Value="False" />
+    </Style>
+
+    <Style x:Key="Icon.Sm" TargetType="Label" BasedOn="{StaticResource Icon}">
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
+    <Style x:Key="Icon.Xs" TargetType="Label" BasedOn="{StaticResource Icon}">
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <Style x:Key="Icon.Lg" TargetType="Label" BasedOn="{StaticResource Icon}">
+        <Setter Property="FontSize" Value="24" />
+    </Style>
+
+    <Style x:Key="Icon.Accent" TargetType="Label" BasedOn="{StaticResource Icon}">
+        <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
+    </Style>
+
+    <!-- ═══════════════════════════ Surfaces ═══════════════════════════ -->
+
+    <Style x:Key="Card" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <Style x:Key="Card.Compact" TargetType="Border" BasedOn="{StaticResource Card}">
+        <Setter Property="Padding" Value="12" />
+    </Style>
+
+    <!-- Card whose children draw their own padding (lists with dividers). -->
+    <Style x:Key="Card.List" TargetType="Border" BasedOn="{StaticResource Card}">
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style x:Key="Card.Flat" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface-alt}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Padding" Value="12" />
+    </Style>
+
+    <!-- Graphite hero card (featured trip, budget summary). Flat, no gradient. -->
+    <Style x:Key="Card.Hero" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-hero}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-hero-line}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="Padding" Value="20" />
+    </Style>
+
+    <!-- ═══════════════ Trip ticket (boarding-pass card: Dashboard featured trip, Trip detail header) ═══════════════
+         Royal-blue gradient top (destination, countdown, departure ✈ return), a perforated tear line with side
+         notches, white bottom (duration, budget, actions). The notches are page-coloured circles half outside
+         the card, clipped by its rounded shape - so the card must sit directly on a tp-bg page. -->
+    <Style x:Key="Card.Ticket" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Shadow">
+            <Setter.Value>
+                <Shadow Brush="#1E3A8A" Opacity="0.18" Radius="18" Offset="0,8" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Ticket.Notch" TargetType="BoxView">
+        <Setter Property="Color" Value="{DynamicResource tp-bg}" />
+        <Setter Property="WidthRequest" Value="24" />
+        <Setter Property="HeightRequest" Value="24" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="Ticket.Pill" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#33FFFFFF" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+        <Setter Property="VerticalOptions" Value="Start" />
+    </Style>
+
+    <Style x:Key="Ticket.PillText" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="CharacterSpacing" Value="0.6" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="Ticket.Countdown" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="HorizontalTextAlignment" Value="End" />
+    </Style>
+
+    <Style x:Key="Ticket.City" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="CharacterSpacing" Value="-0.5" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+        <Setter Property="MaxLines" Value="1" />
+    </Style>
+
+    <Style x:Key="Ticket.Sub" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterMedium" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="TextColor" Value="#E6EDFC" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+    </Style>
+
+    <Style x:Key="Ticket.Muted" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{StaticResource BrandMuted}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+    </Style>
+
+    <Style x:Key="Ticket.Caption" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="CharacterSpacing" Value="1" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+        <Setter Property="TextColor" Value="{StaticResource BrandMuted}" />
+    </Style>
+
+    <Style x:Key="Ticket.Day" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterBold" />
+        <Setter Property="FontSize" Value="28" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+    </Style>
+
+    <!-- Labels in the white bottom half. -->
+    <Style x:Key="Ticket.StatLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="10" />
+        <Setter Property="CharacterSpacing" Value="1" />
+        <Setter Property="TextTransform" Value="Uppercase" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-3}" />
+    </Style>
+
+    <Style x:Key="Ticket.StatValue" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="LineBreakMode" Value="TailTruncation" />
+    </Style>
+
+    <!-- Inline message banners. -->
+    <Style x:Key="Banner.Warning" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-warning-soft}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <Style x:Key="Banner.Error" TargetType="Border" BasedOn="{StaticResource Banner.Warning}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-danger-soft}" />
+    </Style>
+
+    <Style x:Key="Banner.Info" TargetType="Border" BasedOn="{StaticResource Banner.Warning}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-info-soft}" />
+    </Style>
+
+    <!-- Square tile holding a 20px icon (list leading icons, KPI icons). Neutral by default. -->
+    <Style x:Key="IconTile" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface-alt}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="IconTile.Sm" TargetType="Border" BasedOn="{StaticResource IconTile}">
+        <Setter Property="WidthRequest" Value="32" />
+        <Setter Property="HeightRequest" Value="32" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+    </Style>
+
+    <Style x:Key="IconTile.Accent" TargetType="Border" BasedOn="{StaticResource IconTile}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+        <Setter Property="Stroke" Value="Transparent" />
+    </Style>
+
+    <!-- 40x40 tappable icon container (app-bar actions). Put a TapGestureRecognizer + SemanticProperties.Description on it. -->
+    <Style x:Key="IconButton" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="WidthRequest" Value="40" />
+        <Setter Property="HeightRequest" Value="40" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style x:Key="IconButton.Outlined" TargetType="Border" BasedOn="{StaticResource IconButton}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border}" />
+    </Style>
+
+    <Style x:Key="IconButton.Filled" TargetType="Border" BasedOn="{StaticResource IconButton}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-primary}" />
+    </Style>
+
+    <!-- Floating action button (coral). -->
+    <Style x:Key="Fab" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="WidthRequest" Value="56" />
+        <Setter Property="HeightRequest" Value="56" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalOptions" Value="End" />
+        <Setter Property="VerticalOptions" Value="End" />
+        <Setter Property="Margin" Value="0,0,20,20" />
+    </Style>
+
+    <!-- App bar of pushed pages: [back] Title [actions], 56 high, hairline below (add a Divider after it). -->
+    <Style x:Key="AppBar" TargetType="Grid">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Padding" Value="8,8,12,8" />
+        <Setter Property="ColumnSpacing" Value="4" />
+        <Setter Property="MinimumHeightRequest" Value="56" />
+    </Style>
+
+    <!-- Large-title header of the tab root pages. -->
+    <Style x:Key="PageHeader" TargetType="Grid">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Padding" Value="20,20,16,16" />
+        <Setter Property="ColumnSpacing" Value="8" />
+    </Style>
+
+    <Style x:Key="Divider" TargetType="BoxView">
+        <Setter Property="HeightRequest" Value="1" />
+        <Setter Property="Color" Value="{DynamicResource tp-border}" />
+        <Setter Property="HorizontalOptions" Value="Fill" />
+    </Style>
+
+    <Style x:Key="Divider.Inset" TargetType="BoxView" BasedOn="{StaticResource Divider}">
+        <Setter Property="Color" Value="{DynamicResource tp-divider}" />
+        <Setter Property="Margin" Value="68,0,0,0" />
+    </Style>
+
+    <!-- Text input chrome: wrap an Entry / Picker / DatePicker / Editor in this. -->
+    <!-- Text field chrome: a soft filled, rounded field with a hairline border - no Android underline (removed
+         for every Entry/Editor/Picker/DatePicker/TimePicker/SearchBar in Handlers/InputChrome.cs). While the
+         field inside has focus, InputChrome switches the stroke to the accent colour and the fill to the surface. -->
+    <Style x:Key="Input" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface-alt}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="14,2" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
+    </Style>
+
+    <Style x:Key="Input.Multiline" TargetType="Border" BasedOn="{StaticResource Input}">
+        <Setter Property="Padding" Value="10,6" />
+    </Style>
+
+    <!-- Status tags / chips. Background + text colour set per use (or via TripTagColorConverter). -->
+    <Style x:Key="Tag" TargetType="Border">
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
+        <Setter Property="Padding" Value="8,3" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface-alt}" />
+    </Style>
+
+    <Style x:Key="Tag.Text" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-2}" />
+    </Style>
+
+    <!-- Selectable filter chip (segmented filters). -->
+    <Style x:Key="Chip" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border-strong}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="Padding" Value="12,7" />
+    </Style>
+
+    <!-- Empty-state icon disc. -->
+    <Style x:Key="EmptyIcon" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface-alt}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="WidthRequest" Value="64" />
+        <Setter Property="HeightRequest" Value="64" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+    </Style>
+
+    <!-- ═══════════════════════════ Buttons ═══════════════════════════ -->
+
+    <Style x:Key="BaseButtonStyle" TargetType="Button">
+        <Setter Property="FontFamily" Value="InterSemiBold" />
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="CharacterSpacing" Value="0" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="16,0" />
+        <Setter Property="HeightRequest" Value="48" />
+        <Setter Property="MinimumWidthRequest" Value="44" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-primary}" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-on-primary}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.45" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="PointerOver" />
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Implicit: an unstyled Button is a primary (graphite) button. -->
+    <Style TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}" />
+
+    <Style x:Key="Btn.Primary" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}" />
+
+    <Style x:Key="Btn.Accent" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent}" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-on-accent}" />
+    </Style>
+
+    <Style x:Key="Btn.Secondary" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+        <Setter Property="BorderColor" Value="{DynamicResource tp-border-strong}" />
+        <Setter Property="BorderWidth" Value="1" />
+    </Style>
+
+    <Style x:Key="Btn.Ghost" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+        <Setter Property="Padding" Value="8,0" />
+    </Style>
+
+    <Style x:Key="Btn.Danger" TargetType="Button" BasedOn="{StaticResource BaseButtonStyle}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
+        <Setter Property="BorderColor" Value="{DynamicResource tp-border-strong}" />
+        <Setter Property="BorderWidth" Value="1" />
+    </Style>
+
+    <Style x:Key="Btn.Primary.Sm" TargetType="Button" BasedOn="{StaticResource Btn.Primary}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="12,0" />
+    </Style>
+
+    <Style x:Key="Btn.Secondary.Sm" TargetType="Button" BasedOn="{StaticResource Btn.Secondary}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="12,0" />
+    </Style>
+
+    <Style x:Key="Btn.Accent.Sm" TargetType="Button" BasedOn="{StaticResource Btn.Accent}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="12,0" />
+    </Style>
+
+    <Style x:Key="Btn.Ghost.Sm" TargetType="Button" BasedOn="{StaticResource Btn.Ghost}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="HeightRequest" Value="36" />
+    </Style>
+
+    <!-- Buttons on the graphite hero card. -->
+    <Style x:Key="Btn.OnHero" TargetType="Button" BasedOn="{StaticResource Btn.Primary.Sm}">
+        <Setter Property="BackgroundColor" Value="{StaticResource White}" />
+        <Setter Property="TextColor" Value="{StaticResource Graphite}" />
+    </Style>
+
+    <Style x:Key="Btn.OnHero.Outline" TargetType="Button" BasedOn="{StaticResource Btn.Primary.Sm}">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-on-hero}" />
+        <Setter Property="BorderColor" Value="{DynamicResource tp-hero-muted}" />
+        <Setter Property="BorderWidth" Value="1" />
+    </Style>
+
+    <!-- ═══════════════════════════ Legacy keys (kept so older markup still resolves) ═══════════════════════════ -->
+
+    <Style x:Key="PrimaryButton" TargetType="Button" BasedOn="{StaticResource Btn.Primary}" />
+    <Style x:Key="SecondaryButton" TargetType="Button" BasedOn="{StaticResource Btn.Secondary}" />
+    <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource Btn.Danger}" />
+    <Style x:Key="CardBorder" TargetType="Border" BasedOn="{StaticResource Card}" />
+
+    <Style x:Key="SuggestionsBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+        <Setter Property="Stroke" Value="{DynamicResource tp-border-strong}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Padding" Value="4" />
+    </Style>
+
+    <Style x:Key="SectionTitleLabel" TargetType="Label" BasedOn="{StaticResource Text.Overline}" />
+    <Style x:Key="CaptionLabel" TargetType="Label" BasedOn="{StaticResource Text.Caption}" />
+    <Style x:Key="Headline" TargetType="Label" BasedOn="{StaticResource Text.H1}" />
+    <Style x:Key="SubHeadline" TargetType="Label" BasedOn="{StaticResource Text.H2}" />
+
+    <Style x:Key="EmptyStateIconLabel" TargetType="Label" BasedOn="{StaticResource Icon.Lg}">
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-3}" />
+    </Style>
+
+    <Style x:Key="EmptyStateTextLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="InterRegular" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="HorizontalTextAlignment" Value="Center" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="MaximumWidthRequest" Value="280" />
+        <Setter Property="TextColor" Value="{DynamicResource tp-text-2}" />
+    </Style>
+
+</ResourceDictionary>

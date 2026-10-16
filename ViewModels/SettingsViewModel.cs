@@ -1,0 +1,414 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel.DataTransfer;
+using TravelPlanner.Helpers;
+using TravelPlanner.Resources.Strings;
+using TravelPlanner.Services;
+using TravelPlanner.Services.Sync;
+
+namespace TravelPlanner.ViewModels
+{
+    /// <summary>One entry in a Settings Picker. The Picker shows ToString(), so no ItemDisplayBinding is needed.</summary>
+    public sealed record SettingsOption<T>(T Value, string Display)
+    {
+        public override string ToString() => Display;
+    }
+
+    /// <summary>Backs the Ayarlar (Settings) page: name, currency, reminder time, theme and language (TP-305).</summary>
+    public partial class SettingsViewModel : ViewModelBase
+    {
+        private readonly ISettingsService _settings;
+        private readonly IThemeService _themeService;
+        private readonly ITripService _tripService;
+        private readonly INotificationService _notificationService;
+        private readonly IBackupService _backupService;
+        private readonly IShare _share;
+        private readonly IFilePicker _filePicker;
+        private readonly IAccountService _account;
+        private readonly ISyncService _sync;
+        private readonly ISharingService? _sharing;
+
+        /// <summary>"Sürüm 1.0.0 (12)" - TP-507.</summary>
+        public string VersionText { get; }
+
+        /// <summary>"© 2026 EAKSOFT. Tüm hakları saklıdır." - About section.</summary>
+        public string CopyrightText { get; } = string.Format(AppResources.About_CopyrightFormat, DateTime.Today.Year);
+
+        [ObservableProperty]
+        private string userName = string.Empty;
+
+        [ObservableProperty]
+        private SettingsOption<string>? selectedCurrency;
+
+        [ObservableProperty]
+        private SettingsOption<int>? selectedReminderHour;
+
+        [ObservableProperty]
+        private SettingsOption<AppThemeOption>? selectedTheme;
+
+        [ObservableProperty]
+        private SettingsOption<string>? selectedLanguage;
+
+        /// <summary>Shown after saving when the language changed - XAML strings refresh on the next start.</summary>
+        [ObservableProperty]
+        private bool showLanguageRestartHint;
+
+        /// <summary>Shown after a successful save - Settings is a tab root now, so there is no page to go back to.</summary>
+        [ObservableProperty]
+        private bool showSavedHint;
+
+        /// <summary>Shown as the account name while no "Ad Soyad" is set (brand name - the same in every language).</summary>
+        public const string DefaultDisplayName = "Travel Planner";
+
+        /// <summary>Profile header: the saved "Ad Soyad", or "Travel Planner" while it's empty.</summary>
+        public string DisplayName => string.IsNullOrWhiteSpace(UserName) ? DefaultDisplayName : UserName.Trim();
+
+        /// <summary>Profile avatar: initials of the first and last name ("Emrullah Akkuş" -> "EA").</summary>
+        public string Initials => PersonName.Initials(UserName);
+
+        /// <summary>False while no name is set - the avatar then shows a person icon instead of letters.</summary>
+        public bool HasInitials => Initials.Length > 0;
+
+        partial void OnUserNameChanged(string value)
+        {
+            OnPropertyChanged(nameof(DisplayName));
+            OnPropertyChanged(nameof(Initials));
+            OnPropertyChanged(nameof(HasInitials));
+            ShowSavedHint = false;
+        }
+
+        public IReadOnlyList<SettingsOption<string>> Currencies { get; } = MoneyFormatter.SupportedCurrencies
+            .Select(code => new SettingsOption<string>(code, MoneyFormatter.DisplayName(code)))
+            .ToList();
+
+        public IReadOnlyList<SettingsOption<int>> ReminderHours { get; } = Enumerable.Range(0, 24)
+            .Select(hour => new SettingsOption<int>(hour, $"{hour:00}:00"))
+            .ToList();
+
+        public IReadOnlyList<SettingsOption<AppThemeOption>> Themes { get; } = new[]
+        {
+            new SettingsOption<AppThemeOption>(AppThemeOption.System, AppResources.Theme_System),
+            new SettingsOption<AppThemeOption>(AppThemeOption.Light, AppResources.Theme_Light),
+            new SettingsOption<AppThemeOption>(AppThemeOption.Dark, AppResources.Theme_Dark),
+        };
+
+        public IReadOnlyList<SettingsOption<string>> Languages { get; } = new[]
+        {
+            new SettingsOption<string>(AppLanguages.System, AppResources.Language_System),
+            new SettingsOption<string>(AppLanguages.Turkish, AppResources.Language_Turkish),
+            new SettingsOption<string>(AppLanguages.English, AppResources.Language_English),
+        };
+
+        public SettingsViewModel(
+            ISettingsService settings,
+            IThemeService themeService,
+            ITripService tripService,
+            INotificationService notificationService,
+            IBackupService backupService,
+            IShare share,
+            IFilePicker filePicker,
+            IAppInfo appInfo,
+            IAccountService account,
+            ISyncService sync,
+            IDialogService dialogs,
+            ISharingService? sharing = null)
+            : base(dialogs)
+        {
+            _account = account;
+            _sync = sync;
+            _sharing = sharing;
+            _settings = settings;
+            _themeService = themeService;
+            _tripService = tripService;
+            _notificationService = notificationService;
+            _backupService = backupService;
+            _share = share;
+            _filePicker = filePicker;
+            VersionText = string.Format(AppResources.Settings_VersionFormat, appInfo.VersionString, appInfo.BuildString);
+
+            LoadFromSettings();
+        }
+
+        private bool _loadingSettings;
+
+        private void LoadFromSettings()
+        {
+            // Filling the pickers must not re-apply the theme: the saved theme is already active, and changing
+            // it while the Settings tab is being built is exactly the kind of mid-layout switch that crashed.
+            _loadingSettings = true;
+            try
+            {
+                UserName = _settings.UserName;
+                SelectedCurrency = Currencies.FirstOrDefault(c => c.Value == _settings.CurrencyCode) ?? Currencies[0];
+                SelectedReminderHour = ReminderHours.FirstOrDefault(h => h.Value == _settings.ReminderHour) ?? ReminderHours[SettingsService.DefaultReminderHour];
+                SelectedTheme = Themes.FirstOrDefault(t => t.Value == _settings.Theme) ?? Themes[0];
+                SelectedLanguage = Languages.FirstOrDefault(l => l.Value == _settings.Language) ?? Languages[0];
+            }
+            finally
+            {
+                _loadingSettings = false;
+            }
+        }
+
+        // The theme applies and is saved as soon as it is picked. It used to be only a preview that was undone
+        // when the page disappeared without Save - but Settings is a tab now, so simply switching tabs threw
+        // the chosen dark theme away (and re-applying it during the tab switch could crash on Android).
+        partial void OnSelectedThemeChanged(SettingsOption<AppThemeOption>? value)
+        {
+            if (_loadingSettings || value is null)
+                return;
+
+            _settings.Theme = value.Value;
+            _themeService.Apply(value.Value);
+        }
+
+        [RelayCommand]
+        private Task SaveAsync() => RunSafeAsync(async () =>
+        {
+            var reminderChanged = SelectedReminderHour is not null && SelectedReminderHour.Value != _settings.ReminderHour;
+            var languageChanged = SelectedLanguage is not null && SelectedLanguage.Value != _settings.Language;
+
+            _settings.UserName = UserName;
+            if (SelectedCurrency is not null) _settings.CurrencyCode = SelectedCurrency.Value;
+            if (SelectedReminderHour is not null) _settings.ReminderHour = SelectedReminderHour.Value;
+            if (SelectedTheme is not null) _settings.Theme = SelectedTheme.Value;
+            if (SelectedLanguage is not null) _settings.Language = SelectedLanguage.Value;
+
+            // Already-scheduled reminders used the old hour - move them to the new one.
+            if (reminderChanged)
+            {
+                foreach (var trip in await _tripService.GetAllAsync())
+                {
+                    _notificationService.CancelTripNotifications(trip.Id);
+                    await _notificationService.ScheduleTripNotificationsAsync(trip);
+                }
+            }
+
+            if (languageChanged)
+            {
+                LocalizationHelper.Apply(_settings.Language);
+                ShowLanguageRestartHint = true;
+                return; // stay on the page so the restart hint is seen
+            }
+
+            // Settings is a tab root (Profile) - confirm in place instead of navigating back.
+            ShowSavedHint = true;
+        }, AppResources.Settings_SaveError);
+
+        // ================= G3: account =================
+
+        public bool IsSignedIn => _account.IsSignedIn;
+
+        public bool IsGuest => !_account.IsSignedIn;
+
+        /// <summary>The account's e-mail, or "Misafir" while not signed in.</summary>
+        public string AccountTitle => _account.IsSignedIn
+            ? _account.Email ?? _account.DisplayName ?? string.Empty
+            : AppResources.Account_GuestTitle;
+
+        public string AccountSubtitle => _account.IsSignedIn ? AppResources.Account_SignedInHint : AppResources.Auth_GuestHint;
+
+        /// <summary>"Eşitlendi · 14:32", "3 değişiklik bekliyor", "Çevrimdışı" … (G4).</summary>
+        public string SyncStatusText => _sync.Status switch
+        {
+            SyncStatus.Syncing => AppResources.Sync_StatusSyncing,
+            SyncStatus.Offline => _sync.PendingCount > 0
+                ? string.Format(AppResources.Sync_StatusOfflinePendingFormat, _sync.PendingCount)
+                : AppResources.Sync_StatusOffline,
+            SyncStatus.Pending => string.Format(AppResources.Sync_StatusPendingFormat, _sync.PendingCount),
+            SyncStatus.Error => AppResources.Sync_StatusError,
+            SyncStatus.UpToDate when _sync.LastSyncedAtUtc is { } last =>
+                string.Format(AppResources.Sync_StatusUpToDateFormat, last.ToLocalTime().ToString("t", System.Globalization.CultureInfo.CurrentCulture)),
+            SyncStatus.UpToDate => AppResources.Sync_StatusUpToDate,
+            _ => string.Empty,
+        };
+
+        public bool IsSyncing => _sync.Status == SyncStatus.Syncing;
+
+        /// <summary>SettingsPage calls this in OnAppearing / OnDisappearing so the status line stays live.</summary>
+        public void AttachSyncStatus(bool attach)
+        {
+            _sync.StatusChanged -= OnSyncStatusChanged;
+            if (attach)
+            {
+                _sync.StatusChanged += OnSyncStatusChanged;
+                OnSyncStatusChanged(this, EventArgs.Empty);
+            }
+        }
+
+        private void OnSyncStatusChanged(object? sender, EventArgs e) => MainThread.BeginInvokeOnMainThread(() =>
+        {
+            OnPropertyChanged(nameof(SyncStatusText));
+            OnPropertyChanged(nameof(IsSyncing));
+        });
+
+        [RelayCommand]
+        private Task SyncNowAsync() => RunSafeAsync(() => _sync.SyncNowAsync());
+
+        [RelayCommand]
+        private Task OpenSignInAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Auth));
+
+        /// <summary>Signs out; the app switches back to the guest data (the account's data stays on the device).</summary>
+        [RelayCommand]
+        private Task SignOutAsync() => RunSafeAsync(async () =>
+        {
+            if (!await Dialogs.ConfirmAsync(AppResources.Account_SignOutTitle, AppResources.Account_SignOutMessage,
+                                            AppResources.Account_SignOut, AppResources.Common_Cancel))
+                return;
+
+            await _account.SignOutAsync();
+        });
+
+        // ================= G7: delete the account =================
+
+        /// <summary>Shown while the account is being deleted (the card's buttons are hidden meanwhile).</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanDeleteAccount))]
+        private bool isDeletingAccount;
+
+        public bool CanDeleteAccount => IsSignedIn && !IsDeletingAccount;
+
+        /// <summary>
+        /// Deletes the account after two confirmations (a warning, then typing "SİL"). Online only. Afterwards the app
+        /// continues as a guest - the shell is rebuilt, so the result is shown on the new page a moment later.
+        /// </summary>
+        [RelayCommand]
+        private Task DeleteAccountAsync() => RunSafeAsync(async () =>
+        {
+            if (!_account.IsSignedIn || IsDeletingAccount)
+                return;
+
+            if (!await Dialogs.ConfirmAsync(AppResources.Account_DeleteTitle, AppResources.Account_DeleteMessage,
+                                            AppResources.Account_DeleteContinue, AppResources.Common_Cancel))
+                return;
+
+            var typed = await Dialogs.PromptAsync(AppResources.Account_DeleteTitle,
+                string.Format(AppResources.Account_DeleteTypeFormat, AppResources.Account_DeleteKeyword),
+                accept: AppResources.Account_DeleteConfirm, cancel: AppResources.Common_Cancel);
+            if (typed is null)
+                return;
+            // Case and Turkish letters don't matter: "sil", "SIL" and "SİL" all confirm.
+            if (PackingPlanMatcher.Fold(typed).Trim() != PackingPlanMatcher.Fold(AppResources.Account_DeleteKeyword).Trim())
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Account_DeleteTitle, AppResources.Account_DeleteKeywordMismatch);
+                return;
+            }
+
+            IsDeletingAccount = true;
+            try
+            {
+                await _account.DeleteAccountAsync();
+            }
+            catch (SyncException ex) when (ex.Kind is SyncErrorKind.Network or SyncErrorKind.NotSignedIn)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Account_DeleteTitle, AppResources.Account_DeleteOffline);
+                return;
+            }
+            finally
+            {
+                IsDeletingAccount = false;
+            }
+
+            // App rebuilds the shell for the guest data right after the switch; say it on the new page.
+            await Task.Delay(AccountDeletedNoticeDelay);
+            await Dialogs.ShowMessageAsync(AppResources.Account_DeleteTitle, AppResources.Account_Deleted);
+        }, AppResources.Account_DeleteError);
+
+        /// <summary>Wait before the "account deleted" message, so it lands on the rebuilt shell (0 in tests).</summary>
+        internal TimeSpan AccountDeletedNoticeDelay { get; set; } = TimeSpan.FromMilliseconds(900);
+
+        // ================= TP-502: backup & restore =================
+
+        /// <summary>Exports everything to a .zip and opens the share sheet so it can be saved (Files, Drive, e-mail…).</summary>
+        [RelayCommand]
+        private Task ExportBackupAsync() => RunSafeAsync(async () =>
+        {
+            var path = await _backupService.ExportAsync();
+            await _share.RequestAsync(new ShareFileRequest
+            {
+                Title = AppResources.Backup_ShareTitle,
+                File = new ShareFile(path, "application/zip")
+            });
+        }, AppResources.Backup_ExportError);
+
+        [RelayCommand]
+        private Task ImportBackupAsync() => RunSafeAsync(async () =>
+        {
+            if (!await Dialogs.ConfirmAsync(AppResources.Backup_ImportTitle, AppResources.Backup_ImportWarning, AppResources.Backup_ImportAccept))
+                return;
+
+            var file = await _filePicker.PickAsync(new PickOptions { PickerTitle = AppResources.Backup_ImportTitle });
+            if (file is null)
+                return;
+
+            BackupImportResult result;
+            try
+            {
+                await using var stream = await file.OpenReadAsync();
+                result = await _backupService.ImportAsync(stream, file.FileName);
+            }
+            catch (InvalidBackupException)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, AppResources.Backup_Invalid);
+                return;
+            }
+
+            // Restored trips need their reminders scheduled on this device.
+            foreach (var trip in await _tripService.GetAllAsync())
+            {
+                _notificationService.CancelTripNotifications(trip.Id);
+                await _notificationService.ScheduleTripNotificationsAsync(trip);
+            }
+
+            await Dialogs.ShowMessageAsync(AppResources.Common_Info,
+                string.Format(AppResources.Backup_ImportedFormat, result.Trips, result.Expenses, result.Attachments, result.ExportedAt.ToString("g", System.Globalization.CultureInfo.CurrentCulture)));
+        }, AppResources.Backup_ImportError);
+
+        [RelayCommand]
+        private async Task OpenPrivacyAsync() => await Shell.Current.GoToAsync(Routes.Privacy);
+
+        // ================= G6: trash and joining a shared trip =================
+
+        [RelayCommand]
+        private Task OpenTrashAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Trash));
+
+        /// <summary>"Davet koduyla katıl": asks for the code, joins the trip and opens it.</summary>
+        [RelayCommand]
+        private Task JoinTripAsync() => RunSafeAsync(async () =>
+        {
+            if (_sharing is null || !_account.IsSignedIn) return;
+
+            var code = await Dialogs.PromptAsync(AppResources.Join_Title, AppResources.Join_Message,
+                                                 accept: AppResources.Join_Accept, cancel: AppResources.Common_Cancel);
+            if (string.IsNullOrWhiteSpace(code)) return;
+
+            JoinedTrip joined;
+            try
+            {
+                joined = await _sharing.AcceptInviteAsync(code);
+            }
+            catch (SharingException ex)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, SharingTexts.ErrorFor(ex.Kind));
+                return;
+            }
+
+            if (joined.LocalTripId is int tripId)
+            {
+                await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={tripId}");
+                return;
+            }
+
+            // Joined, but the sync hasn't brought it in yet (e.g. connection dropped): it appears with the next sync.
+            await Dialogs.ShowMessageAsync(AppResources.Common_Info,
+                string.Format(AppResources.Join_PendingFormat, joined.TripName ?? string.Empty));
+        }, AppResources.Members_ActionError);
+
+        [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            if (Shell.Current?.Navigation.NavigationStack.Count > 1)
+                await Shell.Current.GoToAsync("..");
+        }
+    }
+}

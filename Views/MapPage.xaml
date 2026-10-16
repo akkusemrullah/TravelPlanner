@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
+             x:Class="TravelPlanner.Views.MapPage"
+             x:DataType="vm:MapViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Map}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <!-- ════════ TP-505: route of a plan day + pin legend ════════ -->
+        <VerticalStackLayout Grid.Row="2" Padding="16,10,16,12" Spacing="10" BackgroundColor="{DynamicResource tp-surface}">
+            <Border IsVisible="{Binding HasRoutes}" Style="{StaticResource Input}" MinimumHeightRequest="40">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Route}" TextColor="{DynamicResource tp-text-3}" />
+                    <Picker Grid.Column="1" ItemsSource="{Binding RouteDays}" SelectedItem="{Binding SelectedRouteDay}" FontSize="14"
+                            Title="{x:Static res:AppResources.Map_RouteLabel}" />
+                </Grid>
+            </Border>
+            <!-- Wraps onto a second line on narrow screens instead of running off the edge. -->
+            <FlexLayout Wrap="Wrap" AlignItems="Center">
+                <HorizontalStackLayout Spacing="6" Margin="0,2,16,2">
+                    <Ellipse Fill="{DynamicResource tp-primary}" Stroke="{DynamicResource tp-surface}" StrokeThickness="1.5" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" />
+                    <Label Text="{x:Static res:AppResources.Place_NotVisited}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="6" Margin="0,2,16,2">
+                    <Ellipse Fill="{DynamicResource tp-success}" Stroke="{DynamicResource tp-surface}" StrokeThickness="1.5" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" />
+                    <Label Text="{x:Static res:AppResources.Place_Visited}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="6" Margin="0,2,16,2" IsVisible="{Binding HasRoutes}">
+                    <BoxView Color="{DynamicResource tp-accent}" WidthRequest="16" HeightRequest="3" VerticalOptions="Center" />
+                    <Label Text="{x:Static res:AppResources.Map_RouteLegend}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" />
+                </HorizontalStackLayout>
+            </FlexLayout>
+        </VerticalStackLayout>
+
+        <Grid Grid.Row="3">
+            <!-- Free map rendering: MapLibre GL JS (bundled in Resources/Raw/maplibre) + keyless OpenFreeMap
+                 (OpenStreetMap) vector tiles inside a WebView, no API key or billing account required. HTML is built and
+                 assigned to Source from code-behind (see MapPage.xaml.cs, RenderMap()). -->
+            <WebView x:Name="MapWebView" />
+
+            <!-- TP-108: tiles need internet - say so instead of showing a silently blank map. -->
+            <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}" VerticalOptions="Start" Margin="12">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" />
+                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Map_Offline}" FontSize="13" TextColor="{DynamicResource tp-warning}" VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <Border IsVisible="{Binding IsLoadingCity}" Style="{StaticResource Card.Compact}" VerticalOptions="Center" HorizontalOptions="Center" Padding="16,12">
+                <HorizontalStackLayout Spacing="10">
+                    <controls:LoadingDots IsVisible="{Binding IsLoadingCity}" DotSize="6" DotColor="{DynamicResource tp-primary}" />
+                    <Label Text="{x:Static res:AppResources.Map_LocatingCity}" Style="{StaticResource Text.Body2}" FontSize="13" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+
+        <!-- ════════ Saved places sheet ════════ -->
+        <Grid Grid.Row="4" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
+            <CollectionView Grid.Row="1" ItemsSource="{Binding Pins}" HeightRequest="148" Margin="0,4">
+                <CollectionView.EmptyView>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="20,16">
+                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
+                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.MapPinned}" />
+                        </Border>
+                        <Label Grid.Column="1" Text="{x:Static res:AppResources.Map_Empty}" Style="{StaticResource Text.Body2}" VerticalOptions="Center" />
+                    </Grid>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Place">
+                        <Grid Padding="20,10" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" />
+                            <Label Grid.Column="1" Text="{Binding Name}" Style="{StaticResource Text.Title}" FontSize="14" VerticalOptions="Center" />
+                            <Border Grid.Column="2" Style="{StaticResource Tag}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding IsVisited}" Value="True">
+                                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Label Text="{Binding IsVisited, Converter={StaticResource VisitedTextConverter}}" Style="{StaticResource Tag.Text}">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
+</ContentPage>

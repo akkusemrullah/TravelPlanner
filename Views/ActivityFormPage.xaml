@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             x:Class="TravelPlanner.Views.ActivityFormPage"
+             x:DataType="vm:ActivityFormViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{Binding PageTitle}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,20,16,24" Spacing="24">
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Activity_NameLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding Title}" Placeholder="{x:Static res:AppResources.Activity_NamePlaceholder}" MaxLength="150" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Activity_DateLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Calendar}" TextColor="{DynamicResource tp-text-3}" />
+                                    <DatePicker Grid.Column="1" Date="{Binding Date}" MinimumDate="{Binding MinimumDate}" MaximumDate="{Binding MaximumDate}" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ════════ Time ════════ -->
+                <Border Style="{StaticResource Card.List}">
+                    <VerticalStackLayout Spacing="0">
+                        <!-- The whole row toggles; the switch is drawn by the app (Controls/ToggleSwitch) so it is never
+                             clipped and stays visible when off, in both themes. -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,10,16,10" MinimumHeightRequest="60"
+                              SemanticProperties.Description="{x:Static res:AppResources.Activity_HasTime}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleHasTimeCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Clock}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Activity_HasTime}" Style="{StaticResource Text.Body}"
+                                   VerticalOptions="Center" LineBreakMode="WordWrap" />
+                            <controls:ToggleSwitch Grid.Column="2" IsToggled="{Binding HasTime}" InputTransparent="True" />
+                        </Grid>
+                        <VerticalStackLayout IsVisible="{Binding HasTime}" Spacing="0">
+                            <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                            <VerticalStackLayout Spacing="6" Padding="16,12">
+                                <Label Text="{x:Static res:AppResources.Activity_StartLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <TimePicker Time="{Binding StartTime}" Format="HH:mm" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" Padding="16,10,16,10" MinimumHeightRequest="56"
+                                  SemanticProperties.Description="{x:Static res:AppResources.Activity_HasEndTime}">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ToggleHasEndTimeCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Label Grid.Column="0" Text="{x:Static res:AppResources.Activity_HasEndTime}" Style="{StaticResource Text.Body}"
+                                       VerticalOptions="Center" LineBreakMode="WordWrap" />
+                                <controls:ToggleSwitch Grid.Column="1" IsToggled="{Binding HasEndTime}" InputTransparent="True" />
+                            </Grid>
+                            <VerticalStackLayout IsVisible="{Binding HasEndTime}" Spacing="6" Padding="16,0,16,14">
+                                <Label Text="{x:Static res:AppResources.Activity_EndLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <TimePicker Time="{Binding EndTime}" Format="HH:mm" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ════════ Place + note ════════ -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Activity_PlaceLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" />
+                                    <Picker Grid.Column="1" ItemsSource="{Binding PlaceOptions}" SelectedItem="{Binding SelectedPlace}"
+                                            Title="{x:Static res:AppResources.Activity_PlaceLabel}" IsEnabled="{Binding HasPlaces}" />
+                                </Grid>
+                            </Border>
+                            <Label Text="{x:Static res:AppResources.Activity_NoPlacesHint}" Style="{StaticResource Text.Caption}"
+                                   IsVisible="{Binding HasPlaces, Converter={StaticResource InvertBoolConverter}}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Common_DescriptionLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input.Multiline}" MinimumHeightRequest="88">
+                                <Editor Text="{Binding Note}" AutoSize="TextChanges" MaxLength="500" Placeholder="{x:Static res:AppResources.Common_OptionalNote}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ════════ Action bar ════════ -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12">
+                <Border IsVisible="{Binding HasValidationError}" Style="{StaticResource Banner.Error}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{Binding ValidationMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" />
+                    </Grid>
+                </Border>
+                <Grid ColumnDefinitions="*,2*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Secondary}" />
+                    <Button Grid.Column="1" Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,2336 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Kaydet</value>
+  </data>
+  <data name="Common_SaveShort" xml:space="preserve">
+    <value>Kaydet</value>
+  </data>
+  <data name="Common_Delete" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="Common_DeleteConfirm" xml:space="preserve">
+    <value>Sil</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Vazgeç</value>
+  </data>
+  <data name="Common_Ok" xml:space="preserve">
+    <value>Tamam</value>
+  </data>
+  <data name="Common_Error" xml:space="preserve">
+    <value>Hata</value>
+  </data>
+  <data name="Common_GenericError" xml:space="preserve">
+    <value>Bir hata oluştu. Lütfen tekrar deneyin.</value>
+  </data>
+  <data name="Common_DescriptionLabel" xml:space="preserve">
+    <value>Açıklama</value>
+  </data>
+  <data name="Common_OptionalNote" xml:space="preserve">
+    <value>İsteğe bağlı not</value>
+  </data>
+  <data name="Common_New" xml:space="preserve">
+    <value>Yeni</value>
+  </data>
+  <data name="Common_All" xml:space="preserve">
+    <value>Tümü</value>
+  </data>
+  <data name="Common_DaysFormat" xml:space="preserve">
+    <value>{0} Gün</value>
+  </data>
+  <data name="Nav_Home" xml:space="preserve">
+    <value>Ana Sayfa</value>
+  </data>
+  <data name="Nav_Trips" xml:space="preserve">
+    <value>Seyahatler</value>
+  </data>
+  <data name="Nav_Expenses" xml:space="preserve">
+    <value>Harcamalar</value>
+  </data>
+  <data name="Nav_Profile" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="Section_MyTrips" xml:space="preserve">
+    <value>Seyahatlerim</value>
+  </data>
+  <data name="Section_Tasks" xml:space="preserve">
+    <value>Görevler</value>
+  </data>
+  <data name="Section_Expenses" xml:space="preserve">
+    <value>Harcamalar</value>
+  </data>
+  <data name="Section_Places" xml:space="preserve">
+    <value>Yerler</value>
+  </data>
+  <data name="Section_Map" xml:space="preserve">
+    <value>Harita</value>
+  </data>
+  <data name="Section_Weather" xml:space="preserve">
+    <value>Hava Durumu</value>
+  </data>
+  <data name="Page_Expense" xml:space="preserve">
+    <value>Harcama</value>
+  </data>
+  <data name="Page_Place" xml:space="preserve">
+    <value>Yer</value>
+  </data>
+  <data name="A11y_Back" xml:space="preserve">
+    <value>Geri</value>
+  </data>
+  <data name="A11y_Add" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="A11y_Edit" xml:space="preserve">
+    <value>Düzenle</value>
+  </data>
+  <data name="A11y_Settings" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="A11y_Notifications" xml:space="preserve">
+    <value>Bildirimler</value>
+  </data>
+  <data name="A11y_AddTask" xml:space="preserve">
+    <value>Görevi ekle</value>
+  </data>
+  <data name="A11y_Loading" xml:space="preserve">
+    <value>Yükleniyor</value>
+  </data>
+  <data name="Dashboard_Greeting" xml:space="preserve">
+    <value>Merhaba {0}</value>
+  </data>
+  <data name="Dashboard_GreetingNoName" xml:space="preserve">
+    <value>Merhaba</value>
+  </data>
+  <data name="Dashboard_TodayFormat" xml:space="preserve">
+    <value>Bugün {0}</value>
+  </data>
+  <data name="Dashboard_Subtitle" xml:space="preserve">
+    <value>Seyahatlerini planlamaya hazır mısın?</value>
+  </data>
+  <data name="Dashboard_WeatherShort" xml:space="preserve">
+    <value>Hava</value>
+  </data>
+  <data name="Dashboard_MapShort" xml:space="preserve">
+    <value>Harita</value>
+  </data>
+  <data name="Dashboard_Details" xml:space="preserve">
+    <value>Detaylar</value>
+  </data>
+  <data name="Dashboard_BudgetHeader" xml:space="preserve">
+    <value>Bütçe</value>
+  </data>
+  <data name="Dashboard_EmptyTitle" xml:space="preserve">
+    <value>Henüz seyahat planın yok.</value>
+  </data>
+  <data name="Dashboard_EmptyBody" xml:space="preserve">
+    <value>İlk planını oluştur, tarihleri ve bütçeyi ekle; gerisini biz hatırlatırız.</value>
+  </data>
+  <data name="Dashboard_CreateTrip" xml:space="preserve">
+    <value>Yeni Seyahat Oluştur</value>
+  </data>
+  <data name="Dashboard_TotalTrips" xml:space="preserve">
+    <value>Toplam Seyahat</value>
+  </data>
+  <data name="Dashboard_VisitedCountries" xml:space="preserve">
+    <value>Gezilen Ülke</value>
+  </data>
+  <data name="Dashboard_TotalExpenses" xml:space="preserve">
+    <value>Toplam Harcama</value>
+  </data>
+  <data name="Dashboard_BadgeOngoing" xml:space="preserve">
+    <value>Devam eden seyahat</value>
+  </data>
+  <data name="Dashboard_BadgeUpcoming" xml:space="preserve">
+    <value>Yaklaşan seyahat</value>
+  </data>
+  <data name="Dashboard_EndsIn" xml:space="preserve">
+    <value>Bitmesine</value>
+  </data>
+  <data name="Dashboard_StartsIn" xml:space="preserve">
+    <value>Kalan süre</value>
+  </data>
+  <data name="Dashboard_LoadError" xml:space="preserve">
+    <value>Ana sayfa verileri yüklenemedi.</value>
+  </data>
+  <data name="Status_Ongoing" xml:space="preserve">
+    <value>Devam Ediyor</value>
+  </data>
+  <data name="Status_Upcoming" xml:space="preserve">
+    <value>Yaklaşan</value>
+  </data>
+  <data name="Status_Completed" xml:space="preserve">
+    <value>Tamamlandı</value>
+  </data>
+  <data name="TripList_Empty" xml:space="preserve">
+    <value>Henüz seyahat eklenmedi.</value>
+  </data>
+  <data name="TripList_EmptyHint" xml:space="preserve">
+    <value>Başlamak için sağ üstteki + simgesine dokunun.</value>
+  </data>
+  <data name="TripList_LoadError" xml:space="preserve">
+    <value>Seyahatler yüklenemedi.</value>
+  </data>
+  <data name="TripList_DeleteError" xml:space="preserve">
+    <value>Seyahat silinemedi.</value>
+  </data>
+  <data name="TripDelete_Title" xml:space="preserve">
+    <value>Seyahati sil</value>
+  </data>
+  <data name="TripDelete_Message" xml:space="preserve">
+    <value>"{0}" seyahati silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin.</value>
+  </data>
+  <data name="TripDelete_MessageWithRelated" xml:space="preserve">
+    <value>"{0}" seyahati silinecek. Birlikte silinecekler: {1}. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin.</value>
+  </data>
+  <data name="TripDelete_TodosFormat" xml:space="preserve">
+    <value>{0} görev</value>
+  </data>
+  <data name="TripDelete_ExpensesFormat" xml:space="preserve">
+    <value>{0} harcama</value>
+  </data>
+  <data name="TripDelete_PlacesFormat" xml:space="preserve">
+    <value>{0} yer</value>
+  </data>
+  <data name="TripDetail_PlannedBudgetFormat" xml:space="preserve">
+    <value>Planlanan bütçe: {0}</value>
+  </data>
+  <data name="TripDetail_NoBudget" xml:space="preserve">
+    <value>Bu seyahat için bütçe belirlenmedi.</value>
+  </data>
+  <data name="TripDetail_OverBudget" xml:space="preserve">
+    <value>Bütçenizi aştınız</value>
+  </data>
+  <data name="TripDetail_Delete" xml:space="preserve">
+    <value>Seyahati Sil</value>
+  </data>
+  <data name="TripDetail_LoadError" xml:space="preserve">
+    <value>Seyahat detayları yüklenemedi.</value>
+  </data>
+  <data name="TripDetail_DeleteError" xml:space="preserve">
+    <value>Seyahat silinemedi.</value>
+  </data>
+  <data name="Budget_Planned" xml:space="preserve">
+    <value>Planlanan</value>
+  </data>
+  <data name="Budget_Spent" xml:space="preserve">
+    <value>Harcanan</value>
+  </data>
+  <data name="Budget_Remaining" xml:space="preserve">
+    <value>Kalan</value>
+  </data>
+  <data name="Budget_Used" xml:space="preserve">
+    <value>Kullanılan</value>
+  </data>
+  <data name="TripForm_TitleAdd" xml:space="preserve">
+    <value>Seyahat Ekle</value>
+  </data>
+  <data name="TripForm_TitleEdit" xml:space="preserve">
+    <value>Seyahati Düzenle</value>
+  </data>
+  <data name="TripForm_NameLabel" xml:space="preserve">
+    <value>Seyahat adı</value>
+  </data>
+  <data name="TripForm_NamePlaceholder" xml:space="preserve">
+    <value>Örn. İtalya Yaz Tatili</value>
+  </data>
+  <data name="TripForm_DestinationLabel" xml:space="preserve">
+    <value>Gidilecek yer</value>
+  </data>
+  <data name="TripForm_CityPlaceholder" xml:space="preserve">
+    <value>Şehir veya bölge yazın, örn. Roma</value>
+  </data>
+  <data name="TripForm_StartLabel" xml:space="preserve">
+    <value>Başlangıç</value>
+  </data>
+  <data name="TripForm_EndLabel" xml:space="preserve">
+    <value>Bitiş</value>
+  </data>
+  <data name="TripForm_BudgetLabel" xml:space="preserve">
+    <value>Planlanan bütçe</value>
+  </data>
+  <data name="TripForm_DescriptionPlaceholder" xml:space="preserve">
+    <value>Bu seyahat hakkında notlar (isteğe bağlı)</value>
+  </data>
+  <data name="TripForm_CityOffline" xml:space="preserve">
+    <value>İnternet bağlantısı yok; şehir önerileri gösterilemiyor. Şehri elle yazabilirsiniz.</value>
+  </data>
+  <data name="TripForm_NameRequired" xml:space="preserve">
+    <value>Lütfen seyahat adını girin.</value>
+  </data>
+  <data name="TripForm_CityRequired" xml:space="preserve">
+    <value>Lütfen gidilecek şehri girin.</value>
+  </data>
+  <data name="TripForm_EndBeforeStart" xml:space="preserve">
+    <value>Bitiş tarihi başlangıç tarihinden önce olamaz.</value>
+  </data>
+  <data name="TripForm_NegativeBudget" xml:space="preserve">
+    <value>Planlanan bütçe negatif olamaz.</value>
+  </data>
+  <data name="TripForm_LoadError" xml:space="preserve">
+    <value>Seyahat bilgileri yüklenemedi.</value>
+  </data>
+  <data name="TripForm_SaveError" xml:space="preserve">
+    <value>Seyahat kaydedilemedi.</value>
+  </data>
+  <data name="Todo_NewPlaceholder" xml:space="preserve">
+    <value>Yeni görev...</value>
+  </data>
+  <data name="Todo_Empty" xml:space="preserve">
+    <value>Henüz görev yok - yukarıdan bir görev ekleyin.</value>
+  </data>
+  <data name="Todo_EditTitle" xml:space="preserve">
+    <value>Görevi düzenle</value>
+  </data>
+  <data name="Todo_EditMessage" xml:space="preserve">
+    <value>Görev adı:</value>
+  </data>
+  <data name="Todo_DeleteTitle" xml:space="preserve">
+    <value>Görevi sil</value>
+  </data>
+  <data name="Todo_DeleteMessage" xml:space="preserve">
+    <value>"{0}" görevi silinecek.</value>
+  </data>
+  <data name="Todo_LoadError" xml:space="preserve">
+    <value>Görevler yüklenemedi.</value>
+  </data>
+  <data name="Todo_AddError" xml:space="preserve">
+    <value>Görev eklenemedi.</value>
+  </data>
+  <data name="Todo_UpdateError" xml:space="preserve">
+    <value>Görev güncellenemedi.</value>
+  </data>
+  <data name="Todo_DeleteError" xml:space="preserve">
+    <value>Görev silinemedi.</value>
+  </data>
+  <data name="Expense_CategoryLabel" xml:space="preserve">
+    <value>Kategori</value>
+  </data>
+  <data name="Expense_AmountLabel" xml:space="preserve">
+    <value>Miktar</value>
+  </data>
+  <data name="Expense_DateLabel" xml:space="preserve">
+    <value>Tarih</value>
+  </data>
+  <data name="Expense_AmountRequired" xml:space="preserve">
+    <value>Lütfen sıfırdan büyük bir tutar girin.</value>
+  </data>
+  <data name="Expense_DateOutsideTrip" xml:space="preserve">
+    <value>Bu tarih seyahat tarihlerinin ({0}) dışında. Yine de kaydedebilirsiniz.</value>
+  </data>
+  <data name="Expense_LoadError" xml:space="preserve">
+    <value>Harcama bilgileri yüklenemedi.</value>
+  </data>
+  <data name="Expense_SaveError" xml:space="preserve">
+    <value>Harcama kaydedilemedi.</value>
+  </data>
+  <data name="ExpenseList_FilterTitle" xml:space="preserve">
+    <value>Kategoriye göre filtrele</value>
+  </data>
+  <data name="ExpenseList_Total" xml:space="preserve">
+    <value>Toplam Harcama</value>
+  </data>
+  <data name="ExpenseList_Empty" xml:space="preserve">
+    <value>Bu filtre için herhangi bir masraf kaydedilmedi.</value>
+  </data>
+  <data name="ExpenseList_DeleteTitle" xml:space="preserve">
+    <value>Harcamayı sil</value>
+  </data>
+  <data name="ExpenseList_DeleteMessage" xml:space="preserve">
+    <value>"{0}" harcaması silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin.</value>
+  </data>
+  <data name="ExpenseList_LoadError" xml:space="preserve">
+    <value>Harcamalar yüklenemedi.</value>
+  </data>
+  <data name="ExpenseList_DeleteError" xml:space="preserve">
+    <value>Harcama silinemedi.</value>
+  </data>
+  <data name="Category_All" xml:space="preserve">
+    <value>Tümü</value>
+  </data>
+  <data name="Category_Transportation" xml:space="preserve">
+    <value>Ulaşım</value>
+  </data>
+  <data name="Category_Accommodation" xml:space="preserve">
+    <value>Konaklama</value>
+  </data>
+  <data name="Category_Food" xml:space="preserve">
+    <value>Yemek</value>
+  </data>
+  <data name="Category_Entertainment" xml:space="preserve">
+    <value>Eğlence</value>
+  </data>
+  <data name="Category_Shopping" xml:space="preserve">
+    <value>Alışveriş</value>
+  </data>
+  <data name="Category_Other" xml:space="preserve">
+    <value>Diğer</value>
+  </data>
+  <data name="Place_NameLabel" xml:space="preserve">
+    <value>Yer adı</value>
+  </data>
+  <data name="Place_NamePlaceholder" xml:space="preserve">
+    <value>Yazmaya başlayın, örn. Kolezyum</value>
+  </data>
+  <data name="Place_SuggestionsOffline" xml:space="preserve">
+    <value>İnternet bağlantısı yok; konum önerileri için bağlantı gerekiyor.</value>
+  </data>
+  <data name="Place_NameRequired" xml:space="preserve">
+    <value>Lütfen yer adını girin.</value>
+  </data>
+  <data name="Place_PickSuggestion" xml:space="preserve">
+    <value>Lütfen yazarken çıkan öneri listesinden bir konum seçin.</value>
+  </data>
+  <data name="Place_LoadError" xml:space="preserve">
+    <value>Yer bilgileri yüklenemedi.</value>
+  </data>
+  <data name="Place_SaveError" xml:space="preserve">
+    <value>Yer kaydedilemedi.</value>
+  </data>
+  <data name="Place_Visited" xml:space="preserve">
+    <value>Ziyaret edildi</value>
+  </data>
+  <data name="Place_NotVisited" xml:space="preserve">
+    <value>Ziyaret edilmedi</value>
+  </data>
+  <data name="PlaceList_Empty" xml:space="preserve">
+    <value>Henüz kayıtlı bir yer yok.</value>
+  </data>
+  <data name="PlaceList_DeleteTitle" xml:space="preserve">
+    <value>Yeri sil</value>
+  </data>
+  <data name="PlaceList_DeleteMessage" xml:space="preserve">
+    <value>"{0}" silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin.</value>
+  </data>
+  <data name="PlaceList_LoadError" xml:space="preserve">
+    <value>Yerler yüklenemedi.</value>
+  </data>
+  <data name="PlaceList_VisitedError" xml:space="preserve">
+    <value>Ziyaret durumu güncellenemedi.</value>
+  </data>
+  <data name="PlaceList_DeleteError" xml:space="preserve">
+    <value>Yer silinemedi.</value>
+  </data>
+  <data name="Map_LocatingCity" xml:space="preserve">
+    <value>Şehir konumu bulunuyor...</value>
+  </data>
+  <data name="Map_Offline" xml:space="preserve">
+    <value>İnternet bağlantısı yok. Harita görüntüsü yüklenemiyor; kayıtlı yerler aşağıda listeleniyor.</value>
+  </data>
+  <data name="Map_TileError" xml:space="preserve">
+    <value>Harita görüntüsü yüklenemedi. İnternet bağlantınızı kontrol edin; kayıtlı yerler yine de gösteriliyor.</value>
+  </data>
+  <data name="Map_Empty" xml:space="preserve">
+    <value>Bu seyahat için henüz kaydedilmiş bir yer yok; Yerler bölümünden ekleme yapabilirsiniz.</value>
+  </data>
+  <data name="Map_LoadError" xml:space="preserve">
+    <value>Harita verileri yüklenemedi.</value>
+  </data>
+  <data name="Map_RenderError" xml:space="preserve">
+    <value>Harita gösterilemedi.</value>
+  </data>
+  <data name="Map_Attribution" xml:space="preserve">
+    <value>OpenStreetMap katkıda bulunanlar</value>
+  </data>
+  <data name="Weather_Error" xml:space="preserve">
+    <value>Hava durumu bilgisi alınamadı :( İnternet bağlantınızı kontrol edip yenilemek için aşağı çekin.</value>
+  </data>
+  <data name="Weather_Offline" xml:space="preserve">
+    <value>İnternet bağlantısı yok. Hava durumu için bağlantı gerekiyor; bağlandıktan sonra yenilemek için aşağı çekin.</value>
+  </data>
+  <data name="Weather_Wind" xml:space="preserve">
+    <value>Rüzgar</value>
+  </data>
+  <data name="Weather_Humidity" xml:space="preserve">
+    <value>Nem</value>
+  </data>
+  <data name="Weather_LoadError" xml:space="preserve">
+    <value>Hava durumu yüklenemedi.</value>
+  </data>
+  <data name="Weather_Clear" xml:space="preserve">
+    <value>Açık gökyüzü</value>
+  </data>
+  <data name="Weather_MainlyClear" xml:space="preserve">
+    <value>Genellikle açık</value>
+  </data>
+  <data name="Weather_PartlyCloudy" xml:space="preserve">
+    <value>Parçalı bulutlu</value>
+  </data>
+  <data name="Weather_Overcast" xml:space="preserve">
+    <value>Bulutlu</value>
+  </data>
+  <data name="Weather_Fog" xml:space="preserve">
+    <value>Sisli</value>
+  </data>
+  <data name="Weather_Drizzle" xml:space="preserve">
+    <value>Çisenti</value>
+  </data>
+  <data name="Weather_FreezingDrizzle" xml:space="preserve">
+    <value>Dondurucu çisenti</value>
+  </data>
+  <data name="Weather_Rain" xml:space="preserve">
+    <value>Yağmurlu</value>
+  </data>
+  <data name="Weather_FreezingRain" xml:space="preserve">
+    <value>Dondurucu yağmur</value>
+  </data>
+  <data name="Weather_Snow" xml:space="preserve">
+    <value>Kar yağışlı</value>
+  </data>
+  <data name="Weather_RainShowers" xml:space="preserve">
+    <value>Sağanak yağışlı</value>
+  </data>
+  <data name="Weather_SnowShowers" xml:space="preserve">
+    <value>Kar sağanağı</value>
+  </data>
+  <data name="Weather_Thunderstorm" xml:space="preserve">
+    <value>Gök gürültülü fırtına</value>
+  </data>
+  <data name="Weather_ThunderstormHail" xml:space="preserve">
+    <value>Dolulu fırtına</value>
+  </data>
+  <data name="Weather_Unknown" xml:space="preserve">
+    <value>Bilinmiyor</value>
+  </data>
+  <data name="Geo_Monument" xml:space="preserve">
+    <value>Anıt</value>
+  </data>
+  <data name="Geo_Museum" xml:space="preserve">
+    <value>Müze</value>
+  </data>
+  <data name="Geo_Castle" xml:space="preserve">
+    <value>Kale</value>
+  </data>
+  <data name="Geo_Ruins" xml:space="preserve">
+    <value>Ören Yeri</value>
+  </data>
+  <data name="Geo_Attraction" xml:space="preserve">
+    <value>Turistik Yer</value>
+  </data>
+  <data name="Geo_Viewpoint" xml:space="preserve">
+    <value>Manzara Noktası</value>
+  </data>
+  <data name="Geo_PlaceOfWorship" xml:space="preserve">
+    <value>İbadet Yeri</value>
+  </data>
+  <data name="Geo_Mosque" xml:space="preserve">
+    <value>Cami</value>
+  </data>
+  <data name="Geo_Church" xml:space="preserve">
+    <value>Kilise</value>
+  </data>
+  <data name="Geo_Synagogue" xml:space="preserve">
+    <value>Sinagog</value>
+  </data>
+  <data name="Geo_Palace" xml:space="preserve">
+    <value>Saray</value>
+  </data>
+  <data name="Geo_City" xml:space="preserve">
+    <value>Şehir</value>
+  </data>
+  <data name="Geo_Town" xml:space="preserve">
+    <value>İlçe/Kasaba</value>
+  </data>
+  <data name="Geo_Village" xml:space="preserve">
+    <value>Köy</value>
+  </data>
+  <data name="Geo_Neighbourhood" xml:space="preserve">
+    <value>Mahalle</value>
+  </data>
+  <data name="Geo_Historic" xml:space="preserve">
+    <value>Tarihi Yer</value>
+  </data>
+  <data name="Geo_Amenity" xml:space="preserve">
+    <value>Tesis</value>
+  </data>
+  <data name="Geo_Leisure" xml:space="preserve">
+    <value>Rekreasyon Alanı</value>
+  </data>
+  <data name="Geo_Natural" xml:space="preserve">
+    <value>Doğal Alan</value>
+  </data>
+  <data name="Geo_Settlement" xml:space="preserve">
+    <value>Yerleşim</value>
+  </data>
+  <data name="Notification_TravelDayTitle" xml:space="preserve">
+    <value>Bugün yolculuk günü!</value>
+  </data>
+  <data name="Notification_TravelDayBody" xml:space="preserve">
+    <value>Bugün o gün! {0} yolculuğun iyi geçsin.</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Ayarlar</value>
+  </data>
+  <data name="Settings_NameLabel" xml:space="preserve">
+    <value>Ad Soyad</value>
+  </data>
+  <data name="Settings_NamePlaceholder" xml:space="preserve">
+    <value>Adınız ve soyadınız</value>
+  </data>
+  <data name="Settings_CurrencyLabel" xml:space="preserve">
+    <value>Varsayılan para birimi</value>
+  </data>
+  <data name="Settings_ReminderLabel" xml:space="preserve">
+    <value>Hatırlatma saati</value>
+  </data>
+  <data name="Settings_ReminderHint" xml:space="preserve">
+    <value>Hazırlık, günün planı ve dönüş hatırlatmaları bu saatte gönderilir. Erken başlayan bir etkinlik varsa hatırlatma ondan bir saat önce gelir.</value>
+  </data>
+  <data name="Settings_ThemeLabel" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="Settings_LanguageLabel" xml:space="preserve">
+    <value>Dil</value>
+  </data>
+  <data name="Settings_LanguageHint" xml:space="preserve">
+    <value>Dil değişikliği, uygulama yeniden başlatıldığında tüm ekranlara uygulanır.</value>
+  </data>
+  <data name="Settings_Saved" xml:space="preserve">
+    <value>Ayarlar kaydedildi.</value>
+  </data>
+  <data name="Settings_SaveError" xml:space="preserve">
+    <value>Ayarlar kaydedilemedi.</value>
+  </data>
+  <data name="Theme_System" xml:space="preserve">
+    <value>Sistem ayarı</value>
+  </data>
+  <data name="Theme_Light" xml:space="preserve">
+    <value>Açık</value>
+  </data>
+  <data name="Theme_Dark" xml:space="preserve">
+    <value>Koyu</value>
+  </data>
+  <data name="Language_System" xml:space="preserve">
+    <value>Cihaz dili</value>
+  </data>
+  <data name="Language_Turkish" xml:space="preserve">
+    <value>Türkçe</value>
+  </data>
+  <data name="Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Currency_TRY" xml:space="preserve">
+    <value>₺ Türk lirası (TRY)</value>
+  </data>
+  <data name="Currency_EUR" xml:space="preserve">
+    <value>€ Euro (EUR)</value>
+  </data>
+  <data name="Currency_USD" xml:space="preserve">
+    <value>$ ABD doları (USD)</value>
+  </data>
+  <data name="Currency_GBP" xml:space="preserve">
+    <value>£ İngiliz sterlini (GBP)</value>
+  </data>
+  <data name="TripDelete_ActivitiesFormat" xml:space="preserve">
+    <value>{0} plan etkinliği</value>
+  </data>
+  <data name="Forecast_PrecipitationChanceFormat" xml:space="preserve">
+    <value>%{0}</value>
+  </data>
+  <data name="Forecast_PrecipitationAmountFormat" xml:space="preserve">
+    <value>{0:0.#} mm</value>
+  </data>
+  <data name="Forecast_KindForecast" xml:space="preserve">
+    <value>Tahmin</value>
+  </data>
+  <data name="Forecast_KindObserved" xml:space="preserve">
+    <value>Gerçekleşen</value>
+  </data>
+  <data name="Forecast_KindAverage" xml:space="preserve">
+    <value>Ortalama</value>
+  </data>
+  <data name="Forecast_Title" xml:space="preserve">
+    <value>Seyahat günleri</value>
+  </data>
+  <data name="Forecast_Note" xml:space="preserve">
+    <value>16 günden uzak günler için geçmiş 3 yılın aynı günlerinin ortalaması gösterilir.</value>
+  </data>
+  <data name="Forecast_Unavailable" xml:space="preserve">
+    <value>Seyahat günleri için hava tahmini alınamadı.</value>
+  </data>
+  <data name="Currency_CHF" xml:space="preserve">
+    <value>CHF İsviçre frangı (CHF)</value>
+  </data>
+  <data name="Currency_JPY" xml:space="preserve">
+    <value>¥ Japon yeni (JPY)</value>
+  </data>
+  <data name="Currency_CAD" xml:space="preserve">
+    <value>C$ Kanada doları (CAD)</value>
+  </data>
+  <data name="Currency_AUD" xml:space="preserve">
+    <value>A$ Avustralya doları (AUD)</value>
+  </data>
+  <data name="Currency_SEK" xml:space="preserve">
+    <value>kr İsveç kronu (SEK)</value>
+  </data>
+  <data name="Currency_NOK" xml:space="preserve">
+    <value>kr Norveç kronu (NOK)</value>
+  </data>
+  <data name="Currency_DKK" xml:space="preserve">
+    <value>kr Danimarka kronu (DKK)</value>
+  </data>
+  <data name="Currency_PLN" xml:space="preserve">
+    <value>zł Polonya zlotisi (PLN)</value>
+  </data>
+  <data name="Currency_CZK" xml:space="preserve">
+    <value>Kč Çek korunası (CZK)</value>
+  </data>
+  <data name="Currency_HUF" xml:space="preserve">
+    <value>Ft Macar forinti (HUF)</value>
+  </data>
+  <data name="Currency_RON" xml:space="preserve">
+    <value>lei Rumen leyi (RON)</value>
+  </data>
+  <data name="Currency_CNY" xml:space="preserve">
+    <value>¥ Çin yuanı (CNY)</value>
+  </data>
+  <data name="Packing_Charger" xml:space="preserve">
+    <value>Telefon şarj aleti</value>
+  </data>
+  <data name="Packing_Toiletries" xml:space="preserve">
+    <value>Kişisel bakım çantası</value>
+  </data>
+  <data name="Packing_Medicine" xml:space="preserve">
+    <value>İlaçlar ve ilk yardım seti</value>
+  </data>
+  <data name="Packing_ClothesFormat" xml:space="preserve">
+    <value>{0} günlük kıyafet</value>
+  </data>
+  <data name="Packing_PowerBank" xml:space="preserve">
+    <value>Taşınabilir şarj cihazı (powerbank)</value>
+  </data>
+  <data name="Packing_LaundryBag" xml:space="preserve">
+    <value>Çamaşır torbası</value>
+  </data>
+  <data name="Packing_Passport" xml:space="preserve">
+    <value>Pasaport</value>
+  </data>
+  <data name="Packing_TravelInsurance" xml:space="preserve">
+    <value>Seyahat sağlık sigortası</value>
+  </data>
+  <data name="Packing_Adapter" xml:space="preserve">
+    <value>Priz adaptörü</value>
+  </data>
+  <data name="Packing_IdCard" xml:space="preserve">
+    <value>Kimlik kartı</value>
+  </data>
+  <data name="Packing_Umbrella" xml:space="preserve">
+    <value>Şemsiye</value>
+  </data>
+  <data name="Packing_RainJacket" xml:space="preserve">
+    <value>Yağmurluk</value>
+  </data>
+  <data name="Packing_Coat" xml:space="preserve">
+    <value>Mont</value>
+  </data>
+  <data name="Packing_GlovesHat" xml:space="preserve">
+    <value>Eldiven ve bere</value>
+  </data>
+  <data name="Packing_ThermalWear" xml:space="preserve">
+    <value>Termal içlik</value>
+  </data>
+  <data name="Packing_SnowBoots" xml:space="preserve">
+    <value>Kar botu</value>
+  </data>
+  <data name="Packing_Sunscreen" xml:space="preserve">
+    <value>Güneş kremi</value>
+  </data>
+  <data name="Packing_Sunglasses" xml:space="preserve">
+    <value>Güneş gözlüğü</value>
+  </data>
+  <data name="Packing_SunHat" xml:space="preserve">
+    <value>Şapka</value>
+  </data>
+  <data name="Packing_Swimwear" xml:space="preserve">
+    <value>Mayo / bikini</value>
+  </data>
+  <data name="Packing_BeachTowel" xml:space="preserve">
+    <value>Plaj havlusu</value>
+  </data>
+  <data name="Packing_FlipFlops" xml:space="preserve">
+    <value>Terlik</value>
+  </data>
+  <data name="Packing_SeasicknessPills" xml:space="preserve">
+    <value>Deniz tutması ilacı</value>
+  </data>
+  <data name="Packing_HikingShoes" xml:space="preserve">
+    <value>Yürüyüş ayakkabısı</value>
+  </data>
+  <data name="Packing_WaterBottle" xml:space="preserve">
+    <value>Matara</value>
+  </data>
+  <data name="Packing_Daypack" xml:space="preserve">
+    <value>Küçük sırt çantası</value>
+  </data>
+  <data name="Packing_SleepingBag" xml:space="preserve">
+    <value>Uyku tulumu</value>
+  </data>
+  <data name="Packing_Flashlight" xml:space="preserve">
+    <value>El feneri</value>
+  </data>
+  <data name="Packing_SkiWear" xml:space="preserve">
+    <value>Kayak kıyafeti</value>
+  </data>
+  <data name="Packing_SkiGoggles" xml:space="preserve">
+    <value>Kayak gözlüğü</value>
+  </data>
+  <data name="Packing_FormalWear" xml:space="preserve">
+    <value>Resmi kıyafet</value>
+  </data>
+  <data name="Packing_Laptop" xml:space="preserve">
+    <value>Dizüstü bilgisayar ve şarjı</value>
+  </data>
+  <data name="Packing_BusinessCards" xml:space="preserve">
+    <value>Kartvizit</value>
+  </data>
+  <data name="Packing_ModestClothes" xml:space="preserve">
+    <value>Omuzları ve dizleri örten kıyafet</value>
+  </data>
+  <data name="Packing_Scarf" xml:space="preserve">
+    <value>Eşarp veya şal</value>
+  </data>
+  <data name="Packing_SmartOutfit" xml:space="preserve">
+    <value>Şık kıyafet ve ayakkabı</value>
+  </data>
+  <data name="Packing_NeckPillow" xml:space="preserve">
+    <value>Boyun yastığı</value>
+  </data>
+  <data name="Packing_Headphones" xml:space="preserve">
+    <value>Kulaklık</value>
+  </data>
+  <data name="Packing_ReasonPlanFormat" xml:space="preserve">
+    <value>Planda: “{0}”</value>
+  </data>
+  <data name="Packing_ReasonDayTrip" xml:space="preserve">
+    <value>Günübirlik seyahat</value>
+  </data>
+  <data name="Packing_UnderwearFormat" xml:space="preserve">
+    <value>İç çamaşırı ve çorap ({0} takım)</value>
+  </data>
+  <data name="Packing_Pajamas" xml:space="preserve">
+    <value>Pijama</value>
+  </data>
+  <data name="Packing_ReasonIdCardFormat" xml:space="preserve">
+    <value>{0} için yeni tip kimlik kartı yeterli, pasaport gerekmez</value>
+  </data>
+  <data name="Packing_SchengenVisa" xml:space="preserve">
+    <value>Schengen vizesi</value>
+  </data>
+  <data name="Packing_ReasonSchengenFormat" xml:space="preserve">
+    <value>{0} Schengen bölgesinde</value>
+  </data>
+  <data name="Packing_VisaCheck" xml:space="preserve">
+    <value>Vize gerekip gerekmediğini kontrol et</value>
+  </data>
+  <data name="Packing_ExitFee" xml:space="preserve">
+    <value>Yurt dışı çıkış harcı</value>
+  </data>
+  <data name="Packing_ReasonExitFee" xml:space="preserve">
+    <value>Türkiye'den çıkışta ödenir</value>
+  </data>
+  <data name="Packing_Roaming" xml:space="preserve">
+    <value>Yurt dışı internet paketi</value>
+  </data>
+  <data name="Packing_CardAbroad" xml:space="preserve">
+    <value>Kartını yurt dışı kullanımına aç</value>
+  </data>
+  <data name="Packing_CashFormat" xml:space="preserve">
+    <value>Biraz nakit {0}</value>
+  </data>
+  <data name="Packing_ReasonSeasonFormat" xml:space="preserve">
+    <value>{0} ayına göre (hava tahmini yok)</value>
+  </data>
+  <data name="Packing_ReasonBasic" xml:space="preserve">
+    <value>Her seyahatte</value>
+  </data>
+  <data name="Packing_ReasonDurationFormat" xml:space="preserve">
+    <value>{0} günlük seyahat</value>
+  </data>
+  <data name="Packing_ReasonAbroad" xml:space="preserve">
+    <value>Yurt dışı seyahati</value>
+  </data>
+  <data name="Packing_ReasonPlugFormat" xml:space="preserve">
+    <value>{0} farklı priz tipi kullanıyor</value>
+  </data>
+  <data name="Packing_ReasonRainFormat" xml:space="preserve">
+    <value>{0} gün yağış bekleniyor</value>
+  </data>
+  <data name="Packing_ReasonColdFormat" xml:space="preserve">
+    <value>Sıcaklık {0}°C'ye kadar düşüyor</value>
+  </data>
+  <data name="Packing_ReasonHotFormat" xml:space="preserve">
+    <value>Sıcaklık {0}°C'ye kadar çıkıyor</value>
+  </data>
+  <data name="Packing_ReasonSnow" xml:space="preserve">
+    <value>Kar yağışı bekleniyor</value>
+  </data>
+  <data name="Packing_SuggestionsTitle" xml:space="preserve">
+    <value>Akıllı bavul önerileri</value>
+  </data>
+  <data name="Packing_SuggestionsHint" xml:space="preserve">
+    <value>Hava tahmini, seyahat süresi ve planınıza (aktiviteler, yerler) göre önerildi. İstemediklerinizin işaretini kaldırın.</value>
+  </data>
+  <data name="Packing_NoForecastHint" xml:space="preserve">
+    <value>Hava tahmini alınamadı; öneriler süre, varış yeri ve planınıza göre.</value>
+  </data>
+  <data name="Packing_NoSuggestions" xml:space="preserve">
+    <value>Önerilecek yeni bir şey yok - listeniz eksiksiz görünüyor.</value>
+  </data>
+  <data name="Packing_AddSelected" xml:space="preserve">
+    <value>Seçilenleri ekle</value>
+  </data>
+  <data name="Packing_Close" xml:space="preserve">
+    <value>Kapat</value>
+  </data>
+  <data name="Packing_Suggest" xml:space="preserve">
+    <value>Öner</value>
+  </data>
+  <data name="Packing_Templates" xml:space="preserve">
+    <value>Şablonlar</value>
+  </data>
+  <data name="Packing_TemplateMenuTitle" xml:space="preserve">
+    <value>Bavul şablonları</value>
+  </data>
+  <data name="Packing_SaveAsTemplate" xml:space="preserve">
+    <value>Bu listeyi şablon olarak kaydet</value>
+  </data>
+  <data name="Packing_ApplyTemplate" xml:space="preserve">
+    <value>Şablondan ekle</value>
+  </data>
+  <data name="Packing_DeleteTemplate" xml:space="preserve">
+    <value>Şablon sil</value>
+  </data>
+  <data name="Packing_TemplateNameTitle" xml:space="preserve">
+    <value>Şablon adı</value>
+  </data>
+  <data name="Packing_TemplateNameMessage" xml:space="preserve">
+    <value>Bu listeyi hangi adla kaydedelim? (ör. Kış tatili)</value>
+  </data>
+  <data name="Packing_TemplateSavedFormat" xml:space="preserve">
+    <value>"{0}" şablonu {1} maddeyle kaydedildi.</value>
+  </data>
+  <data name="Packing_TemplateAppliedFormat" xml:space="preserve">
+    <value>"{0}" şablonundan {1} madde eklendi.</value>
+  </data>
+  <data name="Packing_TemplateDeletedFormat" xml:space="preserve">
+    <value>"{0}" şablonu silindi.</value>
+  </data>
+  <data name="Packing_NoTemplates" xml:space="preserve">
+    <value>Henüz kayıtlı şablon yok. Önce bir listeyi şablon olarak kaydedin.</value>
+  </data>
+  <data name="Packing_EmptyListForTemplate" xml:space="preserve">
+    <value>Şablon olarak kaydetmek için listede en az bir görev olmalı.</value>
+  </data>
+  <data name="Packing_ChooseTemplate" xml:space="preserve">
+    <value>Şablon seçin</value>
+  </data>
+  <data name="Packing_Error" xml:space="preserve">
+    <value>Bavul önerileri işlenemedi.</value>
+  </data>
+  <data name="Common_Info" xml:space="preserve">
+    <value>Bilgi</value>
+  </data>
+  <data name="BudgetAlert_WarningTitle" xml:space="preserve">
+    <value>Bütçe uyarısı</value>
+  </data>
+  <data name="BudgetAlert_WarningBody" xml:space="preserve">
+    <value>"{0}" seyahatinde bütçenin %{1}'i harcandı.</value>
+  </data>
+  <data name="BudgetAlert_ExceededTitle" xml:space="preserve">
+    <value>Bütçe aşıldı</value>
+  </data>
+  <data name="BudgetAlert_ExceededBody" xml:space="preserve">
+    <value>"{0}" seyahatinde bütçe aşıldı (%{1}).</value>
+  </data>
+  <data name="TripList_SearchPlaceholder" xml:space="preserve">
+    <value>Seyahat, şehir veya ülke ara</value>
+  </data>
+  <data name="TripList_FilterAll" xml:space="preserve">
+    <value>Tümü</value>
+  </data>
+  <data name="TripList_SortTitle" xml:space="preserve">
+    <value>Sıralama</value>
+  </data>
+  <data name="TripList_SortDateAsc" xml:space="preserve">
+    <value>Tarih (yakın → uzak)</value>
+  </data>
+  <data name="TripList_SortDateDesc" xml:space="preserve">
+    <value>Tarih (uzak → yakın)</value>
+  </data>
+  <data name="TripList_SortBudgetDesc" xml:space="preserve">
+    <value>Bütçe (yüksek → düşük)</value>
+  </data>
+  <data name="TripList_SortBudgetAsc" xml:space="preserve">
+    <value>Bütçe (düşük → yüksek)</value>
+  </data>
+  <data name="TripList_SortName" xml:space="preserve">
+    <value>İsim (A → Z)</value>
+  </data>
+  <data name="TripList_NoResults" xml:space="preserve">
+    <value>Aramanıza uyan seyahat yok.</value>
+  </data>
+  <data name="TripList_ClearFilters" xml:space="preserve">
+    <value>Filtreleri temizle</value>
+  </data>
+  <data name="TripForm_CurrencyLabel" xml:space="preserve">
+    <value>Bütçe para birimi</value>
+  </data>
+  <data name="TripForm_CurrencyHint" xml:space="preserve">
+    <value>Bütçe ve tüm harcamalar bu para biriminde tutulur. Farklı dövizle girilen harcamalar otomatik çevrilir.</value>
+  </data>
+  <data name="TripForm_CurrencyChangeTitle" xml:space="preserve">
+    <value>Para birimi değişiyor</value>
+  </data>
+  <data name="TripForm_CurrencyChangeMessage" xml:space="preserve">
+    <value>Bu seyahatin {0} harcaması {1} cinsinden kayıtlı. Güncel kurla {2}'ye çevrilsin mi? Girdiğiniz bütçe olduğu gibi {2} kabul edilir.</value>
+  </data>
+  <data name="TripForm_CurrencyChangeAccept" xml:space="preserve">
+    <value>Çevir</value>
+  </data>
+  <data name="Fx_Unavailable" xml:space="preserve">
+    <value>Döviz kuru alınamadı. İnternet bağlantınızı kontrol edin ya da tutarı seyahatin para biriminde girin.</value>
+  </data>
+  <data name="Expense_CurrencyLabel" xml:space="preserve">
+    <value>Para birimi</value>
+  </data>
+  <data name="Expense_ConversionPreviewFormat" xml:space="preserve">
+    <value>≈ {0} · 1 {1} = {2} {3} ({4})</value>
+  </data>
+  <data name="Expense_ConvertedFromFormat" xml:space="preserve">
+    <value>{0} olarak girildi</value>
+  </data>
+  <data name="Section_Analysis" xml:space="preserve">
+    <value>Analiz</value>
+  </data>
+  <data name="Section_Itinerary" xml:space="preserve">
+    <value>Gün gün plan</value>
+  </data>
+  <data name="TripDetail_TodayTitleFormat" xml:space="preserve">
+    <value>Bugün · {0}. gün</value>
+  </data>
+  <data name="TripDetail_TodayEmpty" xml:space="preserve">
+    <value>Bugün için plan yok. Gün gün plana etkinlik eklemek için dokunun.</value>
+  </data>
+  <data name="TripDetail_OpenPlan" xml:space="preserve">
+    <value>Planı aç</value>
+  </data>
+  <data name="Analysis_Title" xml:space="preserve">
+    <value>Harcama analizi</value>
+  </data>
+  <data name="Analysis_Total" xml:space="preserve">
+    <value>Toplam</value>
+  </data>
+  <data name="Analysis_DailyAverage" xml:space="preserve">
+    <value>Günlük ortalama</value>
+  </data>
+  <data name="Analysis_HighestDay" xml:space="preserve">
+    <value>En yüksek gün</value>
+  </data>
+  <data name="Analysis_ByCategory" xml:space="preserve">
+    <value>Kategori dağılımı</value>
+  </data>
+  <data name="Analysis_ByDay" xml:space="preserve">
+    <value>Günlük harcama</value>
+  </data>
+  <data name="Analysis_DailyBudgetFormat" xml:space="preserve">
+    <value>Kesikli çizgi: günlük bütçe ({0})</value>
+  </data>
+  <data name="Analysis_Empty" xml:space="preserve">
+    <value>Analiz için henüz harcama yok.</value>
+  </data>
+  <data name="Analysis_LoadError" xml:space="preserve">
+    <value>Harcama analizi yüklenemedi.</value>
+  </data>
+  <data name="Analysis_CountFormat" xml:space="preserve">
+    <value>{0} harcama</value>
+  </data>
+  <data name="Itinerary_Title" xml:space="preserve">
+    <value>Gün gün plan</value>
+  </data>
+  <data name="Itinerary_DayFormat" xml:space="preserve">
+    <value>{0}. Gün</value>
+  </data>
+  <data name="Itinerary_Empty" xml:space="preserve">
+    <value>Bu gün için henüz etkinlik yok. Eklemek için + düğmesine dokunun.</value>
+  </data>
+  <data name="Itinerary_DragHint" xml:space="preserve">
+    <value>Sıralamak için sağdaki tutamacı (⋮⋮) basılı tutup yukarı ya da aşağı sürükleyin.</value>
+  </data>
+  <data name="Itinerary_AnyTime" xml:space="preserve">
+    <value>Gün içinde</value>
+  </data>
+  <data name="Itinerary_DeleteTitle" xml:space="preserve">
+    <value>Etkinliği sil</value>
+  </data>
+  <data name="Itinerary_DeleteMessage" xml:space="preserve">
+    <value>"{0}" plandan silinecek.</value>
+  </data>
+  <data name="Itinerary_LoadError" xml:space="preserve">
+    <value>Plan yüklenemedi.</value>
+  </data>
+  <data name="Itinerary_DeleteError" xml:space="preserve">
+    <value>Etkinlik silinemedi.</value>
+  </data>
+  <data name="Itinerary_ReorderError" xml:space="preserve">
+    <value>Sıralama kaydedilemedi.</value>
+  </data>
+  <data name="Itinerary_TodayBadge" xml:space="preserve">
+    <value>Bugün</value>
+  </data>
+  <data name="Itinerary_ActivityCountFormat" xml:space="preserve">
+    <value>{0} etkinlik</value>
+  </data>
+  <data name="Activity_TitleAdd" xml:space="preserve">
+    <value>Etkinlik Ekle</value>
+  </data>
+  <data name="Activity_TitleEdit" xml:space="preserve">
+    <value>Etkinliği Düzenle</value>
+  </data>
+  <data name="Activity_NameLabel" xml:space="preserve">
+    <value>Etkinlik</value>
+  </data>
+  <data name="Activity_NamePlaceholder" xml:space="preserve">
+    <value>ör. Kolezyum turu</value>
+  </data>
+  <data name="Activity_DateLabel" xml:space="preserve">
+    <value>Gün</value>
+  </data>
+  <data name="Activity_HasTime" xml:space="preserve">
+    <value>Saat belirt</value>
+  </data>
+  <data name="Activity_StartLabel" xml:space="preserve">
+    <value>Başlangıç</value>
+  </data>
+  <data name="Activity_HasEndTime" xml:space="preserve">
+    <value>Bitiş saati ekle</value>
+  </data>
+  <data name="Activity_EndLabel" xml:space="preserve">
+    <value>Bitiş</value>
+  </data>
+  <data name="Activity_PlaceLabel" xml:space="preserve">
+    <value>Yer</value>
+  </data>
+  <data name="Activity_NoPlace" xml:space="preserve">
+    <value>Yer yok</value>
+  </data>
+  <data name="Activity_NoPlacesHint" xml:space="preserve">
+    <value>Bir yer bağlamak için önce Yerler bölümünden yer ekleyin.</value>
+  </data>
+  <data name="Activity_TitleRequired" xml:space="preserve">
+    <value>Lütfen etkinlik adını girin.</value>
+  </data>
+  <data name="Activity_EndBeforeStart" xml:space="preserve">
+    <value>Bitiş saati başlangıçtan sonra olmalı.</value>
+  </data>
+  <data name="Activity_LoadError" xml:space="preserve">
+    <value>Etkinlik yüklenemedi.</value>
+  </data>
+  <data name="Activity_SaveError" xml:space="preserve">
+    <value>Etkinlik kaydedilemedi.</value>
+  </data>
+  <data name="Report_Budget" xml:space="preserve">
+    <value>Bütçe</value>
+  </data>
+  <data name="Report_Footer" xml:space="preserve">
+    <value>TravelPlanner ile hazırlandı · EAKSOFT</value>
+  </data>
+  <data name="Report_GeneratedFormat" xml:space="preserve">
+    <value>Oluşturulma: {0}</value>
+  </data>
+  <data name="Report_Tasks" xml:space="preserve">
+    <value>Yapılacaklar</value>
+  </data>
+  <data name="Report_PageFormat" xml:space="preserve">
+    <value>Sayfa {0}</value>
+  </data>
+  <data name="Split_WhoOwesWhom" xml:space="preserve">
+    <value>Kim kime ne kadar borçlu</value>
+  </data>
+  <data name="Split_SettlementFormat" xml:space="preserve">
+    <value>{0}, {1} için {2} ödemeli</value>
+  </data>
+  <data name="Section_Attachments" xml:space="preserve">
+    <value>Belgeler</value>
+  </data>
+  <data name="Attachments_Title" xml:space="preserve">
+    <value>Belgeler ve fotoğraflar</value>
+  </data>
+  <data name="Attachments_Hint" xml:space="preserve">
+    <value>Bilet, rezervasyon, vize ve fotoğraflar uygulamaya kopyalanır; internet olmadan da açılır.</value>
+  </data>
+  <data name="Attachments_TakePhoto" xml:space="preserve">
+    <value>Fotoğraf çek</value>
+  </data>
+  <data name="Attachments_PickPhoto" xml:space="preserve">
+    <value>Galeriden</value>
+  </data>
+  <data name="Attachments_PickDocument" xml:space="preserve">
+    <value>Dosya seç</value>
+  </data>
+  <data name="Attachments_Empty" xml:space="preserve">
+    <value>Henüz belge yok. Bilet, rezervasyon veya fotoğraf ekleyin.</value>
+  </data>
+  <data name="Attachments_NotSupported" xml:space="preserve">
+    <value>Bu cihaz bu özelliği desteklemiyor.</value>
+  </data>
+  <data name="Attachments_PermissionDenied" xml:space="preserve">
+    <value>İzin verilmedi. Cihaz ayarlarından kamera/fotoğraf iznini açabilirsiniz.</value>
+  </data>
+  <data name="Attachments_TooLargeFormat" xml:space="preserve">
+    <value>Dosya çok büyük (en fazla {0}).</value>
+  </data>
+  <data name="Attachments_FileMissing" xml:space="preserve">
+    <value>Dosya bulunamadı. Yedekten geri yüklenmemiş olabilir.</value>
+  </data>
+  <data name="Attachments_RenameTitle" xml:space="preserve">
+    <value>Yeniden adlandır</value>
+  </data>
+  <data name="Attachments_RenameMessage" xml:space="preserve">
+    <value>Belgenin yeni adı</value>
+  </data>
+  <data name="Attachments_Rename" xml:space="preserve">
+    <value>Ad değiştir</value>
+  </data>
+  <data name="Attachments_DeleteTitle" xml:space="preserve">
+    <value>Belgeyi sil</value>
+  </data>
+  <data name="Attachments_DeleteMessage" xml:space="preserve">
+    <value>"{0}" silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin.</value>
+  </data>
+  <data name="Attachments_LoadError" xml:space="preserve">
+    <value>Belgeler yüklenemedi.</value>
+  </data>
+  <data name="Attachments_AddError" xml:space="preserve">
+    <value>Belge eklenemedi.</value>
+  </data>
+  <data name="Attachments_OpenError" xml:space="preserve">
+    <value>Belge açılamadı. Bu dosya türü için bir uygulama yüklü olmayabilir.</value>
+  </data>
+  <data name="Attachments_DeleteError" xml:space="preserve">
+    <value>Belge silinemedi.</value>
+  </data>
+  <data name="Section_Split" xml:space="preserve">
+    <value>Bölüşme</value>
+  </data>
+  <data name="Split_Title" xml:space="preserve">
+    <value>Harcama bölüşme</value>
+  </data>
+  <data name="Split_ParticipantsTitle" xml:space="preserve">
+    <value>Katılımcılar</value>
+  </data>
+  <data name="Split_AddPlaceholder" xml:space="preserve">
+    <value>Katılımcı adı (ör. Ayşe)</value>
+  </data>
+  <data name="Split_NoParticipants" xml:space="preserve">
+    <value>Masrafları bölüşmek için önce seyahate katılanları ekleyin. Sonra her harcamada kimin ödediğini ve kimler arasında bölündüğünü seçin.</value>
+  </data>
+  <data name="Split_PaidFormat" xml:space="preserve">
+    <value>Ödediği: {0}</value>
+  </data>
+  <data name="Split_ShareFormat" xml:space="preserve">
+    <value>Payı: {0}</value>
+  </data>
+  <data name="Split_GetsBack" xml:space="preserve">
+    <value>alacaklı</value>
+  </data>
+  <data name="Split_Owes" xml:space="preserve">
+    <value>borçlu</value>
+  </data>
+  <data name="Split_Settled" xml:space="preserve">
+    <value>eşit</value>
+  </data>
+  <data name="Split_TotalFormat" xml:space="preserve">
+    <value>Bölüşülen toplam: {0}</value>
+  </data>
+  <data name="Split_UnsplitFormat" xml:space="preserve">
+    <value>{0} harcama henüz bölüşülmedi (ödeyen veya katılımcı seçilmemiş).</value>
+  </data>
+  <data name="Split_AllSettled" xml:space="preserve">
+    <value>Herkes eşit - kimsenin borcu yok.</value>
+  </data>
+  <data name="Split_GoToExpenses" xml:space="preserve">
+    <value>Harcamalara git</value>
+  </data>
+  <data name="Split_DuplicateFormat" xml:space="preserve">
+    <value>"{0}" zaten listede.</value>
+  </data>
+  <data name="Split_RenameTitle" xml:space="preserve">
+    <value>Adı değiştir</value>
+  </data>
+  <data name="Split_RenameMessage" xml:space="preserve">
+    <value>Katılımcının yeni adı</value>
+  </data>
+  <data name="Split_DeleteTitle" xml:space="preserve">
+    <value>Katılımcıyı sil</value>
+  </data>
+  <data name="Split_DeleteFormat" xml:space="preserve">
+    <value>"{0}" listeden çıkarılacak.</value>
+  </data>
+  <data name="Split_DeleteUsedFormat" xml:space="preserve">
+    <value>"{0}" {1} harcamada ödeyen ya da katılımcı. Silinirse bu harcamalardan da çıkarılır.</value>
+  </data>
+  <data name="Split_LoadError" xml:space="preserve">
+    <value>Bölüşme bilgileri yüklenemedi.</value>
+  </data>
+  <data name="Split_SaveError" xml:space="preserve">
+    <value>Katılımcı kaydedilemedi.</value>
+  </data>
+  <data name="Split_PaidByLabel" xml:space="preserve">
+    <value>Ödeyen</value>
+  </data>
+  <data name="Split_NoPayer" xml:space="preserve">
+    <value>Bölüşülmesin</value>
+  </data>
+  <data name="Split_SharedByLabel" xml:space="preserve">
+    <value>Kimler arasında bölünsün (eşit)</value>
+  </data>
+  <data name="Split_ParticipantsRequired" xml:space="preserve">
+    <value>Bölüşmek için en az bir katılımcı seçin.</value>
+  </data>
+  <data name="Split_Hint" xml:space="preserve">
+    <value>Katılımcıları Bölüşme bölümünden ekleyebilirsiniz.</value>
+  </data>
+  <data name="Share_Title" xml:space="preserve">
+    <value>Seyahati paylaş</value>
+  </data>
+  <data name="Share_AsText" xml:space="preserve">
+    <value>Metin olarak paylaş</value>
+  </data>
+  <data name="Share_AsPdf" xml:space="preserve">
+    <value>PDF olarak paylaş / kaydet</value>
+  </data>
+  <data name="Share_Error" xml:space="preserve">
+    <value>Seyahat paylaşılamadı.</value>
+  </data>
+  <data name="A11y_Share" xml:space="preserve">
+    <value>Paylaş</value>
+  </data>
+  <data name="Backup_Title" xml:space="preserve">
+    <value>Yedekleme</value>
+  </data>
+  <data name="Backup_Hint" xml:space="preserve">
+    <value>Tüm seyahatler, harcamalar, planlar ve belgeler tek bir .zip dosyasına aktarılır. Dosyayı Drive, Dosyalar veya e-posta ile saklayıp başka bir cihaza geri yükleyebilirsiniz.</value>
+  </data>
+  <data name="Backup_Export" xml:space="preserve">
+    <value>Dışa aktar</value>
+  </data>
+  <data name="Backup_Import" xml:space="preserve">
+    <value>Geri yükle</value>
+  </data>
+  <data name="Backup_ShareTitle" xml:space="preserve">
+    <value>TravelPlanner yedeği</value>
+  </data>
+  <data name="Backup_ImportTitle" xml:space="preserve">
+    <value>Yedekten geri yükle</value>
+  </data>
+  <data name="Backup_ImportWarning" xml:space="preserve">
+    <value>Geri yükleme, bu cihazdaki TÜM verilerin yerine yedektekileri koyar. Devam edilsin mi?</value>
+  </data>
+  <data name="Backup_ImportAccept" xml:space="preserve">
+    <value>Geri yükle</value>
+  </data>
+  <data name="Backup_Invalid" xml:space="preserve">
+    <value>Seçilen dosya bir TravelPlanner yedeği değil.</value>
+  </data>
+  <data name="Backup_ImportedFormat" xml:space="preserve">
+    <value>Geri yüklendi: {0} seyahat, {1} harcama, {2} belge (yedek tarihi {3}).</value>
+  </data>
+  <data name="Backup_ExportError" xml:space="preserve">
+    <value>Yedek oluşturulamadı.</value>
+  </data>
+  <data name="Backup_ImportError" xml:space="preserve">
+    <value>Yedek geri yüklenemedi. Mevcut verileriniz değiştirilmedi.</value>
+  </data>
+  <data name="Settings_VersionFormat" xml:space="preserve">
+    <value>Sürüm {0} ({1})</value>
+  </data>
+  <data name="Privacy_Title" xml:space="preserve">
+    <value>Gizlilik politikası</value>
+  </data>
+  <data name="Privacy_Open" xml:space="preserve">
+    <value>Görüntüle</value>
+  </data>
+  <data name="Privacy_Body" xml:space="preserve">
+    <value>TravelPlanner gizliliğinize saygı duyar. Kısaca: verileriniz cihazınızda kalır.
+
+Hangi veriler saklanır?
+Seyahatleriniz, planlarınız, harcamalarınız, görevleriniz, kayıtlı yerleriniz, katılımcı adları ve eklediğiniz belge/fotoğraflar yalnızca bu cihazdaki uygulama alanında saklanır. Hesap, kayıt veya bulut sunucusu yoktur; bu verileri biz göremeyiz.
+
+İnternete ne gönderilir?
+Uygulama yalnızca şu ücretsiz servislere, ilgili özelliği kullandığınızda istek gönderir:
+• Open-Meteo: hava durumu ve şehir arama (şehir adı, koordinat).
+• Photon (komoot): yer adı arama ve haritada seçilen noktanın adı (arama metni, koordinat).
+• OpenFreeMap: harita görüntüleri (görüntülenen bölge).
+• Frankfurter: döviz kurları (para birimi çifti, tarih).
+Bu servisler, her internet isteğinde olduğu gibi IP adresinizi görebilir. İsteklerde kişisel bilgileriniz (adınız, harcamalarınız, belgeleriniz) gönderilmez.
+
+İzinler
+Kamera ve fotoğraflar yalnızca bir belge veya fotoğraf eklemeyi seçtiğinizde kullanılır. Bildirimler cihazda planlanır (seyahat hatırlatmaları, bütçe uyarıları).
+
+Reklam, analiz, takip
+Uygulamada reklam, analiz aracı veya kullanıcı takibi yoktur.
+
+Yedekler ve paylaşım
+Yedek (.zip) ve PDF dosyaları yalnızca siz istediğinizde oluşturulur ve sizin seçtiğiniz yere (ör. Dosyalar, Drive, e-posta) gönderilir.
+
+Verilerin silinmesi
+Uygulamayı kaldırdığınızda tüm verileri cihazdan silinir. Tek tek seyahatleri uygulama içinden silebilirsiniz.
+
+Sorularınız için mağaza sayfasındaki geliştirici iletişim adresini kullanabilirsiniz.</value>
+  </data>
+  <data name="Map_NoRoute" xml:space="preserve">
+    <value>Rota gösterme</value>
+  </data>
+  <data name="Map_RouteLabel" xml:space="preserve">
+    <value>Günün rotası</value>
+  </data>
+  <data name="Map_RouteLegend" xml:space="preserve">
+    <value>Rota</value>
+  </data>
+  <data name="Map_LongPressHint" xml:space="preserve">
+    <value>Yer eklemek için haritaya basılı tutun</value>
+  </data>
+  <data name="Place_FromMapHint" xml:space="preserve">
+    <value>Konum haritadan seçildi. Bir ad yazın veya önerilerden birini seçin.</value>
+  </data>
+  <data name="Dashboard_Overview" xml:space="preserve">
+    <value>Genel bakış</value>
+  </data>
+  <data name="Profile_Account" xml:space="preserve">
+    <value>Hesap</value>
+  </data>
+  <data name="Profile_Preferences" xml:space="preserve">
+    <value>Tercihler</value>
+  </data>
+  <data name="Profile_Data" xml:space="preserve">
+    <value>Veri ve yedekleme</value>
+  </data>
+  <data name="Profile_About" xml:space="preserve">
+    <value>Hakkında</value>
+  </data>
+  <data name="TripDetail_SectionPlanning" xml:space="preserve">
+    <value>Planlama</value>
+  </data>
+  <data name="TripDetail_SectionFinance" xml:space="preserve">
+    <value>Finans</value>
+  </data>
+  <data name="TripDetail_SectionFiles" xml:space="preserve">
+    <value>Belgeler</value>
+  </data>
+  <data name="Budget_Title" xml:space="preserve">
+    <value>Bütçe</value>
+  </data>
+  <data name="TripForm_TooLongFormat" xml:space="preserve">
+    <value>Bir seyahat en fazla {0} gün olabilir.</value>
+  </data>
+  <data name="TripForm_OutsideTitleFormat" xml:space="preserve">
+    <value>{0} etkinlik yeni tarihlerin dışında kalıyor. Ne yapılsın?</value>
+  </data>
+  <data name="TripForm_OutsideMove" xml:space="preserve">
+    <value>En yakın seyahat gününe taşı</value>
+  </data>
+  <data name="TripForm_OutsideDelete" xml:space="preserve">
+    <value>Bu etkinlikleri sil</value>
+  </data>
+  <data name="Itinerary_TruncatedFormat" xml:space="preserve">
+    <value>Bu seyahat {0} gün sürüyor; plan yalnızca ilk {1} günü gösterebiliyor.</value>
+  </data>
+  <data name="Itinerary_HiddenActivitiesFormat" xml:space="preserve">
+    <value>{0} etkinlik seyahat günlerinin dışında kaldığı için görünmüyor. Seyahati düzenleyip kaydettiğinizde bunları plana taşıyabilir ya da silebilirsiniz.</value>
+  </data>
+  <data name="Weather_TruncatedFormat" xml:space="preserve">
+    <value>Hava durumu yalnızca seyahatin ilk {0} günü için gösteriliyor.</value>
+  </data>
+  <data name="Money_TooLargeFormat" xml:space="preserve">
+    <value>Tutar en fazla {0} olabilir.</value>
+  </data>
+  <data name="Common_TextTooLongFormat" xml:space="preserve">
+    <value>Metin en fazla {0} karakter olabilir.</value>
+  </data>
+  <data name="Splash_Tagline" xml:space="preserve">
+    <value>Seyahatini tek yerden planla</value>
+  </data>
+  <data name="Splash_By" xml:space="preserve">
+    <value>Geliştiren</value>
+  </data>
+  <data name="About_Developer" xml:space="preserve">
+    <value>Geliştirici</value>
+  </data>
+  <data name="About_CopyrightFormat" xml:space="preserve">
+    <value>© {0} EAKSOFT. Tüm hakları saklıdır.</value>
+  </data>
+  <data name="Ticket_Departure" xml:space="preserve">
+    <value>Gidiş</value>
+  </data>
+  <data name="Ticket_Return" xml:space="preserve">
+    <value>Dönüş</value>
+  </data>
+  <data name="Ticket_Duration" xml:space="preserve">
+    <value>Süre</value>
+  </data>
+  <data name="Ticket_Tomorrow" xml:space="preserve">
+    <value>Yarın</value>
+  </data>
+  <data name="Ticket_DayOfFormat" xml:space="preserve">
+    <value>{0}. gün / {1}</value>
+  </data>
+  <data name="Ticket_DaysLeftFormat" xml:space="preserve">
+    <value>{0} gün kaldı</value>
+  </data>
+  <data name="Ticket_LastDay" xml:space="preserve">
+    <value>Son gün</value>
+  </data>
+  <data name="Ticket_Done" xml:space="preserve">
+    <value>Tamamlandı</value>
+  </data>
+  <data name="Ticket_NoBudget" xml:space="preserve">
+    <value>Belirlenmedi</value>
+  </data>
+  <data name="Account_GuestTitle" xml:space="preserve">
+    <value>Misafir (yalnızca bu cihaz)</value>
+  </data>
+  <data name="Account_SignedInHint" xml:space="preserve">
+    <value>Seyahatlerin bu hesaba bağlı. Hesap açtığın her cihazda aynı verileri göreceksin.</value>
+  </data>
+  <data name="Account_SignInOrCreate" xml:space="preserve">
+    <value>Giriş yap / Hesap oluştur</value>
+  </data>
+  <data name="Account_Delete" xml:space="preserve">
+    <value>Hesabımı sil</value>
+  </data>
+  <data name="Account_DeleteTitle" xml:space="preserve">
+    <value>Hesabı sil</value>
+  </data>
+  <data name="Account_DeleteMessage" xml:space="preserve">
+    <value>Hesabın kalıcı olarak silinecek ve bu işlem geri alınamaz:
+
+• Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir; paylaştığın kişiler de bu seyahatlere erişemez.
+• Sana paylaşılan seyahatlerden çıkarılırsın.
+• Bu cihazdaki hesap verisi silinir, uygulama misafir olarak devam eder.
+
+Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile yedek al.</value>
+  </data>
+  <data name="Account_DeleteContinue" xml:space="preserve">
+    <value>Devam et</value>
+  </data>
+  <data name="Account_DeleteKeyword" xml:space="preserve">
+    <value>SİL</value>
+  </data>
+  <data name="Account_DeleteTypeFormat" xml:space="preserve">
+    <value>Onaylamak için {0} yaz.</value>
+  </data>
+  <data name="Account_DeleteConfirm" xml:space="preserve">
+    <value>Hesabı sil</value>
+  </data>
+  <data name="Account_DeleteKeywordMismatch" xml:space="preserve">
+    <value>Yazılan metin eşleşmedi, hesap silinmedi.</value>
+  </data>
+  <data name="Account_DeleteOffline" xml:space="preserve">
+    <value>Hesabı silmek için internet bağlantısı gerekiyor. Hiçbir şey silinmedi; bağlantı gelince tekrar dene.</value>
+  </data>
+  <data name="Account_DeleteError" xml:space="preserve">
+    <value>Hesap silinemedi. Lütfen daha sonra tekrar dene.</value>
+  </data>
+  <data name="Account_Deleting" xml:space="preserve">
+    <value>Hesap siliniyor…</value>
+  </data>
+  <data name="Account_Deleted" xml:space="preserve">
+    <value>Hesabın ve bulut verilerin silindi. Uygulama misafir olarak devam ediyor.</value>
+  </data>
+  <data name="Auth_ErrorBanned" xml:space="preserve">
+    <value>Bu hesap askıya alındı, giriş yapılamıyor. Bir hata olduğunu düşünüyorsan bizimle iletişime geç.</value>
+  </data>
+  <data name="Account_EndedTitle" xml:space="preserve">
+    <value>Oturum kapatıldı</value>
+  </data>
+  <data name="Account_EndedDeleted" xml:space="preserve">
+    <value>Hesabın silindiği için oturumun kapatıldı. Uygulamayı misafir olarak kullanmaya devam edebilir ya da yeni bir hesap oluşturabilirsin.</value>
+  </data>
+  <data name="Account_EndedBanned" xml:space="preserve">
+    <value>Hesabın askıya alındığı için oturumun kapatıldı. Bu hesapla tekrar giriş yapılamaz. Bir hata olduğunu düşünüyorsan bizimle iletişime geç.</value>
+  </data>
+  <data name="Account_EndedExpired" xml:space="preserve">
+    <value>Oturumunun süresi doldu. Verilerine erişmek için tekrar giriş yap.</value>
+  </data>
+  <data name="Account_SignOut" xml:space="preserve">
+    <value>Çıkış yap</value>
+  </data>
+  <data name="Account_SignOutTitle" xml:space="preserve">
+    <value>Çıkış yapılsın mı?</value>
+  </data>
+  <data name="Account_SignOutMessage" xml:space="preserve">
+    <value>Hesabının verileri bu cihazda kalır; tekrar giriş yaptığında geri gelir. Çıkıştan sonra misafir verileri gösterilir.</value>
+  </data>
+  <data name="Account_MoveGuestTitle" xml:space="preserve">
+    <value>Seyahatler hesabına taşınsın mı?</value>
+  </data>
+  <data name="Account_MoveGuestFormat" xml:space="preserve">
+    <value>Bu cihazda hesapsız kaydedilmiş {0} seyahat var. Hesabına taşırsan yedeklenir ve diğer cihazlarında da görünür.</value>
+  </data>
+  <data name="Account_MoveGuestAccept" xml:space="preserve">
+    <value>Hesabıma taşı</value>
+  </data>
+  <data name="Account_MoveGuestDecline" xml:space="preserve">
+    <value>Bu cihazda kalsın</value>
+  </data>
+  <data name="Auth_Close" xml:space="preserve">
+    <value>Kapat</value>
+  </data>
+  <data name="Auth_SignInTitle" xml:space="preserve">
+    <value>Giriş yap</value>
+  </data>
+  <data name="Auth_SignUpTitle" xml:space="preserve">
+    <value>Hesap oluştur</value>
+  </data>
+  <data name="Auth_VerifyTitle" xml:space="preserve">
+    <value>E-postanı doğrula</value>
+  </data>
+  <data name="Auth_ResetTitle" xml:space="preserve">
+    <value>Şifreni sıfırla</value>
+  </data>
+  <data name="Auth_SignInSubtitle" xml:space="preserve">
+    <value>Seyahatlerini yedekle, cihazların arasında eşitle ve arkadaşlarınla paylaş.</value>
+  </data>
+  <data name="Auth_SignUpSubtitle" xml:space="preserve">
+    <value>Birkaç saniye sürer. E-postana bir doğrulama kodu göndereceğiz.</value>
+  </data>
+  <data name="Auth_ForgotSubtitle" xml:space="preserve">
+    <value>Hesabının e-posta adresini yaz; şifreni yenilemen için bir kod gönderelim.</value>
+  </data>
+  <data name="Auth_CodeSentFormat" xml:space="preserve">
+    <value>{0} adresine gönderdiğimiz kodu yaz.</value>
+  </data>
+  <data name="Auth_ContinueWithGoogle" xml:space="preserve">
+    <value>Google ile devam et</value>
+  </data>
+  <data name="Auth_Or" xml:space="preserve">
+    <value>veya</value>
+  </data>
+  <data name="Auth_NameLabel" xml:space="preserve">
+    <value>Ad Soyad</value>
+  </data>
+  <data name="Auth_EmailLabel" xml:space="preserve">
+    <value>E-posta</value>
+  </data>
+  <data name="Auth_PasswordLabel" xml:space="preserve">
+    <value>Şifre</value>
+  </data>
+  <data name="Auth_NewPasswordLabel" xml:space="preserve">
+    <value>Yeni şifre</value>
+  </data>
+  <data name="Auth_CodeLabel" xml:space="preserve">
+    <value>Doğrulama kodu</value>
+  </data>
+  <data name="Auth_ForgotPassword" xml:space="preserve">
+    <value>Şifremi unuttum</value>
+  </data>
+  <data name="Auth_SignIn" xml:space="preserve">
+    <value>Giriş yap</value>
+  </data>
+  <data name="Auth_CreateAccount" xml:space="preserve">
+    <value>Hesap oluştur</value>
+  </data>
+  <data name="Auth_Confirm" xml:space="preserve">
+    <value>Doğrula</value>
+  </data>
+  <data name="Auth_SendCode" xml:space="preserve">
+    <value>Kod gönder</value>
+  </data>
+  <data name="Auth_SetNewPassword" xml:space="preserve">
+    <value>Şifreyi kaydet</value>
+  </data>
+  <data name="Auth_ResendCode" xml:space="preserve">
+    <value>Kodu tekrar gönder</value>
+  </data>
+  <data name="Auth_NoAccount" xml:space="preserve">
+    <value>Hesabın yok mu?</value>
+  </data>
+  <data name="Auth_BackToSignIn" xml:space="preserve">
+    <value>Giriş ekranına dön</value>
+  </data>
+  <data name="Auth_ContinueAsGuest" xml:space="preserve">
+    <value>Misafir olarak devam et</value>
+  </data>
+  <data name="Auth_GuestHint" xml:space="preserve">
+    <value>Hesap olmadan da kullanabilirsin; veriler yalnızca bu cihazda kalır. İstediğin zaman Profil'den giriş yapabilirsin.</value>
+  </data>
+  <data name="Auth_NameRequired" xml:space="preserve">
+    <value>Adını yaz.</value>
+  </data>
+  <data name="Auth_PasswordTooShortFormat" xml:space="preserve">
+    <value>Şifre en az {0} karakter olmalı.</value>
+  </data>
+  <data name="Auth_NotConfirmedResent" xml:space="preserve">
+    <value>E-posta adresin henüz doğrulanmamış. Yeni bir kod gönderdik.</value>
+  </data>
+  <data name="Auth_CodeResent" xml:space="preserve">
+    <value>Yeni kod gönderildi.</value>
+  </data>
+  <data name="Auth_Offline" xml:space="preserve">
+    <value>Giriş için internet bağlantısı gerekli.</value>
+  </data>
+  <data name="Auth_ErrorNetwork" xml:space="preserve">
+    <value>Sunucuya ulaşılamadı. Bağlantını kontrol edip tekrar dene.</value>
+  </data>
+  <data name="Auth_ErrorInvalidCredentials" xml:space="preserve">
+    <value>E-posta veya şifre hatalı.</value>
+  </data>
+  <data name="Auth_ErrorNotConfirmed" xml:space="preserve">
+    <value>E-posta adresin henüz doğrulanmamış.</value>
+  </data>
+  <data name="Auth_ErrorUserExists" xml:space="preserve">
+    <value>Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.</value>
+  </data>
+  <data name="Auth_ErrorWeakPassword" xml:space="preserve">
+    <value>Bu şifre çok zayıf. Daha uzun ve tahmin edilmesi zor bir şifre seç.</value>
+  </data>
+  <data name="Auth_ErrorInvalidEmail" xml:space="preserve">
+    <value>Geçerli bir e-posta adresi yaz.</value>
+  </data>
+  <data name="Auth_ErrorInvalidCode" xml:space="preserve">
+    <value>Kod hatalı ya da süresi dolmuş.</value>
+  </data>
+  <data name="Auth_ErrorRateLimited" xml:space="preserve">
+    <value>Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.</value>
+  </data>
+  <data name="Auth_ErrorNotSupported" xml:space="preserve">
+    <value>Google ile giriş bu cihazda desteklenmiyor. E-posta ile giriş yapabilirsin.</value>
+  </data>
+  <data name="Auth_ErrorUnknown" xml:space="preserve">
+    <value>Bir şeyler ters gitti. Lütfen tekrar dene.</value>
+  </data>
+  <data name="Sync_StatusSyncing" xml:space="preserve">
+    <value>Eşitleniyor…</value>
+  </data>
+  <data name="Sync_StatusOffline" xml:space="preserve">
+    <value>Çevrimdışı – bağlantı gelince eşitlenecek</value>
+  </data>
+  <data name="Sync_StatusOfflinePendingFormat" xml:space="preserve">
+    <value>Çevrimdışı – {0} değişiklik bekliyor</value>
+  </data>
+  <data name="Sync_StatusPendingFormat" xml:space="preserve">
+    <value>{0} değişiklik bekliyor</value>
+  </data>
+  <data name="Sync_StatusError" xml:space="preserve">
+    <value>Eşitlenemedi, tekrar denenecek</value>
+  </data>
+  <data name="Sync_StatusUpToDateFormat" xml:space="preserve">
+    <value>Eşitlendi · {0}</value>
+  </data>
+  <data name="Sync_StatusUpToDate" xml:space="preserve">
+    <value>Eşitlendi</value>
+  </data>
+  <data name="Sync_Now" xml:space="preserve">
+    <value>Şimdi eşitle</value>
+  </data>
+  <data name="Access_ReadOnly" xml:space="preserve">
+    <value>Bu seyahatte görüntüleyicisin; değişiklik yapamazsın. Düzenlemek için seyahatin sahibinden yetki iste.</value>
+  </data>
+  <data name="Access_OwnerOnly" xml:space="preserve">
+    <value>Seyahati yalnızca sahibi silebilir. İstersen Üyeler sayfasından seyahatten ayrılabilirsin.</value>
+  </data>
+  <data name="Role_Owner" xml:space="preserve">
+    <value>Sahibi</value>
+  </data>
+  <data name="Role_Editor" xml:space="preserve">
+    <value>Düzenleyici</value>
+  </data>
+  <data name="Role_Viewer" xml:space="preserve">
+    <value>Görüntüleyici</value>
+  </data>
+  <data name="Members_Title" xml:space="preserve">
+    <value>Üyeler ve davet</value>
+  </data>
+  <data name="Members_ListTitle" xml:space="preserve">
+    <value>Seyahattekiler</value>
+  </data>
+  <data name="Members_MyRoleFormat" xml:space="preserve">
+    <value>Rolün: {0}</value>
+  </data>
+  <data name="Members_MeFormat" xml:space="preserve">
+    <value>{0} (sen)</value>
+  </data>
+  <data name="Members_You" xml:space="preserve">
+    <value>Sen</value>
+  </data>
+  <data name="Members_NotShared" xml:space="preserve">
+    <value>Bu seyahati henüz kimseyle paylaşmadın. Aşağıdan bir davet kodu oluşturup gönderebilirsin.</value>
+  </data>
+  <data name="Members_SignInHint" xml:space="preserve">
+    <value>Seyahati paylaşmak ya da üyeleri görmek için giriş yapmalısın.</value>
+  </data>
+  <data name="Members_InviteTitle" xml:space="preserve">
+    <value>Davet et</value>
+  </data>
+  <data name="Members_InviteHint" xml:space="preserve">
+    <value>Bir davet kodu oluşturulur ve paylaşma menüsü açılır. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod 7 gün geçerlidir.</value>
+  </data>
+  <data name="Members_InviteEditor" xml:space="preserve">
+    <value>Düzenleyici davet et</value>
+  </data>
+  <data name="Members_InviteViewer" xml:space="preserve">
+    <value>Görüntüleyici davet et</value>
+  </data>
+  <data name="Members_InviteInfoFormat" xml:space="preserve">
+    <value>{0} daveti · {1} tarihine kadar geçerli</value>
+  </data>
+  <data name="Members_InviteShareTitle" xml:space="preserve">
+    <value>Seyahat daveti</value>
+  </data>
+  <data name="Members_InviteShareFormat" xml:space="preserve">
+    <value>Travel Planner'da "{0}" seyahatime katıl!
+Davet kodu: {1}
+Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine kadar geçerli.</value>
+  </data>
+  <data name="Members_MakeEditor" xml:space="preserve">
+    <value>Düzenleyici yap</value>
+  </data>
+  <data name="Members_MakeViewer" xml:space="preserve">
+    <value>Görüntüleyici yap</value>
+  </data>
+  <data name="Members_Remove" xml:space="preserve">
+    <value>Seyahatten çıkar</value>
+  </data>
+  <data name="Members_RemoveTitle" xml:space="preserve">
+    <value>Üye çıkarılsın mı?</value>
+  </data>
+  <data name="Members_RemoveMessageFormat" xml:space="preserve">
+    <value>{0}, "{1}" seyahatinden çıkarılacak ve seyahat onun cihazlarından kaldırılacak.</value>
+  </data>
+  <data name="Members_Leave" xml:space="preserve">
+    <value>Seyahatten ayrıl</value>
+  </data>
+  <data name="Members_LeaveTitle" xml:space="preserve">
+    <value>Seyahatten ayrılınsın mı?</value>
+  </data>
+  <data name="Members_LeaveMessageFormat" xml:space="preserve">
+    <value>"{0}" bu cihazdan ve hesabından kaldırılacak. Tekrar katılmak için yeni bir davet kodu gerekir.</value>
+  </data>
+  <data name="Members_LoadError" xml:space="preserve">
+    <value>Üyeler yüklenemedi.</value>
+  </data>
+  <data name="Members_ActionError" xml:space="preserve">
+    <value>İşlem tamamlanamadı.</value>
+  </data>
+  <data name="Sharing_ErrorOffline" xml:space="preserve">
+    <value>Bu işlem için internet bağlantısı gerekli.</value>
+  </data>
+  <data name="Sharing_ErrorNotSignedIn" xml:space="preserve">
+    <value>Bunun için giriş yapmalısın.</value>
+  </data>
+  <data name="Sharing_ErrorNotUploaded" xml:space="preserve">
+    <value>Seyahat henüz buluta gönderilemedi. Bağlantını kontrol edip biraz sonra tekrar dene.</value>
+  </data>
+  <data name="Sharing_ErrorInvalidInvite" xml:space="preserve">
+    <value>Davet kodu geçersiz, süresi dolmuş ya da kullanılmış.</value>
+  </data>
+  <data name="Sharing_ErrorForbidden" xml:space="preserve">
+    <value>Bunu yapma yetkin yok. Rolün değişmiş olabilir; sayfayı yenile.</value>
+  </data>
+  <data name="Sharing_ErrorUnknown" xml:space="preserve">
+    <value>Bir şeyler ters gitti. Lütfen tekrar dene.</value>
+  </data>
+  <data name="Join_Title" xml:space="preserve">
+    <value>Davet koduyla katıl</value>
+  </data>
+  <data name="Join_Message" xml:space="preserve">
+    <value>Sana gönderilen 8 haneli davet kodunu yaz.</value>
+  </data>
+  <data name="Join_Accept" xml:space="preserve">
+    <value>Katıl</value>
+  </data>
+  <data name="Join_PendingFormat" xml:space="preserve">
+    <value>"{0}" seyahatine katıldın. Eşitleme tamamlanınca Seyahatler listesinde görünecek.</value>
+  </data>
+  <data name="TripDetail_SectionSharing" xml:space="preserve">
+    <value>PAYLAŞIM</value>
+  </data>
+  <data name="TripDetail_SharingSignIn" xml:space="preserve">
+    <value>Paylaşmak için giriş yap</value>
+  </data>
+  <data name="TripDetail_ReadOnlyBanner" xml:space="preserve">
+    <value>Bu seyahati yalnızca görüntüleyebilirsin.</value>
+  </data>
+  <data name="TripDetail_LastChangeFormat" xml:space="preserve">
+    <value>Son değişiklik: {0} · {1}</value>
+  </data>
+  <data name="Time_JustNow" xml:space="preserve">
+    <value>az önce</value>
+  </data>
+  <data name="Time_MinutesAgoFormat" xml:space="preserve">
+    <value>{0} dk önce</value>
+  </data>
+  <data name="Time_HoursAgoFormat" xml:space="preserve">
+    <value>{0} sa önce</value>
+  </data>
+  <data name="Time_DaysAgoFormat" xml:space="preserve">
+    <value>{0} gün önce</value>
+  </data>
+  <data name="Split_AddMembers" xml:space="preserve">
+    <value>Seyahat üyelerini ekle</value>
+  </data>
+  <data name="Split_MembersAddedFormat" xml:space="preserve">
+    <value>{0} üye katılımcı olarak eklendi.</value>
+  </data>
+  <data name="Split_MembersAlreadyAdded" xml:space="preserve">
+    <value>Tüm üyeler zaten katılımcı.</value>
+  </data>
+  <data name="Sync_RejectedFormat" xml:space="preserve">
+    <value>{0} değişikliğin uygulanamadı: kayıt başka biri tarafından silinmiş ya da bu seyahatteki yetkin değişmiş. Güncel hâli yüklendi.</value>
+  </data>
+  <data name="Trash_Title" xml:space="preserve">
+    <value>Çöp kutusu</value>
+  </data>
+  <data name="Trash_Hint" xml:space="preserve">
+    <value>Silinenler 30 gün boyunca geri alınabilir.</value>
+  </data>
+  <data name="Trash_Empty" xml:space="preserve">
+    <value>Çöp kutusu boş.</value>
+  </data>
+  <data name="Trash_Restore" xml:space="preserve">
+    <value>Geri al</value>
+  </data>
+  <data name="Trash_RestoredFormat" xml:space="preserve">
+    <value>"{0}" geri getirildi.</value>
+  </data>
+  <data name="Trash_RestoreParentMissing" xml:space="preserve">
+    <value>Geri alınamadı: ait olduğu seyahat artık yok. Önce seyahati geri al.</value>
+  </data>
+  <data name="Trash_RestoreError" xml:space="preserve">
+    <value>Geri alınamadı.</value>
+  </data>
+  <data name="Trash_LoadError" xml:space="preserve">
+    <value>Çöp kutusu yüklenemedi.</value>
+  </data>
+  <data name="Trash_DaysLeftFormat" xml:space="preserve">
+    <value>{0} gün sonra kalıcı olarak silinecek</value>
+  </data>
+  <data name="Trash_ItemCountFormat" xml:space="preserve">
+    <value>{0} öğe</value>
+  </data>
+  <data name="Trash_KindTrip" xml:space="preserve">
+    <value>Seyahat</value>
+  </data>
+  <data name="Trash_KindExpense" xml:space="preserve">
+    <value>Masraf</value>
+  </data>
+  <data name="Trash_KindTodo" xml:space="preserve">
+    <value>Yapılacak</value>
+  </data>
+  <data name="Trash_KindPlace" xml:space="preserve">
+    <value>Yer</value>
+  </data>
+  <data name="Trash_KindActivity" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="Trash_KindAttachment" xml:space="preserve">
+    <value>Belge</value>
+  </data>
+  <data name="Trash_KindParticipant" xml:space="preserve">
+    <value>Katılımcı</value>
+  </data>
+  <data name="Trash_KindTemplate" xml:space="preserve">
+    <value>Bavul şablonu</value>
+  </data>
+  <data name="Trash_KindOther" xml:space="preserve">
+    <value>Kayıt</value>
+  </data>
+  <data name="TripDetail_Duplicate" xml:space="preserve">
+    <value>Seyahati kopyala</value>
+  </data>
+  <data name="TripDuplicate_Title" xml:space="preserve">
+    <value>Seyahati kopyala</value>
+  </data>
+  <data name="TripDuplicate_Message" xml:space="preserve">
+    <value>"{0}" için yeni bir seyahat oluşturulacak: görevler (işaretsiz), yerler, günlük plan ve katılımcılar kopyalanır. Harcamalar ve belgeler kopyalanmaz.</value>
+  </data>
+  <data name="TripDuplicate_Accept" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="TripDuplicate_NameFormat" xml:space="preserve">
+    <value>{0} (kopya)</value>
+  </data>
+  <data name="TripDuplicate_Done" xml:space="preserve">
+    <value>Kopya oluşturuldu. Tarihleri değiştirmek için Düzenle'ye dokun - günlük plan da tarihlerle birlikte kayar.</value>
+  </data>
+  <data name="TripDuplicate_Error" xml:space="preserve">
+    <value>Seyahat kopyalanamadı.</value>
+  </data>
+  <data name="TripDetail_TripRemoved" xml:space="preserve">
+    <value>Bu seyahat artık bu cihazda yok: sahibi silmiş ya da seyahatten çıkarılmış olabilirsin.</value>
+  </data>
+  <data name="ExpenseList_Export" xml:space="preserve">
+    <value>Harcamaları dışa aktar (CSV)</value>
+  </data>
+  <data name="ExpenseList_ExportEmpty" xml:space="preserve">
+    <value>Dışa aktarılacak harcama yok.</value>
+  </data>
+  <data name="ExpenseList_ExportError" xml:space="preserve">
+    <value>Harcamalar dışa aktarılamadı.</value>
+  </data>
+  <data name="ExpenseCsv_Columns" xml:space="preserve">
+    <value>Tarih|Kategori|Açıklama|Tutar|Para birimi|Girilen tutar|Girilen para birimi|Kur|Ödeyen</value>
+  </data>
+  <data name="ExpenseCsv_FileSuffix" xml:space="preserve">
+    <value>harcamalar</value>
+  </data>
+  <data name="Itinerary_ReorderHandle" xml:space="preserve">
+    <value>Sürükleyerek sırala</value>
+  </data>
+  <data name="AiPlan_Title" xml:space="preserve">
+    <value>Yapay zekâ ile planla</value>
+  </data>
+  <data name="AiPlan_EntrySubtitle" xml:space="preserve">
+    <value>4 soruya cevap ver; gün gün plan, gezilecek yerler ve yapılacaklar hazırlansın.</value>
+  </data>
+  <data name="AiPlan_IntroFormat" xml:space="preserve">
+    <value>{0} için {1} günlük bir plan hazırlayalım.</value>
+  </data>
+  <data name="AiPlan_QInterests" xml:space="preserve">
+    <value>Nelerden hoşlanırsın?</value>
+  </data>
+  <data name="AiPlan_QInterestsHint" xml:space="preserve">
+    <value>En fazla 4 tane seçebilirsin.</value>
+  </data>
+  <data name="AiPlan_QPace" xml:space="preserve">
+    <value>Nasıl bir tempo?</value>
+  </data>
+  <data name="AiPlan_QBudget" xml:space="preserve">
+    <value>Bütçen nasıl?</value>
+  </data>
+  <data name="AiPlan_QCompanions" xml:space="preserve">
+    <value>Kiminle gidiyorsun?</value>
+  </data>
+  <data name="AiPlan_QNotes" xml:space="preserve">
+    <value>Özel bir isteğin var mı? (isteğe bağlı)</value>
+  </data>
+  <data name="AiPlan_NotesPlaceholder" xml:space="preserve">
+    <value>Örn. vejetaryeniz, müze kartımız var, çok yürümek istemiyoruz</value>
+  </data>
+  <data name="AiPlan_I_History" xml:space="preserve">
+    <value>Tarih</value>
+  </data>
+  <data name="AiPlan_I_Food" xml:space="preserve">
+    <value>Yemek</value>
+  </data>
+  <data name="AiPlan_I_Museums" xml:space="preserve">
+    <value>Müzeler</value>
+  </data>
+  <data name="AiPlan_I_Nature" xml:space="preserve">
+    <value>Doğa</value>
+  </data>
+  <data name="AiPlan_I_Beach" xml:space="preserve">
+    <value>Deniz ve plaj</value>
+  </data>
+  <data name="AiPlan_I_Architecture" xml:space="preserve">
+    <value>Mimari</value>
+  </data>
+  <data name="AiPlan_I_Art" xml:space="preserve">
+    <value>Sanat</value>
+  </data>
+  <data name="AiPlan_I_Shopping" xml:space="preserve">
+    <value>Alışveriş</value>
+  </data>
+  <data name="AiPlan_I_Nightlife" xml:space="preserve">
+    <value>Gece hayatı</value>
+  </data>
+  <data name="AiPlan_I_Family" xml:space="preserve">
+    <value>Çocuklu aktiviteler</value>
+  </data>
+  <data name="AiPlan_I_Adventure" xml:space="preserve">
+    <value>Macera</value>
+  </data>
+  <data name="AiPlan_I_Relax" xml:space="preserve">
+    <value>Dinlenme</value>
+  </data>
+  <data name="AiPlan_Pace_Relaxed" xml:space="preserve">
+    <value>Sakin</value>
+  </data>
+  <data name="AiPlan_Pace_Balanced" xml:space="preserve">
+    <value>Dengeli</value>
+  </data>
+  <data name="AiPlan_Pace_Packed" xml:space="preserve">
+    <value>Yoğun</value>
+  </data>
+  <data name="AiPlan_Budget_Low" xml:space="preserve">
+    <value>Ekonomik</value>
+  </data>
+  <data name="AiPlan_Budget_Mid" xml:space="preserve">
+    <value>Orta</value>
+  </data>
+  <data name="AiPlan_Budget_High" xml:space="preserve">
+    <value>Lüks</value>
+  </data>
+  <data name="AiPlan_With_Solo" xml:space="preserve">
+    <value>Yalnız</value>
+  </data>
+  <data name="AiPlan_With_Couple" xml:space="preserve">
+    <value>Çift</value>
+  </data>
+  <data name="AiPlan_With_Family" xml:space="preserve">
+    <value>Aile</value>
+  </data>
+  <data name="AiPlan_With_Friends" xml:space="preserve">
+    <value>Arkadaşlar</value>
+  </data>
+  <data name="AiPlan_Generate" xml:space="preserve">
+    <value>Planı oluştur</value>
+  </data>
+  <data name="AiPlan_Generating" xml:space="preserve">
+    <value>Planın hazırlanıyor</value>
+  </data>
+  <data name="AiPlan_QuotaFormat" xml:space="preserve">
+    <value>Bugün {0}/{1} plan hakkın var.</value>
+  </data>
+  <data name="AiPlan_QuotaLeftFormat" xml:space="preserve">
+    <value>Bugün {0} plan hakkın kaldı.</value>
+  </data>
+  <data name="AiPlan_QuotaNone" xml:space="preserve">
+    <value>Bugünkü plan hakkın doldu. Yarın tekrar deneyebilirsin.</value>
+  </data>
+  <data name="AiPlan_DayFormat" xml:space="preserve">
+    <value>{0}. gün · {1}</value>
+  </data>
+  <data name="AiPlan_TruncatedFormat" xml:space="preserve">
+    <value>Seyahatin uzun olduğu için ilk {0} günü planlandı.</value>
+  </data>
+  <data name="AiPlan_Disclaimer" xml:space="preserve">
+    <value>Yapay zekâ önerisidir. Açılış saatlerini, fiyatları ve rezervasyonları kontrol et.</value>
+  </data>
+  <data name="AiPlan_PreviewDays" xml:space="preserve">
+    <value>Gün gün plan</value>
+  </data>
+  <data name="AiPlan_PreviewPlaces" xml:space="preserve">
+    <value>Gezilecek yerler</value>
+  </data>
+  <data name="AiPlan_PreviewTodos" xml:space="preserve">
+    <value>Yola çıkmadan</value>
+  </data>
+  <data name="AiPlan_PreviewTips" xml:space="preserve">
+    <value>İpuçları</value>
+  </data>
+  <data name="AiPlan_PackingHint" xml:space="preserve">
+    <value>Bavul önerileri için Görevler sayfasındaki yıldıza bas; yeni plana göre hazırlanır.</value>
+  </data>
+  <data name="AiPlan_AddSelected" xml:space="preserve">
+    <value>Seçilenleri plana ekle</value>
+  </data>
+  <data name="AiPlan_Adding" xml:space="preserve">
+    <value>Ekleniyor… Yerler haritada bulunuyor.</value>
+  </data>
+  <data name="AiPlan_StartOver" xml:space="preserve">
+    <value>Soruları değiştir</value>
+  </data>
+  <data name="AiPlan_AddedFormat" xml:space="preserve">
+    <value>Eklendi: {0} etkinlik, {1} yer, {2} görev.</value>
+  </data>
+  <data name="AiPlan_ApproximateFormat" xml:space="preserve">
+    <value>{0} yer haritada bulunamadığı için eklenmedi; etkinliklerde adı duruyor.</value>
+  </data>
+  <data name="AiPlan_ApproximateLocation" xml:space="preserve">
+    <value>konum yaklaşık</value>
+  </data>
+  <data name="AiPlan_NothingSelected" xml:space="preserve">
+    <value>Eklemek için en az bir şey seç.</value>
+  </data>
+  <data name="AiPlan_SignInHint" xml:space="preserve">
+    <value>Yapay zekâ ile planlama için giriş yapman gerekiyor; günlük plan hakkı hesaba bağlı.</value>
+  </data>
+  <data name="AiPlan_ReadOnly" xml:space="preserve">
+    <value>Bu seyahatte düzenleme yetkin olmadığı için plan ekleyemezsin.</value>
+  </data>
+  <data name="AiPlan_ErrorOffline" xml:space="preserve">
+    <value>Yapay zekâ ile planlama için internet bağlantısı gerekiyor.</value>
+  </data>
+  <data name="AiPlan_ErrorSignIn" xml:space="preserve">
+    <value>Oturumun sona ermiş. Tekrar giriş yap.</value>
+  </data>
+  <data name="AiPlan_ErrorDisabled" xml:space="preserve">
+    <value>Hesabın askıya alındığı için bu özellik kullanılamıyor.</value>
+  </data>
+  <data name="AiPlan_ErrorNotConfigured" xml:space="preserve">
+    <value>Yapay zekâ ile planlama henüz etkin değil.</value>
+  </data>
+  <data name="AiPlan_ErrorFailed" xml:space="preserve">
+    <value>Plan oluşturulamadı. Biraz sonra tekrar dene.</value>
+  </data>
+  <data name="AiPlan_ApplyError" xml:space="preserve">
+    <value>Plan seyahate eklenirken bir hata oluştu.</value>
+  </data>
+  <data name="AiPlan_LoadError" xml:space="preserve">
+    <value>Planlayıcı açılamadı.</value>
+  </data>
+  <data name="AiPlan_EntrySignIn" xml:space="preserve">
+    <value>Kullanmak için giriş yap; her gün 5 plan hakkın olur.</value>
+  </data>
+  <data name="AiPlan_QuotaRule" xml:space="preserve">
+    <value>Hak sayısı hesabına ve bu cihaza bağlı; her gün yenilenir.</value>
+  </data>
+  <data name="AiPlan_Cat_Landmark" xml:space="preserve">
+    <value>Simge yapı</value>
+  </data>
+  <data name="AiPlan_Cat_Museum" xml:space="preserve">
+    <value>Müze</value>
+  </data>
+  <data name="AiPlan_Cat_Historic" xml:space="preserve">
+    <value>Tarihi yer</value>
+  </data>
+  <data name="AiPlan_Cat_Religious" xml:space="preserve">
+    <value>İbadet yeri</value>
+  </data>
+  <data name="AiPlan_Cat_Park" xml:space="preserve">
+    <value>Park</value>
+  </data>
+  <data name="AiPlan_Cat_Nature" xml:space="preserve">
+    <value>Doğa</value>
+  </data>
+  <data name="AiPlan_Cat_Beach" xml:space="preserve">
+    <value>Plaj</value>
+  </data>
+  <data name="AiPlan_Cat_Viewpoint" xml:space="preserve">
+    <value>Manzara noktası</value>
+  </data>
+  <data name="AiPlan_Cat_Restaurant" xml:space="preserve">
+    <value>Restoran</value>
+  </data>
+  <data name="AiPlan_Cat_Cafe" xml:space="preserve">
+    <value>Kafe</value>
+  </data>
+  <data name="AiPlan_Cat_Market" xml:space="preserve">
+    <value>Pazar / çarşı</value>
+  </data>
+  <data name="AiPlan_Cat_Shopping" xml:space="preserve">
+    <value>Alışveriş</value>
+  </data>
+  <data name="AiPlan_Cat_Nightlife" xml:space="preserve">
+    <value>Gece hayatı</value>
+  </data>
+  <data name="AiPlan_Cat_Neighborhood" xml:space="preserve">
+    <value>Semt</value>
+  </data>
+  <data name="AiPlan_Cat_Experience" xml:space="preserve">
+    <value>Deneyim</value>
+  </data>
+  <data name="AiPlan_Step_Places" xml:space="preserve">
+    <value>Gezilecek yerler seçiliyor…</value>
+  </data>
+  <data name="AiPlan_Step_Group" xml:space="preserve">
+    <value>Yakın yerler aynı günde toplanıyor…</value>
+  </data>
+  <data name="AiPlan_Step_Times" xml:space="preserve">
+    <value>Günlük rota ve saatler ayarlanıyor…</value>
+  </data>
+  <data name="AiPlan_Step_Food" xml:space="preserve">
+    <value>Yemek molaları için mekânlar bulunuyor…</value>
+  </data>
+  <data name="AiPlan_Step_Map" xml:space="preserve">
+    <value>Yerler haritada kontrol ediliyor…</value>
+  </data>
+  <data name="AiPlan_Step_Finish" xml:space="preserve">
+    <value>Son dokunuşlar yapılıyor…</value>
+  </data>
+  <data name="Selection_MenuA11y" xml:space="preserve">
+    <value>Silmek için seç</value>
+  </data>
+  <data name="Selection_CountFormat" xml:space="preserve">
+    <value>{0} seçildi</value>
+  </data>
+  <data name="Selection_NoneSelected" xml:space="preserve">
+    <value>Silineceklere dokun</value>
+  </data>
+  <data name="Selection_SelectAll" xml:space="preserve">
+    <value>Tümünü seç</value>
+  </data>
+  <data name="Selection_ClearAll" xml:space="preserve">
+    <value>Seçimi kaldır</value>
+  </data>
+  <data name="Selection_Done" xml:space="preserve">
+    <value>Seçimden çık</value>
+  </data>
+  <data name="Selection_DeleteSelectedTitle" xml:space="preserve">
+    <value>Seçilenleri sil</value>
+  </data>
+  <data name="Selection_DeleteAllTitle" xml:space="preserve">
+    <value>Tümünü sil</value>
+  </data>
+  <data name="Selection_DeleteMessageFormat" xml:space="preserve">
+    <value>{0} silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin.</value>
+  </data>
+  <data name="Selection_AttachmentsFormat" xml:space="preserve">
+    <value>{0} belge</value>
+  </data>
+  <data name="Selection_TripsFormat" xml:space="preserve">
+    <value>{0} seyahat</value>
+  </data>
+  <data name="Selection_TripsRelatedNote" xml:space="preserve">
+    <value>Görevleri, harcamaları, yerleri ve planları da birlikte silinir.</value>
+  </data>
+  <data name="Selection_TripsNotOwnerFormat" xml:space="preserve">
+    <value>Seninle paylaşılan {0} seyahat silinmeyecek - onları yalnızca sahibi silebilir.</value>
+  </data>
+  <data name="Selection_TripsOfflineFormat" xml:space="preserve">
+    <value>Bulutta olan {0} seyahat şu an silinemiyor - bunun için internet bağlantısı gerekiyor.</value>
+  </data>
+  <data name="Notification_PrepTitleFormat" xml:space="preserve">
+    <value>{0} yolculuğuna {1} gün kaldı</value>
+  </data>
+  <data name="Notification_PrepBodyFormat" xml:space="preserve">
+    <value>Yapılacaklar listende {0} iş hâlâ bekliyor - hazırlık için iyi bir zaman.</value>
+  </data>
+  <data name="Notification_DayTitleFormat" xml:space="preserve">
+    <value>{0}. gün · {1}</value>
+  </data>
+  <data name="Notification_DayBodyFormat" xml:space="preserve">
+    <value>Bugün {0} etkinlik var, ilki: {1}</value>
+  </data>
+  <data name="Notification_DayBodySingleFormat" xml:space="preserve">
+    <value>Bugünün planı: {0}</value>
+  </data>
+  <data name="Notification_AfterTripTitleFormat" xml:space="preserve">
+    <value>{0} yolculuğu nasıldı?</value>
+  </data>
+  <data name="Notification_AfterTripBody" xml:space="preserve">
+    <value>Harcama özetine ve kimin kime ne kadar borçlu olduğuna göz at.</value>
+  </data>
+</root>

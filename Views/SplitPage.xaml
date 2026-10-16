@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             x:Class="TravelPlanner.Views.SplitPage"
+             x:DataType="vm:SplitViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Split_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
+            <ScrollView>
+                <VerticalStackLayout Padding="16,20,16,28" Spacing="20">
+                    <controls:LoadingLogo IsVisible="{Binding IsInitialLoading}" Size="56" Margin="0,40" />
+
+                    <!-- ════════ Settlement summary ════════ -->
+                    <Border IsVisible="{Binding HasSettlements}" Style="{StaticResource Card.Hero}">
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Grid.Column="0" Style="{StaticResource Icon}" Text="{StaticResource Ic.Exchange}" TextColor="{DynamicResource tp-on-hero}" />
+                                <Label Grid.Column="1" Text="{x:Static res:AppResources.Split_WhoOwesWhom}" Style="{StaticResource Text.H3}"
+                                       TextColor="{DynamicResource tp-on-hero}" VerticalOptions="Center" SemanticProperties.HeadingLevel="Level2" />
+                            </Grid>
+                            <VerticalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding Settlements}">
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                            <BoxView Grid.Column="0" WidthRequest="3" Color="{DynamicResource tp-accent}" VerticalOptions="Fill" />
+                                            <Label Grid.Column="1" Text="{Binding .}" Style="{StaticResource Text.Body}" FontSize="14" TextColor="{DynamicResource tp-on-hero}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </VerticalStackLayout>
+                            <BoxView Style="{StaticResource Divider}" Color="{DynamicResource tp-hero-line}" />
+                            <Label Text="{Binding SplitTotalText}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-hero-muted}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border IsVisible="{Binding IsAllSettled}" Style="{StaticResource Banner.Info}" BackgroundColor="{DynamicResource tp-success-soft}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CheckCircle}" TextColor="{DynamicResource tp-success}" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Split_AllSettled}" FontSize="14" TextColor="{DynamicResource tp-success}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+
+                    <Border IsVisible="{Binding HasUnsplit}" Style="{StaticResource Banner.Warning}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding UnsplitText}" FontSize="13" TextColor="{DynamicResource tp-warning}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="{x:Static res:AppResources.Split_GoToExpenses}" Style="{StaticResource Text.Link}" FontSize="13" VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding GoToExpensesCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </Border>
+
+                    <!-- ════════ Participants ════════ -->
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.Split_ParticipantsTitle}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
+                        <Border Style="{StaticResource Card.List}">
+                            <VerticalStackLayout Spacing="0">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" Padding="12" IsVisible="{Binding CanEdit}">
+                                    <Border Grid.Column="0" Style="{StaticResource Input}" MinimumHeightRequest="44">
+                                        <Entry Keyboard="{x:Static helpers:AppKeyboards.Words}" Text="{Binding NewParticipantName}" Placeholder="{x:Static res:AppResources.Split_AddPlaceholder}" MaxLength="60"
+                                               ReturnCommand="{Binding AddParticipantCommand}" />
+                                    </Border>
+                                    <Border Grid.Column="1" Style="{StaticResource IconButton.Filled}" WidthRequest="44" HeightRequest="44"
+                                            SemanticProperties.Description="{x:Static res:AppResources.A11y_Add}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding AddParticipantCommand}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-primary}" />
+                                    </Border>
+                                </Grid>
+                                <!-- G6: shared trip - add its members (linked to their accounts) -->
+                                <Button Text="{x:Static res:AppResources.Split_AddMembers}" Command="{Binding AddMembersCommand}"
+                                        IsVisible="{Binding CanAddMembers}" Style="{StaticResource Btn.Secondary.Sm}" HeightRequest="40" Margin="12,0,12,12" />
+                                <BoxView Style="{StaticResource Divider}" />
+
+                                <Label IsVisible="{Binding HasNoParticipants}" Text="{x:Static res:AppResources.Split_NoParticipants}"
+                                       Style="{StaticResource Text.Body2}" Padding="16,14" />
+
+                                <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding Balances}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:BalanceItem">
+                                            <VerticalStackLayout Spacing="0">
+                                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="10" Padding="16,12,8,12">
+                                                    <Border Grid.Column="0" WidthRequest="36" HeightRequest="36" Padding="0" StrokeShape="RoundRectangle 18"
+                                                            Stroke="{DynamicResource tp-border}" BackgroundColor="{DynamicResource tp-surface-alt}" VerticalOptions="Center">
+                                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.User}" />
+                                                    </Border>
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                                        <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" />
+                                                        <!-- "Ödediği" and "Payı" on their own lines - side by side they got cut off on narrow screens. -->
+                                                        <Label Text="{Binding PaidText}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+                                                        <Label Text="{Binding ShareText}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+                                                    </VerticalStackLayout>
+                                                    <VerticalStackLayout Grid.Column="2" Spacing="1" VerticalOptions="Center">
+                                                        <Label Text="{Binding NetText}" Style="{StaticResource Text.Value}" FontSize="14" HorizontalOptions="End">
+                                                            <Label.Triggers>
+                                                                <DataTrigger TargetType="Label" Binding="{Binding IsCreditor}" Value="True">
+                                                                    <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
+                                                                </DataTrigger>
+                                                                <DataTrigger TargetType="Label" Binding="{Binding IsDebtor}" Value="True">
+                                                                    <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
+                                                                </DataTrigger>
+                                                            </Label.Triggers>
+                                                        </Label>
+                                                        <Label Text="{Binding StatusText}" Style="{StaticResource Text.Caption}" FontSize="11" HorizontalOptions="End" />
+                                                    </VerticalStackLayout>
+                                                    <Border Grid.Column="3" Style="{StaticResource IconButton}" WidthRequest="36" HeightRequest="36"
+                                                            SemanticProperties.Description="{x:Static res:AppResources.A11y_Edit}">
+                                                        <Border.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SplitViewModel}}, Path=RenameParticipantCommand}"
+                                                                                  CommandParameter="{Binding .}" />
+                                                        </Border.GestureRecognizers>
+                                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Edit}" TextColor="{DynamicResource tp-text-3}" />
+                                                    </Border>
+                                                    <Border Grid.Column="4" Style="{StaticResource IconButton}" WidthRequest="36" HeightRequest="36"
+                                                            SemanticProperties.Description="{x:Static res:AppResources.Common_Delete}">
+                                                        <Border.GestureRecognizers>
+                                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:SplitViewModel}}, Path=DeleteParticipantCommand}"
+                                                                                  CommandParameter="{Binding .}" />
+                                                        </Border.GestureRecognizers>
+                                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Delete}" TextColor="{DynamicResource tp-danger}" />
+                                                    </Border>
+                                                </Grid>
+                                                <BoxView Style="{StaticResource Divider.Inset}" Margin="62,0,0,0" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+    </Grid>
+</ContentPage>

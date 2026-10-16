@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:views="clr-namespace:TravelPlanner.Views"
+             x:Class="TravelPlanner.Views.AiPlannerPage"
+             x:DataType="vm:AiPlannerViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <!-- AI trip planner: questions → plan preview (everything can be unticked) → add to the trip. -->
+    <ContentPage.Resources>
+        <!-- One answer chip; tapping it runs ToggleChoiceCommand (multi-select for interests, single for the rest). -->
+        <DataTemplate x:Key="ChoiceChip" x:DataType="vm:AiChoice">
+            <Border Style="{StaticResource Chip}" Margin="0,0,8,8" SemanticProperties.Description="{Binding Label}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-primary}" />
+                        <Setter Property="Stroke" Value="{DynamicResource tp-primary}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AiPlannerViewModel}}, Path=ToggleChoiceCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Border.GestureRecognizers>
+                <Label Text="{Binding Label}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource tp-on-primary}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+        </DataTemplate>
+
+        <!-- Preview rows (one virtualized list, see AiPlannerViewModel.PreviewRows) -->
+        <DataTemplate x:Key="PreviewSection" x:DataType="vm:AiPreviewSection">
+            <VerticalStackLayout Spacing="4" Padding="20,20,20,6">
+                <Label Text="{Binding Title}" Style="{StaticResource Text.Overline}" />
+                <Label Text="{Binding Hint}" IsVisible="{Binding HasHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+            </VerticalStackLayout>
+        </DataTemplate>
+        <DataTemplate x:Key="PreviewDay" x:DataType="vm:AiPreviewDay">
+            <VerticalStackLayout Spacing="2" Padding="20,12,20,2">
+                <Label Text="{Binding Header}" Style="{StaticResource Text.Title}" />
+                <Label Text="{Binding Title}" IsVisible="{Binding HasTitle}" Style="{StaticResource Text.Caption}" />
+            </VerticalStackLayout>
+        </DataTemplate>
+        <DataTemplate x:Key="PreviewActivity" x:DataType="vm:AiPreviewActivity">
+            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="6" Padding="12,0,16,0">
+                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" />
+                <VerticalStackLayout Grid.Column="1" Spacing="0" WidthRequest="42" VerticalOptions="Start" Margin="0,11,0,0">
+                    <Label Text="{Binding TimeText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-text}" />
+                    <Label Text="{Binding EndText}" IsVisible="{Binding HasEnd}" Style="{StaticResource Text.Caption}" FontSize="12" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="2" Spacing="1" Padding="0,10,0,8">
+                    <Label Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" LineBreakMode="WordWrap" />
+                    <Label Text="{Binding Detail}" IsVisible="{Binding HasDetail}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="PreviewPlace" x:DataType="vm:AiPreviewPlace">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" Padding="12,0,16,0">
+                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" />
+                <VerticalStackLayout Grid.Column="1" Spacing="1" Padding="0,10,0,8">
+                    <Label Text="{Binding Name}" Style="{StaticResource Text.Body}" FontSize="14" />
+                    <Label Text="{Binding Description}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="PreviewTodo" x:DataType="vm:AiPreviewTodo">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" Padding="12,0,16,0">
+                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" VerticalOptions="Center" LineBreakMode="WordWrap" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="PreviewTip" x:DataType="vm:AiPreviewTip">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="22,4,20,4">
+                <Label Grid.Column="0" Text="•" Style="{StaticResource Text.Body}" />
+                <Label Grid.Column="1" Text="{Binding Text}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
+            </Grid>
+        </DataTemplate>
+        <views:AiPreviewTemplateSelector x:Key="PreviewRowTemplate"
+                                         Section="{StaticResource PreviewSection}" Day="{StaticResource PreviewDay}"
+                                         Activity="{StaticResource PreviewActivity}" Place="{StaticResource PreviewPlace}"
+                                         Todo="{StaticResource PreviewTodo}" Tip="{StaticResource PreviewTip}" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <ScrollView Grid.Row="2" IsVisible="{Binding IsFormVisible}">
+            <VerticalStackLayout Padding="16,20,16,28" Spacing="20">
+
+                <!-- ════════ Guest / offline / read-only / error ════════ -->
+                <Border IsVisible="{Binding IsGuest}" Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="{x:Static res:AppResources.AiPlan_SignInHint}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
+                        <Button Text="{x:Static res:AppResources.Account_SignInOrCreate}" Command="{Binding OpenSignInCommand}" Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_ErrorOffline}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
+                    </Grid>
+                </Border>
+
+                <Border IsVisible="{Binding IsReadOnly}" Style="{StaticResource Banner.Warning}">
+                    <Label Text="{x:Static res:AppResources.AiPlan_ReadOnly}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
+                </Border>
+
+                <Border IsVisible="{Binding HasError}" Style="{StaticResource Banner.Error}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{Binding ErrorText}" FontSize="13" TextColor="{DynamicResource tp-danger}" LineBreakMode="WordWrap" />
+                    </Grid>
+                </Border>
+
+                <!-- ════════ Questions ════════ -->
+                <VerticalStackLayout IsVisible="{Binding IsAsking}" Spacing="20">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" WidthRequest="40" HeightRequest="40" VerticalOptions="Start">
+                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Star}" TextColor="{DynamicResource tp-accent-text}" />
+                        </Border>
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="{Binding IntroText}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
+                            <Label Text="{Binding QuotaText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-primary}" />
+                            <Label Text="{x:Static res:AppResources.AiPlan_QuotaRule}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.AiPlan_QInterests}" Style="{StaticResource Text.Field}" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_QInterestsHint}" Style="{StaticResource Text.Caption}" />
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Interests}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.AiPlan_QPace}" Style="{StaticResource Text.Field}" />
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Paces}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.AiPlan_QBudget}" Style="{StaticResource Text.Field}" />
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Budgets}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.AiPlan_QCompanions}" Style="{StaticResource Text.Field}" />
+                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Companions}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{x:Static res:AppResources.AiPlan_QNotes}" Style="{StaticResource Text.Field}" />
+                        <Border Style="{StaticResource Input.Multiline}">
+                            <Editor Text="{Binding Notes}" MaxLength="200" AutoSize="TextChanges" MinimumHeightRequest="64"
+                                    Placeholder="{x:Static res:AppResources.AiPlan_NotesPlaceholder}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+                <!-- ════════ Working: animated, with what the planner is doing (no time estimate) ════════ -->
+                <VerticalStackLayout IsVisible="{Binding IsGenerating}" Spacing="16" Padding="0,32,0,0">
+                    <controls:LoadingLogo IsVisible="{Binding IsGenerating}" Size="96" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_Generating}" Style="{StaticResource Text.Title}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding GeneratingStatus}" Style="{StaticResource Text.Body2}" HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" MinimumHeightRequest="40" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ════════ Preview: one virtualized list, so a long plan opens without freezing ════════ -->
+        <CollectionView Grid.Row="2" IsVisible="{Binding IsPreview}" ItemsSource="{Binding PreviewRows}"
+                        ItemTemplate="{StaticResource PreviewRowTemplate}" SelectionMode="None">
+            <CollectionView.Header>
+                <Border Style="{StaticResource Banner.Info}" Margin="16,20,16,0">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{Binding Summary}" IsVisible="{Binding HasSummary}" Style="{StaticResource Text.Body}" FontSize="14" LineBreakMode="WordWrap" />
+                        <Label Text="{Binding TruncatedText}" IsVisible="{Binding HasTruncatedText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_Disclaimer}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Border>
+            </CollectionView.Header>
+            <CollectionView.Footer>
+                <BoxView HeightRequest="20" Color="Transparent" />
+            </CollectionView.Footer>
+        </CollectionView>
+
+        <!-- ════════ Bottom actions ════════ -->
+        <Grid Grid.Row="3" Padding="16,10,16,16" BackgroundColor="{DynamicResource tp-surface}">
+            <Button IsVisible="{Binding IsAsking}" Text="{x:Static res:AppResources.AiPlan_Generate}" Command="{Binding GenerateCommand}"
+                    IsEnabled="{Binding CanGenerate}" Style="{StaticResource Btn.Primary}" />
+            <VerticalStackLayout IsVisible="{Binding IsPreview}" Spacing="8">
+                <HorizontalStackLayout IsVisible="{Binding IsApplying}" Spacing="8" HorizontalOptions="Center">
+                    <controls:LoadingDots IsVisible="{Binding IsApplying}" DotSize="6" DotColor="{DynamicResource tp-primary}" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_Adding}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Button Text="{x:Static res:AppResources.AiPlan_AddSelected}" Command="{Binding AddSelectedCommand}" Style="{StaticResource Btn.Primary}" />
+                <Button Text="{x:Static res:AppResources.AiPlan_StartOver}" Command="{Binding StartOverCommand}" Style="{StaticResource Btn.Ghost}" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

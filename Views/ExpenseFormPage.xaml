@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             x:Class="TravelPlanner.Views.ExpenseFormPage"
+             x:DataType="vm:ExpenseFormViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Page_Expense}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,20,16,24" Spacing="24">
+
+                <!-- ════════ Amount ════════ -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="16">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Expense_AmountLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Entry Text="{Binding Amount}" Keyboard="Numeric" MaxLength="16" Placeholder="0.00" FontFamily="InterSemiBold" FontSize="17" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <!-- Full width: currency names like "₺ Türk lirası (TRY)" don't fit in a half-width picker. -->
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Expense_CurrencyLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}"
+                                        Title="{x:Static res:AppResources.Expense_CurrencyLabel}" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <Border IsVisible="{Binding HasConversionPreview}" Style="{StaticResource Banner.Info}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Exchange}" TextColor="{DynamicResource tp-info}" />
+                                <Label Grid.Column="1" Text="{Binding ConversionPreview}" FontSize="13" TextColor="{DynamicResource tp-info}" VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Expense_CategoryLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" x:DataType="vm:ExpenseFormViewModel"
+                                           Text="{Binding Category, Converter={StaticResource CategoryGlyphConverter}}" />
+                                    <Picker Grid.Column="1" x:DataType="{x:Null}" ItemsSource="{Binding Categories}" SelectedItem="{Binding Category}">
+                                        <Picker.ItemDisplayBinding>
+                                            <Binding Converter="{StaticResource ExpenseCategoryDisplayConverter}" />
+                                        </Picker.ItemDisplayBinding>
+                                    </Picker>
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Expense_DateLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Calendar}" TextColor="{DynamicResource tp-text-3}" />
+                                    <DatePicker Grid.Column="1" Date="{Binding Date}" />
+                                </Grid>
+                            </Border>
+                            <Label IsVisible="{Binding HasDateWarning}" Text="{Binding DateWarning}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-warning}" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ════════ Split (only when the trip has participants) ════════ -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding HasParticipants}">
+                    <Label Text="{x:Static res:AppResources.Section_Split}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="14">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{x:Static res:AppResources.Split_PaidByLabel}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <Picker ItemsSource="{Binding PayerOptions}" SelectedItem="{Binding SelectedPayer}"
+                                            Title="{x:Static res:AppResources.Split_PaidByLabel}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout IsVisible="{Binding IsSplitting}" Spacing="4">
+                                <Label Text="{x:Static res:AppResources.Split_SharedByLabel}" Style="{StaticResource Text.Field}" />
+                                <VerticalStackLayout BindableLayout.ItemsSource="{Binding SplitParticipants}" Spacing="0">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:SplitParticipantOption">
+                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="4">
+                                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center"
+                                                          SemanticProperties.Description="{Binding Name}" />
+                                                <Label Grid.Column="1" Text="{Binding Name}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ════════ Note ════════ -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{x:Static res:AppResources.Common_DescriptionLabel}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Border Style="{StaticResource Input.Multiline}" MinimumHeightRequest="88">
+                        <Editor Text="{Binding Description}" AutoSize="TextChanges" MaxLength="250" Placeholder="{x:Static res:AppResources.Common_OptionalNote}" />
+                    </Border>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ════════ Action bar ════════ -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12">
+                <Border IsVisible="{Binding HasValidationError}" Style="{StaticResource Banner.Error}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{Binding ValidationMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" />
+                    </Grid>
+                </Border>
+                <Grid ColumnDefinitions="*,2*" ColumnSpacing="8">
+                    <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Secondary}" />
+                    <Button Grid.Column="1" Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,179 @@
+// TravelPlanner - AI trip planner Edge Function ("plan-trip").
+//
+//   POST /functions/v1/plan-trip   (headers: apikey = publishable key, Authorization = Bearer <user access token>)
+//   body: { deviceId, language, destination, startDate, days, interests[], pace, budget, companions, notes, existingPlaces[] }
+//   200 → { plan: TripPlan, remaining: number, truncatedDays: boolean }
+//   400 invalid_request · 401 not_signed_in · 403 account_disabled · 429 quota_exceeded · 502 ai_failed
+//
+// The OpenAI key lives only here, as the secret OPENAI_API_KEY. The user's own token pays for one plan of the
+// daily quota first (public.ai_plan_quota, migration 9: per account AND per device) - which also refuses banned
+// or deleted accounts. If the AI then fails, the plan is given back (public.ai_plan_refund, migration 10).
+// Optional secrets: AI_MODEL (default gpt-5-mini - nano made plans that repeated places and mixed far-apart areas)
+// and AI_REASONING (minimal | low | medium; default low, minimal for nano models).
+//
+// Every place of the plan is checked on the map (OpenStreetMap, see places.ts): meals are planned at real venues
+// found around the destination, places that can't be found are replaced (once more by the model) or dropped,
+// and the places sent back carry the map's coordinates (verified: true).
+
+import {
+  buildMessages, buildReplacementMessages, parseRequest, PLAN_SCHEMA, REPLACEMENT_SCHEMA, RequestError, sanitizePlan,
+  sanitizeReplacements,
+} from "./planner.ts";
+import { findCenter, foodVenues, type Point, type Venue, verifyPlan } from "./places.ts";
+
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+
+function json(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
+}
+
+function fail(status: number, error: string, detail?: string): Response {
+  return json(status, { error, detail });
+}
+
+type QuotaResult = { ok: true; remaining: number; ticket: string | null } | { ok: false; response: Response };
+
+async function useQuota(authorization: string, apikey: string, deviceId: string): Promise<QuotaResult> {
+  const url = `${Deno.env.get("SUPABASE_URL")}/rest/v1/rpc/ai_plan_quota`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { apikey, Authorization: authorization, "Content-Type": "application/json" },
+    body: JSON.stringify({ p_device: deviceId }),
+  });
+  if (res.ok) {
+    const body = await res.json();
+    // ticket: a one-time receipt to give the plan back if the AI fails (migration 10; null before it ran)
+    return { ok: true, remaining: Number(body?.remaining ?? 0), ticket: typeof body?.ticket === "string" ? body.ticket : null };
+  }
+
+  const text = await res.text();
+  if (res.status === 429) return { ok: false, response: fail(429, "quota_exceeded") };
+  if (res.status === 401) return { ok: false, response: fail(401, "not_signed_in") };
+  if (text.includes("account disabled")) return { ok: false, response: fail(403, "account_disabled") };
+  if (text.includes("not signed in")) return { ok: false, response: fail(401, "not_signed_in") };
+  console.error("quota check failed", res.status, text);
+  return { ok: false, response: fail(502, "quota_check_failed") };
+}
+
+/** Gives back the plan a failed AI request used (public.ai_plan_refund). Never throws. */
+async function refundQuota(authorization: string, apikey: string, ticket: string | null): Promise<boolean> {
+  if (!ticket) return false;
+  try {
+    const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/rpc/ai_plan_refund`, {
+      method: "POST",
+      headers: { apikey, Authorization: authorization, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_ticket: ticket }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) {
+      console.error("quota refund failed", res.status, (await res.text()).slice(0, 300));
+      return false;
+    }
+    return (await res.json()) === true;
+  } catch (e) {
+    console.error("quota refund failed", String(e));
+    return false;
+  }
+}
+
+Deno.serve(async (req) => {
+  if (req.method !== "POST") return fail(405, "method_not_allowed");
+
+  const authorization = req.headers.get("Authorization") ?? "";
+  const apikey = req.headers.get("apikey") ?? "";
+  if (!authorization.startsWith("Bearer ") || !apikey) return fail(401, "not_signed_in");
+
+  let parsed;
+  try {
+    parsed = parseRequest(await req.json());
+  } catch (e) {
+    return fail(400, "invalid_request", e instanceof RequestError ? e.message : "body is not JSON");
+  }
+
+  const openAiKey = Deno.env.get("OPENAI_API_KEY");
+  if (!openAiKey) {
+    console.error("OPENAI_API_KEY secret is not set");
+    return fail(502, "ai_not_configured");
+  }
+
+  const { request, truncatedDays } = parsed;
+  const model = Deno.env.get("AI_MODEL") ?? "gpt-5-mini";
+  // the plan needs some thinking (grouping sights by area, one visit per place); the replacement question doesn't
+  const planEffort = Deno.env.get("AI_REASONING") ?? (model.includes("nano") ? "minimal" : "low");
+
+  /** One structured-output call: the parsed JSON answer; throws on any failure. */
+  const started = Date.now();
+  const ask = async (
+    messages: unknown, name: string, schema: unknown, maxTokens: number, timeoutMs: number, effort: string,
+  ): Promise<unknown> => {
+    const ai = await fetch(OPENAI_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${openAiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        messages,
+        response_format: { type: "json_schema", json_schema: { name, strict: true, schema } },
+        reasoning_effort: effort,
+        max_completion_tokens: maxTokens,
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!ai.ok) throw new Error(`OpenAI ${ai.status}: ${(await ai.text()).slice(0, 500)}`);
+    const body = await ai.json();
+    const choice = body?.choices?.[0];
+    if (choice?.finish_reason === "length") throw new Error(`answer cut off ${JSON.stringify(body?.usage)}`);
+    const content = choice?.message?.content;
+    if (!content) throw new Error("empty answer");
+    return JSON.parse(content);
+  };
+
+  // the quota first: a request without plans left (or without a valid session) costs the map services nothing
+  const quota = await useQuota(authorization, apikey, request.deviceId);
+  if (!quota.ok) return quota.response;
+
+  // the AI failed: the user got no plan, so the plan goes back to the quota
+  const aiFailed = async (detail?: string) => {
+    const refunded = await refundQuota(authorization, apikey, quota.ticket);
+    return json(502, { error: "ai_failed", detail, remaining: refunded ? quota.remaining + 1 : quota.remaining });
+  };
+
+  // the destination and the real restaurants around it
+  let center: Point | null = request.center;
+  let venues: Venue[] = [];
+  try {
+    center ??= await findCenter(fetch, request.destination);
+    venues = center ? await foodVenues(fetch, center) : [];
+  } catch (e) {
+    console.warn("map lookup failed", String(e));
+  }
+
+  let plan;
+  try {
+    plan = sanitizePlan(await ask(buildMessages(request, venues), "trip_plan", PLAN_SCHEMA, 32000, 100_000, planEffort), request.days);
+  } catch (e) {
+    console.error("OpenAI call failed", String(e));
+    return await aiFailed();
+  }
+  if (plan.days.length === 0 && plan.places.length === 0) return await aiFailed("empty plan");
+
+  let checked;
+  try {
+    // the function has about 150 s: the second question only when there's time left for it
+    const canAskAgain = Date.now() - started < 85_000;
+    const result = await verifyPlan(plan, center, venues, fetch, canAskAgain
+      ? async (missing, used, v) => sanitizeReplacements(
+        await ask(buildReplacementMessages(request, missing, used, v), "replacements", REPLACEMENT_SCHEMA, 6000, 35_000, "minimal"))
+      : null,
+      started + 125_000); // the map check stops in time; places it couldn't check are left to the app
+    console.log(`places: ${result.places.length - result.unchecked} on the map, ${result.unchecked} unchecked (map service didn't answer), ` +
+      `${result.replaced} replaced, ${result.dropped} dropped; ${venues.length} venues`);
+    const { replaced: _r, dropped: _d, unchecked: _u, ...rest } = result;
+    checked = rest;
+  } catch (e) {
+    // the map services failing must not cost the user the plan: send it unchecked
+    console.error("map check failed", String(e));
+    checked = { ...plan, places: plan.places.map((p) => ({ ...p, verified: false })) };
+  }
+
+  return json(200, { plan: checked, remaining: quota.remaining, truncatedDays });
+});
