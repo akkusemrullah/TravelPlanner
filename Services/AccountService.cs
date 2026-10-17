@@ -145,10 +145,15 @@ namespace TravelPlanner.Services
             AccountChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        public async Task SignOutAsync()
+        public async Task SignOutAsync(bool deleteLocalData = false)
         {
+            var userId = _auth.CurrentSession?.UserId;
             await _auth.SignOutAsync();
             await SwitchToGuestAsync();
+
+            // TP-16: only once the guest data is open - the account's database is closed by then
+            if (deleteLocalData && userId is not null)
+                DeleteUserFolder(userId);
         }
 
         public async Task DeleteAccountAsync(CancellationToken cancellationToken = default)
@@ -262,8 +267,8 @@ namespace TravelPlanner.Services
             }
             catch (Exception ex)
             {
-                // The account is already gone on the server; a leftover folder only takes space.
-                System.Diagnostics.Debug.WriteLine($"[Account] Could not remove the deleted account's local data: {ex.Message}");
+                // Nothing depends on the folder any more (signed out, or the account is gone); a leftover only takes space.
+                System.Diagnostics.Debug.WriteLine($"[Account] Could not remove the account's local data: {ex.Message}");
             }
         }
 

@@ -248,15 +248,47 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task OpenSignInAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Auth));
 
-        /// <summary>Signs out; the app switches back to the guest data (the account's data stays on the device).</summary>
+        /// <summary>
+        /// Signs out; the app switches back to the guest data. TP-16: the user chooses whether the account's data stays
+        /// on the device (quick next sign-in) or is deleted from it (a borrowed or shared phone). Changes not uploaded
+        /// yet are synced first when possible, and the user is told how many would stay behind or be lost.
+        /// </summary>
         [RelayCommand]
         private Task SignOutAsync() => RunSafeAsync(async () =>
         {
-            if (!await Dialogs.ConfirmAsync(AppResources.Account_SignOutTitle, AppResources.Account_SignOutMessage,
-                                            AppResources.Account_SignOut, AppResources.Common_Cancel))
+            var pending = _sync.PendingCount;
+            if (pending > 0)
+            {
+                // One last try to get them up (does nothing offline).
+                try
+                {
+                    await _sync.SyncNowAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Settings] Sync before sign-out failed: {ex.Message}");
+                }
+                pending = _sync.PendingCount;
+            }
+
+            var title = AppResources.Account_SignOutMessage;
+            if (pending > 0)
+                title += "\n\n" + string.Format(AppResources.Account_SignOutPendingFormat, pending);
+
+            var choice = await Dialogs.ChooseAsync(title,
+                new[] { AppResources.Account_SignOut, AppResources.Account_SignOutAndDelete },
+                AppResources.Common_Cancel);
+            if (choice != AppResources.Account_SignOut && choice != AppResources.Account_SignOutAndDelete)
                 return;
 
-            await _account.SignOutAsync();
+            var deleteLocalData = choice == AppResources.Account_SignOutAndDelete;
+            if (deleteLocalData && pending > 0 &&
+                !await Dialogs.ConfirmAsync(AppResources.Account_SignOutTitle,
+                                            string.Format(AppResources.Account_SignOutLoseFormat, pending),
+                                            AppResources.Account_SignOutAndDelete, AppResources.Common_Cancel))
+                return;
+
+            await _account.SignOutAsync(deleteLocalData);
         });
 
         // ================= G7: delete the account =================

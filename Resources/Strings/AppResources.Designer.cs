@@ -5423,6 +5423,33 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string for Account_SignOutAndDelete.
+        /// </summary>
+        public static string Account_SignOutAndDelete {
+            get {
+                return ResourceManager.GetString("Account_SignOutAndDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Account_SignOutPendingFormat.
+        /// </summary>
+        public static string Account_SignOutPendingFormat {
+            get {
+                return ResourceManager.GetString("Account_SignOutPendingFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Account_SignOutLoseFormat.
+        /// </summary>
+        public static string Account_SignOutLoseFormat {
+            get {
+                return ResourceManager.GetString("Account_SignOutLoseFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Seyahatler hesabına taşınsın mı?.
         /// </summary>
         public static string Account_MoveGuestTitle {

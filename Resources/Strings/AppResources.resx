@@ -1691,7 +1691,16 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
     <value>Çıkış yapılsın mı?</value>
   </data>
   <data name="Account_SignOutMessage" xml:space="preserve">
-    <value>Hesabının verileri bu cihazda kalır; tekrar giriş yaptığında geri gelir. Çıkıştan sonra misafir verileri gösterilir.</value>
+    <value>"Çıkış yap" seçersen hesabının verileri bu cihazda kalır ve tekrar giriş yaptığında hızla açılır. Ödünç veya ortak bir telefondaysan verilerini bu cihazdan da silebilirsin; buluttaki verilerin silinmez. Çıkıştan sonra misafir verileri gösterilir.</value>
+  </data>
+  <data name="Account_SignOutAndDelete" xml:space="preserve">
+    <value>Çıkış yap ve bu cihazdaki verilerimi sil</value>
+  </data>
+  <data name="Account_SignOutPendingFormat" xml:space="preserve">
+    <value>Dikkat: {0} değişiklik henüz buluta gönderilmedi.</value>
+  </data>
+  <data name="Account_SignOutLoseFormat" xml:space="preserve">
+    <value>{0} değişiklik henüz buluta gönderilmedi. Bu cihazdaki verilerin silinirse bu değişiklikler kaybolur. Devam edilsin mi?</value>
   </data>
   <data name="Account_MoveGuestTitle" xml:space="preserve">
     <value>Seyahatler hesabına taşınsın mı?</value>

@@ -628,6 +628,19 @@ namespace TravelPlanner.Tests
             Assert.Equal(AuthFakes.UserId, _account.ActiveUserId);
         }
 
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task TP16_SignOut_DeletesTheLocalCopy_OnlyWhenAsked(bool deleteLocalData)
+        {
+            var userDirectory = await SignInWithTripsAsync();
+
+            await _account.SignOutAsync(deleteLocalData);
+
+            Assert.Null(_account.ActiveUserId);
+            Assert.Equal(!deleteLocalData, Directory.Exists(userDirectory));
+        }
+
         [Fact]
         public void UserIds_MustBeGuids()
         {
