@@ -129,7 +129,8 @@ namespace TravelPlanner.Services
             return path;
         }
 
-        public async Task<BackupImportResult> ImportAsync(Stream content, string fileName)
+        public async Task<BackupImportResult> ImportAsync(Stream content, string fileName,
+            Func<SharedTripsInBackup, Task<SharedTripRestoreChoice>>? decideSharedTrips = null)
         {
             // Copy to a temporary file first: the picked stream may not be seekable, and nothing is touched until
             // the whole backup has been validated. (A file, not a MemoryStream: a large backup with photos would
@@ -182,10 +183,158 @@ namespace TravelPlanner.Services
 
                 Sanitize(data, Path.GetFullPath(Path.Combine(_attachments.RootDirectory, AttachmentService.FolderName)));
 
+                // TP-10: shared trips are never restored over the cloud copy - nothing has been touched yet.
+                int skipped = 0, copied = 0;
+                var shared = await FindSharedTripsAsync(data);
+                if (shared.Count > 0)
+                {
+                    var choice = decideSharedTrips is null
+                        ? SharedTripRestoreChoice.Skip
+                        : await decideSharedTrips(new SharedTripsInBackup(shared.Select(t => t.Name).ToList()));
+
+                    var ids = shared.Select(t => t.Id).ToHashSet();
+                    switch (choice)
+                    {
+                        case SharedTripRestoreChoice.Cancel:
+                            throw new OperationCanceledException("restore cancelled");
+                        case SharedTripRestoreChoice.Copy:
+                            CopySharedTrips(data, ids);
+                            copied = ids.Count;
+                            break;
+                        default:
+                            RemoveTrips(data, ids);
+                            skipped = ids.Count;
+                            break;
+                    }
+                }
+
                 await ReplaceAllAsync(data);
                 ClearTrashFolder();
                 var restoredFiles = zip is null ? 0 : RestoreFiles(zip, data.Attachments);
-                return new BackupImportResult(data.Trips.Count, data.Expenses.Count, restoredFiles, data.ExportedAt);
+                return new BackupImportResult(data.Trips.Count, data.Expenses.Count, restoredFiles, data.ExportedAt, skipped, copied);
+            }
+        }
+
+        /// <summary>
+        /// TP-10: the backup's trips that other people take part in, for a signed-in user (a guest has no shared
+        /// trips). A trip counts as shared when the user is an editor/viewer in it (the memberships the last sync
+        /// brought), or when someone else created or edited one of its rows - in the backup or in the data on this
+        /// device now - or is linked to one of its participants. That also catches the user's own trips that others
+        /// joined, and trips the user has since been removed from.
+        /// </summary>
+        internal async Task<List<Trip>> FindSharedTripsAsync(BackupData data)
+        {
+            var me = Sync.ChangeTracker.CurrentUserId;
+            if (me is null || data.Trips.Count == 0)
+                return new List<Trip>();
+
+            bool IsOther(string? userId) => !string.IsNullOrEmpty(userId) && !string.Equals(userId, me, StringComparison.OrdinalIgnoreCase);
+            bool TouchedByOther(ISyncEntity row) => IsOther(row.CreatedBy) || IsOther(row.UpdatedBy);
+
+            var db = await _databaseService.Connection;
+            var roles = (await db.Table<TripMembership>().ToListAsync())
+                .GroupBy(m => m.TripSyncId, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => TripRoles.Parse(g.First().Role), StringComparer.OrdinalIgnoreCase);
+
+            // Trips (by SyncId) that someone else has touched in the data on this device now.
+            var users = await db.QueryAsync<TripUserRow>(
+                "SELECT t.SyncId AS TripSyncId, x.UserId AS UserId FROM Trip t JOIN (" +
+                " SELECT Id AS TripId, CreatedBy AS UserId FROM Trip UNION ALL SELECT Id, UpdatedBy FROM Trip" +
+                " UNION ALL SELECT TripId, CreatedBy FROM Expense UNION ALL SELECT TripId, UpdatedBy FROM Expense" +
+                " UNION ALL SELECT TripId, CreatedBy FROM Todo UNION ALL SELECT TripId, UpdatedBy FROM Todo" +
+                " UNION ALL SELECT TripId, CreatedBy FROM Place UNION ALL SELECT TripId, UpdatedBy FROM Place" +
+                " UNION ALL SELECT TripId, CreatedBy FROM Activity UNION ALL SELECT TripId, UpdatedBy FROM Activity" +
+                " UNION ALL SELECT TripId, CreatedBy FROM Attachment UNION ALL SELECT TripId, UpdatedBy FROM Attachment" +
+                " UNION ALL SELECT TripId, CreatedBy FROM Participant UNION ALL SELECT TripId, UpdatedBy FROM Participant" +
+                " UNION ALL SELECT TripId, UserId FROM Participant" +
+                ") x ON x.TripId = t.Id WHERE x.UserId IS NOT NULL AND x.UserId <> '' AND t.SyncId IS NOT NULL");
+            var touchedHere = users.Where(u => IsOther(u.UserId)).Select(u => u.TripSyncId).ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            // ... and in the backup.
+            var touchedInBackup = new HashSet<int>();
+            void Scan<T>(IEnumerable<T> rows, Func<T, int> tripId, Func<T, bool>? extra = null) where T : ISyncEntity
+            {
+                foreach (var row in rows)
+                {
+                    if (TouchedByOther(row) || extra?.Invoke(row) == true)
+                        touchedInBackup.Add(tripId(row));
+                }
+            }
+
+            Scan(data.Trips, t => t.Id);
+            Scan(data.Expenses, e => e.TripId);
+            Scan(data.Todos, t => t.TripId);
+            Scan(data.Places, p => p.TripId);
+            Scan(data.Activities, a => a.TripId);
+            Scan(data.Attachments, a => a.TripId);
+            Scan(data.Participants, p => p.TripId, p => IsOther(p.UserId));
+            var expenseTrips = data.Expenses.GroupBy(e => e.Id).ToDictionary(g => g.Key, g => g.First().TripId);
+            Scan(data.ExpenseShares, s => expenseTrips.TryGetValue(s.ExpenseId, out var tripId) ? tripId : 0);
+
+            return data.Trips.Where(trip =>
+                    touchedInBackup.Contains(trip.Id) ||
+                    (!string.IsNullOrEmpty(trip.SyncId) &&
+                     ((roles.TryGetValue(trip.SyncId, out var role) && role is TripRole.Editor or TripRole.Viewer) ||
+                      touchedHere.Contains(trip.SyncId))))
+                .ToList();
+        }
+
+        private sealed class TripUserRow
+        {
+            public string TripSyncId { get; set; } = string.Empty;
+            public string? UserId { get; set; }
+        }
+
+        /// <summary>Leaves the given trips and everything in them out of the restore.</summary>
+        internal static void RemoveTrips(BackupData data, IReadOnlySet<int> tripIds)
+        {
+            var expenseIds = data.Expenses.Where(e => tripIds.Contains(e.TripId)).Select(e => e.Id).ToHashSet();
+            data.Trips.RemoveAll(t => tripIds.Contains(t.Id));
+            data.Expenses.RemoveAll(e => tripIds.Contains(e.TripId));
+            data.ExpenseShares.RemoveAll(s => expenseIds.Contains(s.ExpenseId));
+            data.Todos.RemoveAll(t => tripIds.Contains(t.TripId));
+            data.Places.RemoveAll(p => tripIds.Contains(p.TripId));
+            data.Activities.RemoveAll(a => tripIds.Contains(a.TripId));
+            data.Participants.RemoveAll(p => tripIds.Contains(p.TripId));
+            data.Attachments.RemoveAll(a => tripIds.Contains(a.TripId));
+        }
+
+        /// <summary>
+        /// Turns the given trips into new trips of the user's own: every row gets a new SyncId and starts unsynced,
+        /// so the upload creates new rows in the cloud instead of overwriting the shared ones. Local ids (and so
+        /// every relation inside the trip) stay as they are; the shared original comes back with the next sync
+        /// under a new local id. Attachment files are uploaded again for the copy.
+        /// </summary>
+        internal static void CopySharedTrips(BackupData data, IReadOnlySet<int> tripIds)
+        {
+            var me = Sync.ChangeTracker.CurrentUserId;
+            void Renew(ISyncEntity row)
+            {
+                row.SyncId = Sync.ChangeTracker.NewSyncId();
+                row.Version = 0;
+                row.ChangeSeq = 0;
+                row.CreatedBy = me;
+                row.UpdatedBy = me;
+                row.UpdatedAtUtc = DateTime.UtcNow;
+            }
+
+            var expenseIds = data.Expenses.Where(e => tripIds.Contains(e.TripId)).Select(e => e.Id).ToHashSet();
+            foreach (var trip in data.Trips.Where(t => tripIds.Contains(t.Id)))
+            {
+                Renew(trip);
+                trip.Name = InputLimits.Truncate($"{trip.Name} {Resources.Strings.AppResources.Backup_CopySuffix}", 100)!;
+            }
+
+            foreach (var row in data.Expenses.Where(e => tripIds.Contains(e.TripId))) Renew(row);
+            foreach (var row in data.ExpenseShares.Where(s => expenseIds.Contains(s.ExpenseId))) Renew(row);
+            foreach (var row in data.Todos.Where(t => tripIds.Contains(t.TripId))) Renew(row);
+            foreach (var row in data.Places.Where(p => tripIds.Contains(p.TripId))) Renew(row);
+            foreach (var row in data.Activities.Where(a => tripIds.Contains(a.TripId))) Renew(row);
+            foreach (var row in data.Participants.Where(p => tripIds.Contains(p.TripId))) Renew(row);
+            foreach (var row in data.Attachments.Where(a => tripIds.Contains(a.TripId)))
+            {
+                Renew(row);
+                row.RemotePath = null; // the old storage path belongs to the shared trip
             }
         }
 

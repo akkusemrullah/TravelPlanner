@@ -619,6 +619,60 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string for Backup_CopySuffix.
+        /// </summary>
+        public static string Backup_CopySuffix {
+            get {
+                return ResourceManager.GetString("Backup_CopySuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Backup_SharedTripsFormat.
+        /// </summary>
+        public static string Backup_SharedTripsFormat {
+            get {
+                return ResourceManager.GetString("Backup_SharedTripsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Backup_SharedSkip.
+        /// </summary>
+        public static string Backup_SharedSkip {
+            get {
+                return ResourceManager.GetString("Backup_SharedSkip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Backup_SharedCopy.
+        /// </summary>
+        public static string Backup_SharedCopy {
+            get {
+                return ResourceManager.GetString("Backup_SharedCopy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Backup_SharedSkippedFormat.
+        /// </summary>
+        public static string Backup_SharedSkippedFormat {
+            get {
+                return ResourceManager.GetString("Backup_SharedSkippedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Backup_SharedCopiedFormat.
+        /// </summary>
+        public static string Backup_SharedCopiedFormat {
+            get {
+                return ResourceManager.GetString("Backup_SharedCopiedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Yedekten geri yükle.
         /// </summary>
         public static string Backup_ImportTitle {

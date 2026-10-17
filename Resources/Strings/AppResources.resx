@@ -1388,6 +1388,24 @@
   <data name="Backup_ImportError" xml:space="preserve">
     <value>Yedek geri yüklenemedi. Mevcut verileriniz değiştirilmedi.</value>
   </data>
+  <data name="Backup_CopySuffix" xml:space="preserve">
+    <value>(kopya)</value>
+  </data>
+  <data name="Backup_SharedTripsFormat" xml:space="preserve">
+    <value>Bu yedekte paylaşılan {0} seyahat var: {1}. Olduğu gibi geri yüklenirse diğer üyelerin sonraki değişiklikleri ezilir ve sildikleri kayıtlar geri gelir. Bu seyahatler için ne yapılsın?</value>
+  </data>
+  <data name="Backup_SharedSkip" xml:space="preserve">
+    <value>Atla, buluttaki hali kalsın (önerilen)</value>
+  </data>
+  <data name="Backup_SharedCopy" xml:space="preserve">
+    <value>Kopya olarak yükle</value>
+  </data>
+  <data name="Backup_SharedSkippedFormat" xml:space="preserve">
+    <value>Paylaşılan {0} seyahat atlandı; güncel halleri buluttan gelecek.</value>
+  </data>
+  <data name="Backup_SharedCopiedFormat" xml:space="preserve">
+    <value>Paylaşılan {0} seyahat ayrı kopya olarak yüklendi.</value>
+  </data>
   <data name="Settings_VersionFormat" xml:space="preserve">
     <value>Sürüm {0} ({1})</value>
   </data>

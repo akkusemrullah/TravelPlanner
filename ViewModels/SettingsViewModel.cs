@@ -345,7 +345,7 @@ namespace TravelPlanner.ViewModels
             try
             {
                 await using var stream = await file.OpenReadAsync();
-                result = await _backupService.ImportAsync(stream, file.FileName);
+                result = await _backupService.ImportAsync(stream, file.FileName, AskAboutSharedTripsAsync);
             }
             catch (InvalidBackupException)
             {
@@ -360,9 +360,32 @@ namespace TravelPlanner.ViewModels
                 await _notificationService.ScheduleTripNotificationsAsync(trip);
             }
 
-            await Dialogs.ShowMessageAsync(AppResources.Common_Info,
-                string.Format(AppResources.Backup_ImportedFormat, result.Trips, result.Expenses, result.Attachments, result.ExportedAt.ToString("g", System.Globalization.CultureInfo.CurrentCulture)));
+            var message = string.Format(AppResources.Backup_ImportedFormat, result.Trips, result.Expenses, result.Attachments, result.ExportedAt.ToString("g", System.Globalization.CultureInfo.CurrentCulture));
+            if (result.SkippedSharedTrips > 0)
+                message += "\n\n" + string.Format(AppResources.Backup_SharedSkippedFormat, result.SkippedSharedTrips);
+            if (result.CopiedSharedTrips > 0)
+                message += "\n\n" + string.Format(AppResources.Backup_SharedCopiedFormat, result.CopiedSharedTrips);
+            await Dialogs.ShowMessageAsync(AppResources.Common_Info, message);
         }, AppResources.Backup_ImportError);
+
+        /// <summary>
+        /// TP-10: a backup with shared trips would overwrite the other members' changes - ask before restoring.
+        /// Closing the sheet cancels the restore (nothing has been replaced yet).
+        /// </summary>
+        private async Task<SharedTripRestoreChoice> AskAboutSharedTripsAsync(SharedTripsInBackup shared)
+        {
+            var names = string.Join(", ", shared.TripNames.Take(5)) + (shared.TripNames.Count > 5 ? ", …" : string.Empty);
+            var choice = await Dialogs.ChooseAsync(
+                string.Format(AppResources.Backup_SharedTripsFormat, shared.TripNames.Count, names),
+                new[] { AppResources.Backup_SharedSkip, AppResources.Backup_SharedCopy },
+                AppResources.Common_Cancel);
+
+            if (choice == AppResources.Backup_SharedSkip)
+                return SharedTripRestoreChoice.Skip;
+            if (choice == AppResources.Backup_SharedCopy)
+                return SharedTripRestoreChoice.Copy;
+            return SharedTripRestoreChoice.Cancel;
+        }
 
         [RelayCommand]
         private Task OpenPrivacyAsync() => OpenDocumentAsync(LegalDocuments.PrivacyKey);
