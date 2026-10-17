@@ -47,7 +47,7 @@ namespace TravelPlanner.Services.Sync
 
         /// <summary>
         /// POST /rest/v1/rpc/&lt;function&gt; with only the publishable key - for the few functions open to everyone
-        /// (account_status), callable even when the session is already gone.
+        /// (none at the moment: TP-14 closed account_status to anon), callable even when the session is already gone.
         /// </summary>
         Task<JsonElement> PublicRpcAsync(string function, JsonObject arguments, CancellationToken cancellationToken = default);
 

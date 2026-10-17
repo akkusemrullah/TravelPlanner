@@ -25,8 +25,13 @@ namespace TravelPlanner.Tests
             return Task.FromResult(document.RootElement.Clone());
         }
 
-        public Task<JsonElement> PublicRpcAsync(string function, JsonObject arguments, CancellationToken cancellationToken = default) =>
-            RpcAsync(function, arguments, cancellationToken);
+        public int PublicCallCount { get; private set; }
+
+        public Task<JsonElement> PublicRpcAsync(string function, JsonObject arguments, CancellationToken cancellationToken = default)
+        {
+            PublicCallCount++;
+            return RpcAsync(function, arguments, cancellationToken);
+        }
 
         /// <summary>Edge Functions go through the same Handler, as "fn:&lt;name&gt;".</summary>
         public Task<JsonElement> InvokeFunctionAsync(string name, JsonObject body, CancellationToken cancellationToken = default) =>

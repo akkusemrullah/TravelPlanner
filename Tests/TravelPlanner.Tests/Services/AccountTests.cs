@@ -584,6 +584,49 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP14_CheckAccount_AsksWithTheSessionsOwnToken()
+        {
+            await SignInWithTripsAsync();
+            AccountStatusIs("active");
+            _auth.Setup(a => a.GetAccessTokenAsync(It.IsAny<CancellationToken>())).ReturnsAsync("token");
+
+            await _account.CheckAccountAsync();
+
+            Assert.Contains(_cloud.Calls, c => c.Function == "account_status");
+            Assert.Equal(0, _cloud.PublicCallCount); // account_status is no longer open to anon
+        }
+
+        [Theory]
+        [InlineData(AuthErrorKind.SessionExpired, AccountEndReason.SessionExpired)]
+        [InlineData(AuthErrorKind.Banned, AccountEndReason.Banned)]
+        public async Task TP14_CheckAccount_RefusedToken_EndsTheSession(AuthErrorKind authError, AccountEndReason expected)
+        {
+            await SignInWithTripsAsync();
+            _cloud.Handler = (function, _) => function == "account_status"
+                ? throw new SyncException(SyncErrorKind.NotSignedIn, "HTTP 401", status: 401)
+                : "[]";
+            _auth.Setup(a => a.GetAccessTokenAsync(It.IsAny<CancellationToken>()))
+                 .Callback(() => _session = null)
+                 .ThrowsAsync(new AuthException(authError));
+
+            Assert.Equal(expected, await _account.CheckAccountAsync());
+            Assert.Null(_account.ActiveUserId);
+        }
+
+        [Fact]
+        public async Task TP14_CheckAccount_NoTokenWhileOffline_ChangesNothing()
+        {
+            await SignInWithTripsAsync();
+            _cloud.Handler = (function, _) => function == "account_status"
+                ? throw new SyncException(SyncErrorKind.NotSignedIn, "No access token (guest or offline).")
+                : "[]";
+            _auth.Setup(a => a.GetAccessTokenAsync(It.IsAny<CancellationToken>())).ReturnsAsync((string?)null);
+
+            Assert.Equal(AccountEndReason.None, await _account.CheckAccountAsync());
+            Assert.Equal(AuthFakes.UserId, _account.ActiveUserId);
+        }
+
+        [Fact]
         public void UserIds_MustBeGuids()
         {
             Assert.Throws<ArgumentException>(() => _account.UserDirectory("../../etc"));

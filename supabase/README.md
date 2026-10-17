@@ -37,6 +37,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…18_pull_cursor_safety.sql` | TP-8: `pull_changes` cursor'ı hâlâ açık bir yazma transaction'ının satırını atlamaz (güvenli nokta: 10 sn önce ya da en eski açık yazma transaction'ının başlangıcı); `apply_changes` satır kilidi için en fazla 2 sn bekler, çağrı başına en fazla 6 sn sürer |
 | `migrations/…19_trip_currency.sql` | TP-11: para birimi değişimi tek atomik RPC'de (`convert_trip_currency`, yalnızca sahip/editör; başkası önce çevirdiyse reddedilir); masrafta tutarın para birimi (`amount_currency_code`); eski para biriminde geç gelen masraf kayıtlı kurla çevrilir; masraflı seyahatin `currency_code`'u `apply_changes` ile değiştirilemez |
 | `migrations/…20_ownership_transfer.sql` | TP-12: `get_owned_shared_trips` (sahibi olunan, başka üyesi olan seyahatler ve üye sayısı), `transfer_trip_ownership` (sahip → editör, seçilen üye → sahip); devredilen seyahat hesap silinince silinmez |
+| `migrations/…21_error_details.sql` | TP-14: `apply_changes` reddedilen değişiklikte veritabanı mesajı yerine kısa kod döner (`duplicate`, `missing_parent`, `out_of_range` …), ayrıntı sunucu loguna yazılır; `account_status` anon'a kapalı, yalnızca kendi hesabını sorar |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti
