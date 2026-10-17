@@ -34,6 +34,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…14_invite_hardening.sql` | TP-4: davet kodları tek kullanımlık ve 48 saat geçerli, katılan görüntüleyici olur; yanlış kod denemesi sınırı; e-postalar yalnızca sahibe; yeni üye bildirimi için `get_recent_joins` |
 | `migrations/…15_attachment_paths.sql` | TP-5: ekin `storage_path`'i yalnızca kendi dosyası (`trips/<trip_id>/<id>.<uzantı>`), `content_type`'ı yalnızca JPEG/PNG/HEIC/HEIF/WebP/PDF olabilir; aykırı yazma `invalid` ile reddedilir, eski bozuk değerler temizlenir |
 | `migrations/…16_file_cleanup.sql` | G7: kalıcı silinen eklerin dosyaları Storage'dan da silinir (kuyruk `private.file_cleanup_queue`, gece `purge-files` fonksiyonu) |
+| `migrations/…18_pull_cursor_safety.sql` | TP-8: `pull_changes` cursor'ı hâlâ açık bir yazma transaction'ının satırını atlamaz (güvenli nokta: 10 sn önce ya da en eski açık yazma transaction'ının başlangıcı); `apply_changes` satır kilidi için en fazla 2 sn bekler, çağrı başına en fazla 6 sn sürer |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti
@@ -48,6 +49,9 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
   olmak zorunda (bileşik yabancı anahtarlar).
 - Sürüm, `change_seq`, oluşturan/düzenleyen ve tarihler sunucuda atanır; istemcinin gönderdiği değerler
   yok sayılır.
+- Çekme (TP-8): cursor yalnızca, daha düşük `change_seq` ile commit edebilecek hiçbir transaction'ın açık
+  kalmadığı noktaya kadar ilerler; yeni satırlar yine gönderilir, sadece bir sonraki çekmede tekrar gelebilir.
+  Uygulama çağrı başına en fazla 50 değişiklik gönderir ve günde bir kez her şeyi baştan çeker (`p_since = 0`).
 
 ## Kullanım sınırları (TP-3)
 
