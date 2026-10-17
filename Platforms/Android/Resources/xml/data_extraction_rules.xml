@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TP-13 (Android 12+): nothing of the app goes into the Google cloud backup or a device-to-device transfer.
+     The local database, attachments (passport/ticket photos) and the per-account folders under users/ are not
+     encrypted, and the SecureStorage keys that protect the session can't move to another device anyway - a copied
+     account would open signed out but with the old account's data. The cloud sync and the in-app backup (Profil →
+     Yedekle) are the ways to move data. android:allowBackup="false" alone does not stop device-to-device transfers. -->
+<data-extraction-rules>
+	<cloud-backup>
+		<exclude domain="root" path="." />
+		<exclude domain="file" path="." />
+		<exclude domain="database" path="." />
+		<exclude domain="sharedpref" path="." />
+		<exclude domain="external" path="." />
+	</cloud-backup>
+	<device-transfer>
+		<exclude domain="root" path="." />
+		<exclude domain="file" path="." />
+		<exclude domain="database" path="." />
+		<exclude domain="sharedpref" path="." />
+		<exclude domain="external" path="." />
+	</device-transfer>
+</data-extraction-rules>
