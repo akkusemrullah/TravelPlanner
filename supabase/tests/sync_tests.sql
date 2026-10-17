@@ -5,7 +5,7 @@
 \set QUIET 1
 
 create schema if not exists test;
-grant usage on schema test to authenticated;
+grant usage on schema test to authenticated, service_role;
 
 create or replace function test.eq(p_actual anyelement, p_expected anyelement, p_what text) returns void
 language plpgsql as $$
@@ -15,7 +15,7 @@ begin
     end if;
     raise notice 'ok - %', p_what;
 end $$;
-grant execute on function test.eq(anyelement, anyelement, text) to authenticated;
+grant execute on function test.eq(anyelement, anyelement, text) to authenticated, service_role;
 
 create or replace function test.status(p_result jsonb, p_index int default 0) returns text
 language sql as $$ select p_result -> p_index ->> 'status' $$;
@@ -871,6 +871,130 @@ reset role;
 select private.unban_user('can@example.com');
 select test.eq(public.account_status(:'can'), 'active', 'unban_user lets him in again');
 select test.eq(public.account_status('00000000-0000-0000-0000-0000000000ee'), 'deleted', 'account_status: deleted');
+
+-- ------------------------------------------------------------------------------- G7: files of deleted attachments (migration 16)
+\set t7     'bbbbbbbb-0000-0000-0000-000000000007'
+\set fa     'bbbbbbbb-0000-0000-0000-0000000000a1'
+\set fb     'bbbbbbbb-0000-0000-0000-0000000000b1'
+\set fc     'bbbbbbbb-0000-0000-0000-0000000000c1'
+\set ghost  'bbbbbbbb-0000-0000-0000-0000000000d1'
+\set fresh  'bbbbbbbb-0000-0000-0000-0000000000e1'
+reset role;
+delete from private.file_cleanup_queue;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+drop table if exists r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t7', 'full', true, 'fields',
+        jsonb_build_object('name', 'Lizbon', 'start_date', '2026-09-01', 'end_date', '2026-09-03', 'currency_code', 'EUR')),
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'fa', 'trip_id', :'t7', 'full', true,
+        'fields', jsonb_build_object('display_name', 'bilet.pdf', 'kind', 1, 'storage_path', 'trips/' || :'t7' || '/' || :'fa' || '.pdf')),
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'fb', 'trip_id', :'t7', 'full', true,
+        'fields', jsonb_build_object('display_name', 'foto', 'kind', 0, 'storage_path', 'trips/' || :'t7' || '/' || :'fb' || '.jpg')),
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'fc', 'trip_id', :'t7', 'full', true,
+        'fields', jsonb_build_object('display_name', 'not uploaded yet', 'kind', 0))
+)) as res;
+select test.eq((select count(*) from r, jsonb_array_elements(r.res) e where e ->> 'status' = 'applied'), 4::bigint, 'G7: trip with three attachments');
+reset role;
+insert into storage.objects (bucket_id, name, created_at) values
+    ('trip-files', 'trips/' || :'t7' || '/' || :'fa' || '.pdf', now() - interval '40 days'),
+    ('trip-files', 'trips/' || :'t7' || '/' || :'fb' || '.jpg', now() - interval '40 days'),
+    ('trip-files', 'trips/' || :'t7' || '/' || :'fb' || '.png', now() - interval '2 days'),
+    ('trip-files', 'trips/' || :'t7' || '/' || :'ghost' || '.jpg', now() - interval '2 days'),   -- no row at all
+    ('trip-files', 'trips/' || :'t7' || '/' || :'fresh' || '.jpg', now()),                       -- upload in progress
+    ('trip-files', 'trips/' || :'t7' || '/' || :'fc' || '.jpg', now() - interval '2 days'),      -- row exists, path not recorded yet
+    ('trip-files', 'trips/' || :'t7' || '/notlar.txt', now() - interval '2 days');               -- not ours to judge
+
+-- in the trash: the file stays (the app can restore it for 30 days)
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Attachment', 'op', 'delete', 'id', :'fa', 'trip_id', :'t7'))) as res;
+select test.eq(test.status(res), 'deleted', 'G7: attachment moved to the trash') from r;
+reset role;
+select test.eq((select count(*) from private.file_cleanup_queue), 0::bigint, 'G7: a soft-deleted attachment keeps its file');
+
+-- the file is replaced by one with another extension: the old one is no longer needed
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'fb', 'trip_id', :'t7',
+        'fields', jsonb_build_object('storage_path', 'trips/' || :'t7' || '/' || :'fb' || '.png')))) as res;
+select test.eq(test.status(res), 'applied', 'G7: storage_path changed') from r;
+reset role;
+select test.eq((select array_agg(path) from private.file_cleanup_queue), array['trips/' || :'t7' || '/' || :'fb' || '.jpg'],
+               'G7: the replaced file is queued');
+
+-- the nightly purge: the 30-day-old trash row goes, and so does its file; orphans more than a day old too
+update public.attachments set deleted_at = now() - interval '31 days' where id = :'fa';
+select private.purge_deleted_rows();
+select test.eq((select count(*) from public.attachments where id = :'fa'), 0::bigint, 'G7: purge removes the old trash row');
+select test.eq((select array_agg(path order by path) from private.file_cleanup_queue),
+               array['trips/' || :'t7' || '/' || :'fa' || '.pdf', 'trips/' || :'t7' || '/' || :'fb' || '.jpg',
+                     'trips/' || :'t7' || '/' || :'ghost' || '.jpg'],
+               'G7: purged row''s file and the day-old orphan are queued; a fresh upload, a file of a known row and a foreign name are not');
+select test.eq(private.queue_orphan_files(), 0, 'G7: queueing orphans again adds nothing');
+select test.eq(private.is_own_file('trips/' || :'t7' || '/' || :'fb' || '.pdf', :'t7', :'fa'), false, 'G7: another row''s file is never "own"');
+
+-- only the service role empties the queue
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+do $$
+begin
+    perform public.file_cleanup_claim(10);
+    raise exception 'FAILED: a signed-in user could claim the clean-up queue';
+exception when insufficient_privilege then raise notice 'ok - G7: users cannot claim the queue';
+end $$;
+do $$
+begin
+    perform public.file_cleanup_done(array['x']);
+    raise exception 'FAILED: a signed-in user could confirm deletions';
+exception when insufficient_privilege then raise notice 'ok - G7: users cannot confirm deletions';
+end $$;
+reset role;
+
+-- a queued path some row points at again (restored from a device's trash) is dropped, the file kept
+insert into private.file_cleanup_queue (path) values ('trips/' || :'t7' || '/' || :'fb' || '.png');
+set role service_role;
+select test.eq(public.file_cleanup_claim(2),
+               array['trips/' || :'t7' || '/' || :'fa' || '.pdf', 'trips/' || :'t7' || '/' || :'fb' || '.jpg'],
+               'G7: claim hands out the oldest paths, never one still in use');
+select test.eq(public.file_cleanup_claim(10), array['trips/' || :'t7' || '/' || :'ghost' || '.jpg'],
+               'G7: claimed paths are not handed out twice');
+select test.eq(public.file_cleanup_claim(10), '{}'::text[], 'G7: nothing left to claim');
+reset role;
+select test.eq((select count(*) from private.file_cleanup_queue where path like '%' || :'fb' || '.png'), 0::bigint,
+               'G7: the path in use left the queue');
+
+set role service_role;
+select test.eq(public.file_cleanup_done(array['trips/' || :'t7' || '/' || :'fa' || '.pdf', 'trips/' || :'t7' || '/' || :'fb' || '.jpg']), 2,
+               'G7: confirmed deletions leave the queue');
+reset role;
+-- the ghost's delete failed: handed out again after 15 minutes, but not forever
+update private.file_cleanup_queue set claimed_at = now() - interval '20 minutes';
+set role service_role;
+select test.eq(public.file_cleanup_claim(10), array['trips/' || :'t7' || '/' || :'ghost' || '.jpg'], 'G7: an unconfirmed path is retried later');
+reset role;
+update private.file_cleanup_queue set claimed_at = now() - interval '20 minutes', attempts = 10;
+set role service_role;
+select test.eq(public.file_cleanup_claim(10), '{}'::text[], 'G7: after 10 tries it waits for a look by hand');
+reset role;
+delete from private.file_cleanup_queue;
+-- (the Edge Function's Storage API call removed these)
+delete from storage.objects where name in ('trips/' || :'t7' || '/' || :'fa' || '.pdf', 'trips/' || :'t7' || '/' || :'fb' || '.jpg',
+                                           'trips/' || :'t7' || '/' || :'ghost' || '.jpg');
+
+-- a trip purged for good takes its attachments' files with it
+update public.trips set deleted_at = now() - interval '31 days' where id = :'t7';
+select private.purge_deleted_rows();
+select test.eq((select count(*) from public.attachments where trip_id = :'t7'), 0::bigint, 'G7: purged trip takes its attachments');
+select test.eq((select array_agg(path order by path) from private.file_cleanup_queue),
+               array['trips/' || :'t7' || '/' || :'fb' || '.png', 'trips/' || :'t7' || '/' || :'fc' || '.jpg'],
+               'G7: and their files are queued (the unrecorded upload is an orphan now)');
+delete from private.file_cleanup_queue;
+delete from storage.objects where name like 'trips/' || :'t7' || '/%';
 
 -- A file Ali uploaded to someone else's trip must not block deleting his account (Supabase refuses to delete
 -- users who own Storage objects) - it stays for that trip, without an owner.

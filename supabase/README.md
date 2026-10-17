@@ -33,6 +33,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…13_quota_limits.sql` | TP-3: hesap/seyahat başına satır sınırları, günlük yeni satır ve dakikalık senkron sınırı, `trip-files` için dosya türü ve boyut sınırları, `items`/`avatar_url` uzunlukları |
 | `migrations/…14_invite_hardening.sql` | TP-4: davet kodları tek kullanımlık ve 48 saat geçerli, katılan görüntüleyici olur; yanlış kod denemesi sınırı; e-postalar yalnızca sahibe; yeni üye bildirimi için `get_recent_joins` |
 | `migrations/…15_attachment_paths.sql` | TP-5: ekin `storage_path`'i yalnızca kendi dosyası (`trips/<trip_id>/<id>.<uzantı>`), `content_type`'ı yalnızca JPEG/PNG/HEIC/HEIF/WebP/PDF olabilir; aykırı yazma `invalid` ile reddedilir, eski bozuk değerler temizlenir |
+| `migrations/…16_file_cleanup.sql` | G7: kalıcı silinen eklerin dosyaları Storage'dan da silinir (kuyruk `private.file_cleanup_queue`, gece `purge-files` fonksiyonu) |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti
@@ -98,8 +99,38 @@ PostgreSQL 15+ üzerinde, boş bir veritabanında:
 ```bash
 psql -d tp -f tests/00_local_stub.sql      # Supabase'in auth/storage parçalarının taklidi
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -d tp -f "$f"; done
-psql -d tp -f tests/sync_tests.sql          # 177 kontrol, sonda "ALL SYNC TESTS PASSED"
+psql -d tp -f tests/sync_tests.sql          # 197 kontrol, sonda "ALL SYNC TESTS PASSED"
 ```
+
+## Silinen dosyaların temizliği (G7, Edge Function `purge-files`)
+
+Bir ek silinince satırı 30 gün çöpte (`deleted_at`) bekler, dosyası da bulutta kalır ki geri alınabilsin. Gece
+temizliği (migration 6) satırı kalıcı silince dosyası artık kimsenin işine yaramaz; migration 16 bu dosyaları siler:
+
+- Satırı kalıcı silinen ekin (30 günlük temizlik, seyahatin temizliği, hesap silme) ve dosya yolu değişen ekin eski
+  dosyası `private.file_cleanup_queue` kuyruğuna girer. Yalnızca satırın **kendi** dosyası (`trips/<trip_id>/<id>.<uzantı>`).
+- Gece temizliği ayrıca hiçbir ek satırına ait olmayan, en az 1 günlük dosyaları da kuyruğa koyar (bu migration'dan
+  önce kalanlar, sunucuda tutunamamış satırların dosyaları). Çöpteki eklerin dosyaları silinmez.
+- 03:47'de pg_cron `purge-files` fonksiyonunu çağırır; fonksiyon kuyruktan 500'lük partiler alır
+  (`file_cleanup_claim`), Storage API ile siler, silineni kuyruktan düşer (`file_cleanup_done`). Silinemeyen yol
+  15 dk sonra yeniden denenir, 10 denemeden sonra kuyrukta bekler. Kuyruktayken bir satır o yolu yeniden
+  kullanırsa (çöpten geri alma) dosya silinmez.
+- Uygulama da kendi çöpünü boşaltırken dosyayı siler (`TrashService`); bu sunucu tarafı, onun kaçırdıklarını yakalar.
+
+Kurulum (bir kez):
+
+1. **Database → Extensions**: `pg_cron` ve `pg_net` açık olsun.
+2. Bir gizli değer üret (ör. `openssl rand -hex 32`); depoya ya da sohbete yazma.
+3. **Edge Functions → Secrets** → `FILE_CLEANUP_SECRET` = o değer.
+4. **SQL Editor**: `select vault.create_secret('<o değer>', 'file_cleanup_secret');`
+5. Fonksiyonu yayınla, **Verify JWT kapalı** (çağıran kullanıcı değil, kontrol gizli değerle yapılır):
+   `npx supabase functions deploy purge-files --project-ref bobliztrprgqhnudnhrs --no-verify-jwt`
+   (Dashboard'dan: adı `purge-files`, dosyalar `functions/purge-files/index.ts` ve `functions/purge-files/cleanup.ts`.)
+6. Migration 16'yı (ya da `all_in_one.sql`'i) çalıştır; cron işi `travelplanner-purge-files` kurulur.
+7. Kontrol: `select count(*) from private.file_cleanup_queue;` ertesi sabah 0'a yakın olmalı;
+   Edge Functions → purge-files → Logs'ta `purge-files {"deleted":…}` satırı görünür. Elle denemek için:
+   `select net.http_post(url := 'https://bobliztrprgqhnudnhrs.supabase.co/functions/v1/purge-files', headers := jsonb_build_object('Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'file_cleanup_secret')));`
+8. Fonksiyonun testleri: `node --test supabase/functions/purge-files/*.test.ts`
 
 ## Yapay zekâ ile planlama (Edge Function `plan-trip`)
 
