@@ -538,6 +538,15 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bu dosya türü eklenemiyor. Fotoğraf (JPEG, PNG, HEIC, WebP) ya da PDF seçebilirsin..
+        /// </summary>
+        public static string Attachments_UnsupportedType {
+            get {
+                return ResourceManager.GetString("Attachments_UnsupportedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dışa aktar.
         /// </summary>
         public static string Backup_Export {
@@ -6239,6 +6248,15 @@ namespace TravelPlanner.Resources.Strings {
             }
         }
 
+        /// <summary>
+        ///   Looks up a localized string similar to {0} değişiklik ya da dosya buluta kaydedilemedi, çünkü bir kullanım sınırına ulaşıldı (örneğin bir seyahatte en fazla 2.000 masraf, 500 yer ya da 200 belge; belgeler için seyahat başına 250 MB). Bunlar bu cihazda duruyor; eski kayıt ya da belgeleri silip yer açtığında veya ertesi gün kendiliğinden yeniden denenir..
+        /// </summary>
+        public static string Sync_QuotaExceededFormat {
+            get {
+                return ResourceManager.GetString("Sync_QuotaExceededFormat", resourceCulture);
+            }
+        }
+        
         /// <summary>
         ///   Looks up a localized string similar to Çöp kutusu.
         /// </summary>

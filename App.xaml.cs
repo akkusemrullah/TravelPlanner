@@ -75,6 +75,11 @@ namespace TravelPlanner
                 dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
                     string.Format(TravelPlanner.Resources.Strings.AppResources.Sync_RejectedFormat, count)).FireAndForget());
 
+            // TP-3: ... or kept them back because a usage limit is reached (told once per change).
+            _sync.QuotaExceeded += (_, count) => MainThread.BeginInvokeOnMainThread(() =>
+                dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
+                    string.Format(TravelPlanner.Resources.Strings.AppResources.Sync_QuotaExceededFormat, count)).FireAndForget());
+
             // Signing in / out switches the local data: rebuild the shell so every page reloads from the new data.
             _account.AccountChanged += (_, _) => MainThread.BeginInvokeOnMainThread(() => RebuildShellAsync().FireAndForget());
 

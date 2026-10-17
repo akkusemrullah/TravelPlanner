@@ -30,6 +30,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…10_ai_refund.sql` | OpenAI cevap veremezse planı geri veren tek kullanımlık fiş (`ai_plan_refund`) |
 | `migrations/…11_value_limits.sql` | SEC-01: tutar, kur, tarih, kategori, sıra ve saat sınırları (uygulamadaki `InputLimits` ile aynı); sınır dışı yazma `invalid` ile reddedilir |
 | `migrations/…12_ai_cost_limits.sql` | SEC-02: herkes için günlük global tavan, yeni hesaplara ilk 24 saatte düşük kota, hesap başına günde en fazla 2 iade |
+| `migrations/…13_quota_limits.sql` | TP-3: hesap/seyahat başına satır sınırları, günlük yeni satır ve dakikalık senkron sınırı, `trip-files` için dosya türü ve boyut sınırları, `items`/`avatar_url` uzunlukları |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti
@@ -45,6 +46,33 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 - Sürüm, `change_seq`, oluşturan/düzenleyen ve tarihler sunucuda atanır; istemcinin gönderdiği değerler
   yok sayılır.
 
+## Kullanım sınırları (TP-3)
+
+Ücretsiz plan 500 MB veritabanı / 1 GB dosya alanı verir; dolarsa proje salt okunur olur ve uygulama herkes
+için durur. Bu yüzden tek bir hesabın (ör. bir script ile) alanı dolduramaması için sınırlar var. Hepsi
+`private.quota_limit()` (migration 13) içinde; değiştirmek için oradaki sayıyı düzenleyip dosyayı yeniden çalıştır.
+
+| Sınır | Varsayılan |
+| --- | --- |
+| Hesabın sahip olduğu seyahat | 200 |
+| Hesap başına hazır eşya listesi | 100 |
+| Seyahat başına masraf / yer / aktivite / ek | 2 000 / 500 / 500 / 200 |
+| Seyahat başına katılımcı / yapılacak / masraf paylaşımı | 200 / 2 000 / 50 000 |
+| Hesap başına günde yeni satır (UTC) | 10 000 |
+| `apply_changes`: hesap başına dakikada çağrı / değişiklik | 60 / 3 000 (aşılınca HTTP 429) |
+| Dosya: seyahat başına toplam / dosya sayısı | 250 MB / 250 |
+| Dosya: hesabın sahip olduğu tüm seyahatler toplamı | 500 MB |
+| Dosya türleri | JPEG, PNG, HEIC, HEIF, WebP, PDF |
+
+- Satır sınırları canlı satırları sayar; çöp kutusundakiler de sınırın iki katına kadar sayılır (sil–oluştur
+  döngüsüyle tablo büyütülemesin; çöp 30 günde temizlenir). Çöpten geri alma da canlı sınıra takılır.
+- Sınırı aşan değişiklik `apply_changes`'tan `rejected` / `quota` olarak döner (`error` hangi sınır olduğunu söyler),
+  paketin geri kalanı uygulanır. Uygulama değişikliği silmez: kullanıcıya bir kez mesaj gösterir ve 30 dakikada
+  bir yeniden dener (kullanıcı bir şey silince ya da ertesi gün gider).
+- Dosyalar, editör yüklese bile seyahatin **sahibinin** hesabına sayılır.
+- Dashboard'da elle: **Authentication → Rate Limits** değerlerini gözden geçir (ör. e-posta gönderimi, kayıt ve
+  giriş istekleri); CAPTCHA ve "Confirm email" açıkken toplu hesap açmak zaten zordur.
+
 ## Yerel test (geliştirici için)
 
 PostgreSQL 15+ üzerinde, boş bir veritabanında:
@@ -52,7 +80,7 @@ PostgreSQL 15+ üzerinde, boş bir veritabanında:
 ```bash
 psql -d tp -f tests/00_local_stub.sql      # Supabase'in auth/storage parçalarının taklidi
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -d tp -f "$f"; done
-psql -d tp -f tests/sync_tests.sql          # 110 kontrol, sonda "ALL SYNC TESTS PASSED"
+psql -d tp -f tests/sync_tests.sql          # 138 kontrol, sonda "ALL SYNC TESTS PASSED"
 ```
 
 ## Yapay zekâ ile planlama (Edge Function `plan-trip`)

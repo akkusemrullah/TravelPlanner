@@ -18,6 +18,40 @@ namespace TravelPlanner.Services
             ".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp", ".gif", ".bmp"
         };
 
+        /// <summary>
+        /// TP-3: the only file types the cloud accepts (the "trip-files" bucket's allowed_mime_types,
+        /// supabase/migrations/…13_quota_limits.sql), by file extension.
+        /// </summary>
+        private static readonly Dictionary<string, string> CloudTypesByExtension = new(StringComparer.OrdinalIgnoreCase)
+        {
+            [".jpg"] = "image/jpeg",
+            [".jpeg"] = "image/jpeg",
+            [".png"] = "image/png",
+            [".heic"] = "image/heic",
+            [".heif"] = "image/heif",
+            [".webp"] = "image/webp",
+            [".pdf"] = "application/pdf",
+        };
+
+        private static readonly HashSet<string> CloudTypes = new(CloudTypesByExtension.Values, StringComparer.Ordinal);
+
+        /// <summary>
+        /// The MIME type a file is stored and uploaded with: the picker's type when the cloud accepts it, otherwise
+        /// the one its extension stands for; null when the file is none of JPEG, PNG, HEIC/HEIF, WebP or PDF.
+        /// </summary>
+        public static string? CloudContentType(string? fileName, string? contentType)
+        {
+            var type = contentType?.Split(';')[0].Trim().ToLowerInvariant();
+            if (type is "image/jpg" or "image/pjpeg")
+                type = "image/jpeg";
+            if (type is not null && CloudTypes.Contains(type))
+                return type;
+
+            return CloudTypesByExtension.TryGetValue(Path.GetExtension(fileName ?? string.Empty), out var byExtension)
+                ? byExtension
+                : null;
+        }
+
         private readonly IDatabaseService _databaseService;
         private readonly ISupabaseClient? _remote;
 
@@ -59,6 +93,8 @@ namespace TravelPlanner.Services
         public async Task<TripAttachment> AddAsync(int tripId, Stream content, string originalFileName, string? contentType)
         {
             var displayName = string.IsNullOrWhiteSpace(originalFileName) ? "file" : Path.GetFileName(originalFileName.Trim());
+            // TP-3: only what the cloud accepts, so every attachment can reach the trip's other devices
+            contentType = CloudContentType(displayName, contentType) ?? throw new UnsupportedAttachmentTypeException();
             var extension = Path.GetExtension(displayName);
             if (extension.Length > 10)
                 extension = string.Empty;
@@ -250,5 +286,14 @@ namespace TravelPlanner.Services
         }
 
         public long MaxBytes { get; }
+    }
+
+    /// <summary>TP-3: the file is not a photo (JPEG, PNG, HEIC/HEIF, WebP) or a PDF.</summary>
+    public sealed class UnsupportedAttachmentTypeException : Exception
+    {
+        public UnsupportedAttachmentTypeException()
+            : base("Only JPEG, PNG, HEIC/HEIF, WebP and PDF files can be attached.")
+        {
+        }
     }
 }

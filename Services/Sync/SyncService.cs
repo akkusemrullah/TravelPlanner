@@ -28,6 +28,15 @@ namespace TravelPlanner.Services.Sync
             "forbidden", "row_deleted", "trip_deleted", "trip_mismatch", "unknown_entity"
         };
 
+        /// <summary>
+        /// TP-3: the server refused the change because a usage limit is reached (e.g. expenses per trip). It is kept
+        /// and retried after <see cref="BackoffDelay"/> - by then the user may have deleted something, or it's a new day.
+        /// </summary>
+        internal const string QuotaReason = "quota";
+
+        /// <summary>TP-3: attachment uploads Storage refused (SyncId → when), not retried before <see cref="BackoffDelay"/>.</summary>
+        private readonly Dictionary<string, DateTime> _uploadRefusedAtUtc = new(StringComparer.Ordinal);
+
         private readonly IAuthService _auth;
         private readonly IAccountService _account;
         private readonly IDatabaseService _database;
@@ -74,6 +83,8 @@ namespace TravelPlanner.Services.Sync
         public event EventHandler? RemoteChangesApplied;
 
         public event EventHandler<int>? ChangesRejected;
+
+        public event EventHandler<int>? QuotaExceeded;
 
         // ------------------------------------------------------------------ triggers
 
@@ -183,7 +194,8 @@ namespace TravelPlanner.Services.Sync
                 var db = await _database.Connection;
 
                 var push = await PushAsync(db, cancellationToken);
-                var uploaded = await UploadFilesAsync(db, cancellationToken);
+                var files = await UploadFilesAsync(db, cancellationToken);
+                var uploaded = files.Uploaded;
                 if (uploaded > 0)
                     push = push.Add(await PushAsync(db, cancellationToken));
 
@@ -196,6 +208,8 @@ namespace TravelPlanner.Services.Sync
 
                 if (push.Rejected > 0)
                     ChangesRejected?.Invoke(this, push.Rejected);
+                if (push.NewlyOverQuota + files.NewlyRefused > 0)
+                    QuotaExceeded?.Invoke(this, push.NewlyOverQuota + files.NewlyRefused);
 
                 return new SyncResult(push.Pushed, push.Rejected, push.Conflicts, uploaded, pulled, PendingCount);
             }
@@ -204,6 +218,8 @@ namespace TravelPlanner.Services.Sync
                 System.Diagnostics.Debug.WriteLine($"[Sync] {ex.Kind}: {ex.Message}");
                 SetStatus(ex.Kind switch
                 {
+                    // TP-3: too many sync calls this minute - nothing is wrong, the next round goes on
+                    _ when ex.Status == 429 => SyncStatus.Pending,
                     SyncErrorKind.Network => SyncStatus.Offline,
                     SyncErrorKind.NotSignedIn => _auth.IsSignedIn ? SyncStatus.Offline : SyncStatus.Disabled,
                     _ => SyncStatus.Error,
@@ -251,13 +267,16 @@ namespace TravelPlanner.Services.Sync
 
         // ------------------------------------------------------------------ push (outbox → apply_changes)
 
-        internal sealed record PushOutcome(int Pushed, int Rejected, int Conflicts, int Failed, bool NeedsFullPull)
+        /// <param name="OverQuota">Changes the server refused over a usage limit (TP-3); they stay queued.</param>
+        /// <param name="NewlyOverQuota">Of those, the ones refused for that reason for the first time (the user is told once).</param>
+        internal sealed record PushOutcome(int Pushed, int Rejected, int Conflicts, int Failed, bool NeedsFullPull,
+                                           int OverQuota = 0, int NewlyOverQuota = 0)
         {
             public static PushOutcome Empty { get; } = new(0, 0, 0, 0, false);
 
             public PushOutcome Add(PushOutcome other) => new(
                 Pushed + other.Pushed, Rejected + other.Rejected, Conflicts + other.Conflicts, Failed + other.Failed,
-                NeedsFullPull || other.NeedsFullPull);
+                NeedsFullPull || other.NeedsFullPull, OverQuota + other.OverQuota, NewlyOverQuota + other.NewlyOverQuota);
         }
 
         private sealed record BatchItem(PendingChange Pending, JsonObject? Change);
@@ -355,7 +374,7 @@ namespace TravelPlanner.Services.Sync
             foreach (var dropped in batch.Where(b => b.Change is null))
                 DeletePendingIfUnchanged(conn, dropped.Pending);
 
-            int pushed = 0, rejected = 0, conflicts = 0, failed = 0;
+            int pushed = 0, rejected = 0, conflicts = 0, failed = 0, overQuota = 0, newlyOverQuota = 0;
             var needsFullPull = false;
             var results = response.ValueKind == JsonValueKind.Array ? response : default;
 
@@ -391,6 +410,19 @@ namespace TravelPlanner.Services.Sync
                     conn.Execute("DELETE FROM PendingChange WHERE Sequence = ?", pending.Sequence);
                     System.Diagnostics.Debug.WriteLine($"[Sync] {pending.EntityType} {pending.EntitySyncId} rejected: {reason}");
                 }
+                else if (status == "rejected" && reason == QuotaReason)
+                {
+                    // TP-3: keep the change, wait BackoffDelay before trying again (BuildBatch skips it until then)
+                    overQuota++;
+                    if (pending.LastError?.StartsWith(QuotaReason, StringComparison.Ordinal) != true)
+                        newlyOverQuota++;
+                    var error = SyncFieldMapper.GetString(result, "error") ?? QuotaReason;
+                    if (!error.StartsWith(QuotaReason, StringComparison.Ordinal))
+                        error = $"{QuotaReason}: {error}";
+                    conn.Execute("UPDATE PendingChange SET Attempts = MAX(Attempts + 1, ?), LastError = ?, LastAttemptAtUtc = ? WHERE Sequence = ?",
+                                 MaxAttemptsBeforeBackoff, Helpers.InputLimits.Truncate(error, 500), now, pending.Sequence);
+                    System.Diagnostics.Debug.WriteLine($"[Sync] {pending.EntityType} {pending.EntitySyncId} over a usage limit: {error}");
+                }
                 else
                 {
                     // "invalid" (e.g. its parent isn't uploaded yet), "trip_missing", or no answer: retry later
@@ -401,7 +433,7 @@ namespace TravelPlanner.Services.Sync
                 }
             }
 
-            return new PushOutcome(pushed, rejected, conflicts, failed, needsFullPull);
+            return new PushOutcome(pushed, rejected, conflicts, failed, needsFullPull, overQuota, newlyOverQuota);
         }
 
         /// <summary>Removes an outbox entry unless it was changed again while being sent (then it goes next round).</summary>
@@ -410,20 +442,33 @@ namespace TravelPlanner.Services.Sync
 
         // ------------------------------------------------------------------ files (G5)
 
+        /// <param name="Uploaded">Files uploaded this round.</param>
+        /// <param name="NewlyRefused">Files Storage refused this round that weren't refused before (TP-3: the user is told once).</param>
+        internal sealed record UploadOutcome(int Uploaded, int NewlyRefused);
+
         /// <summary>
         /// Uploads attachment files whose row is already on the server but whose file isn't, then records where
         /// the file went (RemotePath → storage_path), which the next push sends to the other devices.
         /// </summary>
-        internal async Task<int> UploadFilesAsync(SQLiteAsyncConnection db, CancellationToken cancellationToken)
+        internal async Task<UploadOutcome> UploadFilesAsync(SQLiteAsyncConnection db, CancellationToken cancellationToken)
         {
             var candidates = await db.QueryAsync<TripAttachment>(
                 "SELECT * FROM Attachment WHERE (RemotePath IS NULL OR RemotePath = '') AND ChangeSeq > 0");
 
-            var uploaded = 0;
+            int uploaded = 0, newlyRefused = 0;
             foreach (var attachment in candidates)
             {
                 var fullPath = _attachments.GetFullPath(attachment);
                 if (!File.Exists(fullPath))
+                    continue;
+
+                // TP-3: the bucket only takes photos and PDFs - an older attachment of another type stays on this device
+                var contentType = AttachmentService.CloudContentType(attachment.RelativePath, attachment.ContentType);
+                if (contentType is null)
+                    continue;
+
+                // TP-3: refused a moment ago (e.g. the trip's storage is full) - don't send the whole file again yet
+                if (_uploadRefusedAtUtc.TryGetValue(attachment.SyncId, out var refusedAt) && UtcNow() - refusedAt < BackoffDelay)
                     continue;
 
                 var tripSyncId = await db.ExecuteScalarAsync<string>("SELECT SyncId FROM Trip WHERE Id = ?", attachment.TripId);
@@ -434,15 +479,20 @@ namespace TravelPlanner.Services.Sync
                 try
                 {
                     await using var stream = File.OpenRead(fullPath);
-                    await _client.UploadAsync(Bucket, remotePath, stream, attachment.ContentType, cancellationToken);
+                    await _client.UploadAsync(Bucket, remotePath, stream, contentType, cancellationToken);
                 }
                 catch (SyncException ex) when (ex.Kind == SyncErrorKind.Rejected)
                 {
-                    // e.g. a viewer's device, or a file type the bucket refuses - leave it local
+                    // the trip's or the owner's storage is full (TP-3), or a viewer's device - leave it local, retry later
                     System.Diagnostics.Debug.WriteLine($"[Sync] Upload of {attachment.SyncId} refused: {ex.Message}");
+                    if (_uploadRefusedAtUtc.TryAdd(attachment.SyncId, UtcNow()))
+                        newlyRefused++;
+                    else
+                        _uploadRefusedAtUtc[attachment.SyncId] = UtcNow();
                     continue;
                 }
 
+                _uploadRefusedAtUtc.Remove(attachment.SyncId);
                 attachment.RemotePath = remotePath;
                 try
                 {
@@ -455,7 +505,7 @@ namespace TravelPlanner.Services.Sync
                 uploaded++;
             }
 
-            return uploaded;
+            return new UploadOutcome(uploaded, newlyRefused);
         }
 
         internal static string RemotePathFor(string tripSyncId, TripAttachment attachment)

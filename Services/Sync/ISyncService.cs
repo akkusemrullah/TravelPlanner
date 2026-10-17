@@ -44,6 +44,13 @@ namespace TravelPlanner.Services.Sync
         /// </summary>
         event EventHandler<int>? ChangesRejected;
 
+        /// <summary>
+        /// TP-3: the server refused some changes or files because a usage limit is reached (e.g. expenses per trip,
+        /// storage per trip); the argument is how many were refused for the first time. They stay on this device
+        /// and are retried later.
+        /// </summary>
+        event EventHandler<int>? QuotaExceeded;
+
         /// <summary>Starts the triggers (timer, connectivity, local changes). Call once the app shell is up.</summary>
         void Start();
 
