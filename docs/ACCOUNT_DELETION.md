@@ -16,7 +16,7 @@ Hesabının kayıtlı olduğu e-posta adresinden **emrullahakkus@gmail.com** adr
 
 ### Neler silinir?
 - Hesabın ve giriş bilgilerin, profilin (ad, e-posta, profil fotoğrafı adresi).
-- Sahibi olduğun tüm seyahatler ve içindeki her şey (plan, yerler, harcamalar, katılımcılar, görevler, bavul şablonları) ile buluta yüklenen belgeler ve fotoğraflar. Dosyalar hemen silinir; bir bağlantı sorunu olursa sunucu bunları en geç 2 gün içinde kendisi siler.
+- Sahibi olduğun seyahatler ve içindeki her şey (plan, yerler, harcamalar, katılımcılar, görevler, bavul şablonları) ile buluta yüklenen belgeler ve fotoğraflar. Dosyalar hemen silinir; bir bağlantı sorunu olursa sunucu bunları en geç 2 gün içinde kendisi siler. Başkalarıyla paylaştığın her seyahat için silmeden önce sahipliği bir üyeye devretmeyi veya herkes için silmeyi seçersin; devrettiğin seyahatler yeni sahibinde kalır.
 - Seyahat üyeliklerin ve oluşturduğun davetler; yapay zekâ planlayıcısının hesabına bağlı günlük kullanım sayaçları.
 
 ### Neler kalır?
@@ -41,7 +41,7 @@ Send an e-mail with the subject "Account deletion request" from your account's e
 
 ### What is deleted
 - Your account and sign-in data, your profile (name, e-mail, profile photo address).
-- All trips you own with everything in them (plan, places, expenses, participants, to-dos, packing templates) and the documents and photos uploaded to the cloud. The files are deleted right away; if there is a connection problem, the server deletes them itself within 2 days at the latest.
+- The trips you own with everything in them (plan, places, expenses, participants, to-dos, packing templates) and the documents and photos uploaded to the cloud. The files are deleted right away; if there is a connection problem, the server deletes them itself within 2 days at the latest. For each trip you share with others you first choose to hand it over to a member or to delete it for everyone; trips you hand over stay with their new owner.
 - Your trip memberships and the invites you created; the daily AI planner usage counters linked to your account.
 
 ### What is kept

@@ -78,7 +78,7 @@ Giriş yaptıysan değişikliklerin birkaç saniye içinde otomatik olarak bulut
 Giriş ekranında "Şifremi unuttum"a dokun, e-posta adresini yaz. Gelen kodla yeni şifreni belirleyebilirsin.
 
 **Hesabımı nasıl silerim?**  
-Profil → Hesabımı sil'e dokun ve iki adımlı onayı tamamla (internet bağlantısı gerekir). Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir, paylaşılan seyahatlerden çıkarılırsın. Silmeden önce Yedekleme → Dışa aktar ile verilerinin kopyasını alabilirsin. Uygulamaya erişemiyorsan emrullahakkus@gmail.com adresine hesabının e-posta adresinden yazarak silinmesini isteyebilirsin.
+Profil → Hesabımı sil'e dokun ve iki adımlı onayı tamamla (internet bağlantısı gerekir). Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir, paylaşılan seyahatlerden çıkarılırsın. Başkalarıyla paylaştığın seyahatlerin sahipliğini silmeden önce bir üyeye devredebilirsin. Silmeden önce Yedekleme → Dışa aktar ile verilerinin kopyasını alabilirsin. Uygulamaya erişemiyorsan emrullahakkus@gmail.com adresine hesabının e-posta adresinden yazarak silinmesini isteyebilirsin.
 
 ### Belgeler, yedek ve çöp kutusu
 
@@ -184,7 +184,7 @@ When you're signed in, your changes go to the cloud within a few seconds. Change
 Tap "Forgot password?" on the sign-in screen and enter your e-mail address. Use the code you receive to set a new password.
 
 **How do I delete my account?**  
-Tap Profile → Delete my account and complete the two-step confirmation (you need to be online). The trips you own, everything in them and their files are deleted from the cloud, and you leave the trips shared with you. Before that you can take a copy with Backup → Export. If you can't use the app, write to emrullahakkus@gmail.com from your account's e-mail address and ask for the deletion.
+Tap Profile → Delete my account and complete the two-step confirmation (you need to be online). The trips you own, everything in them and their files are deleted from the cloud, and you leave the trips shared with you. You can hand over the trips you share with others to a member first. Before that you can take a copy with Backup → Export. If you can't use the app, write to emrullahakkus@gmail.com from your account's e-mail address and ask for the deletion.
 
 ### Documents, backups and the trash
 
