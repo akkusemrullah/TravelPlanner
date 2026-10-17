@@ -1028,6 +1028,12 @@
   <data name="TripForm_CurrencyChangeAccept" xml:space="preserve">
     <value>Convert</value>
   </data>
+  <data name="TripForm_CurrencyChangeOffline" xml:space="preserve">
+    <value>The currency of a trip in the cloud can only be changed online, so the other members' expenses are converted at the same time.</value>
+  </data>
+  <data name="TripForm_CurrencyChangedElsewhere" xml:space="preserve">
+    <value>Another member has just changed this trip's currency. The current version is being loaded; try again if needed.</value>
+  </data>
   <data name="Fx_Unavailable" xml:space="preserve">
     <value>The exchange rate couldn't be loaded. Check your connection or enter the amount in the trip's currency.</value>
   </data>

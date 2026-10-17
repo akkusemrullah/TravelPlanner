@@ -98,7 +98,8 @@ namespace TravelPlanner.Tests
             expense.Amount = 12m;
             await _expenses.SaveAsync(expense);
             var merged = (await PendingForAsync(expense))!;
-            Assert.Equal(new[] { "Description", "AmountMinor" }, merged.ChangedFieldList);
+            // TP-11: an amount always travels with the currency it is in
+            Assert.Equal(new[] { "Description", "AmountMinor", "AmountCurrencyCode" }, merged.ChangedFieldList);
             Assert.Single(await OutboxAsync());
         }
 

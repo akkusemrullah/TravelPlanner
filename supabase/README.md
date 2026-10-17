@@ -35,6 +35,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…15_attachment_paths.sql` | TP-5: ekin `storage_path`'i yalnızca kendi dosyası (`trips/<trip_id>/<id>.<uzantı>`), `content_type`'ı yalnızca JPEG/PNG/HEIC/HEIF/WebP/PDF olabilir; aykırı yazma `invalid` ile reddedilir, eski bozuk değerler temizlenir |
 | `migrations/…16_file_cleanup.sql` | G7: kalıcı silinen eklerin dosyaları Storage'dan da silinir (kuyruk `private.file_cleanup_queue`, gece `purge-files` fonksiyonu) |
 | `migrations/…18_pull_cursor_safety.sql` | TP-8: `pull_changes` cursor'ı hâlâ açık bir yazma transaction'ının satırını atlamaz (güvenli nokta: 10 sn önce ya da en eski açık yazma transaction'ının başlangıcı); `apply_changes` satır kilidi için en fazla 2 sn bekler, çağrı başına en fazla 6 sn sürer |
+| `migrations/…19_trip_currency.sql` | TP-11: para birimi değişimi tek atomik RPC'de (`convert_trip_currency`, yalnızca sahip/editör; başkası önce çevirdiyse reddedilir); masrafta tutarın para birimi (`amount_currency_code`); eski para biriminde geç gelen masraf kayıtlı kurla çevrilir; masraflı seyahatin `currency_code`'u `apply_changes` ile değiştirilemez |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti

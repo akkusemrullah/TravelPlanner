@@ -367,6 +367,7 @@ namespace TravelPlanner.ViewModels
             expense.OriginalAmount = Amount;
             expense.OriginalCurrencyCode = enteredCurrency;
             expense.ExchangeRate = (double)rate;
+            expense.AmountCurrencyCode = tripCurrency; // TP-11: the currency tripAmount is in
             expense.Date = Date;
             expense.Description = Description;
 
