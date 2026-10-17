@@ -1648,6 +1648,18 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
   <data name="Account_DeleteOffline" xml:space="preserve">
     <value>Deleting the account needs an internet connection. Nothing was deleted; try again when you're online.</value>
   </data>
+  <data name="Account_DeleteSharedTripFormat" xml:space="preserve">
+    <value>You share "{0}" with {1} people. When your account is deleted, this trip, its expenses and documents are deleted for them too. What should happen?</value>
+  </data>
+  <data name="Account_TransferOwnership" xml:space="preserve">
+    <value>Hand it over</value>
+  </data>
+  <data name="Account_DeleteForEveryone" xml:space="preserve">
+    <value>Delete for everyone</value>
+  </data>
+  <data name="Account_ChooseNewOwnerFormat" xml:space="preserve">
+    <value>Who should own "{0}" now?</value>
+  </data>
   <data name="Account_DeleteError" xml:space="preserve">
     <value>The account couldn't be deleted. Please try again later.</value>
   </data>

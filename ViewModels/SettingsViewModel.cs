@@ -282,6 +282,20 @@ namespace TravelPlanner.ViewModels
                                             AppResources.Account_DeleteContinue, AppResources.Common_Cancel))
                 return;
 
+            // TP-12: trips other people share would be deleted for all of them - hand over or delete, per trip.
+            IReadOnlyList<(OwnedSharedTrip Trip, TripMember NewOwner)> handovers;
+            try
+            {
+                if (await ChooseSharedTripHandoversAsync() is not { } chosen)
+                    return;
+                handovers = chosen;
+            }
+            catch (SharingException ex) when (ex.Kind is SharingErrorKind.Offline or SharingErrorKind.NotSignedIn)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Account_DeleteTitle, AppResources.Account_DeleteOffline);
+                return;
+            }
+
             var typed = await Dialogs.PromptAsync(AppResources.Account_DeleteTitle,
                 string.Format(AppResources.Account_DeleteTypeFormat, AppResources.Account_DeleteKeyword),
                 accept: AppResources.Account_DeleteConfirm, cancel: AppResources.Common_Cancel);
@@ -297,7 +311,16 @@ namespace TravelPlanner.ViewModels
             IsDeletingAccount = true;
             try
             {
+                // Hand-overs first: a trip handed over survives delete_account. If one fails, nothing is deleted.
+                foreach (var (trip, newOwner) in handovers)
+                    await _sharing!.TransferOwnershipAsync(trip.TripSyncId, newOwner.UserId);
+
                 await _account.DeleteAccountAsync();
+            }
+            catch (SharingException ex) when (ex.Kind is SharingErrorKind.Offline or SharingErrorKind.NotSignedIn)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Account_DeleteTitle, AppResources.Account_DeleteOffline);
+                return;
             }
             catch (SyncException ex) when (ex.Kind is SyncErrorKind.Network or SyncErrorKind.NotSignedIn)
             {
@@ -313,6 +336,49 @@ namespace TravelPlanner.ViewModels
             await Task.Delay(AccountDeletedNoticeDelay);
             await Dialogs.ShowMessageAsync(AppResources.Account_DeleteTitle, AppResources.Account_Deleted);
         }, AppResources.Account_DeleteError);
+
+        /// <summary>
+        /// TP-12: for each of the user's trips that others take part in, asks (showing how many people it affects)
+        /// whether to hand it over - and to whom - or to delete it for everyone. Null = the user backed out.
+        /// Nothing is changed here; the hand-overs run only after the final confirmation.
+        /// </summary>
+        private async Task<IReadOnlyList<(OwnedSharedTrip Trip, TripMember NewOwner)>?> ChooseSharedTripHandoversAsync()
+        {
+            var handovers = new List<(OwnedSharedTrip, TripMember)>();
+            if (_sharing is null)
+                return handovers;
+
+            foreach (var trip in await _sharing.GetOwnedSharedTripsAsync())
+            {
+                var choice = await Dialogs.ChooseAsync(
+                    string.Format(AppResources.Account_DeleteSharedTripFormat, trip.Name, trip.OtherMembers),
+                    new[] { AppResources.Account_TransferOwnership, AppResources.Account_DeleteForEveryone },
+                    AppResources.Common_Cancel);
+                if (choice == AppResources.Account_DeleteForEveryone)
+                    continue;
+                if (choice != AppResources.Account_TransferOwnership)
+                    return null;
+
+                // Editors first: they already look after the trip.
+                var candidates = (await _sharing.GetMembersAsync(trip.TripSyncId))
+                    .Where(m => !m.IsMe && m.Role != TripRole.Owner)
+                    .OrderBy(m => m.Role == TripRole.Editor ? 0 : 1)
+                    .ThenBy(m => m.Name, StringComparer.CurrentCultureIgnoreCase)
+                    .ToList();
+                if (candidates.Count == 0)
+                    continue; // everyone else left meanwhile: nobody to hand it to, nobody to lose it
+
+                var labels = candidates.Select((m, i) => candidates.Take(i).Any(o => o.Name == m.Name) ? $"{m.Name} ({i + 1})" : m.Name).ToList();
+                var picked = await Dialogs.ChooseAsync(string.Format(AppResources.Account_ChooseNewOwnerFormat, trip.Name), labels, AppResources.Common_Cancel);
+                var index = picked is null ? -1 : labels.IndexOf(picked);
+                if (index < 0)
+                    return null;
+
+                handovers.Add((trip, candidates[index]));
+            }
+
+            return handovers;
+        }
 
         /// <summary>Wait before the "account deleted" message, so it lands on the rebuilt shell (0 in tests).</summary>
         internal TimeSpan AccountDeletedNoticeDelay { get; set; } = TimeSpan.FromMilliseconds(900);

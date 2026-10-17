@@ -4667,6 +4667,42 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string for Account_DeleteSharedTripFormat.
+        /// </summary>
+        public static string Account_DeleteSharedTripFormat {
+            get {
+                return ResourceManager.GetString("Account_DeleteSharedTripFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Account_TransferOwnership.
+        /// </summary>
+        public static string Account_TransferOwnership {
+            get {
+                return ResourceManager.GetString("Account_TransferOwnership", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Account_DeleteForEveryone.
+        /// </summary>
+        public static string Account_DeleteForEveryone {
+            get {
+                return ResourceManager.GetString("Account_DeleteForEveryone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Account_ChooseNewOwnerFormat.
+        /// </summary>
+        public static string Account_ChooseNewOwnerFormat {
+            get {
+                return ResourceManager.GetString("Account_ChooseNewOwnerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Hesap silinemedi. Lütfen daha sonra tekrar dene..
         /// </summary>
         public static string Account_DeleteError {

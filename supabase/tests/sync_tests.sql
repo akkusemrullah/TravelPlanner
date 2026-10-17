@@ -1124,6 +1124,41 @@ exception when insufficient_privilege then raise notice 'ok - TP-11: a viewer ca
 end $$;
 reset role;
 
+-- ------------------------------------------------------------------------------- TP-12: ownership transfer (migration 20)
+-- (Ali owns Viyana (t11); Can is a viewer in it.)
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq((select other_members from public.get_owned_shared_trips() where trip_id = :'t11'), 1, 'TP-12: Viyana is listed as shared with 1 member');
+reset role;
+
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+do $$
+begin
+    perform public.transfer_trip_ownership('bbbbbbbb-0000-0000-0000-000000000011', '00000000-0000-0000-0000-00000000a333');
+    raise exception 'FAILED: a viewer handed the trip over';
+exception when insufficient_privilege then raise notice 'ok - TP-12: only the owner can hand a trip over';
+end $$;
+reset role;
+
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+do $$
+begin
+    perform public.transfer_trip_ownership('bbbbbbbb-0000-0000-0000-000000000011', '00000000-0000-0000-0000-00000000a444');
+    raise exception 'FAILED: the trip went to a stranger';
+exception when sqlstate 'P0002' then raise notice 'ok - TP-12: only to a member';
+end $$;
+select public.transfer_trip_ownership(:'t11', :'can');
+reset role;
+select test.eq((select owner_id from public.trips where id = :'t11'), :'can'::uuid, 'TP-12: Can owns Viyana now');
+select test.eq((select role from public.trip_members where trip_id = :'t11' and user_id = :'can'), 'owner', 'TP-12: Can is the owner member');
+select test.eq((select role from public.trip_members where trip_id = :'t11' and user_id = :'ali'), 'editor', 'TP-12: Ali stays on as an editor');
+
+-- an ordinary update still can't move ownership
+update public.trips set owner_id = :'ali' where id = :'t11';
+select test.eq((select owner_id from public.trips where id = :'t11'), :'can'::uuid, 'TP-12: owner_id doesn''t move through an ordinary update');
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'
@@ -1175,7 +1210,9 @@ select public.delete_account();
 reset role;
 select test.eq((select count(*) from auth.users where id = :'ali'), 0::bigint, 'delete_account removes the account');
 select test.eq(public.account_status(:'ali'), 'deleted', 'and account_status reports it');
-select test.eq((select count(*) from public.trips), 0::bigint, 'and the trips it owned');
+select test.eq((select count(*) from public.trips where id <> :'t11'), 0::bigint, 'and the trips it owned');
+select test.eq((select owner_id from public.trips where id = :'t11'), :'can'::uuid, 'TP-12: the trip handed over to Can survives');
+select test.eq((select count(*) from public.expenses where trip_id = :'t11' and deleted_at is null), 2::bigint, 'TP-12: with its expenses');
 select test.eq((select count(*) from public.packing_templates), 0::bigint, 'and its packing templates');
 select test.eq((select owner from storage.objects where name like '%/foto.jpg'), null::uuid, 'his uploads elsewhere lose their owner');
 select test.eq((select count(*) from storage.objects where name like '%/foto.jpg'), 1::bigint, 'but stay for the other trip');

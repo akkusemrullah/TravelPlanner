@@ -220,6 +220,38 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP12_OwnedSharedTrips_AreListed_WithTheirMemberCount()
+        {
+            _client.Handler = (fn, _) => fn == "get_owned_shared_trips"
+                ? """[ { "trip_id": "11111111-1111-1111-1111-111111111111", "name": "Roma", "other_members": 3 }, { "trip_id": "22222222-2222-2222-2222-222222222222", "name": "Boş", "other_members": 0 } ]"""
+                : "[]";
+
+            var trip = Assert.Single(await Create().GetOwnedSharedTripsAsync());
+
+            Assert.Equal(new OwnedSharedTrip("11111111-1111-1111-1111-111111111111", "Roma", 3), trip);
+        }
+
+        [Fact]
+        public async Task TP12_TransferOwnership_CallsTheServer_AndSyncs()
+        {
+            _client.Handler = (_, _) => "null";
+
+            await Create().TransferOwnershipAsync("11111111-1111-1111-1111-111111111111", SharingFakes.Ayse);
+
+            var call = Assert.Single(_client.Calls);
+            Assert.Equal("transfer_trip_ownership", call.Function);
+            Assert.Equal(SharingFakes.Ayse, call.Arguments["p_new_owner"]!.GetValue<string>());
+            _sync.Verify(s => s.RequestSync(TimeSpan.Zero), Times.Once);
+        }
+
+        [Fact]
+        public async Task TP12_TransferOwnership_Offline_Throws()
+        {
+            var ex = await Assert.ThrowsAsync<SharingException>(() => Create(online: false).TransferOwnershipAsync("11111111-1111-1111-1111-111111111111", SharingFakes.Ayse));
+            Assert.Equal(SharingErrorKind.Offline, ex.Kind);
+        }
+
+        [Fact]
         public async Task TP4_AnInvite_IsSingleUse_For48Hours_AndMakesAViewer()
         {
             var trip = await SharingFakes.NewTripAsync(_trips);
