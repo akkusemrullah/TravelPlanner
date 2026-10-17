@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using TravelPlanner.Models;
 using TravelPlanner.Services.Sync;
 
@@ -34,6 +35,74 @@ namespace TravelPlanner.Services
         };
 
         private static readonly HashSet<string> CloudTypes = new(CloudTypesByExtension.Values, StringComparer.Ordinal);
+
+        /// <summary>TP-5: the file extension each cloud type is stored under.</summary>
+        private static readonly Dictionary<string, string> ExtensionsByCloudType = new(StringComparer.Ordinal)
+        {
+            ["image/jpeg"] = ".jpg",
+            ["image/png"] = ".png",
+            ["image/heic"] = ".heic",
+            ["image/heif"] = ".heif",
+            ["image/webp"] = ".webp",
+            ["application/pdf"] = ".pdf",
+        };
+
+        /// <summary>
+        /// TP-5: the only shape of an attachment's cloud path - "trips/&lt;trip SyncId&gt;/&lt;attachment SyncId&gt;.&lt;ext&gt;",
+        /// the same rule as the server's attachments_storage_path_format (supabase/migrations/…15_attachment_paths.sql).
+        /// \z rather than $: $ would also accept a trailing line break.
+        /// </summary>
+        private static readonly Regex RemotePathPattern = new(
+            @"^trips/(?<trip>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/(?<id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?<ext>\.[a-z0-9]{1,10})\z",
+            RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// TP-5: the extension a file is stored (locally and in the cloud) under - its own when that is one of the
+        /// cloud types' (.jpg .jpeg .png .heic .heif .webp .pdf), otherwise the one its content type stands for;
+        /// null when it is neither.
+        /// </summary>
+        public static string? CloudExtension(string? fileName, string? contentType)
+        {
+            var extension = Path.GetExtension(fileName ?? string.Empty).ToLowerInvariant();
+            if (CloudTypesByExtension.ContainsKey(extension))
+                return extension;
+
+            return CloudContentType(null, contentType) is { } type && ExtensionsByCloudType.TryGetValue(type, out var byType)
+                ? byType
+                : null;
+        }
+
+        /// <summary>TP-5: the content type a file is opened with - from its extension and the whitelist only, never from the server.</summary>
+        public static string? ContentTypeForExtension(string? fileName) =>
+            CloudTypesByExtension.TryGetValue(Path.GetExtension(fileName ?? string.Empty), out var type) ? type : null;
+
+        /// <summary>TP-5: <paramref name="remotePath"/> has the shape "trips/&lt;uuid&gt;/&lt;uuid&gt;.&lt;ext&gt;" (ids not checked).</summary>
+        public static bool IsWellFormedRemotePath(string? remotePath) =>
+            remotePath is not null && RemotePathPattern.IsMatch(remotePath);
+
+        /// <summary>
+        /// TP-5: <paramref name="remotePath"/> is exactly this attachment's own cloud file - "trips/&lt;its trip's SyncId&gt;/&lt;its SyncId&gt;"
+        /// plus a photo/PDF extension. Anything else (another row's or another trip's file, "..", "?", "#", an .apk …) is never downloaded.
+        /// </summary>
+        public static bool IsValidRemotePath(string? remotePath, string? tripSyncId, string? attachmentSyncId)
+        {
+            if (remotePath is null || string.IsNullOrEmpty(tripSyncId) || string.IsNullOrEmpty(attachmentSyncId))
+                return false;
+
+            var match = RemotePathPattern.Match(remotePath);
+            return match.Success
+                && string.Equals(match.Groups["trip"].Value, tripSyncId, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(match.Groups["id"].Value, attachmentSyncId, StringComparison.OrdinalIgnoreCase)
+                && CloudTypesByExtension.ContainsKey(match.Groups["ext"].Value);
+        }
+
+        /// <summary>
+        /// TP-5: the type to hand the device's viewer: from the local file's extension, else from the (well-formed)
+        /// cloud path's - always one of the photo/PDF types, or null when the file is neither.
+        /// </summary>
+        public static string? OpenContentType(TripAttachment attachment) =>
+            ContentTypeForExtension(attachment.RelativePath)
+            ?? (IsWellFormedRemotePath(attachment.RemotePath) ? ContentTypeForExtension(attachment.RemotePath) : null);
 
         /// <summary>
         /// The MIME type a file is stored and uploaded with: the picker's type when the cloud accepts it, otherwise
@@ -95,11 +164,10 @@ namespace TravelPlanner.Services
             var displayName = string.IsNullOrWhiteSpace(originalFileName) ? "file" : Path.GetFileName(originalFileName.Trim());
             // TP-3: only what the cloud accepts, so every attachment can reach the trip's other devices
             contentType = CloudContentType(displayName, contentType) ?? throw new UnsupportedAttachmentTypeException();
-            var extension = Path.GetExtension(displayName);
-            if (extension.Length > 10)
-                extension = string.Empty;
+            // TP-5: always a photo/PDF extension (also for "IMG_1234" without one), so the cloud path and opening agree
+            var extension = CloudExtension(displayName, contentType) ?? throw new UnsupportedAttachmentTypeException();
 
-            var relativePath = $"{FolderName}/{tripId}/{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+            var relativePath = $"{FolderName}/{tripId}/{Guid.NewGuid():N}{extension}";
             var attachment = new TripAttachment
             {
                 TripId = tripId,
@@ -171,6 +239,15 @@ namespace TravelPlanner.Services
                 return true;
             if (_remote is null || string.IsNullOrEmpty(attachment.RemotePath))
                 return false;
+
+            // TP-5: only this attachment's own file - a path an editor pointed elsewhere is never requested
+            var db = await _databaseService.Connection;
+            var tripSyncId = await db.ExecuteScalarAsync<string>("SELECT SyncId FROM Trip WHERE Id = ?", attachment.TripId);
+            if (!IsValidRemotePath(attachment.RemotePath, tripSyncId, attachment.SyncId))
+            {
+                System.Diagnostics.Debug.WriteLine($"[AttachmentService] Not downloading {attachment.SyncId}: unexpected cloud path.");
+                return false;
+            }
 
             // Download next to the target first, so a broken connection never leaves half a file behind.
             var temporary = path + ".download";

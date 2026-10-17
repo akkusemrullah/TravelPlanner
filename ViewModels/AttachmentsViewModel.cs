@@ -202,8 +202,18 @@ namespace TravelPlanner.ViewModels
                 return;
             }
 
-            // Hands the file to the device's viewer (PDF reader, gallery…) - works offline.
-            await _launcher.OpenAsync(new OpenFileRequest(attachment.DisplayName, new ReadOnlyFile(attachment.FullPath, attachment.ContentType)));
+            // TP-5: the type comes from the file's extension and the photo/PDF whitelist - never from the server's
+            // content_type (an editor could set it to an APK and start the package installer on everyone's phone)
+            var contentType = AttachmentService.OpenContentType(attachment);
+            if (contentType is null && !string.IsNullOrEmpty(attachment.RemotePath))
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, AppResources.Attachments_NotSafeToOpen);
+                return;
+            }
+
+            // Hands the file to the device's viewer (PDF reader, gallery…) - works offline. (null: a file picked on
+            // this device before TP-3, which never left it - the device guesses its type as before.)
+            await _launcher.OpenAsync(new OpenFileRequest(attachment.DisplayName, new ReadOnlyFile(attachment.FullPath, contentType)));
         }, AppResources.Attachments_OpenError);
 
         [RelayCommand]

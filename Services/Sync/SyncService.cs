@@ -508,12 +508,14 @@ namespace TravelPlanner.Services.Sync
             return new UploadOutcome(uploaded, newlyRefused);
         }
 
+        /// <summary>
+        /// "trips/&lt;trip SyncId&gt;/&lt;SyncId&gt;.ext" - TP-5: the only shape the server accepts as storage_path (lower-case ids, a
+        /// photo/PDF extension; for a file without one the extension its content type stands for).
+        /// </summary>
         internal static string RemotePathFor(string tripSyncId, TripAttachment attachment)
         {
-            var extension = Path.GetExtension(attachment.RelativePath).ToLowerInvariant();
-            if (extension.Length > 10)
-                extension = string.Empty;
-            return $"trips/{tripSyncId}/{attachment.SyncId}{extension}";
+            var extension = AttachmentService.CloudExtension(attachment.RelativePath, attachment.ContentType) ?? string.Empty;
+            return $"trips/{tripSyncId.ToLowerInvariant()}/{attachment.SyncId.ToLowerInvariant()}{extension}";
         }
 
         // ------------------------------------------------------------------ pull (pull_changes → local)

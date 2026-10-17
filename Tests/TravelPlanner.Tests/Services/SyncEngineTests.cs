@@ -50,8 +50,11 @@ namespace TravelPlanner.Tests
             Storage[$"{bucket}/{path}"] = memory.ToArray();
         }
 
+        public int DownloadAttempts { get; private set; }
+
         public async Task DownloadAsync(string bucket, string path, Stream target, CancellationToken cancellationToken = default)
         {
+            DownloadAttempts++;
             if (!Storage.TryGetValue($"{bucket}/{path}", out var bytes))
                 throw new SyncException(SyncErrorKind.Rejected, "not found", status: 404);
             await target.WriteAsync(bytes, cancellationToken);
@@ -542,6 +545,87 @@ namespace TravelPlanner.Tests
             File.Delete(stored.FullPath);
             Assert.True(await _attachments.EnsureLocalFileAsync(stored));
             Assert.Equal(new byte[] { 4, 5, 6 }, await File.ReadAllBytesAsync(stored.FullPath));
+        }
+
+        // ------------------------------------------------------------------ TP-5: attachment paths and types
+
+        [Theory]
+        [InlineData("trips/{trip}/{other}.pdf")]                              // another row's file (a fake "ticket")
+        [InlineData("trips/99999999-9999-9999-9999-999999999999/{id}.pdf")]   // another trip's folder
+        [InlineData("trips/{trip}/../../../rest/v1/profiles")]
+        [InlineData("trips/{trip}/{id}.pdf?download=1")]
+        [InlineData("trips/{trip}/{id}.pdf#x")]
+        [InlineData("trips/{trip}/{id}.apk")]                                 // not a photo/PDF
+        [InlineData("trips/{trip}/{id}")]
+        [InlineData("trips/{trip}/{id}.PDF")]
+        [InlineData("trips/{trip}/{id}.pdf\n")]
+        [InlineData("/trips/{trip}/{id}.pdf")]
+        public async Task EnsureLocalFile_NeverRequests_APathThatIsNotTheAttachmentsOwn(string pattern)
+        {
+            var trip = await NewTripAsync();
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "bilet.pdf", "application/pdf");
+            File.Delete(_attachments.GetFullPath(file));
+            file.RemotePath = pattern.Replace("{trip}", trip.SyncId).Replace("{id}", file.SyncId).Replace("{other}", Guid.NewGuid().ToString());
+            _client.Storage[$"trip-files/{file.RemotePath}"] = new byte[] { 6, 6, 6 };
+
+            Assert.False(await _attachments.EnsureLocalFileAsync(file));
+
+            Assert.Equal(0, _client.DownloadAttempts);
+            Assert.False(File.Exists(file.FullPath));
+        }
+
+        [Fact]
+        public async Task FileWithoutExtension_IsKeptAndUploaded_UnderItsTypesExtension()
+        {
+            var trip = await NewTripAsync();
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "IMG_1234", "image/heic");
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
+
+            await _sync.SyncNowAsync();
+
+            Assert.EndsWith(".heic", file.RelativePath);
+            var remotePath = $"trips/{trip.SyncId}/{file.SyncId}.heic";
+            Assert.True(_client.Storage.ContainsKey($"trip-files/{remotePath}"));
+            Assert.Equal(remotePath, Assert.Single(await _attachments.GetByTripIdAsync(trip.Id)).RemotePath);
+            Assert.True(AttachmentService.IsValidRemotePath(remotePath, trip.SyncId, file.SyncId));
+        }
+
+        [Fact]
+        public async Task Pull_KeepsOnlyAPhotoOrPdfType_AndAWellFormedPath_AndNoForeignExtension()
+        {
+            const string tripId = "11111111-1111-1111-1111-111111111111";
+            const string apk = "a7777777-7777-7777-7777-777777777777";
+            const string pdf = "a8888888-8888-8888-8888-888888888888";
+            var pull = $$"""
+            {
+              "cursor": 20,
+              "memberships": [ { "trip_id": "{{tripId}}", "role": "editor", "change_seq": 5 } ],
+              "trips": [ { "id": "{{tripId}}", "name": "Paris", "country": "Fransa", "city": "Paris", "start_date": "2026-09-01", "end_date": "2026-09-03",
+                           "planned_budget_minor": 0, "version": 1, "change_seq": 10, "deleted_at": null } ],
+              "attachments": [
+                { "id": "{{apk}}", "trip_id": "{{tripId}}", "display_name": "bilet.apk", "content_type": "application/vnd.android.package-archive",
+                  "kind": 1, "size_bytes": 10, "storage_path": "trips/{{tripId}}/../../x", "created_date": "2026-08-01T10:00:00",
+                  "version": 1, "change_seq": 11, "deleted_at": null },
+                { "id": "{{pdf}}", "trip_id": "{{tripId}}", "display_name": "bilet.pdf", "content_type": "application/pdf",
+                  "kind": 1, "size_bytes": 10, "storage_path": "trips/{{tripId}}/{{pdf}}.pdf", "created_date": "2026-08-01T10:00:00",
+                  "version": 1, "change_seq": 12, "deleted_at": null } ]
+            }
+            """;
+            _client.Handler = (_, _) => pull;
+
+            await _sync.SyncNowAsync();
+
+            var trip = Assert.Single(await _trips.GetAllAsync());
+            var rows = await _attachments.GetByTripIdAsync(trip.Id);
+            var bad = rows.Single(a => a.SyncId == apk);
+            Assert.Null(bad.ContentType);
+            Assert.Null(bad.RemotePath);
+            Assert.False(bad.RelativePath.EndsWith(".apk", StringComparison.OrdinalIgnoreCase));
+            Assert.Null(AttachmentService.OpenContentType(bad));
+            var good = rows.Single(a => a.SyncId == pdf);
+            Assert.Equal("application/pdf", good.ContentType);
+            Assert.Equal($"trips/{tripId}/{pdf}.pdf", good.RemotePath);
+            Assert.EndsWith(".pdf", good.RelativePath);
         }
 
         [Fact]

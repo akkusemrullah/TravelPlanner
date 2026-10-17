@@ -331,6 +331,88 @@ reset role;
 select set_config('request.jwt.claim.sub', :'ali', false);
 set role authenticated;
 
+-- ------------------------------------------------------------------------------- TP-5: attachment paths and types (migration 15)
+\set att1 'aaaaaaaa-0000-0000-0000-000000000001'
+\set att2 'aaaaaaaa-0000-0000-0000-000000000002'
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att1', 'trip_id', :'trip', 'full', true,
+        'fields', jsonb_build_object('display_name', 'bilet.pdf', 'kind', 1, 'content_type', 'application/pdf',
+                                     'storage_path', 'trips/' || :'trip' || '/' || :'att1' || '.pdf')),
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip', 'full', true,
+        'fields', jsonb_build_object('display_name', 'foto', 'kind', 0, 'content_type', 'image/heif'))
+)) as res;
+select test.eq(test.status(res, 0), 'applied', 'TP-5: a row pointing at its own file is accepted') from r;
+select test.eq(test.status(res, 1), 'applied', 'TP-5: a row without a file yet (storage_path null) is accepted') from r;
+
+-- Ayşe (editor) talks to the REST API directly
+reset role;
+select set_config('request.jwt.claim.sub', :'ayse', false);
+set role authenticated;
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    /* 0 another row's file   */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att1' || '.pdf')),
+    /* 1 another trip's file  */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/99999999-9999-9999-9999-999999999999/' || :'att2' || '.pdf')),
+    /* 2 ".." in the path     */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/../../../rest/v1/profiles')),
+    /* 3 "?" in the path      */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2' || '.pdf?x=1')),
+    /* 4 "#" in the path      */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2' || '.pdf#x')),
+    /* 5 no extension         */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2')),
+    /* 6 upper-case extension */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2' || '.PDF')),
+    /* 7 extension too long   */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2' || '.abcdefghijk')),
+    /* 8 trailing new line    */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2' || '.pdf' || chr(10))),
+    /* 9 APK type             */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att1', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('content_type', 'application/vnd.android.package-archive')),
+    /*10 HTML type            */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att1', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('content_type', 'text/html')),
+    /*11 parameters           */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att1', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('content_type', 'application/pdf; charset=binary')),
+    /*12 upper case           */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att1', 'trip_id', :'trip',
+                                     'fields', jsonb_build_object('content_type', 'APPLICATION/PDF')),
+    /*13 a new row, bad path  */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', :'trip', 'full', true,
+                                     'fields', jsonb_build_object('display_name', 'sahte.pdf', 'kind', 1, 'content_type', 'application/pdf',
+                                                                  'storage_path', 'trips/' || :'trip' || '/' || :'att1' || '.pdf'))
+)) as res;
+select test.eq((select count(*) from r, jsonb_array_elements(r.res) e where e ->> 'reason' = 'invalid'), 14::bigint,
+               'TP-5: every foreign/broken storage_path and every type outside the list is refused as "invalid"');
+select test.eq((select storage_path from public.attachments where id = :'att2'), null::text, 'TP-5: the photo row still has no file');
+select test.eq((select content_type from public.attachments where id = :'att1'), 'application/pdf', 'TP-5: the ticket keeps its type');
+select test.eq((select count(*) from public.attachments where trip_id = :'trip'), 2::bigint, 'TP-5: no fake row was added');
+
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att2', 'trip_id', :'trip',
+        'fields', jsonb_build_object('storage_path', 'trips/' || :'trip' || '/' || :'att2' || '.heif', 'content_type', 'image/heif')),
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'att1', 'trip_id', :'trip',
+        'fields', jsonb_build_object('content_type', null))
+)) as res;
+select test.eq(test.status(res, 0), 'applied', 'TP-5: an editor may record the row''s own file') from r;
+select test.eq(test.status(res, 1), 'applied', 'TP-5: content_type may be empty') from r;
+
+-- Old rows are cleaned up when the migration runs again (it is safe to repeat).
+reset role;
+alter table public.attachments drop constraint attachments_storage_path_format;
+alter table public.attachments drop constraint attachments_content_type_allowed;
+update public.attachments set storage_path = 'trips/' || :'trip' || '/' || :'att1' || '.pdf', content_type = 'image/JPG' where id = :'att2';
+update public.attachments set content_type = 'application/x-msdownload' where id = :'att1';
+\ir ../migrations/20261017000015_attachment_paths.sql
+select test.eq((select storage_path from public.attachments where id = :'att2'), null::text, 'TP-5: an old foreign storage_path is cleared');
+select test.eq((select content_type from public.attachments where id = :'att2'), 'image/jpeg', 'TP-5: an old image/JPG becomes image/jpeg');
+select test.eq((select content_type from public.attachments where id = :'att1'), null::text, 'TP-5: an old type outside the list is cleared');
+select test.eq((select count(*) from pg_constraint where conname in ('attachments_storage_path_format', 'attachments_content_type_allowed')),
+               2::bigint, 'TP-5: both rules are back');
+
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+
 -- ------------------------------------------------------------------------------- delete beats an offline edit; restore
 select test.eq(test.status(public.apply_changes(jsonb_build_array(
     jsonb_build_object('entity', 'Todo', 'op', 'delete', 'id', :'todo', 'trip_id', :'trip')))), 'deleted', 'owner deletes the to-do');

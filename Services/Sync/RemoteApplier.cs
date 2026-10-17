@@ -240,12 +240,16 @@ namespace TravelPlanner.Services.Sync
         }
 
         /// <summary>"attachments/&lt;local trip id&gt;/&lt;SyncId&gt;.ext" - where a downloaded file will be kept.</summary>
+        /// <remarks>
+        /// TP-5: only a photo/PDF extension (from the cloud path, else the name, else the content type) - a row named
+        /// "bilet.apk" must not put an .apk file on the device; without one the file is kept without an extension.
+        /// </remarks>
         internal static string LocalPathFor(TripAttachment attachment)
         {
-            var source = !string.IsNullOrEmpty(attachment.RemotePath) ? attachment.RemotePath : attachment.DisplayName;
-            var extension = Path.GetExtension(source ?? string.Empty).ToLowerInvariant();
-            if (extension.Length > 10)
-                extension = string.Empty;
+            var remote = AttachmentService.IsWellFormedRemotePath(attachment.RemotePath) ? attachment.RemotePath : null;
+            var extension = AttachmentService.CloudExtension(remote, null)
+                            ?? AttachmentService.CloudExtension(attachment.DisplayName, attachment.ContentType)
+                            ?? string.Empty;
             return $"{AttachmentService.FolderName}/{attachment.TripId}/{attachment.SyncId}{extension}";
         }
 

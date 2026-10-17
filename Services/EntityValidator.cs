@@ -75,6 +75,11 @@ namespace TravelPlanner.Services
                         return "invalid kind";
                     if (attachment.SizeBytes < 0)
                         return "invalid size";
+                    // TP-5: only photo/PDF types are kept (the app opens files by their extension anyway), and only a
+                    // cloud path of the shape "trips/<uuid>/<uuid>.<ext>" (AttachmentService checks the ids before a download)
+                    attachment.ContentType = AttachmentService.CloudContentType(null, attachment.ContentType);
+                    if (!string.IsNullOrEmpty(attachment.RemotePath) && !AttachmentService.IsWellFormedRemotePath(attachment.RemotePath))
+                        attachment.RemotePath = null;
                     return null;
 
                 case PackingTemplate template:
