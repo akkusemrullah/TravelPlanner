@@ -190,8 +190,17 @@ namespace TravelPlanner.Services
             string state;
             try
             {
-                var result = await _cloud.PublicRpcAsync("account_status", new JsonObject { ["p_user_id"] = session.UserId }, cancellationToken);
+                // TP-14: with the session's own token - account_status only answers an account about itself. A token
+                // issued before a deletion or ban still works for up to an hour; after that it can't be refreshed.
+                var result = await _cloud.RpcAsync("account_status", new JsonObject { ["p_user_id"] = session.UserId }, cancellationToken);
                 state = result.ValueKind == JsonValueKind.String ? result.GetString() ?? "active" : "active";
+            }
+            catch (SyncException ex) when (ex.Kind == SyncErrorKind.NotSignedIn)
+            {
+                // No token could be had, or the server refused it (401): the session check below tells "ended" from
+                // "just offline".
+                System.Diagnostics.Debug.WriteLine($"[Account] Status check without a session: {ex.Message}");
+                state = "active";
             }
             catch (SyncException ex)
             {
@@ -217,7 +226,7 @@ namespace TravelPlanner.Services
                 }
                 catch (AuthException ex) when (ex.Kind is AuthErrorKind.SessionExpired or AuthErrorKind.Banned)
                 {
-                    reason = AccountEndReason.SessionExpired;
+                    reason = ex.Kind == AuthErrorKind.Banned ? AccountEndReason.Banned : AccountEndReason.SessionExpired;
                 }
             }
 

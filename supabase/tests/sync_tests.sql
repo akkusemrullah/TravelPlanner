@@ -917,11 +917,11 @@ reset role;
 select test.eq((select count from private.ai_global_usage where day = current_date), private.ai_global_daily_limit(),
                'ai global: refused calls are not counted');
 
--- Banning: the account state is public (state only), RPCs refuse at once, sessions are gone.
-select test.eq(public.account_status(:'can'), 'active', 'account_status: active');
+-- Banning: RPCs refuse at once, sessions are gone (state checked with private.account_state; TP-14: account_status is only for the account itself).
+select test.eq(private.account_state(:'can'), 'active', 'account_status: active');
 insert into auth.sessions (user_id) values (:'can');
 select private.ban_user('CAN@example.com');
-select test.eq(public.account_status(:'can'), 'banned', 'account_status: banned');
+select test.eq(private.account_state(:'can'), 'banned', 'account_status: banned');
 select test.eq((select count(*) from auth.sessions where user_id = :'can'), 0::bigint, 'ban_user signs out every device');
 select set_config('request.jwt.claim.sub', :'can', false);
 set role authenticated;
@@ -932,8 +932,45 @@ exception when sqlstate '28000' then raise notice 'ok - a banned account is refu
 end $$;
 reset role;
 select private.unban_user('can@example.com');
-select test.eq(public.account_status(:'can'), 'active', 'unban_user lets him in again');
-select test.eq(public.account_status('00000000-0000-0000-0000-0000000000ee'), 'deleted', 'account_status: deleted');
+select test.eq(private.account_state(:'can'), 'active', 'unban_user lets him in again');
+select test.eq(private.account_state('00000000-0000-0000-0000-0000000000ee'), 'deleted', 'account_status: deleted');
+
+-- TP-14: account_status answers only the signed-in account about itself
+set role anon;
+do $$ begin
+    perform public.account_status('00000000-0000-0000-0000-00000000a333');
+    raise exception 'FAILED: anon could read an account status';
+exception when insufficient_privilege then raise notice 'ok - TP-14: anon cannot call account_status';
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+select test.eq(public.account_status(:'can'), 'active', 'TP-14: an account can read its own status');
+do $$ begin
+    perform public.account_status('00000000-0000-0000-0000-00000000a111');
+    raise exception 'FAILED: an account read someone else''s status';
+exception when insufficient_privilege then raise notice 'ok - TP-14: not someone else''s';
+end $$;
+reset role;
+-- a token issued before the account was deleted still learns that it is gone
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000ee', false);
+set role authenticated;
+select test.eq(public.account_status('00000000-0000-0000-0000-0000000000ee'), 'deleted', 'TP-14: a deleted account''s old token sees "deleted"');
+reset role;
+
+-- TP-14: a refused change carries a short code, not the database message
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+drop table if exists r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', 'bbbbbbbb-0000-0000-0000-000000000014', 'full', true, 'fields',
+        jsonb_build_object('name', 'Kötü', 'start_date', '2026-11-05', 'end_date', '2026-11-01')))) as res;
+select test.eq(test.reason((select res from r)), 'invalid', 'TP-14: an impossible trip is refused');
+select test.eq((select res -> 0 ->> 'error' from r), 'out_of_range', 'TP-14: with only a short code');
+reset role;
+select test.eq(private.error_code('23505'), 'duplicate', 'TP-14: unique violation -> duplicate');
+select test.eq(private.error_code('22P02'), 'bad_value', 'TP-14: bad input -> bad_value');
+select test.eq(private.error_code('XX000'), 'error', 'TP-14: anything else -> error');
 
 -- ------------------------------------------------------------------------------- G7: files of deleted attachments (migration 16)
 \set t7     'bbbbbbbb-0000-0000-0000-000000000007'
