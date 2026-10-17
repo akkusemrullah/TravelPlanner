@@ -1196,6 +1196,19 @@ select test.eq((select role from public.trip_members where trip_id = :'t11' and 
 update public.trips set owner_id = :'ali' where id = :'t11';
 select test.eq((select owner_id from public.trips where id = :'t11'), :'can'::uuid, 'TP-12: owner_id doesn''t move through an ordinary update');
 
+-- ------------------------------------------------------------------------------- TP-15: sign-up hook (migration 22)
+select test.eq(public.hook_before_user_created('{"user": {"email": "ali@gmail.com"}}'::jsonb), '{}'::jsonb, 'TP-15: an ordinary address may sign up');
+select test.eq(public.hook_before_user_created('{"user": {"email": "Bot@Mailinator.com"}}'::jsonb) -> 'error' ->> 'http_code', '400', 'TP-15: a throw-away address is refused');
+select test.eq(public.hook_before_user_created('{"user": {"email": "bot@x.yopmail.com"}}'::jsonb) -> 'error' ->> 'message' like 'disposable_email:%', true, 'TP-15: subdomains too, with the marker the app reads');
+select test.eq(public.hook_before_user_created('{"user": {}}'::jsonb), '{}'::jsonb, 'TP-15: no e-mail (e.g. phone) is not refused here');
+set role authenticated;
+do $$ begin
+    perform public.hook_before_user_created('{}'::jsonb);
+    raise exception 'FAILED: a signed-in user could call the auth hook';
+exception when insufficient_privilege then raise notice 'ok - TP-15: the hook is for Supabase Auth only';
+end $$;
+reset role;
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'

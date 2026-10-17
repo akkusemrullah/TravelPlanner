@@ -25,7 +25,11 @@ namespace TravelPlanner.ViewModels
     /// </summary>
     public partial class AuthViewModel : ViewModelBase
     {
-        public const int MinPasswordLength = 6;
+        /// <summary>TP-15: new passwords (sign-up, reset): at least this long, with a letter and a digit.</summary>
+        public const int MinPasswordLength = 8;
+
+        /// <summary>Accounts created before TP-15 may still have a 6-character password - signing in accepts it.</summary>
+        public const int LegacyMinPasswordLength = 6;
         public const int MaxDisplayNameLength = 40;
 
         private readonly IAuthService _auth;
@@ -146,7 +150,7 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task SignInAsync() => RunAuthAsync(async () =>
         {
-            if (!ValidateEmail() || !ValidatePassword(Password))
+            if (!ValidateEmail() || !ValidateExistingPassword(Password))
                 return;
 
             try
@@ -296,6 +300,7 @@ namespace TravelPlanner.ViewModels
             AuthErrorKind.NotSupported => AppResources.Auth_ErrorNotSupported,
             AuthErrorKind.Banned => AppResources.Auth_ErrorBanned,
             AuthErrorKind.CaptchaFailed => AppResources.Auth_ErrorCaptcha,
+            AuthErrorKind.DisposableEmail => AppResources.Auth_ErrorDisposableEmail,
             _ => AppResources.Auth_ErrorUnknown,
         };
 
@@ -310,12 +315,26 @@ namespace TravelPlanner.ViewModels
             return false;
         }
 
+        /// <summary>TP-15: a new password - <see cref="MinPasswordLength"/>+ characters with at least one letter and one digit.</summary>
         private bool ValidatePassword(string value)
         {
-            if ((value ?? string.Empty).Length >= MinPasswordLength)
+            if (IsStrongEnough(value))
                 return true;
 
-            ErrorMessage = string.Format(AppResources.Auth_PasswordTooShortFormat, MinPasswordLength);
+            ErrorMessage = string.Format(AppResources.Auth_PasswordRulesFormat, MinPasswordLength);
+            return false;
+        }
+
+        internal static bool IsStrongEnough(string? value) =>
+            value is { Length: >= MinPasswordLength } && value.Any(char.IsLetter) && value.Any(char.IsDigit);
+
+        /// <summary>Signing in: only rule out what no account can have (older accounts may have 6 characters).</summary>
+        private bool ValidateExistingPassword(string value)
+        {
+            if ((value ?? string.Empty).Length >= LegacyMinPasswordLength)
+                return true;
+
+            ErrorMessage = string.Format(AppResources.Auth_PasswordTooShortFormat, LegacyMinPasswordLength);
             return false;
         }
 

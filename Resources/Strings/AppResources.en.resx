@@ -1792,6 +1792,12 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
   <data name="Auth_PasswordTooShortFormat" xml:space="preserve">
     <value>The password must be at least {0} characters.</value>
   </data>
+  <data name="Auth_PasswordRulesFormat" xml:space="preserve">
+    <value>The password must be at least {0} characters and contain at least one letter and one digit.</value>
+  </data>
+  <data name="Auth_ErrorDisposableEmail" xml:space="preserve">
+    <value>Accounts can't be created with throw-away (temporary) e-mail addresses. Please use a permanent address.</value>
+  </data>
   <data name="Auth_NotConfirmedResent" xml:space="preserve">
     <value>Your e-mail address isn't verified yet. We've sent you a new code.</value>
   </data>

@@ -181,6 +181,8 @@ namespace TravelPlanner.Tests
         [InlineData(400, """{"error_code":"user_banned","msg":"User is banned"}""", AuthErrorKind.Banned)]
         [InlineData(400, """{"error_code":"captcha_failed","msg":"captcha protection: request disallowed (timeout-or-duplicate)"}""", AuthErrorKind.CaptchaFailed)]
         [InlineData(400, """{"msg":"captcha protection: request disallowed (invalid-input-response)"}""", AuthErrorKind.CaptchaFailed)]
+        [InlineData(400, """{"error_code":"hook_payload_invalid","msg":"disposable_email: accounts cannot be created with throw-away e-mail addresses"}""", AuthErrorKind.DisposableEmail)]
+        [InlineData(500, """{"msg":"disposable_email: accounts cannot be created with throw-away e-mail addresses"}""", AuthErrorKind.DisposableEmail)]
         public void ServerErrors_AreMapped(int status, string body, AuthErrorKind expected)
         {
             Assert.Equal(expected, SupabaseAuthService.MapError(status, body).Kind);
@@ -690,6 +692,44 @@ namespace TravelPlanner.Tests
             _auth.Verify(a => a.SignInWithPasswordAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         }
 
+        [Theory]
+        [InlineData("abc123", false)]     // 6 - the old minimum
+        [InlineData("abcd123", false)]    // 7
+        [InlineData("abcdefgh", false)]   // no digit
+        [InlineData("12345678", false)]   // no letter
+        [InlineData("abcd1234", true)]
+        [InlineData("Şifre2026", true)]
+        public async Task TP15_NewPasswords_Need8CharactersWithALetterAndADigit(string password, bool accepted)
+        {
+            _auth.Setup(a => a.SignUpAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                 .ReturnsAsync(SignUpOutcome.ConfirmationCodeSent);
+            var vm = Create();
+            vm.Mode = AuthMode.SignUp;
+            vm.DisplayName = "Ali";
+            vm.Email = "ali@example.com";
+            vm.Password = password;
+
+            await vm.SignUpCommand.ExecuteAsync(null);
+
+            Assert.Equal(!accepted, vm.HasError);
+            _auth.Verify(a => a.SignUpAsync("Ali", "ali@example.com", password), accepted ? Times.Once() : Times.Never());
+            if (!accepted)
+                Assert.Equal(string.Format(TravelPlanner.Resources.Strings.AppResources.Auth_PasswordRulesFormat, 8), vm.ErrorMessage);
+        }
+
+        [Fact]
+        public async Task TP15_OlderAccounts_CanStillSignInWithA6CharacterPassword()
+        {
+            var vm = Create();
+            vm.Email = "ali@example.com";
+            vm.Password = "abc123";
+
+            await vm.SignInCommand.ExecuteAsync(null);
+
+            _auth.Verify(a => a.SignInWithPasswordAsync("ali@example.com", "abc123"));
+            Assert.False(vm.HasError);
+        }
+
         [Fact]
         public async Task SignUp_WithConfirmation_GoesToTheCodeStep_ThenVerifies()
         {
@@ -699,7 +739,7 @@ namespace TravelPlanner.Tests
             vm.Mode = AuthMode.SignUp;
             vm.DisplayName = "Ali";
             vm.Email = "ali@example.com";
-            vm.Password = "secret1";
+            vm.Password = "secret12";
 
             await vm.SignUpCommand.ExecuteAsync(null);
             Assert.Equal(AuthMode.VerifySignUp, vm.Mode);

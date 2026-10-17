@@ -1792,6 +1792,12 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
   <data name="Auth_PasswordTooShortFormat" xml:space="preserve">
     <value>Şifre en az {0} karakter olmalı.</value>
   </data>
+  <data name="Auth_PasswordRulesFormat" xml:space="preserve">
+    <value>Şifre en az {0} karakter olmalı ve en az bir harf ile bir rakam içermeli.</value>
+  </data>
+  <data name="Auth_ErrorDisposableEmail" xml:space="preserve">
+    <value>Tek kullanımlık (geçici) e-posta adresleriyle hesap açılamıyor. Lütfen kalıcı bir e-posta adresi kullan.</value>
+  </data>
   <data name="Auth_NotConfirmedResent" xml:space="preserve">
     <value>E-posta adresin henüz doğrulanmamış. Yeni bir kod gönderdik.</value>
   </data>

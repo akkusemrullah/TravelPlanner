@@ -54,7 +54,9 @@ namespace TravelPlanner.Models
         /// <summary>The account was banned by the app's admin (Supabase "user_banned").</summary>
         Banned,
         /// <summary>The CAPTCHA (Cloudflare Turnstile) couldn't be completed or the server refused its token.</summary>
-        CaptchaFailed
+        CaptchaFailed,
+        /// <summary>TP-15: sign-up with a throw-away e-mail address (refused by the server's sign-up hook).</summary>
+        DisposableEmail
     }
 
     /// <summary>A sign-in/sign-up failure the UI can explain (see AuthViewModel's messages).</summary>

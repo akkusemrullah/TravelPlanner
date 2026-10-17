@@ -5720,6 +5720,24 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string for Auth_PasswordRulesFormat.
+        /// </summary>
+        public static string Auth_PasswordRulesFormat {
+            get {
+                return ResourceManager.GetString("Auth_PasswordRulesFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Auth_ErrorDisposableEmail.
+        /// </summary>
+        public static string Auth_ErrorDisposableEmail {
+            get {
+                return ResourceManager.GetString("Auth_ErrorDisposableEmail", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to E-posta adresin henüz doğrulanmamış. Yeni bir kod gönderdik..
         /// </summary>
         public static string Auth_NotConfirmedResent {
