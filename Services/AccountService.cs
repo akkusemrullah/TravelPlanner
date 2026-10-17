@@ -22,12 +22,15 @@ namespace TravelPlanner.Services
         private readonly string _appDataDirectory;
         private readonly string _guestDatabasePath;
         private readonly ISupabaseClient? _cloud;
+        private readonly Func<ISyncService>? _sync;
         private readonly SemaphoreSlim _switchLock = new(1, 1);
         private bool _initialized;
 
         /// <param name="appDataDirectory">FileSystem.AppDataDirectory (tests: a temp folder).</param>
         /// <param name="guestDatabasePath">The original database (AppConstants.DatabasePath) - the guest's data.</param>
         /// <param name="cloud">Supabase RPC/Storage client - needed only to delete the account (G7).</param>
+        /// <param name="sync">TP-9: the sync engine, whose running round ends before the open data is switched
+        /// (resolved when needed - the sync engine itself depends on this service).</param>
         public AccountService(
             IAuthService auth,
             IDatabaseService database,
@@ -38,9 +41,11 @@ namespace TravelPlanner.Services
             IDialogService dialogs,
             string appDataDirectory,
             string guestDatabasePath,
-            ISupabaseClient? cloud = null)
+            ISupabaseClient? cloud = null,
+            Func<ISyncService>? sync = null)
         {
             _cloud = cloud;
+            _sync = sync;
             _auth = auth;
             _database = database;
             _attachments = attachments;
@@ -107,6 +112,7 @@ namespace TravelPlanner.Services
                 if (ActiveUserId == session.UserId)
                     return;
 
+                await EndSyncRoundAsync();
                 await CancelRemindersAsync(); // the outgoing data's reminders (before anything moves)
 
                 var userDatabase = UserDatabasePath(session.UserId);
@@ -267,6 +273,7 @@ namespace TravelPlanner.Services
                 if (ActiveUserId is null)
                     return;
 
+                await EndSyncRoundAsync();
                 await CancelRemindersAsync();
                 await OpenGuestDataAsync();
                 await RescheduleRemindersAsync();
@@ -277,6 +284,24 @@ namespace TravelPlanner.Services
             }
 
             AccountChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// TP-9: a sync round still running for the outgoing account is stopped (a long upload too) and waited for,
+        /// so it neither sends the outgoing data with the next account's token nor writes into the next one's data.
+        /// </summary>
+        private async Task EndSyncRoundAsync()
+        {
+            if (_sync is null)
+                return;
+            try
+            {
+                await _sync().CancelCurrentRoundAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Account] Stopping the sync round failed: {ex}");
+            }
         }
 
         private async Task OpenAccountDataAsync(string userId)

@@ -387,6 +387,27 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task Switching_EndsTheRunningSyncRound_BeforeTheOpenDataChanges()
+        {
+            // TP-9: a round of the outgoing data must be over before another account's data (and name) is opened
+            var sync = new Mock<ISyncService>();
+            var openWhenStopped = new List<(string Database, string? User)>();
+            sync.Setup(s => s.CancelCurrentRoundAsync())
+                .Callback(() => openWhenStopped.Add((_database.DatabasePath, ChangeTracker.CurrentUserId)))
+                .Returns(Task.CompletedTask);
+            _account = new AccountService(_auth.Object, _database, _attachments, _trips, new Mock<INotificationService>().Object,
+                                          _settings.Object, _dialogs.Object, _root, GuestDb, _cloud, () => sync.Object);
+            await _account.InitializeAsync();
+
+            SignIn();
+            await _account.ActivateSignedInAccountAsync();
+            await _account.SignOutAsync();
+
+            Assert.Equal(new[] { (GuestDb, (string?)null), (_account.UserDatabasePath(AuthFakes.UserId), (string?)AuthFakes.UserId) },
+                         openWhenStopped);
+        }
+
+        [Fact]
         public async Task FirstSignIn_KeepsTheGuestTrips_WhenTheUserDeclines()
         {
             await _account.InitializeAsync();

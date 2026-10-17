@@ -76,5 +76,11 @@ namespace TravelPlanner.Services.Sync
 
         /// <summary>Runs a sync round now (waits for a running one first).</summary>
         Task<SyncResult> SyncNowAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// TP-9: stops the running round (a long upload too) and returns once it has ended - call before the open
+        /// account's data is closed, so no request of the outgoing account is sent with the next one's token.
+        /// </summary>
+        Task CancelCurrentRoundAsync();
     }
 }

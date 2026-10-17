@@ -234,6 +234,9 @@ namespace TravelPlanner.Services.Sync
             if (token is null)
                 throw new SyncException(SyncErrorKind.NotSignedIn, "No access token (guest or offline).");
 
+            // TP-9: the session changed while the token was fetched (a sync round is cancelled then) - send nothing
+            cancellationToken.ThrowIfCancellationRequested();
+
             var request = new HttpRequestMessage(method, path);
             request.Headers.Add("apikey", SupabaseConfig.PublishableKey);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);

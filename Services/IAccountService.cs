@@ -22,6 +22,9 @@ namespace TravelPlanner.Services
     {
         bool IsSignedIn { get; }
 
+        /// <summary>uid whose data is open; null = the guest's.</summary>
+        string? ActiveUserId { get; }
+
         /// <summary>E-mail of the signed-in account (null for a guest).</summary>
         string? Email { get; }
 
