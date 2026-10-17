@@ -371,6 +371,11 @@ namespace TravelPlanner.Services
             if (kind == AuthErrorKind.Unknown && message?.Contains("captcha", StringComparison.OrdinalIgnoreCase) == true)
                 kind = AuthErrorKind.CaptchaFailed;
 
+            // TP-15: the sign-up hook (supabase/migrations/…22_signup_protection.sql) refuses throw-away addresses with
+            // this marker in its message.
+            if (message?.Contains("disposable_email", StringComparison.OrdinalIgnoreCase) == true)
+                kind = AuthErrorKind.DisposableEmail;
+
             // Older servers answer "Email not confirmed" as a generic invalid_grant.
             if (kind == AuthErrorKind.InvalidCredentials && message?.Contains("not confirmed", StringComparison.OrdinalIgnoreCase) == true)
                 kind = AuthErrorKind.EmailNotConfirmed;
