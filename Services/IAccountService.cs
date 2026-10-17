@@ -43,8 +43,12 @@ namespace TravelPlanner.Services
         /// </summary>
         Task ActivateSignedInAccountAsync();
 
-        /// <summary>Signs out and switches back to the guest data. The account's data stays on the device.</summary>
-        Task SignOutAsync();
+        /// <summary>
+        /// Signs out and switches back to the guest data. The account's data stays on the device (quick to open at the
+        /// next sign-in) unless <paramref name="deleteLocalData"/> - TP-16: then its folder (database, attachments) is
+        /// removed, e.g. on a borrowed phone. Changes not uploaded yet are lost with it.
+        /// </summary>
+        Task SignOutAsync(bool deleteLocalData = false);
 
         /// <summary>
         /// Deletes the account for good (G7): the files and trips it owns in the cloud, its place in trips shared with

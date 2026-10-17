@@ -1691,7 +1691,16 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
     <value>Sign out?</value>
   </data>
   <data name="Account_SignOutMessage" xml:space="preserve">
-    <value>Your account's data stays on this device and comes back when you sign in again. After signing out, the guest data is shown.</value>
+    <value>With "Sign out" your account's data stays on this device and opens quickly when you sign in again. On a borrowed or shared phone you can also delete it from this device; your data in the cloud is not deleted. After signing out, the guest data is shown.</value>
+  </data>
+  <data name="Account_SignOutAndDelete" xml:space="preserve">
+    <value>Sign out and delete my data from this device</value>
+  </data>
+  <data name="Account_SignOutPendingFormat" xml:space="preserve">
+    <value>Note: {0} changes haven't been uploaded to the cloud yet.</value>
+  </data>
+  <data name="Account_SignOutLoseFormat" xml:space="preserve">
+    <value>{0} changes haven't been uploaded to the cloud yet. If your data is deleted from this device, these changes are lost. Continue?</value>
   </data>
   <data name="Account_MoveGuestTitle" xml:space="preserve">
     <value>Move your trips to your account?</value>

@@ -97,10 +97,11 @@ namespace TravelPlanner.Tests
         public void Dispose() => MoneyFormatter.CurrencyCode = MoneyFormatter.DefaultCurrencyCode;
 
         private readonly Mock<IAccountService> _account = new();
+        private readonly Mock<TravelPlanner.Services.Sync.ISyncService> _sync = new();
 
         private SettingsViewModel CreateViewModel(SettingsService settings) =>
             new(settings, _theme.Object, _trips.Object, _notifications.Object, _backup.Object, _share.Object, _filePicker.Object, AppInfo(),
-                _account.Object, new Mock<TravelPlanner.Services.Sync.ISyncService>().Object, _dialogs.Object)
+                _account.Object, _sync.Object, _dialogs.Object)
             {
                 AccountDeletedNoticeDelay = TimeSpan.Zero
             };
@@ -151,6 +152,60 @@ namespace TravelPlanner.Tests
 
             _dialogs.Verify(d => d.ShowMessageAsync(It.IsAny<string>(), TravelPlanner.Resources.Strings.AppResources.Account_DeleteOffline));
             Assert.False(vm.IsDeletingAccount);
+        }
+
+        // ---- TP-16: signing out can delete the account's data from the device ----
+
+        private void ChooseOnSignOut(string? choice) =>
+            _dialogs.Setup(d => d.ChooseAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>())).ReturnsAsync(choice);
+
+        [Fact]
+        public async Task TP16_SignOut_KeepsTheLocalData_ByDefault()
+        {
+            ChooseOnSignOut(TravelPlanner.Resources.Strings.AppResources.Account_SignOut);
+
+            await CreateViewModel(new SettingsService(_preferences)).SignOutCommand.ExecuteAsync(null);
+
+            _account.Verify(a => a.SignOutAsync(false), Times.Once);
+        }
+
+        [Fact]
+        public async Task TP16_SignOut_CanDeleteTheLocalData()
+        {
+            ChooseOnSignOut(TravelPlanner.Resources.Strings.AppResources.Account_SignOutAndDelete);
+
+            await CreateViewModel(new SettingsService(_preferences)).SignOutCommand.ExecuteAsync(null);
+
+            _account.Verify(a => a.SignOutAsync(true), Times.Once);
+            _dialogs.Verify(d => d.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task TP16_SignOut_Cancelled_DoesNothing()
+        {
+            ChooseOnSignOut(null);
+
+            await CreateViewModel(new SettingsService(_preferences)).SignOutCommand.ExecuteAsync(null);
+
+            _account.Verify(a => a.SignOutAsync(It.IsAny<bool>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task TP16_PendingChanges_AreSyncedFirst_AndTheUserIsWarned()
+        {
+            _sync.SetupGet(s => s.PendingCount).Returns(3);
+            string? shown = null;
+            _dialogs.Setup(d => d.ChooseAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .Callback<string, IReadOnlyList<string>, string?>((t, _, _) => shown = t)
+                    .ReturnsAsync(TravelPlanner.Resources.Strings.AppResources.Account_SignOutAndDelete);
+            _dialogs.Setup(d => d.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(false);
+
+            await CreateViewModel(new SettingsService(_preferences)).SignOutCommand.ExecuteAsync(null);
+
+            _sync.Verify(s => s.SyncNowAsync(It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Contains(string.Format(TravelPlanner.Resources.Strings.AppResources.Account_SignOutPendingFormat, 3), shown);
+            _dialogs.Verify(d => d.ConfirmAsync(It.IsAny<string>(), string.Format(TravelPlanner.Resources.Strings.AppResources.Account_SignOutLoseFormat, 3), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            _account.Verify(a => a.SignOutAsync(It.IsAny<bool>()), Times.Never); // declined: nothing is lost
         }
 
         // ---- TP-12: shared trips are handed over or deleted for everyone, by choice ----
