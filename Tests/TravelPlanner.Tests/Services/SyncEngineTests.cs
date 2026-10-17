@@ -35,6 +35,9 @@ namespace TravelPlanner.Tests
         /// <summary>When set, an upload whose path this returns an exception for fails with it (TP-3).</summary>
         public Func<string, Exception?>? UploadError { get; set; }
 
+        /// <summary>When set, an upload waits for this before it finishes (TP-9: a long upload).</summary>
+        public Func<CancellationToken, Task>? UploadDelay { get; set; }
+
         public int UploadAttempts { get; private set; }
 
         public Dictionary<string, string?> UploadedTypes { get; } = new();
@@ -44,6 +47,8 @@ namespace TravelPlanner.Tests
             UploadAttempts++;
             if (UploadError?.Invoke(path) is { } error)
                 throw error;
+            if (UploadDelay is { } delay)
+                await delay(cancellationToken);
             UploadedTypes[$"{bucket}/{path}"] = contentType;
             using var memory = new MemoryStream();
             await content.CopyToAsync(memory, cancellationToken);
@@ -125,6 +130,7 @@ namespace TravelPlanner.Tests
         private readonly FakeSupabaseClient _client = new();
         private readonly Mock<IAuthService> _auth = new();
         private readonly Mock<INotificationService> _notifications = new();
+        private readonly Mock<IAccountService> _account = new();
         private AttachmentService _attachments = null!;
         private TripService _trips = null!;
         private ExpenseService _expenses = null!;
@@ -138,7 +144,7 @@ namespace TravelPlanner.Tests
             _expenses = new ExpenseService(_db.Service);
             _trips = new TripService(_db.Service, _expenses, _notifications.Object, _attachments);
             _split = new SplitService(_db.Service);
-            _sync = new SyncService(_auth.Object, new Mock<IAccountService>().Object, _db.Service, _client, _attachments,
+            _sync = new SyncService(_auth.Object, _account.Object, _db.Service, _client, _attachments,
                                     _notifications.Object, Fakes.Connectivity());
             return Task.CompletedTask;
         }
@@ -547,6 +553,102 @@ namespace TravelPlanner.Tests
             Assert.Equal(new[] { 1 }, told);
             // a picker without a type: uploaded as what its extension says, which the bucket accepts
             Assert.Equal("image/jpeg", _client.UploadedTypes[$"trip-files/trips/{trip.SyncId}/{file.SyncId}.jpg"]);
+        }
+
+        // ------------------------------------------------------------------ TP-9: switching accounts mid-round
+
+        private const string UserA = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+        private const string UserB = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+        private string? _sessionUserId;
+        private string? _openUserId;
+
+        /// <summary>Signed in as <paramref name="signedIn"/> with <paramref name="open"/>'s data open.</summary>
+        private void Accounts(string? signedIn, string? open)
+        {
+            _sessionUserId = signedIn;
+            _openUserId = open;
+            _auth.SetupGet(a => a.CurrentSession).Returns(() => _sessionUserId is null ? null : new AuthSession { UserId = _sessionUserId });
+            _account.SetupGet(a => a.ActiveUserId).Returns(() => _openUserId);
+        }
+
+        private async Task<TripAttachment> AttachmentOnTheServerAsync(Trip trip)
+        {
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "IMG_1.JPG", "image/jpeg");
+            await (await _db.Connection).ExecuteAsync("UPDATE Attachment SET ChangeSeq = 7 WHERE Id = ?", file.Id);
+            return file;
+        }
+
+        [Fact]
+        public async Task AccountSwitchDuringAnUpload_NoFurtherRequestIsSent_AndNothingIsRecorded()
+        {
+            Accounts(UserA, UserA);
+            var trip = await NewTripAsync();
+            var file = await AttachmentOnTheServerAsync(trip);
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
+            var callsAtUpload = -1;
+            _client.UploadError = _ =>
+            {
+                // A signs out and B signs in while A's file is still on its way
+                callsAtUpload = _client.Calls.Count;
+                Accounts(UserB, UserB);
+                return null;
+            };
+
+            var result = await _sync.SyncNowAsync();
+
+            Assert.Equal(1, _client.UploadAttempts);
+            Assert.Equal(callsAtUpload, _client.Calls.Count); // not the RemotePath push, not the pull
+            Assert.DoesNotContain(_client.Calls, c => c.Function == "pull_changes");
+            Assert.Equal(0, result.FilesUploaded);
+            var stored = await (await _db.Connection).FindAsync<TripAttachment>(file.Id);
+            Assert.True(string.IsNullOrEmpty(stored.RemotePath)); // B's name is not written into A's data
+            Assert.Equal(SyncStatus.Pending, _sync.Status);
+        }
+
+        [Fact]
+        public async Task CancelCurrentRound_StopsALongUpload_AndReturnsOnceTheRoundHasEnded()
+        {
+            Accounts(UserA, UserA);
+            var trip = await NewTripAsync();
+            var file = await AttachmentOnTheServerAsync(trip);
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
+            var uploading = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _client.UploadDelay = async ct =>
+            {
+                uploading.TrySetResult();
+                await Task.Delay(Timeout.Infinite, ct); // a slow connection - only cancelling ends it
+            };
+
+            var round = _sync.SyncNowAsync();
+            await uploading.Task.WaitAsync(TimeSpan.FromSeconds(10));
+            var callsAtUpload = _client.Calls.Count;
+
+            await _sync.CancelCurrentRoundAsync().WaitAsync(TimeSpan.FromSeconds(10));
+
+            Assert.True(round.IsCompleted);
+            Assert.Equal(0, (await round).FilesUploaded);
+            Assert.Equal(callsAtUpload, _client.Calls.Count);
+            var stored = await (await _db.Connection).FindAsync<TripAttachment>(file.Id);
+            Assert.True(string.IsNullOrEmpty(stored.RemotePath));
+        }
+
+        [Fact]
+        public async Task HalfDoneSwitch_SignedInAsBWithAsDataOpen_SendsNothing()
+        {
+            Accounts(UserA, UserA);
+            var trip = await NewTripAsync();
+            Accounts(UserB, UserA);
+
+            await _sync.SyncNowAsync();
+
+            Assert.Empty(_client.Calls);
+            Assert.Equal(1, await OutboxCountAsync()); // A's trip waits for A
+            Assert.Equal(SyncStatus.Pending, _sync.Status);
+
+            Accounts(UserA, UserA);
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
+            await _sync.SyncNowAsync();
+            Assert.Equal(0, await OutboxCountAsync());
         }
 
         [Fact]

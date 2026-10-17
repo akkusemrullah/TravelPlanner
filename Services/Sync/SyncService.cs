@@ -57,6 +57,12 @@ namespace TravelPlanner.Services.Sync
         private readonly SemaphoreSlim _gate = new(1, 1);
         private CancellationTokenSource? _debounce;
         private CancellationTokenSource? _timer;
+
+        /// <summary>TP-9: the running round's token source - cancelled when the session or the open account changes.</summary>
+        private CancellationTokenSource? _round;
+
+        /// <summary>TP-9: the account the running round works for (signed in and whose data is open).</summary>
+        private string? _roundUserId;
         private bool _subscribed;
         private int _roundsRunning;
         private DateTime _lastRoundEndedUtc = DateTime.MinValue;
@@ -106,6 +112,7 @@ namespace TravelPlanner.Services.Sync
                 ChangeTracker.LocalChangeQueued += OnLocalChangeQueued;
                 _connectivity.ConnectivityChanged += OnConnectivityChanged;
                 _account.AccountChanged += OnAccountChanged;
+                _auth.SessionChanged += OnSessionChanged;
             }
 
             var timer = new CancellationTokenSource();
@@ -132,6 +139,28 @@ namespace TravelPlanner.Services.Sync
                 RequestSync(TimeSpan.FromSeconds(1));
             else
                 SetStatus(_auth.IsSignedIn ? SyncStatus.Offline : SyncStatus.Disabled);
+        }
+
+        // TP-9: signed out or in as someone else - the running round must not send another request
+        private void OnSessionChanged(object? sender, EventArgs e) => CancelRound();
+
+        private void CancelRound()
+        {
+            try
+            {
+                Volatile.Read(ref _round)?.Cancel();
+            }
+            catch (ObjectDisposedException)
+            {
+                // the round has just ended
+            }
+        }
+
+        public async Task CancelCurrentRoundAsync()
+        {
+            CancelRound();
+            await _gate.WaitAsync().ConfigureAwait(false);
+            _gate.Release();
         }
 
         private void OnAccountChanged(object? sender, EventArgs e)
@@ -198,16 +227,28 @@ namespace TravelPlanner.Services.Sync
                 Interlocked.Decrement(ref _roundsRunning);
                 throw;
             }
+            var round = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            Volatile.Write(ref _round, round);
             try
             {
+                // TP-9: the round belongs to the account that is signed in and whose data is open. While a switch is
+                // half done (signed in as B, A's data still open) nothing is sent - AccountChanged starts the next round.
+                _roundUserId = _auth.CurrentSession?.UserId;
+                if (_roundUserId != _account.ActiveUserId)
+                {
+                    SetStatus(SyncStatus.Pending);
+                    return empty;
+                }
+
+                var token = round.Token;
                 SetStatus(SyncStatus.Syncing);
                 var db = await _database.Connection;
 
-                var push = await PushAsync(db, cancellationToken);
-                var files = await UploadFilesAsync(db, cancellationToken);
+                var push = await PushAsync(db, token);
+                var files = await UploadFilesAsync(db, token);
                 var uploaded = files.Uploaded;
                 if (uploaded > 0)
-                    push = push.Add(await PushAsync(db, cancellationToken));
+                    push = push.Add(await PushAsync(db, token));
 
                 // TP-6: refused changes are rolled back already - refused new rows are gone, and their files and
                 // reminders go too. The user is told now, even if the pull that brings the server's copies fails.
@@ -218,7 +259,7 @@ namespace TravelPlanner.Services.Sync
                     ChangesRejected?.Invoke(this, push.RejectedChanges);
                 }
 
-                var pulled = await PullAsync(db, push.NeedsFullPull || await IsFullPullDueAsync(db), cancellationToken);
+                var pulled = await PullAsync(db, push.NeedsFullPull || await IsFullPullDueAsync(db), token);
 
                 PendingCount = await db.Table<PendingChange>().CountAsync();
                 LastSyncedAtUtc = UtcNow();
@@ -257,10 +298,24 @@ namespace TravelPlanner.Services.Sync
             }
             finally
             {
+                Interlocked.CompareExchange(ref _round, null, round);
+                round.Dispose();
                 _lastRoundEndedUtc = UtcNow();
                 Interlocked.Decrement(ref _roundsRunning);
                 _gate.Release();
             }
+        }
+
+        /// <summary>
+        /// TP-9: before each request (and before writing what one brought): the session and the open data still
+        /// belong to the round's account. A request of the outgoing account would otherwise go out with the next
+        /// one's token (the client fetches it per request) and land in that account.
+        /// </summary>
+        private void EnsureSameAccount(CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (_auth.CurrentSession?.UserId != _roundUserId || _account.ActiveUserId != _roundUserId)
+                throw new OperationCanceledException("The account changed during the sync round.");
         }
 
         private async Task RefreshPendingCountAsync()
@@ -331,6 +386,7 @@ namespace TravelPlanner.Services.Sync
                     var changes = new JsonArray();
                     foreach (var item in toSend)
                         changes.Add(item.Change);
+                    EnsureSameAccount(cancellationToken);
                     response = await _client.RpcAsync("apply_changes", new JsonObject { ["p_changes"] = changes }, cancellationToken);
                 }
 
@@ -550,6 +606,7 @@ namespace TravelPlanner.Services.Sync
                     continue;
 
                 var remotePath = RemotePathFor(tripSyncId, attachment);
+                EnsureSameAccount(cancellationToken);
                 try
                 {
                     await using var stream = File.OpenRead(fullPath);
@@ -566,6 +623,8 @@ namespace TravelPlanner.Services.Sync
                     continue;
                 }
 
+                // TP-9: a long upload may end after a switch - its path is not recorded under the next account's name
+                EnsureSameAccount(cancellationToken);
                 _uploadRefusedAtUtc.Remove(attachment.SyncId);
                 attachment.RemotePath = remotePath;
                 try
@@ -597,8 +656,10 @@ namespace TravelPlanner.Services.Sync
         internal async Task<int> PullAsync(SQLiteAsyncConnection db, bool fromStart, CancellationToken cancellationToken)
         {
             var since = fromStart ? 0L : await ReadCursorAsync(db);
+            EnsureSameAccount(cancellationToken);
             var response = await _client.RpcAsync("pull_changes", new JsonObject { ["p_since"] = since }, cancellationToken);
 
+            EnsureSameAccount(cancellationToken);
             RemoteApplier.Outcome outcome = new();
             await db.RunInTransactionAsync(conn => outcome = RemoteApplier.Apply(conn, response));
             if (fromStart)
