@@ -105,10 +105,10 @@ namespace TravelPlanner.Services
             var trip = await db.FindAsync<Trip>(tripId);
             var signedIn = ChangeTracker.CurrentUserId is not null;
             if (trip is null || !signedIn)
-                return new TripAccessInfo(TripRole.Owner, trip?.SyncId, signedIn, trip is { ChangeSeq: > 0 });
+                return new TripAccessInfo(TripRole.Owner, trip?.SyncId, signedIn, trip is { ChangeSeq: not 0 });
 
             var role = await db.ExecuteScalarAsync<string>("SELECT Role FROM TripMembership WHERE TripSyncId = ?", trip.SyncId);
-            return new TripAccessInfo(TripRoles.Parse(role) ?? TripRole.Owner, trip.SyncId, true, trip.ChangeSeq > 0);
+            return new TripAccessInfo(TripRoles.Parse(role) ?? TripRole.Owner, trip.SyncId, true, trip.ChangeSeq != 0);
         }
 
         public async Task<TripLastChange?> GetLastChangeAsync(int tripId)

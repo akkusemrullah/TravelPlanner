@@ -217,6 +217,173 @@ namespace TravelPlanner.Tests
             Assert.Equal(0, await OutboxCountAsync());
             var pull = _client.Calls.Single(c => c.Function == "pull_changes");
             Assert.Equal(0, pull.Arguments["p_since"]!.GetValue<long>());
+            Assert.Empty(await _trips.GetAllAsync()); // TP-6: it never reached the server - it doesn't stay here alone
+        }
+
+        // ------------------------------------------------------------------ TP-6: refused changes are rolled back
+
+        private const string SharedTripId = "11111111-1111-1111-1111-111111111111";
+        private const string SharedExpenseId = "a5555555-5555-5555-5555-555555555555";
+
+        /// <summary>The server's view: the shared trip (we are <paramref name="role"/>) with one expense "Müze" at change_seq 12.</summary>
+        private static string SharedTripPull(string role, long cursor = 40, bool withExpense = true) => new JsonObject
+        {
+            ["cursor"] = cursor,
+            ["memberships"] = new JsonArray(new JsonObject { ["trip_id"] = SharedTripId, ["role"] = role, ["change_seq"] = 5 }),
+            ["trips"] = new JsonArray(new JsonObject
+            {
+                ["id"] = SharedTripId, ["name"] = "Paris", ["country"] = "Fransa", ["city"] = "Paris", ["start_date"] = "2026-09-01",
+                ["end_date"] = "2026-09-03", ["planned_budget_minor"] = 0, ["currency_code"] = "EUR", ["version"] = 1, ["change_seq"] = 10,
+                ["deleted_at"] = null,
+            }),
+            ["expenses"] = withExpense ? new JsonArray(RemoteExpense(SharedExpenseId, SharedTripId, 12)) : new JsonArray(),
+        }.ToJsonString();
+
+        /// <summary>An editor's device that has the shared trip; then the owner makes them a viewer (the device doesn't know yet).</summary>
+        private async Task<Trip> SharedTripAsEditorAsync()
+        {
+            _client.Handler = (_, _) => SharedTripPull("editor");
+            await _sync.SyncNowAsync();
+            _client.Calls.Clear();
+            return Assert.Single(await _trips.GetAllAsync());
+        }
+
+        private void ServerSaysForbidden() =>
+            _client.Handler = (fn, args) => fn == "apply_changes"
+                ? FakeSupabaseClient.AnswerAll(args, "rejected", "forbidden")
+                : SharedTripPull("viewer", cursor: 60);
+
+        [Fact]
+        public async Task ForbiddenEdit_IsRolledBack_ToTheServersValue_AndTheUserIsToldWhich()
+        {
+            var trip = await SharedTripAsEditorAsync();
+            var expense = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            expense.Description = "Müze bileti";
+            expense.Amount = 99m;
+            await _expenses.SaveAsync(expense); // offline edit, made while the device still thought it was an editor
+            ServerSaysForbidden();
+            var told = new List<IReadOnlyList<RejectedChange>>();
+            _sync.ChangesRejected += (_, rejected) => told.Add(rejected);
+
+            var result = await _sync.SyncNowAsync();
+
+            Assert.Equal(1, result.Rejected);
+            Assert.Equal(0, await OutboxCountAsync());
+            // the server's copy came back even though its change_seq (12) is the one this device already had
+            Assert.Equal(0, _client.Calls.Single(c => c.Function == "pull_changes").Arguments["p_since"]!.GetValue<long>());
+            var stored = await _expenses.GetByIdAsync(expense.Id);
+            Assert.Equal("Müze", stored!.Description);
+            Assert.Equal(12.50m, stored.Amount);
+            Assert.Equal(12, stored.ChangeSeq);
+            Assert.Equal("viewer", Assert.Single(await (await _db.Connection).Table<TripMembership>().ToListAsync()).Role);
+
+            var rejected = Assert.Single(Assert.Single(told));
+            Assert.Equal(new RejectedChange("Expense", "Müze bileti", "forbidden", RemovedLocally: false), rejected);
+            Assert.Equal("Bu seyahatte artık düzenleme yetkin yok, değişikliğin geri alındı: “Müze bileti”.",
+                         SyncRejectionMessage.Format(Assert.Single(told)));
+        }
+
+        [Fact]
+        public async Task ForbiddenNewRows_AreRemovedFromThisDevice_WithTheirChildrenAndFiles()
+        {
+            var trip = await SharedTripAsEditorAsync();
+            var ali = await _split.SaveParticipantAsync(trip.Id, "Ali");
+            var taxi = new Expense { TripId = trip.Id, Amount = 30m, Description = "Taksi", Date = new DateTime(2026, 9, 2) };
+            await _expenses.SaveAsync(taxi);
+            await _split.SaveSplitAsync(taxi, ali.Id, new[] { ali.Id });
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "bilet.pdf", "application/pdf");
+            var filePath = _attachments.GetFullPath(file);
+            Assert.True(File.Exists(filePath));
+            ServerSaysForbidden();
+            var told = new List<IReadOnlyList<RejectedChange>>();
+            _sync.ChangesRejected += (_, rejected) => told.Add(rejected);
+            var reloads = 0;
+            _sync.RemoteChangesApplied += (_, _) => reloads++;
+
+            await _sync.SyncNowAsync();
+
+            var conn = await _db.Connection;
+            Assert.Equal(SharedExpenseId, Assert.Single(await _expenses.GetByTripIdAsync(trip.Id)).SyncId); // only the server's expense
+            Assert.Empty(await _split.GetParticipantsAsync(trip.Id));
+            Assert.Equal(0, await conn.Table<ExpenseShare>().CountAsync());
+            Assert.Empty(await _attachments.GetByTripIdAsync(trip.Id));
+            Assert.False(File.Exists(filePath));
+            Assert.Equal(0, await OutboxCountAsync());
+            Assert.Equal(0, _client.UploadAttempts); // nothing of it was uploaded either
+            Assert.True(reloads > 0);
+
+            var rejected = Assert.Single(told);
+            Assert.All(rejected, r => Assert.Equal("forbidden", r.Reason));
+            Assert.Contains(new RejectedChange("Expense", "Taksi", "forbidden", RemovedLocally: true), rejected);
+            Assert.Contains(new RejectedChange("Participant", "Ali", "forbidden", RemovedLocally: true), rejected);
+            Assert.Contains(new RejectedChange("Attachment", "bilet.pdf", "forbidden", RemovedLocally: true), rejected);
+        }
+
+        [Fact]
+        public async Task ForbiddenDelete_BringsTheServersRowBack()
+        {
+            var trip = await SharedTripAsEditorAsync();
+            var expense = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            await (await _db.Connection).DeleteTrackedAsync(expense);
+            Assert.Empty(await _expenses.GetByTripIdAsync(trip.Id));
+            ServerSaysForbidden();
+            var told = new List<IReadOnlyList<RejectedChange>>();
+            _sync.ChangesRejected += (_, rejected) => told.Add(rejected);
+
+            await _sync.SyncNowAsync();
+
+            var back = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            Assert.Equal(SharedExpenseId, back.SyncId);
+            Assert.Equal("Müze", back.Description);
+            Assert.Equal(new RejectedChange("Expense", "Müze", "forbidden", RemovedLocally: false), Assert.Single(Assert.Single(told)));
+        }
+
+        [Fact]
+        public async Task RolledBackRow_IsOverwrittenByTheNextPull_EvenIfTheFullPullFails()
+        {
+            var trip = await SharedTripAsEditorAsync();
+            var expense = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            expense.Description = "Müze bileti";
+            await _expenses.SaveAsync(expense);
+            _client.Handler = (fn, args) => fn == "apply_changes"
+                ? FakeSupabaseClient.AnswerAll(args, "rejected", "forbidden")
+                : throw new SyncException(SyncErrorKind.Network, "offline again");
+            var told = 0;
+            _sync.ChangesRejected += (_, _) => told++;
+
+            await _sync.SyncNowAsync();
+
+            Assert.Equal(1, told); // told although the pull didn't get through
+            var marked = await _expenses.GetByIdAsync(expense.Id);
+            Assert.Equal(RemoteApplier.StaleChangeSeq, marked!.ChangeSeq); // remembered as "the server's copy wins"
+            Assert.Equal(0, await OutboxCountAsync());
+
+            _client.Handler = (_, _) => SharedTripPull("viewer", cursor: 60);
+            await _sync.SyncNowAsync();
+
+            Assert.Equal("Müze", (await _expenses.GetByIdAsync(expense.Id))!.Description);
+        }
+
+        [Fact]
+        public void RejectionMessage_GroupsByReason_NamesAFewRecords_AndCountsTheRest()
+        {
+            var message = SyncRejectionMessage.Format(new[]
+            {
+                new RejectedChange("Expense", "Taksi", "forbidden", true),
+                new RejectedChange("Expense", "Müze", "forbidden", false),
+                new RejectedChange("Todo", "Pasaport", "forbidden", false),
+                new RejectedChange("Activity", "Louvre", "forbidden", false),
+                new RejectedChange("Activity", "Eyfel", "forbidden", false),
+                new RejectedChange("ExpenseShare", null, "forbidden", true),
+                new RejectedChange("Expense", "Otel", "row_deleted", false),
+                new RejectedChange("ExpenseShare", null, "trip_mismatch", false),
+            });
+
+            Assert.Equal(
+                "Bu seyahatte artık düzenleme yetkin yok, değişikliğin geri alındı: “Taksi”, “Müze”, “Pasaport” ve 2 kayıt daha." + Environment.NewLine + Environment.NewLine +
+                "Kayıt başka biri tarafından silindiği için değişikliğin uygulanamadı: “Otel”." + Environment.NewLine + Environment.NewLine +
+                "Sunucu kabul etmediği için değişikliğin geri alındı: 1 kayıt.",
+                message);
         }
 
         [Fact]

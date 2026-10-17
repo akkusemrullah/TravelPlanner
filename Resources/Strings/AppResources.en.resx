@@ -2016,8 +2016,20 @@ In the app, tap Profile → Join with a code and enter it. The code works until 
   <data name="Split_MembersAlreadyAdded" xml:space="preserve">
     <value>All members are already participants.</value>
   </data>
-  <data name="Sync_RejectedFormat" xml:space="preserve">
-    <value>{0} of your changes couldn't be applied: the item was deleted by someone else or your role on the trip changed. The current version has been loaded.</value>
+  <data name="Sync_RejectedForbiddenFormat" xml:space="preserve">
+    <value>You can no longer edit this trip, so your change was undone: {0}.</value>
+  </data>
+  <data name="Sync_RejectedDeletedFormat" xml:space="preserve">
+    <value>Your change couldn't be applied because the item was deleted by someone else: {0}.</value>
+  </data>
+  <data name="Sync_RejectedOtherFormat" xml:space="preserve">
+    <value>The server didn't accept your change, so it was undone: {0}.</value>
+  </data>
+  <data name="Sync_RejectedMoreFormat" xml:space="preserve">
+    <value>{0} and {1} more</value>
+  </data>
+  <data name="Sync_RejectedCountFormat" xml:space="preserve">
+    <value>{0} item(s)</value>
   </data>
   <data name="Sync_QuotaExceededFormat" xml:space="preserve">
     <value>{0} changes or files couldn't be saved to the cloud because a usage limit was reached (for example at most 2,000 expenses, 500 places or 200 documents per trip; 250 MB of documents per trip). They are kept on this device and retried automatically once you free up space (delete old items or documents) or the next day.</value>

@@ -6384,11 +6384,47 @@ namespace TravelPlanner.Resources.Strings {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} değişikliğin uygulanamadı: kayıt başka biri tarafından silinmiş ya da bu seyahatteki yetkin değişmiş. Güncel hâli yüklendi..
+        ///   Looks up a localized string similar to Bu seyahatte artık düzenleme yetkin yok, değişikliğin geri alındı: {0}..
         /// </summary>
-        public static string Sync_RejectedFormat {
+        public static string Sync_RejectedForbiddenFormat {
             get {
-                return ResourceManager.GetString("Sync_RejectedFormat", resourceCulture);
+                return ResourceManager.GetString("Sync_RejectedForbiddenFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kayıt başka biri tarafından silindiği için değişikliğin uygulanamadı: {0}..
+        /// </summary>
+        public static string Sync_RejectedDeletedFormat {
+            get {
+                return ResourceManager.GetString("Sync_RejectedDeletedFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Sunucu kabul etmediği için değişikliğin geri alındı: {0}..
+        /// </summary>
+        public static string Sync_RejectedOtherFormat {
+            get {
+                return ResourceManager.GetString("Sync_RejectedOtherFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} ve {1} kayıt daha.
+        /// </summary>
+        public static string Sync_RejectedMoreFormat {
+            get {
+                return ResourceManager.GetString("Sync_RejectedMoreFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} kayıt.
+        /// </summary>
+        public static string Sync_RejectedCountFormat {
+            get {
+                return ResourceManager.GetString("Sync_RejectedCountFormat", resourceCulture);
             }
         }
 

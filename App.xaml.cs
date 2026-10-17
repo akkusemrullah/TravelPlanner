@@ -72,10 +72,11 @@ namespace TravelPlanner
             // G6: every page can ask whether the open trip is read-only (ViewModelBase.RefreshAccessAsync).
             TripAccess.Current = tripAccess;
 
-            // G6: tell the user when the server refused some of their offline changes (deleted meanwhile / role changed).
-            _sync.ChangesRejected += (_, count) => MainThread.BeginInvokeOnMainThread(() =>
+            // G6: tell the user when the server refused some of their offline changes (deleted meanwhile / role changed);
+            // TP-6: which records were rolled back, and why.
+            _sync.ChangesRejected += (_, rejected) => MainThread.BeginInvokeOnMainThread(() =>
                 dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
-                    string.Format(TravelPlanner.Resources.Strings.AppResources.Sync_RejectedFormat, count)).FireAndForget());
+                    SyncRejectionMessage.Format(rejected)).FireAndForget());
 
             // TP-3: ... or kept them back because a usage limit is reached (told once per change).
             _sync.QuotaExceeded += (_, count) => MainThread.BeginInvokeOnMainThread(() =>

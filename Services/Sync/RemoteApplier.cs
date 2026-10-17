@@ -20,6 +20,12 @@ namespace TravelPlanner.Services.Sync
     /// </summary>
     public static class RemoteApplier
     {
+        /// <summary>
+        /// TP-6: ChangeSeq of a row the server has but whose local copy is wrong (a change to it was refused for good).
+        /// Any change_seq from the server is newer, so the next pull overwrites it. 0 still means "never on the server".
+        /// </summary>
+        internal const long StaleChangeSeq = -1;
+
         public sealed class Outcome
         {
             public int Changed { get; set; }
@@ -75,7 +81,7 @@ namespace TravelPlanner.Services.Sync
             // 3) trips we were removed from (only ones the server had seen - never a trip still waiting to be uploaded)
             if (memberTrips is not null)
             {
-                foreach (var trip in conn.Query<Trip>("SELECT * FROM Trip WHERE ChangeSeq > 0"))
+                foreach (var trip in conn.Query<Trip>("SELECT * FROM Trip WHERE ChangeSeq <> 0"))
                 {
                     if (!memberTrips.Contains(trip.SyncId))
                     {
@@ -253,7 +259,8 @@ namespace TravelPlanner.Services.Sync
             return $"{AttachmentService.FolderName}/{attachment.TripId}/{attachment.SyncId}{extension}";
         }
 
-        private static void RemoveLocal(SQLiteConnection conn, ISyncEntity local, Outcome outcome)
+        /// <summary>Deletes a row and what hangs on it, without queueing anything (also TP-6: a refused new row).</summary>
+        internal static void RemoveLocal(SQLiteConnection conn, ISyncEntity local, Outcome outcome)
         {
             switch (local)
             {

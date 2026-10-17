@@ -104,7 +104,7 @@ Plan:
 - Seyahat detayı: "Paylaşım" bölümü (rolün + "Son değişiklik: Ayşe · 5 dk önce"), viewer için "yalnızca görüntüleyebilirsin" bandı ve düzenle butonu gizli, sil butonu sadece owner'da; paylaşılmış seyahati silmek internet ister.
 - Viewer için ekleme butonları gizli: yapılacaklar, masraflar, yerler, plan, belgeler, katılımcılar.
 - Masraf bölüşümü: "Seyahat üyelerini ekle" — üyeler hesaplarına bağlı katılımcı olur; aynı isimde hesapsız katılımcı varsa bağlanır, isimler benzersiz kalır ("Can (2)").
-- Senkron: sunucu bir değişikliği kesin reddederse (silinmiş / rol değişmiş) kullanıcıya bir kez bildirilir (`ISyncService.ChangesRejected`).
+- Senkron: sunucu bir değişikliği kesin reddederse (silinmiş / rol değişmiş) kullanıcıya bir kez bildirilir (`ISyncService.ChangesRejected`). TP-6: değişiklik cihazda geri alınır; sunucuda olan satır `ChangeSeq = -1` ile işaretlenir ve tam pull'da sunucu kopyası mutlaka uygulanır, sunucuya hiç ulaşmamış yeni satır (`ChangeSeq = 0`) çocuklarıyla ve dosyasıyla silinir. Bildirim hangi kaydın neden geri alındığını söyler (`SyncRejectionMessage`).
 - Testler: `Tests/.../Services/SharingTests.cs`. Statik `ChangeTracker.CurrentUserId`'yi değiştiren testler `SignedInUser` koleksiyonunda tek başına çalışır.
 - **Ertelendi (alan adı gerekiyor):** tıklanabilir `https://<alan-adı>/invite/<kod>` linki ve App Links / Universal Links. Şimdilik kod paylaşılıyor.
 - Sunucu tarafında (SQL) değişiklik gerekmedi.
