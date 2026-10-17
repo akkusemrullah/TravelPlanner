@@ -1223,6 +1223,9 @@
   <data name="Attachments_UnsupportedType" xml:space="preserve">
     <value>This file type can't be attached. Choose a photo (JPEG, PNG, HEIC, WebP) or a PDF.</value>
   </data>
+  <data name="Attachments_NotSafeToOpen" xml:space="preserve">
+    <value>This file wasn't opened: only photos (JPEG, PNG, HEIC, WebP) and PDFs from the cloud can be opened.</value>
+  </data>
   <data name="Attachments_FileMissing" xml:space="preserve">
     <value>The file is missing. It may not have been restored from the backup.</value>
   </data>

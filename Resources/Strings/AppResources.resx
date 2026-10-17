@@ -1223,6 +1223,9 @@
   <data name="Attachments_UnsupportedType" xml:space="preserve">
     <value>Bu dosya türü eklenemiyor. Fotoğraf (JPEG, PNG, HEIC, WebP) ya da PDF seçebilirsin.</value>
   </data>
+  <data name="Attachments_NotSafeToOpen" xml:space="preserve">
+    <value>Bu dosya açılmadı: buluttan gelen yalnızca fotoğraf (JPEG, PNG, HEIC, WebP) ve PDF dosyaları açılabilir.</value>
+  </data>
   <data name="Attachments_FileMissing" xml:space="preserve">
     <value>Dosya bulunamadı. Yedekten geri yüklenmemiş olabilir.</value>
   </data>

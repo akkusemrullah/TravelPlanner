@@ -32,6 +32,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…12_ai_cost_limits.sql` | SEC-02: herkes için günlük global tavan, yeni hesaplara ilk 24 saatte düşük kota, hesap başına günde en fazla 2 iade |
 | `migrations/…13_quota_limits.sql` | TP-3: hesap/seyahat başına satır sınırları, günlük yeni satır ve dakikalık senkron sınırı, `trip-files` için dosya türü ve boyut sınırları, `items`/`avatar_url` uzunlukları |
 | `migrations/…14_invite_hardening.sql` | TP-4: davet kodları tek kullanımlık ve 48 saat geçerli, katılan görüntüleyici olur; yanlış kod denemesi sınırı; e-postalar yalnızca sahibe; yeni üye bildirimi için `get_recent_joins` |
+| `migrations/…15_attachment_paths.sql` | TP-5: ekin `storage_path`'i yalnızca kendi dosyası (`trips/<trip_id>/<id>.<uzantı>`), `content_type`'ı yalnızca JPEG/PNG/HEIC/HEIF/WebP/PDF olabilir; aykırı yazma `invalid` ile reddedilir, eski bozuk değerler temizlenir |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti
@@ -97,7 +98,7 @@ PostgreSQL 15+ üzerinde, boş bir veritabanında:
 ```bash
 psql -d tp -f tests/00_local_stub.sql      # Supabase'in auth/storage parçalarının taklidi
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -d tp -f "$f"; done
-psql -d tp -f tests/sync_tests.sql          # 165 kontrol, sonda "ALL SYNC TESTS PASSED"
+psql -d tp -f tests/sync_tests.sql          # 177 kontrol, sonda "ALL SYNC TESTS PASSED"
 ```
 
 ## Yapay zekâ ile planlama (Edge Function `plan-trip`)

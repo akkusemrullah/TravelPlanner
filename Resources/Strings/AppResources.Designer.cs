@@ -439,6 +439,15 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bu dosya açılmadı: buluttan gelen yalnızca fotoğraf (JPEG, PNG, HEIC, WebP) ve PDF dosyaları açılabilir..
+        /// </summary>
+        public static string Attachments_NotSafeToOpen {
+            get {
+                return ResourceManager.GetString("Attachments_NotSafeToOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bu cihaz bu özelliği desteklemiyor..
         /// </summary>
         public static string Attachments_NotSupported {

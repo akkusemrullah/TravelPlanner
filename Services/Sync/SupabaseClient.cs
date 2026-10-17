@@ -134,7 +134,7 @@ namespace TravelPlanner.Services.Sync
 
         public async Task UploadAsync(string bucket, string path, Stream content, string? contentType, CancellationToken cancellationToken = default)
         {
-            using var request = await CreateRequestAsync(HttpMethod.Post, $"storage/v1/object/{bucket}/{path}", cancellationToken);
+            using var request = await CreateRequestAsync(HttpMethod.Post, ObjectUrl(bucket, path), cancellationToken);
             request.Headers.Add("x-upsert", "true");
             request.Content = new StreamContent(content);
             request.Content.Headers.ContentType = MediaTypeHeaderValue.TryParse(contentType, out var mediaType)
@@ -146,7 +146,7 @@ namespace TravelPlanner.Services.Sync
 
         public async Task DownloadAsync(string bucket, string path, Stream target, CancellationToken cancellationToken = default)
         {
-            using var request = await CreateRequestAsync(HttpMethod.Get, $"storage/v1/object/{bucket}/{path}", cancellationToken);
+            using var request = await CreateRequestAsync(HttpMethod.Get, ObjectUrl(bucket, path), cancellationToken);
             using var response = await SendAsync(request, cancellationToken, HttpCompletionOption.ResponseHeadersRead);
             await using var source = await response.Content.ReadAsStreamAsync(cancellationToken);
             await source.CopyToAsync(target, cancellationToken);
@@ -200,6 +200,23 @@ namespace TravelPlanner.Services.Sync
 
                 using var response = await SendAsync(request, cancellationToken);
             }
+        }
+
+        /// <summary>
+        /// TP-5: "storage/v1/object/&lt;bucket&gt;/&lt;path&gt;" with every segment URL-encoded, so a path can never change where
+        /// the request goes ("?" or "#" become part of the object name). Empty, "." and ".." segments are refused
+        /// before anything is sent - HttpClient would resolve them and step out of the object API.
+        /// </summary>
+        internal static string ObjectUrl(string bucket, string path)
+        {
+            if (string.IsNullOrEmpty(bucket) || bucket.Contains('/') || bucket is "." or "..")
+                throw new SyncException(SyncErrorKind.Rejected, "Invalid storage bucket.");
+
+            var segments = (path ?? string.Empty).Split('/');
+            if (segments.Any(s => s.Length == 0 || s is "." or ".."))
+                throw new SyncException(SyncErrorKind.Rejected, "Invalid storage path.");
+
+            return $"storage/v1/object/{Uri.EscapeDataString(bucket)}/{string.Join('/', segments.Select(Uri.EscapeDataString))}";
         }
 
         private async Task<HttpRequestMessage> CreateRequestAsync(HttpMethod method, string path, CancellationToken cancellationToken)
