@@ -94,7 +94,7 @@ Plan:
 ### G5 — Belgelerin buluta taşınması — ✅ tamam
 - `TripAttachment.RemotePath` (sunucuda `storage_path`). Satırı sunucuya gitmiş, dosyası gitmemiş ekler her turda `trips/<trip SyncId>/<ek SyncId>.<uzantı>` yoluna yüklenir; yol kaydedilip diğer cihazlara gönderilir.
 - Diğer cihazda: satır gelir (dosya `attachments/<yerel trip id>/<SyncId>.<uzantı>` yolunda beklenir); belge açılınca indirilir, fotoğraflar ekler sayfası açılınca arka planda indirilir (`IAttachmentService.EnsureLocalFileAsync`).
-- Ertelenenler: fotoğraf sıkıştırma (.NET 9 MAUI'de EXIF yönünü koruyan güvenli bir API yok; .NET 10'un MediaPicker seçenekleriyle eklenecek); silinen ek/seyahat dosyalarının Storage'dan temizlenmesi → G7 (şimdilik bulutta kalır, 30 gün çöp kutusundan geri alma için gerekli).
+- Ertelenenler: fotoğraf sıkıştırma (.NET 9 MAUI'de EXIF yönünü koruyan güvenli bir API yok; .NET 10'un MediaPicker seçenekleriyle eklenecek); silinen ek/seyahat dosyalarının Storage'dan temizlenmesi → G7'de yapıldı (aşağıda).
 
 ### G6 — Paylaşım ve yetkiler — ✅ yazıldı 2026-10-10, derleme/test ve iki hesapla deneme bekliyor
 - **Yetki kontrolü tek yerde:** `ChangeTracker` her yazmada rolü `TripMembership` tablosundan okur; viewer hiçbir şey değiştiremez (`TripAccessException` ReadOnly), seyahati yalnızca owner silebilir (OwnerOnly). Misafir ve hiç paylaşılmamış seyahat = owner. `ViewModelBase.RunSafeAsync` bu hatayı anlaşılır bir mesajla gösterir. Sunucu da aynı kuralları ayrıca uygular (G2).
@@ -113,6 +113,7 @@ Plan:
 - Supabase Realtime: açık seyahatte değişiklik sinyali gelince çekme.
 - Uygulama içi hesap silme (veriler + dosyalar). ✅ Yazıldı: Profil → "Hesabımı sil" (iki onay, "SİL" yazdırılır, yalnızca çevrimiçi). Sahibi olunan seyahatlerin dosyaları Storage API ile silinir, `delete_account` (migration 7) seyahatleri ve kullanıcıyı siler, başkalarının seyahatine yüklenen dosyaların sahipliğini boşaltır; cihazdaki hesap klasörü silinir, uygulama misafir olarak devam eder. **Supabase'de migration 7 çalıştırılmalı.**
 - Admin tarafından silinen / banlanan hesap: ✅ Yazıldı (migration 8). Uygulama açılışta ve öne gelince `account_status` sorar; silinmiş/banlı/oturumu iptal edilmiş hesapta çıkış yapıp nedenini söyler. Banlı hesabın RPC, tablo ve Storage erişimi hemen kesilir; Supabase giriş yaptırmaz (`user_banned`). Ban: Dashboard → Authentication → Users → Ban user, ya da SQL'de `select private.ban_user('e-posta');` / `private.unban_user`.
+- Silinen dosyaların Storage'dan temizlenmesi: ✅ Yazıldı (G7, migration 16 + Edge Function `purge-files`). Satırı kalıcı silinen (30 gün çöpten sonra, seyahatin temizliği, hesap silme) ya da dosya yolu değişen ekin dosyası kuyruğa girer; hiçbir satıra ait olmayan 1 günden eski dosyalar da. Her gece 03:47'de pg_cron fonksiyonu çağırır, fonksiyon Storage API ile siler. Çöpteki ekin dosyası 30 gün kalır. **Supabase'de: pg_net açılmalı, `FILE_CLEANUP_SECRET` (Edge secret) ve aynı değerle Vault'ta `file_cleanup_secret` oluşturulmalı, fonksiyon `--no-verify-jwt` ile yayınlanmalı, migration 16 çalıştırılmalı** (`supabase/README.md`).
 - `PRIVACY.md`, KVKK aydınlatma metni, Play *Veri güvenliği* formu cevapları.
 - Uçtan uca test listesi (iki hesap, iki cihaz, offline senaryolar).
 

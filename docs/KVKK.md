@@ -51,7 +51,7 @@ Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktar
 Bu hizmet sağlayıcıların bir kısmı yurt dışında bulunduğundan kişisel verilerin yurt dışına aktarılır. Aktarım, KVKK'nın 9. maddesine uygun şekilde; hizmet sağlayıcılarla yapılan sözleşmelerdeki uygun güvencelere, bunun mümkün olmadığı hâllerde ise ilgili özelliği kullanman sırasında verdiğin açık rızaya dayanılarak yapılır. Yapay zekâ ile planlama ve Google ile giriş tamamen isteğe bağlıdır; bunları kullanmadan uygulamanın diğer özelliklerinden yararlanabilirsin.
 
 ### 6. Saklama süresi
-Kişisel verilerin hesabın açık olduğu sürece saklanır. Silinen kayıtlar en geç 30 gün içinde kalıcı olarak silinir. Hesabını sildiğinde sahibi olduğun seyahatler, belgeler ve profil bilgilerin derhâl silinir. Kanunen saklanması gereken veriler ilgili süre boyunca saklanır ve süre sonunda silinir, yok edilir veya anonim hâle getirilir.
+Kişisel verilerin hesabın açık olduğu sürece saklanır. Silinen kayıtlar en geç 30 gün içinde kalıcı olarak silinir. Hesabını sildiğinde sahibi olduğun seyahatler, belgeler ve profil bilgilerin derhâl silinir; belge ve fotoğraf dosyaları buluttan derhâl, teknik bir aksaklık olursa en geç 2 gün içinde silinir. Silinen belgelerin buluttaki dosyaları en geç 31 gün içinde silinir. Kanunen saklanması gereken veriler ilgili süre boyunca saklanır ve süre sonunda silinir, yok edilir veya anonim hâle getirilir.
 
 ### 7. KVKK'nın 11. maddesi kapsamındaki hakların
 Veri sorumlusuna başvurarak:
@@ -118,7 +118,7 @@ Your personal data may be shared, only for the purposes above, with:
 As some of these providers are located abroad, your personal data is transferred abroad. Transfers are made in line with KVKK article 9: on the basis of appropriate safeguards in the agreements with the providers, or, where that is not possible, on the basis of the explicit consent you give when using the feature concerned. Planning with AI and signing in with Google are entirely optional; you can use the app's other features without them.
 
 ### 6. Retention
-Your personal data is kept while your account exists. Deleted records are permanently deleted within 30 days at the latest. When you delete your account, the trips you own, their documents and your profile are deleted immediately. Data that must be kept by law is kept for that period and then deleted, destroyed or anonymised.
+Your personal data is kept while your account exists. Deleted records are permanently deleted within 30 days at the latest. When you delete your account, the trips you own, their documents and your profile are deleted immediately; document and photo files are removed from the cloud immediately, or within 2 days at the latest if there is a technical problem. The cloud files of deleted documents are deleted within 31 days at the latest. Data that must be kept by law is kept for that period and then deleted, destroyed or anonymised.
 
 ### 7. Your rights under KVKK article 11
 By applying to the data controller you can:

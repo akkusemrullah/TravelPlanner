@@ -60,8 +60,13 @@ namespace TravelPlanner.Tests
             await target.WriteAsync(bytes, cancellationToken);
         }
 
+        /// <summary>When set, listing and deleting files fail with it (TP-7).</summary>
+        public Exception? StorageError { get; set; }
+
         public Task<IReadOnlyList<string>> ListAsync(string bucket, string prefix, CancellationToken cancellationToken = default)
         {
+            if (StorageError is { } error)
+                throw error;
             var folder = $"{bucket}/{prefix.Trim('/')}/";
             IReadOnlyList<string> paths = Storage.Keys
                 .Where(k => k.StartsWith(folder, StringComparison.Ordinal) && !k[folder.Length..].Contains('/'))
@@ -72,6 +77,8 @@ namespace TravelPlanner.Tests
 
         public Task DeleteAsync(string bucket, IReadOnlyCollection<string> paths, CancellationToken cancellationToken = default)
         {
+            if (StorageError is { } error)
+                throw error;
             Deleted.AddRange(paths);
             foreach (var path in paths)
                 Storage.Remove($"{bucket}/{path}");
