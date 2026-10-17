@@ -175,7 +175,7 @@ namespace TravelPlanner.Tests
             await CreateViewModel(new SettingsService(_preferences)).ImportBackupCommand.ExecuteAsync(null);
 
             _filePicker.Verify(f => f.PickAsync(It.IsAny<PickOptions?>()), Times.Never);
-            _backup.Verify(b => b.ImportAsync(It.IsAny<Stream>(), It.IsAny<string>()), Times.Never);
+            _backup.Verify(b => b.ImportAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<Func<SharedTripsInBackup, Task<SharedTripRestoreChoice>>>()), Times.Never);
         }
 
         [Fact]

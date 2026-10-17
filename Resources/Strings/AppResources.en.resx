@@ -1388,6 +1388,24 @@
   <data name="Backup_ImportError" xml:space="preserve">
     <value>The backup could not be restored. Your existing data was not changed.</value>
   </data>
+  <data name="Backup_CopySuffix" xml:space="preserve">
+    <value>(copy)</value>
+  </data>
+  <data name="Backup_SharedTripsFormat" xml:space="preserve">
+    <value>This backup contains {0} shared trips: {1}. Restoring them as they are would overwrite the other members' later changes and bring back what they deleted. What should happen to these trips?</value>
+  </data>
+  <data name="Backup_SharedSkip" xml:space="preserve">
+    <value>Skip them, keep the cloud version (recommended)</value>
+  </data>
+  <data name="Backup_SharedCopy" xml:space="preserve">
+    <value>Restore as copies</value>
+  </data>
+  <data name="Backup_SharedSkippedFormat" xml:space="preserve">
+    <value>{0} shared trips were skipped; their current version will come from the cloud.</value>
+  </data>
+  <data name="Backup_SharedCopiedFormat" xml:space="preserve">
+    <value>{0} shared trips were restored as separate copies.</value>
+  </data>
   <data name="Settings_VersionFormat" xml:space="preserve">
     <value>Version {0} ({1})</value>
   </data>
