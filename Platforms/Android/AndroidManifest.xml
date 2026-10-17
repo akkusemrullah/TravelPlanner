@@ -5,7 +5,8 @@
 	     (e.g. while the Activity is being recreated after returning from the camera / file picker / share sheet,
 	     or when Platform.CurrentActivity is briefly null) otherwise falls back to the platform default theme and
 	     Material views crash with "This component requires that you specify a valid TextAppearance attribute". -->
-	<application android:allowBackup="false" android:icon="@mipmap/appicon" android:supportsRtl="true" android:theme="@style/Maui.MainTheme">
+	<!-- TP-13: no Google backup and no device-to-device transfer of the unencrypted local data (see Resources/xml). -->
+	<application android:allowBackup="false" android:fullBackupContent="@xml/backup_rules" android:dataExtractionRules="@xml/data_extraction_rules" android:icon="@mipmap/appicon" android:supportsRtl="true" android:theme="@style/Maui.MainTheme">
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
