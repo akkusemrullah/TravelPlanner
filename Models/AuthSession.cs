@@ -52,7 +52,9 @@ namespace TravelPlanner.Models
         NotSupported,
         SessionExpired,
         /// <summary>The account was banned by the app's admin (Supabase "user_banned").</summary>
-        Banned
+        Banned,
+        /// <summary>The CAPTCHA (Cloudflare Turnstile) couldn't be completed or the server refused its token.</summary>
+        CaptchaFailed
     }
 
     /// <summary>A sign-in/sign-up failure the UI can explain (see AuthViewModel's messages).</summary>

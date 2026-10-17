@@ -1438,7 +1438,7 @@ For some features the app sends requests directly from your device to these free
 • OpenFreeMap: map images (the area shown).
 • Frankfurter (European Central Bank rates): exchange rates (currency pair, date).
 Like any internet request, these services can see your IP address. Your name, e-mail, expenses or documents are not included.
-Accounts and cloud storage are provided by Supabase (data on servers in Frankfurt, Germany). If you sign in with Google, the sign-in is handled by Google and Google's privacy policy applies.
+Accounts and cloud storage are provided by Supabase (data on servers in Frankfurt, Germany). If you sign in with Google, the sign-in is handled by Google and Google's privacy policy applies. When you sign up, sign in or reset your password with e-mail, a Cloudflare Turnstile security check is used to stop automated (bot) sign-ups; during the check Cloudflare, Inc. (USA) processes your device's IP address and browser information (e.g. browser type and language). It isn't used for Google sign-in.
 
 ## Retention and deletion
 • We keep your data while your account exists.
@@ -2541,6 +2541,7 @@ Your personal data may be shared, only for the purposes above, with:
 • Supabase Inc. (hosting, authentication and file storage; data kept on servers in Frankfurt, Germany).
 • OpenAI (USA) – only when you use planning with AI: the destination, dates, your preferences, your note and the names of saved places. Your name, e-mail, expenses and documents are not transferred.
 • Google – only if you choose to sign in with Google, for the sign-in.
+• Cloudflare, Inc. (USA) – for the security check that stops automated (bot) sign-ups when you sign up, sign in or reset your password with e-mail: IP address and browser information.
 • Members of a trip you share – only through an invite you create: the trip's content and your name, e-mail and profile photo.
 • Competent public authorities – where the law requires.
 As some of these providers are located abroad, your personal data is transferred abroad. Transfers are made in line with KVKK article 9: on the basis of appropriate safeguards in the agreements with the providers, or, where that is not possible, on the basis of the explicit consent you give when using the feature concerned. Planning with AI and signing in with Google are entirely optional; you can use the app's other features without them.
@@ -2699,5 +2700,23 @@ No. There are no ads, no analytics and no tracking, and we don't sell your data.
 Notifications (reminders and budget alerts), camera and photos (only when adding a document or photo) and internet. It doesn't ask for your location or access your contacts.
 ? How do I exercise my data rights (KVKK)?
 For access, correction, deletion and other requests, write to {email} from your account's e-mail address. We answer free of charge within 30 days. See the KVKK Notice for details.</value>
+  </data>
+  <data name="Auth_ErrorCaptcha" xml:space="preserve">
+    <value>The security check couldn't be completed. Please try again.</value>
+  </data>
+  <data name="Captcha_Title" xml:space="preserve">
+    <value>Security check</value>
+  </data>
+  <data name="Captcha_Subtitle" xml:space="preserve">
+    <value>Making sure you're not a robot – this takes a few seconds.</value>
+  </data>
+  <data name="Captcha_Failed" xml:space="preserve">
+    <value>The security check couldn't load. Check your internet connection and try again.</value>
+  </data>
+  <data name="Captcha_Retry" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Captcha_Cancel" xml:space="preserve">
+    <value>Cancel</value>
   </data>
 </root>

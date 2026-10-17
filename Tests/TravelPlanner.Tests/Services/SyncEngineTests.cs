@@ -294,6 +294,121 @@ namespace TravelPlanner.Tests
             Assert.Empty(await _trips.GetAllAsync());
         }
 
+        /// <summary>A server expense row (SEC-01 tests); <paramref name="overrides"/> replace single columns.</summary>
+        private static JsonObject RemoteExpense(string id, string tripId, long changeSeq, params (string Column, JsonNode? Value)[] overrides)
+        {
+            var row = new JsonObject
+            {
+                ["id"] = id, ["trip_id"] = tripId, ["category"] = 2, ["amount_minor"] = 1250, ["original_amount_minor"] = 1250,
+                ["exchange_rate"] = 1, ["date"] = "2026-09-02", ["description"] = "Müze",
+                ["version"] = 1, ["change_seq"] = changeSeq, ["deleted_at"] = null,
+            };
+            foreach (var (column, value) in overrides)
+                row[column] = value;
+            return row;
+        }
+
+        [Fact]
+        public async Task Pull_SkipsOnlyBrokenRows_AppliesTheRest_AndMovesTheCursor()
+        {
+            // SEC-01: an editor wrote these straight through the REST API (e.g. before the server had its CHECKs).
+            const string tripId = "11111111-1111-1111-1111-111111111111";
+            const string goodExpense = "a5555555-5555-5555-5555-555555555555";
+            var expenses = new JsonArray
+            {
+                RemoteExpense("a1111111-1111-1111-1111-111111111111", tripId, 11, ("amount_minor", long.MaxValue)),       // breaks a limit
+                RemoteExpense("a2222222-2222-2222-2222-222222222222", tripId, 12, ("exchange_rate", 1e300)),              // breaks a limit
+                RemoteExpense("a3333333-3333-3333-3333-333333333333", tripId, 13, ("date", "20000-01-01")),               // ParseExact throws
+                RemoteExpense("a4444444-4444-4444-4444-444444444444", tripId, 14, ("category", 99_999_999_999L)),          // GetInt32 overflows
+                RemoteExpense("a6666666-6666-6666-6666-666666666666", tripId, 15, ("category", 7)),                       // no such category
+                RemoteExpense(goodExpense, tripId, 16),
+            };
+            var first = $$"""
+            {
+              "cursor": 40,
+              "memberships": [ { "trip_id": "{{tripId}}", "role": "editor", "change_seq": 5 } ],
+              "trips": [ { "id": "{{tripId}}", "name": "Paris", "country": "Fransa", "city": "Paris", "start_date": "2026-09-01", "end_date": "2026-09-03",
+                           "planned_budget_minor": 100000, "currency_code": "EUR", "version": 1, "change_seq": 10, "deleted_at": null } ],
+              "expenses": {{expenses.ToJsonString()}},
+              "activities": [
+                { "id": "b1111111-1111-1111-1111-111111111111", "trip_id": "{{tripId}}", "date": "2026-09-02", "start_time": "nope", "title": "Bozuk saat",
+                  "sort_order": 0, "version": 1, "change_seq": 17, "deleted_at": null },
+                { "id": "b2222222-2222-2222-2222-222222222222", "trip_id": "{{tripId}}", "date": "20000-01-01", "title": "Bozuk tarih",
+                  "sort_order": 0, "version": 1, "change_seq": 18, "deleted_at": null },
+                { "id": "b3333333-3333-3333-3333-333333333333", "trip_id": "{{tripId}}", "date": "2026-09-02", "start_time": "09:30:00", "title": "Louvre",
+                  "sort_order": 0, "version": 1, "change_seq": 19, "deleted_at": null }
+              ],
+              "todos": [ { "id": "c1111111-1111-1111-1111-111111111111", "trip_id": "{{tripId}}", "title": "Pasaport", "is_completed": false,
+                           "created_date": "2026-08-01T10:00:00", "version": 1, "change_seq": 20, "deleted_at": null } ]
+            }
+            """;
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : first;
+
+            var result = await _sync.SyncNowAsync();
+
+            // the good rows are in ...
+            Assert.Equal(4, result.Pulled); // trip, one expense, one activity, one to-do
+            var trip = Assert.Single(await _trips.GetAllAsync());
+            Assert.Equal("Paris", trip.Name);
+            var expense = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            Assert.Equal(goodExpense, expense.SyncId);
+            Assert.Equal(12.50m, expense.Amount);
+            Assert.Equal("Louvre", Assert.Single(await new ActivityService(_db.Service).GetByTripIdAsync(trip.Id)).Title);
+            var conn = await _db.Connection;
+            Assert.Equal(1, await conn.Table<TodoItem>().CountAsync());
+            // ... the broken ones left nothing behind, and the cursor moved past all of them
+            Assert.Equal(1, await conn.Table<Expense>().CountAsync());
+            Assert.Equal(1, await conn.Table<TripActivity>().CountAsync());
+            Assert.Equal("40", (await conn.FindAsync<SyncStateEntry>(SyncService.CursorKey))!.Value);
+            Assert.Equal(SyncStatus.UpToDate, _sync.Status);
+
+            // A later broken edit of a row we already have: our copy stays as it was, the rest still applies.
+            var second = new JsonObject
+            {
+                ["cursor"] = 60,
+                ["memberships"] = new JsonArray(new JsonObject { ["trip_id"] = tripId, ["role"] = "editor", ["change_seq"] = 5 }),
+                ["expenses"] = new JsonArray(RemoteExpense(goodExpense, tripId, 50, ("amount_minor", long.MaxValue), ("version", 2))),
+                ["activities"] = new JsonArray(new JsonObject
+                {
+                    ["id"] = "b3333333-3333-3333-3333-333333333333", ["trip_id"] = tripId, ["date"] = "2026-09-02", ["start_time"] = "10:00:00",
+                    ["title"] = "Louvre (10:00)", ["sort_order"] = 0, ["version"] = 2, ["change_seq"] = 51, ["deleted_at"] = null,
+                }),
+            }.ToJsonString();
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : second;
+
+            await _sync.SyncNowAsync();
+
+            var pull = _client.Calls.Last(c => c.Function == "pull_changes");
+            Assert.Equal(40, pull.Arguments["p_since"]!.GetValue<long>());       // the broken rows didn't hold the cursor back
+            var kept = await _expenses.GetByIdAsync(expense.Id);
+            Assert.Equal(12.50m, kept!.Amount);
+            Assert.Equal(1, kept.Version);
+            Assert.Equal("Louvre (10:00)", Assert.Single(await new ActivityService(_db.Service).GetByTripIdAsync(trip.Id)).Title);
+            Assert.Equal("60", (await conn.FindAsync<SyncStateEntry>(SyncService.CursorKey))!.Value);
+        }
+
+        [Fact]
+        public async Task RemoteApplier_ReportsEachBrokenRow_AndKeepsGoing()
+        {
+            using var document = JsonDocument.Parse("""
+                { "cursor": 7, "packing_templates": [
+                    { "id": "d1111111-1111-1111-1111-111111111111", "name": "Kamp", "items": "Çadır", "created_date": "not a date", "version": 1, "change_seq": 3 },
+                    42,
+                    { "id": "d2222222-2222-2222-2222-222222222222", "name": "Plaj", "items": "Havlu", "created_date": "2026-01-01T00:00:00", "version": 1, "change_seq": 4 } ] }
+                """);
+            var root = document.RootElement.Clone();
+            var db = await _db.Connection;
+
+            RemoteApplier.Outcome outcome = null!;
+            await db.RunInTransactionAsync(conn => outcome = RemoteApplier.Apply(conn, root));
+
+            Assert.Equal(1, outcome.Changed);
+            var invalid = Assert.Single(outcome.Invalid);
+            Assert.StartsWith("PackingTemplate d1111111-1111-1111-1111-111111111111: FormatException", invalid);
+            Assert.Equal(7, outcome.Cursor);
+            Assert.Equal("Plaj", Assert.Single(await db.Table<PackingTemplate>().ToListAsync()).Name);
+        }
+
         [Fact]
         public async Task Pull_SkipsTheEchoOfOurOwnPush()
         {

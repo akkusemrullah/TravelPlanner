@@ -12,7 +12,11 @@ namespace TravelPlanner.Services.Sync
     /// - a row we already have at the same or a newer change_seq is skipped (e.g. the echo of our own push);
     /// - fields with a local edit that hasn't been uploaded yet keep the local value (it goes up next and wins there);
     /// - a row we deleted locally (delete still queued) is not brought back;
-    /// - trips that no longer appear in memberships (removed from the trip) are removed locally.
+    /// - trips that no longer appear in memberships (removed from the trip) are removed locally;
+    /// - SEC-01: every row is checked like a restored backup (<see cref="EntityValidator"/>). A row that can't be
+    ///   read or breaks a limit is logged and skipped on its own (inside a savepoint, so nothing half-written stays);
+    ///   the rest of the answer is applied and the cursor still moves past it. Otherwise one bad row - written by
+    ///   any editor straight through the REST API - would roll back every pull, forever, for every member.
     /// </summary>
     public static class RemoteApplier
     {
@@ -22,6 +26,9 @@ namespace TravelPlanner.Services.Sync
 
             /// <summary>Rows that couldn't be stored because their trip/parent isn't here (yet).</summary>
             public int Skipped { get; set; }
+
+            /// <summary>SEC-01: rows that couldn't be read or broke a limit, and were left out ("Expense &lt;id&gt;: invalid amount").</summary>
+            public List<string> Invalid { get; } = new();
 
             public HashSet<int> ChangedTripIds { get; } = new();
 
@@ -62,7 +69,7 @@ namespace TravelPlanner.Services.Sync
                     continue;
 
                 foreach (var row in rows.EnumerateArray())
-                    ApplyRow(conn, info, row, outcome);
+                    ApplyRowSafely(conn, info, row, outcome);
             }
 
             // 3) trips we were removed from (only ones the server had seen - never a trip still waiting to be uploaded)
@@ -79,9 +86,10 @@ namespace TravelPlanner.Services.Sync
             }
 
             // 4) cursor
-            if (response.TryGetProperty("cursor", out var cursor) && cursor.ValueKind == JsonValueKind.Number)
+            if (response.TryGetProperty("cursor", out var cursor) && cursor.ValueKind == JsonValueKind.Number &&
+                cursor.TryGetInt64(out var nextCursor) && nextCursor >= 0)
             {
-                outcome.Cursor = cursor.GetInt64();
+                outcome.Cursor = nextCursor;
                 conn.InsertOrReplace(new SyncStateEntry
                 {
                     Key = SyncService.CursorKey,
@@ -90,6 +98,57 @@ namespace TravelPlanner.Services.Sync
             }
 
             return outcome;
+        }
+
+        /// <summary>
+        /// One row in its own savepoint: a row that throws (a date PostgreSQL accepts but DateTime can't hold, a
+        /// number too big for its column, an unknown enum …) is rolled back alone and counted in
+        /// <see cref="Outcome.Invalid"/>; the pull goes on. Errors of the database itself (disk full, I/O …) are not
+        /// the row's fault - they still fail the whole pull, so nothing is skipped by accident.
+        /// </summary>
+        private static void ApplyRowSafely(SQLiteConnection conn, SyncEntityInfo info, JsonElement row, Outcome outcome)
+        {
+            var savepoint = conn.SaveTransactionPoint();
+            var changed = outcome.Changed;
+            var skipped = outcome.Skipped;
+            var changedTrips = outcome.ChangedTripIds.ToArray();
+            var removedTrips = outcome.RemovedTripIds.ToArray();
+            var files = outcome.FilesToDelete.Count;
+            try
+            {
+                ApplyRow(conn, info, row, outcome);
+                conn.Release(savepoint);
+            }
+            catch (Exception ex) when (IsBadRow(ex))
+            {
+                conn.RollbackTo(savepoint);
+                conn.Execute("RELEASE " + savepoint); // RollbackTo keeps the savepoint open; close it (depth is already back)
+
+                // what the rolled-back row had added to the outcome no longer happened
+                outcome.Changed = changed;
+                outcome.Skipped = skipped;
+                outcome.ChangedTripIds.Clear();
+                outcome.ChangedTripIds.UnionWith(changedTrips);
+                outcome.RemovedTripIds.Clear();
+                outcome.RemovedTripIds.UnionWith(removedTrips);
+                outcome.FilesToDelete.RemoveRange(files, outcome.FilesToDelete.Count - files);
+
+                Reject(info, row, $"{ex.GetType().Name}: {ex.Message}", outcome);
+            }
+        }
+
+        private static bool IsBadRow(Exception ex) =>
+            ex is not (OutOfMemoryException or OperationCanceledException) &&
+            (ex is not SQLiteException sqlite || sqlite.Result == SQLite3.Result.Constraint);
+
+        private static void Reject(SyncEntityInfo info, JsonElement row, string reason, Outcome outcome)
+        {
+            var id = row.ValueKind == JsonValueKind.Object && row.TryGetProperty("id", out var value) ? value.ToString() : "?";
+            if (id.Length > 64)
+                id = id[..64];
+            var entry = $"{info.EntityType} {id}: {reason}";
+            outcome.Invalid.Add(entry);
+            System.Diagnostics.Debug.WriteLine($"[Sync] Skipped invalid remote row - {entry}");
         }
 
         private static void ApplyRow(SQLiteConnection conn, SyncEntityInfo info, JsonElement row, Outcome outcome)
@@ -140,6 +199,12 @@ namespace TravelPlanner.Services.Sync
                     return;
                 }
 
+                if (EntityValidator.Validate(entity) is { } problem)
+                {
+                    Reject(info, row, problem, outcome);
+                    return;
+                }
+
                 SyncFieldMapper.ApplyMetadata(row, entity);
                 if (entity is TripAttachment attachment)
                     attachment.RelativePath = LocalPathFor(attachment);
@@ -153,6 +218,12 @@ namespace TravelPlanner.Services.Sync
             if (!SyncFieldMapper.ApplyRow(conn, info, row, local, keepLocal))
             {
                 outcome.Skipped++;
+                return;
+            }
+
+            if (EntityValidator.Validate(local) is { } invalid)
+            {
+                Reject(info, row, invalid, outcome); // the stored copy stays as it was (the object isn't saved)
                 return;
             }
 

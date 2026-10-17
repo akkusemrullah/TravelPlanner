@@ -303,8 +303,9 @@ namespace TravelPlanner.Services
         /// <summary>
         /// Checks a parsed backup before anything is replaced. The file may be old, hand-edited or corrupt, and
         /// its rows go straight into tables the rest of the app trusts - so the same limits the forms and services
-        /// enforce apply here: money/rates/dates within <see cref="InputLimits"/> (otherwise totals, conversions and
-        /// reminder date math can overflow or crash), coordinates on Earth, text trimmed to column limits.
+        /// enforce apply here (<see cref="EntityValidator"/>, shared with the sync pull): money/rates/dates within
+        /// <see cref="InputLimits"/> (otherwise totals, conversions and reminder date math can overflow or crash),
+        /// known categories, coordinates on Earth, text trimmed to column limits.
         /// Broken money/dates/coordinates reject the whole backup (nothing has been touched yet); an attachment
         /// whose stored path points outside the attachments folder is dropped, because opening or deleting it
         /// later would touch an arbitrary file.
@@ -326,64 +327,28 @@ namespace TravelPlanner.Services
                 data.Participants.Any(p => p is null) || data.ExpenseShares.Any(s => s is null) || data.Attachments.Any(a => a is null))
                 throw new InvalidBackupException("null rows");
 
-            foreach (var trip in data.Trips)
-            {
-                InputLimits.EnforceTextLimits(trip);
-                trip.StartDate = trip.StartDate.Date;
-                trip.EndDate = trip.EndDate.Date;
-                if (!InputLimits.IsValidDate(trip.StartDate) || !InputLimits.IsValidDate(trip.EndDate) || trip.EndDate < trip.StartDate)
-                    throw new InvalidBackupException($"trip {trip.Id}: invalid dates");
-                if (!InputLimits.IsValidMinor(trip.PlannedBudgetMinor))
-                    throw new InvalidBackupException($"trip {trip.Id}: invalid budget");
-                if (trip.CurrencyCode is not null && !Helpers.MoneyFormatter.IsSupported(trip.CurrencyCode))
-                    trip.CurrencyCode = null; // falls back to the default currency, like pre-TP-403 trips
-            }
-
-            foreach (var expense in data.Expenses)
-            {
-                InputLimits.EnforceTextLimits(expense);
-                if (!InputLimits.IsValidMinor(expense.AmountMinor) || !InputLimits.IsValidMinor(expense.OriginalAmountMinor))
-                    throw new InvalidBackupException($"expense {expense.Id}: invalid amount");
-                if (!InputLimits.IsValidRate(expense.ExchangeRate))
-                    throw new InvalidBackupException($"expense {expense.Id}: invalid exchange rate");
-                if (!InputLimits.IsValidDate(expense.Date))
-                    throw new InvalidBackupException($"expense {expense.Id}: invalid date");
-                if (expense.OriginalCurrencyCode is not null && !Helpers.MoneyFormatter.IsSupported(expense.OriginalCurrencyCode))
-                    throw new InvalidBackupException($"expense {expense.Id}: unknown currency");
-            }
-
-            foreach (var place in data.Places)
-            {
-                InputLimits.EnforceTextLimits(place);
-                if (!PlaceService.IsValidCoordinate(place.Latitude, place.Longitude))
-                    throw new InvalidBackupException($"place {place.Id}: invalid coordinates");
-            }
-
-            foreach (var activity in data.Activities)
-            {
-                InputLimits.EnforceTextLimits(activity);
-                activity.Date = activity.Date.Date;
-                if (!InputLimits.IsValidDate(activity.Date))
-                    throw new InvalidBackupException($"activity {activity.Id}: invalid date");
-                if (activity.StartTime is { } start && (start < TimeSpan.Zero || start >= TimeSpan.FromDays(1)))
-                    activity.StartTime = null;
-                if (activity.StartTime is null || activity.EndTime is { } end && (end < TimeSpan.Zero || end >= TimeSpan.FromDays(1)))
-                    activity.EndTime = null;
-            }
-
-            foreach (var todo in data.Todos)
-                InputLimits.EnforceTextLimits(todo);
-            foreach (var participant in data.Participants)
-                InputLimits.EnforceTextLimits(participant);
-            foreach (var template in data.PackingTemplates)
-            {
-                InputLimits.EnforceTextLimits(template);
-                template.Items ??= string.Empty;
-            }
+            // SEC-01: the same rules as rows pulled from the server (EntityValidator); here a broken row rejects
+            // the whole backup, because nothing has been replaced yet and a half-restored backup helps nobody.
+            Check(data.Trips, "trip", t => t.Id);
+            Check(data.Expenses, "expense", e => e.Id);
+            Check(data.Places, "place", p => p.Id);
+            Check(data.Activities, "activity", a => a.Id);
+            Check(data.Todos, "todo", t => t.Id);
+            Check(data.Participants, "participant", p => p.Id);
+            Check(data.ExpenseShares, "expense share", s => s.Id);
+            Check(data.PackingTemplates, "packing template", t => t.Id);
 
             data.Attachments = data.Attachments.Where(a => IsSafeAttachmentPath(a.RelativePath, attachmentsRoot)).ToList();
-            foreach (var attachment in data.Attachments)
-                InputLimits.EnforceTextLimits(attachment);
+            Check(data.Attachments, "attachment", a => a.Id);
+        }
+
+        private static void Check<T>(IEnumerable<T> rows, string what, Func<T, int> id) where T : class
+        {
+            foreach (var row in rows)
+            {
+                if (EntityValidator.Validate(row) is { } problem)
+                    throw new InvalidBackupException($"{what} {id(row)}: {problem}");
+            }
         }
 
         /// <summary>"attachments/&lt;tripId&gt;/&lt;file&gt;" that resolves inside the attachments folder - nothing else.</summary>

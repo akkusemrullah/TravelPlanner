@@ -17,6 +17,19 @@ namespace TravelPlanner.Helpers
         /// <summary>Must also be in Supabase → Authentication → URL Configuration → Redirect URLs.</summary>
         public const string AuthCallbackUrl = CallbackScheme + "://auth-callback";
 
+        /// <summary>
+        /// Cloudflare Turnstile site key (public, meant to be shipped - the secret key goes only into Supabase →
+        /// Authentication → Attack Protection). Empty = no CAPTCHA: the app works as before, so it can ship before
+        /// CAPTCHA protection is switched on in Supabase. See supabase/README.md → "CAPTCHA".
+        /// </summary>
+        public const string CaptchaSiteKey = "0x4AAAAAAFZRqKQq7G-pl-tD";
+
+        /// <summary>
+        /// The Turnstile widget runs in a WebView as if on this page (nothing is loaded from there, the HTML is in
+        /// the app). Its host - or a parent domain - must be in the Turnstile widget's "Hostnames" list.
+        /// </summary>
+        public const string CaptchaPageUrl = "https://travelplanner.emrullahakkus.com.tr/captcha";
+
         public static string AuthBaseUrl => Url + "/auth/v1/";
 
         public static string RestBaseUrl => Url + "/rest/v1/";

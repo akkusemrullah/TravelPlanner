@@ -110,6 +110,8 @@ namespace TravelPlanner
                 client.Timeout = TimeSpan.FromSeconds(20);
                 client.DefaultRequestHeaders.UserAgent.ParseAdd(AppConstants.HttpUserAgent);
             });
+            // CAPTCHA (Cloudflare Turnstile) for e-mail sign-up / sign-in / password reset; off while SupabaseConfig.CaptchaSiteKey is empty.
+            services.AddSingleton<ICaptchaService, TurnstileCaptchaService>();
             services.AddSingleton<IAuthService, SupabaseAuthService>();
 
             // G4/G5: sync engine (RPCs + Storage over plain HTTP).

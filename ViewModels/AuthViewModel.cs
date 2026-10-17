@@ -295,6 +295,7 @@ namespace TravelPlanner.ViewModels
             AuthErrorKind.RateLimited => AppResources.Auth_ErrorRateLimited,
             AuthErrorKind.NotSupported => AppResources.Auth_ErrorNotSupported,
             AuthErrorKind.Banned => AppResources.Auth_ErrorBanned,
+            AuthErrorKind.CaptchaFailed => AppResources.Auth_ErrorCaptcha,
             _ => AppResources.Auth_ErrorUnknown,
         };
 

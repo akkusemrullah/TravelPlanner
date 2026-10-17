@@ -1,6 +1,6 @@
 # KVKK Aydınlatma Metni / KVKK Notice – Travel Planner
 
-Son güncelleme: 16 Ekim 2026 · Last updated: 16 October 2026
+Son güncelleme: 17 Ekim 2026 · Last updated: 17 October 2026
 
 > Bu metin uygulamadaki *Profil → Yasal ve gizlilik* sayfasıyla aynıdır (kaynak: `Resources/Strings/AppResources*.resx`). Uygulamadaki metni değiştirdiğinde bu dosyayı da güncelle.
 
@@ -44,6 +44,7 @@ Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktar
 - Supabase Inc. (barındırma, kimlik doğrulama ve dosya depolama; veriler Frankfurt, Almanya'daki sunucularda tutulur).
 - OpenAI (ABD) – yalnızca yapay zekâ ile planlamayı kullandığında; gidilecek yer, tarihler, tercihlerin, notun ve kayıtlı yer adları. Adın, e-postan, harcamaların ve belgelerin aktarılmaz.
 - Google – yalnızca Google ile giriş yapmayı seçersen, giriş işlemi için.
+- Cloudflare, Inc. (ABD) – e-posta ile kayıt, giriş ve şifre sıfırlamada otomatik (bot) hesap açılmasını engelleyen güvenlik kontrolü için; IP adresi ve tarayıcı bilgileri.
 - Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın, e-postan ve profil fotoğrafın.
 - Yetkili kamu kurum ve kuruluşları – hukuken zorunlu olduğunda.
 
@@ -110,6 +111,7 @@ Your personal data may be shared, only for the purposes above, with:
 - Supabase Inc. (hosting, authentication and file storage; data kept on servers in Frankfurt, Germany).
 - OpenAI (USA) – only when you use planning with AI: the destination, dates, your preferences, your note and the names of saved places. Your name, e-mail, expenses and documents are not transferred.
 - Google – only if you choose to sign in with Google, for the sign-in.
+- Cloudflare, Inc. (USA) – for the security check that stops automated (bot) sign-ups when you sign up, sign in or reset your password with e-mail: IP address and browser information.
 - Members of a trip you share – only through an invite you create: the trip's content and your name, e-mail and profile photo.
 - Competent public authorities – where the law requires.
 

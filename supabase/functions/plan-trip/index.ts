@@ -3,25 +3,29 @@
 //   POST /functions/v1/plan-trip   (headers: apikey = publishable key, Authorization = Bearer <user access token>)
 //   body: { deviceId, language, destination, startDate, days, interests[], pace, budget, companions, notes, existingPlaces[] }
 //   200 → { plan: TripPlan, remaining: number, truncatedDays: boolean }
-//   400 invalid_request · 401 not_signed_in · 403 account_disabled · 429 quota_exceeded · 502 ai_failed
+//   400 invalid_request · 401 not_signed_in · 403 account_disabled · 413 body_too_large · 429 quota_exceeded
+//   502 ai_failed
 //
 // The OpenAI key lives only here, as the secret OPENAI_API_KEY. The user's own token pays for one plan of the
-// daily quota first (public.ai_plan_quota, migration 9: per account AND per device) - which also refuses banned
-// or deleted accounts. If the AI then fails, the plan is given back (public.ai_plan_refund, migration 10).
-// Optional secrets: AI_MODEL (default gpt-5-mini - nano made plans that repeated places and mixed far-apart areas)
-// and AI_REASONING (minimal | low | medium; default low, minimal for nano models).
+// daily quota first (public.ai_plan_quota: per account, per device, lower for new accounts, and a global daily
+// ceiling for everyone - migrations 9 and 12) - which also refuses banned or deleted accounts.
+// SEC-02: the plan is given back (public.ai_plan_refund, migrations 10/12; at most 2 a day per account) ONLY when
+// OpenAI gave no answer at all (network error, HTTP error). An answer that was cut off, empty, not JSON or an
+// empty plan - and our own timeout - is billed by OpenAI, so it costs the user the plan too.
+// Optional secrets: AI_MODEL (default gpt-5-mini - nano made plans that repeated places and mixed far-apart areas),
+// AI_REASONING (minimal | low | medium; default low, minimal for nano models) and AI_MAX_TOKENS (upper bound of
+// max_completion_tokens for the plan, default 16000 - see planTokenBudget in planner.ts).
 //
 // Every place of the plan is checked on the map (OpenStreetMap, see places.ts): meals are planned at real venues
 // found around the destination, places that can't be found are replaced (once more by the model) or dropped,
 // and the places sent back carry the map's coordinates (verified: true).
 
 import {
-  buildMessages, buildReplacementMessages, parseRequest, PLAN_SCHEMA, REPLACEMENT_SCHEMA, RequestError, sanitizePlan,
-  sanitizeReplacements,
+  buildMessages, buildReplacementMessages, MAX_BODY_BYTES, MAX_PLAN_TOKENS, parseRequest, PLAN_SCHEMA, planTokenBudget,
+  REPLACEMENT_SCHEMA, RequestError, sanitizePlan, sanitizeReplacements,
 } from "./planner.ts";
+import { AiCallError, askOpenAi, BodyTooLarge, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
 import { findCenter, foodVenues, type Point, type Venue, verifyPlan } from "./places.ts";
-
-const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json; charset=utf-8" } });
@@ -55,7 +59,7 @@ async function useQuota(authorization: string, apikey: string, deviceId: string)
   return { ok: false, response: fail(502, "quota_check_failed") };
 }
 
-/** Gives back the plan a failed AI request used (public.ai_plan_refund). Never throws. */
+/** Gives back the plan of a request OpenAI never answered (public.ai_plan_refund). Never throws. */
 async function refundQuota(authorization: string, apikey: string, ticket: string | null): Promise<boolean> {
   if (!ticket) return false;
   try {
@@ -79,14 +83,17 @@ async function refundQuota(authorization: string, apikey: string, ticket: string
 Deno.serve(async (req) => {
   if (req.method !== "POST") return fail(405, "method_not_allowed");
 
+  // cheap checks first: without a session token the body isn't even read (the function runs --no-verify-jwt;
+  // the token itself is checked by ai_plan_quota)
   const authorization = req.headers.get("Authorization") ?? "";
   const apikey = req.headers.get("apikey") ?? "";
-  if (!authorization.startsWith("Bearer ") || !apikey) return fail(401, "not_signed_in");
+  if (!looksLikeBearerJwt(authorization) || !apikey || apikey.length > 4096) return fail(401, "not_signed_in");
 
   let parsed;
   try {
-    parsed = parseRequest(await req.json());
+    parsed = parseRequest(await readJsonBody(req, MAX_BODY_BYTES));
   } catch (e) {
+    if (e instanceof BodyTooLarge) return fail(413, "body_too_large");
     return fail(400, "invalid_request", e instanceof RequestError ? e.message : "body is not JSON");
   }
 
@@ -101,39 +108,21 @@ Deno.serve(async (req) => {
   // the plan needs some thinking (grouping sights by area, one visit per place); the replacement question doesn't
   const planEffort = Deno.env.get("AI_REASONING") ?? (model.includes("nano") ? "minimal" : "low");
 
-  /** One structured-output call: the parsed JSON answer; throws on any failure. */
+  const planTokens = planTokenBudget(request.days, request.pace, planEffort, Number(Deno.env.get("AI_MAX_TOKENS") ?? MAX_PLAN_TOKENS));
+
+  /** One structured-output call: the parsed JSON answer; throws AiCallError on any failure. */
   const started = Date.now();
-  const ask = async (
-    messages: unknown, name: string, schema: unknown, maxTokens: number, timeoutMs: number, effort: string,
-  ): Promise<unknown> => {
-    const ai = await fetch(OPENAI_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${openAiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        messages,
-        response_format: { type: "json_schema", json_schema: { name, strict: true, schema } },
-        reasoning_effort: effort,
-        max_completion_tokens: maxTokens,
-      }),
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    if (!ai.ok) throw new Error(`OpenAI ${ai.status}: ${(await ai.text()).slice(0, 500)}`);
-    const body = await ai.json();
-    const choice = body?.choices?.[0];
-    if (choice?.finish_reason === "length") throw new Error(`answer cut off ${JSON.stringify(body?.usage)}`);
-    const content = choice?.message?.content;
-    if (!content) throw new Error("empty answer");
-    return JSON.parse(content);
-  };
+  const ask = (messages: unknown, name: string, schema: unknown, maxTokens: number, timeoutMs: number, effort: string) =>
+    askOpenAi(fetch, { apiKey: openAiKey, model, messages, name, schema, maxTokens, timeoutMs, effort });
 
   // the quota first: a request without plans left (or without a valid session) costs the map services nothing
   const quota = await useQuota(authorization, apikey, request.deviceId);
   if (!quota.ok) return quota.response;
 
-  // the AI failed: the user got no plan, so the plan goes back to the quota
-  const aiFailed = async (detail?: string) => {
-    const refunded = await refundQuota(authorization, apikey, quota.ticket);
+  // the AI failed. The plan goes back to the quota only when OpenAI never answered (nothing was billed); an answer
+  // that came back unusable was paid for, so it counts - otherwise one could loop "cut off" answers for free.
+  const aiFailed = async (billed: boolean, detail?: string) => {
+    const refunded = !billed && await refundQuota(authorization, apikey, quota.ticket);
     return json(502, { error: "ai_failed", detail, remaining: refunded ? quota.remaining + 1 : quota.remaining });
   };
 
@@ -149,12 +138,14 @@ Deno.serve(async (req) => {
 
   let plan;
   try {
-    plan = sanitizePlan(await ask(buildMessages(request, venues), "trip_plan", PLAN_SCHEMA, 32000, 100_000, planEffort), request.days);
+    plan = sanitizePlan(await ask(buildMessages(request, venues), "trip_plan", PLAN_SCHEMA, planTokens, 100_000, planEffort), request.days);
   } catch (e) {
-    console.error("OpenAI call failed", String(e));
-    return await aiFailed();
+    // anything else than AiCallError (a bug in sanitizePlan) happened after a billed answer
+    const billed = !(e instanceof AiCallError) || e.billed;
+    console.error(`OpenAI call failed (${billed ? "billed, no refund" : "not billed, refund"})`, String(e));
+    return await aiFailed(billed, billed ? "ai_answer_unusable" : "ai_unreachable");
   }
-  if (plan.days.length === 0 && plan.places.length === 0) return await aiFailed("empty plan");
+  if (plan.days.length === 0 && plan.places.length === 0) return await aiFailed(true, "empty plan");
 
   let checked;
   try {

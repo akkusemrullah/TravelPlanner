@@ -12,15 +12,19 @@ namespace TravelPlanner.Tests
 
         public List<Uri> Requests { get; } = new();
 
+        /// <summary>The body of every request (null without one), in the same order as <see cref="Requests"/>.</summary>
+        public List<string?> Bodies { get; } = new();
+
         public FakeHttpMessageHandler Respond(string urlFragment, string json, HttpStatusCode status = HttpStatusCode.OK)
         {
             _routes.Add((urlFragment, status, json));
             return this;
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Requests.Add(request.RequestUri!);
+            Bodies.Add(request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken));
 
             var url = request.RequestUri!.ToString();
             var route = _routes.FirstOrDefault(r => url.Contains(r.UrlFragment, StringComparison.OrdinalIgnoreCase));
@@ -29,7 +33,7 @@ namespace TravelPlanner.Tests
                 ? new HttpResponseMessage(HttpStatusCode.NotFound)
                 : new HttpResponseMessage(route.Status) { Content = new StringContent(route.Body, Encoding.UTF8, "application/json") };
 
-            return Task.FromResult(response);
+            return response;
         }
 
         public HttpClient CreateClient() => new(this);

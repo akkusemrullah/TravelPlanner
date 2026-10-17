@@ -26,7 +26,7 @@ namespace TravelPlanner.Helpers
     public static class DocumentText
     {
         /// <summary>Date shown as "last updated" on every legal document. Bump it whenever a text changes.</summary>
-        public static readonly DateTime LastUpdated = new(2026, 10, 16);
+        public static readonly DateTime LastUpdated = new(2026, 10, 17);
 
         public static string Fill(string text, CultureInfo? culture = null) => text
             .Replace("{email}", AppConstants.SupportEmail, StringComparison.Ordinal)

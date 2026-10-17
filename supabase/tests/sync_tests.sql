@@ -192,6 +192,61 @@ select test.eq(test.reason(res, 2), 'trip_mismatch', 'a row cannot move to anoth
 select test.eq(test.reason(res, 3), 'invalid', 'end before start refused (and the batch goes on)') from r;
 select test.eq(test.reason(res, 4), 'unknown_entity', 'unknown entity refused') from r;
 
+-- ------------------------------------------------------------------------------- SEC-01: value limits (migration 11)
+-- The owner may use the whole allowed range (his own second trip; no one else sees it).
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', '99999999-9999-9999-9999-999999999999', 'full', true,
+        'fields', jsonb_build_object('category', 5, 'amount_minor', 999999999999, 'original_amount_minor', 999999999999,
+                                     'exchange_rate', 1000000, 'date', '2100-12-31')),
+    jsonb_build_object('entity', 'Activity', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', '99999999-9999-9999-9999-999999999999', 'full', true,
+        'fields', jsonb_build_object('date', '1900-01-01', 'start_time', '09:00:00', 'end_time', '10:00:00', 'title', 'Sınır', 'sort_order', 100000))
+)) as res;
+select test.eq(test.status(res, 0), 'applied', 'limits: the largest allowed amount/rate/date is accepted') from r;
+select test.eq(test.status(res, 1), 'applied', 'limits: the edge dates and sort order are accepted') from r;
+
+-- An editor talking to the REST API directly cannot store values that break everyone's sync.
+reset role;
+select set_config('request.jwt.claim.sub', :'ayse', false);
+set role authenticated;
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    /* 0 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('amount_minor', 9223372036854775807)),
+    /* 1 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('amount_minor', 1000000000000)),
+    /* 2 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('original_amount_minor', 1000000000000)),
+    /* 3 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('exchange_rate', 1e300)),
+    /* 4 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('exchange_rate', 0.0000001)),
+    /* 5 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('exchange_rate', 'NaN')),
+    /* 6 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('date', '20000-01-01')),
+    /* 7 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('category', 99)),
+    /* 8 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'exp', 'trip_id', :'trip', 'fields', jsonb_build_object('category', -1)),
+    /* 9 */ jsonb_build_object('entity', 'Activity', 'op', 'upsert', 'id', :'act', 'trip_id', :'trip', 'fields', jsonb_build_object('date', '20000-01-01')),
+    /*10 */ jsonb_build_object('entity', 'Activity', 'op', 'upsert', 'id', :'act', 'trip_id', :'trip', 'fields', jsonb_build_object('sort_order', 2147483647)),
+    /*11 */ jsonb_build_object('entity', 'Activity', 'op', 'upsert', 'id', :'act', 'trip_id', :'trip', 'fields', jsonb_build_object('end_time', '08:00:00')),
+    /*12 */ jsonb_build_object('entity', 'Activity', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', :'trip', 'full', true,
+                'fields', jsonb_build_object('date', '2026-08-21', 'end_time', '10:00:00', 'title', 'Bitişi var, başlangıcı yok')),
+    /*13 */ jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'trip', 'fields', jsonb_build_object('start_date', '1800-01-01')),
+    /*14 */ jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'trip', 'fields', jsonb_build_object('end_date', '20000-01-01')),
+    /*15 */ jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'trip', 'fields', jsonb_build_object('planned_budget_minor', 9223372036854775807)),
+    /*16 */ jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', :'trip', 'full', true,
+                'fields', jsonb_build_object('display_name', 'x.pdf', 'kind', 7)),
+    /*17 */ jsonb_build_object('entity', 'Participant', 'op', 'upsert', 'id', :'part', 'trip_id', :'trip', 'fields', jsonb_build_object('created_date', '20000-01-01T00:00:00')),
+    /*18 */ jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', :'trip', 'full', true,
+                'fields', jsonb_build_object('amount_minor', 9223372036854775807, 'date', '2026-08-21'))
+)) as res;
+select test.eq((select count(*) from r, jsonb_array_elements(r.res) e where e ->> 'reason' = 'invalid'), 19::bigint,
+               'limits: every out-of-range value is refused as "invalid"');
+select test.eq((select amount_minor from public.expenses where id = :'exp'), 1500::bigint, 'limits: the expense keeps its amount');
+select test.eq((select exchange_rate from public.expenses where id = :'exp'), 1::double precision, 'limits: and its rate');
+select test.eq((select category from public.expenses where id = :'exp'), 2, 'limits: and its category');
+select test.eq((select date from public.activities where id = :'act'), '2026-08-21'::date, 'limits: the activity keeps its date');
+select test.eq((select start_date from public.trips where id = :'trip'), '2026-08-20'::date, 'limits: the trip keeps its dates');
+select test.eq((select count(*) from public.expenses where trip_id = :'trip'), 1::bigint, 'limits: no bad expense was added');
+
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+
 -- ------------------------------------------------------------------------------- delete beats an offline edit; restore
 select test.eq(test.status(public.apply_changes(jsonb_build_array(
     jsonb_build_object('entity', 'Todo', 'op', 'delete', 'id', :'todo', 'trip_id', :'trip')))), 'deleted', 'owner deletes the to-do');
@@ -334,6 +389,8 @@ select test.eq((select count(*) from public.trips where id = :'trip'), 0::bigint
 select test.eq((select count(*) from public.activities where trip_id = :'trip'), 0::bigint, 'with everything in it');
 
 -- AI planner quota: 5 a day per account AND per device, then HTTP 429 (PT429).
+-- (these accounts are a month old: new accounts get fewer plans, tested below)
+update auth.users set created_at = now() - interval '30 days';
 \set dev1 '1111111111111111111111111111111111111111111111111111111111111111'
 \set dev2 '2222222222222222222222222222222222222222222222222222222222222222'
 select set_config('request.jwt.claim.sub', :'ayse', false);
@@ -389,6 +446,58 @@ update private.ai_quota_ticket set created_at = now() - interval '11 minutes' wh
 set role authenticated;
 select test.eq(public.ai_plan_refund(:'ticket2'), false, 'ai refund: an old ticket gives nothing back');
 reset role;
+
+-- SEC-02: at most 2 refunds per account and day (ayse already got 1 back above).
+select set_config('request.jwt.claim.sub', :'ayse', false);
+set role authenticated;
+select (public.ai_plan_quota(:'dev3') ->> 'ticket')::uuid as ticket3 \gset
+select test.eq(public.ai_plan_refund(:'ticket3'), true, 'ai refund: the second refund of the day comes back');
+select (public.ai_plan_quota(:'dev3') ->> 'ticket')::uuid as ticket4 \gset
+select test.eq(public.ai_plan_refund(:'ticket4'), false, 'ai refund: no third refund on the same day');
+select test.eq((public.ai_plan_quota_status(:'dev3') ->> 'remaining')::int, 0, 'ai refund: the refused refund keeps the plan used');
+reset role;
+
+-- SEC-02: an account in its first 24 hours gets only 2 plans.
+\set eda  '00000000-0000-0000-0000-00000000a555'
+\set dev4 '4444444444444444444444444444444444444444444444444444444444444444'
+\set dev5 '5555555555555555555555555555555555555555555555555555555555555555'
+insert into auth.users (id, email) values (:'eda', 'eda@example.com');
+select set_config('request.jwt.claim.sub', :'eda', false);
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(:'dev4') ->> 'limit')::int, 2, 'ai quota: a new account has a limit of 2');
+select public.ai_plan_quota(:'dev4') from generate_series(1, 2);
+do $$ begin
+    perform public.ai_plan_quota('5555555555555555555555555555555555555555555555555555555555555555');
+    raise exception 'FAILED: a new account got a third plan (with a fresh device id)';
+exception when sqlstate 'PT429' then raise notice 'ok - a new account is out of plans after 2, whatever device id it sends (429)';
+end $$;
+reset role;
+update auth.users set created_at = now() - interval '25 hours' where id = :'eda';
+select set_config('request.jwt.claim.sub', :'eda', false);
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(:'dev5') ->> 'remaining')::int, 3, 'ai quota: after 24 hours the normal limit applies');
+reset role;
+
+-- SEC-02: the global ceiling stops everyone (429), also accounts and devices with plans left.
+update private.ai_global_usage set count = private.ai_global_daily_limit() - 1 where day = current_date;
+select set_config('request.jwt.claim.sub', :'eda', false);
+set role authenticated;
+select (public.ai_plan_quota(:'dev5') ->> 'ticket')::uuid as ticket5 \gset
+select test.eq((public.ai_plan_quota_status(:'dev5') ->> 'remaining')::int, 0, 'ai global: status shows 0 when the ceiling is reached');
+select set_config('request.jwt.claim.sub', :'deniz', false);
+do $$ begin
+    perform public.ai_plan_quota('6666666666666666666666666666666666666666666666666666666666666666');
+    raise exception 'FAILED: a plan past the global ceiling was allowed';
+exception when sqlstate 'PT429' then raise notice 'ok - past the global ceiling everyone gets 429';
+end $$;
+select set_config('request.jwt.claim.sub', :'eda', false);
+select test.eq(public.ai_plan_refund(:'ticket5'), true, 'ai global: a refund frees the global plan too');
+select set_config('request.jwt.claim.sub', :'deniz', false);
+select test.eq((public.ai_plan_quota('6666666666666666666666666666666666666666666666666666666666666666') ->> 'remaining')::int, 4,
+               'ai global: after the refund the next user gets it');
+reset role;
+select test.eq((select count from private.ai_global_usage where day = current_date), private.ai_global_daily_limit(),
+               'ai global: refused calls are not counted');
 
 -- Banning: the account state is public (state only), RPCs refuse at once, sessions are gone.
 select test.eq(public.account_status(:'can'), 'active', 'account_status: active');
