@@ -28,6 +28,9 @@ namespace TravelPlanner.Services
     /// <summary>The trip an invite code led to.</summary>
     public sealed record JoinedTrip(string TripSyncId, TripRole Role, string? TripName, int? LocalTripId);
 
+    /// <summary>TP-12: one of the user's own trips that other people take part in (<paramref name="OtherMembers"/> of them).</summary>
+    public sealed record OwnedSharedTrip(string TripSyncId, string Name, int OtherMembers);
+
     public enum SharingErrorKind
     {
         /// <summary>No connection - sharing needs the server.</summary>
@@ -86,6 +89,15 @@ namespace TravelPlanner.Services
 
         /// <summary>Editor/viewer: leaves the trip; it disappears from this device after the sync.</summary>
         Task LeaveTripAsync(int tripId);
+
+        /// <summary>TP-12: the user's own trips that have other members (asked before the account is deleted).</summary>
+        Task<IReadOnlyList<OwnedSharedTrip>> GetOwnedSharedTripsAsync();
+
+        /// <summary>The members of a trip by its SyncId (it may not be on this device).</summary>
+        Task<IReadOnlyList<TripMember>> GetMembersAsync(string tripSyncId);
+
+        /// <summary>TP-12, owner: hands the trip over to another member; the user stays on as an editor.</summary>
+        Task TransferOwnershipAsync(string tripSyncId, string newOwnerUserId);
     }
 
     public class SharingService : ISharingService
@@ -170,6 +182,11 @@ namespace TravelPlanner.Services
                 return Array.Empty<TripMember>();
             }
 
+            return await GetMembersAsync(tripSyncId);
+        }
+
+        public async Task<IReadOnlyList<TripMember>> GetMembersAsync(string tripSyncId)
+        {
             var rows = await CallAsync("get_trip_members", new JsonObject { ["p_trip_id"] = tripSyncId });
             var me = ChangeTracker.CurrentUserId;
             var members = new List<TripMember>();
@@ -266,6 +283,38 @@ namespace TravelPlanner.Services
 
             // The next pull no longer lists the trip, so it is removed from this device.
             await _sync.SyncNowAsync();
+        }
+
+        public async Task<IReadOnlyList<OwnedSharedTrip>> GetOwnedSharedTripsAsync()
+        {
+            var rows = await CallAsync("get_owned_shared_trips", new JsonObject());
+            var trips = new List<OwnedSharedTrip>();
+            if (rows.ValueKind != JsonValueKind.Array)
+                return trips;
+
+            foreach (var row in rows.EnumerateArray())
+            {
+                var tripSyncId = SyncFieldMapper.GetString(row, "trip_id");
+                if (string.IsNullOrEmpty(tripSyncId))
+                    continue;
+                var others = row.TryGetProperty("other_members", out var count) && count.TryGetInt32(out var n) ? n : 0;
+                if (others > 0)
+                    trips.Add(new OwnedSharedTrip(tripSyncId, SyncFieldMapper.GetString(row, "name") ?? string.Empty, others));
+            }
+
+            return trips;
+        }
+
+        public async Task TransferOwnershipAsync(string tripSyncId, string newOwnerUserId)
+        {
+            await CallAsync("transfer_trip_ownership", new JsonObject
+            {
+                ["p_trip_id"] = tripSyncId,
+                ["p_new_owner"] = newOwnerUserId,
+            });
+
+            // The new roles come down with the next pull.
+            _sync.RequestSync(TimeSpan.Zero);
         }
 
         // ------------------------------------------------------------------ helpers

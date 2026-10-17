@@ -153,6 +153,97 @@ namespace TravelPlanner.Tests
             Assert.False(vm.IsDeletingAccount);
         }
 
+        // ---- TP-12: shared trips are handed over or deleted for everyone, by choice ----
+
+        private readonly Mock<ISharingService> _sharing = new();
+        private static readonly OwnedSharedTrip Roma = new("11111111-1111-1111-1111-111111111111", "Roma", 2);
+
+        private SettingsViewModel CreateViewModelWithSharing() =>
+            new(new SettingsService(_preferences), _theme.Object, _trips.Object, _notifications.Object, _backup.Object, _share.Object, _filePicker.Object, AppInfo(),
+                _account.Object, new Mock<TravelPlanner.Services.Sync.ISyncService>().Object, _dialogs.Object, _sharing.Object)
+            {
+                AccountDeletedNoticeDelay = TimeSpan.Zero
+            };
+
+        private void WithSharedTrip()
+        {
+            _sharing.Setup(s => s.GetOwnedSharedTripsAsync()).ReturnsAsync(new[] { Roma });
+            _sharing.Setup(s => s.GetMembersAsync(Roma.TripSyncId)).ReturnsAsync(new[]
+            {
+                new TripMember("me", TripRole.Owner, "Ben", null, DateTime.UtcNow, true),
+                new TripMember("can", TripRole.Viewer, "Can", null, DateTime.UtcNow, false),
+                new TripMember("ayse", TripRole.Editor, "Ayşe", null, DateTime.UtcNow, false),
+            });
+        }
+
+        [Fact]
+        public async Task DeleteAccount_SharedTrip_CanBeHandedOver_BeforeTheAccountGoes()
+        {
+            ConfirmDeletion("SİL");
+            WithSharedTrip();
+            string? asked = null;
+            IReadOnlyList<string>? offered = null;
+            _dialogs.Setup(d => d.ChooseAsync(It.Is<string>(t => t.Contains("Roma") && t.Contains("2")), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .Callback<string, IReadOnlyList<string>, string?>((t, _, _) => asked = t)
+                    .ReturnsAsync(TravelPlanner.Resources.Strings.AppResources.Account_TransferOwnership);
+            _dialogs.Setup(d => d.ChooseAsync(It.Is<string>(t => t.StartsWith(string.Format(TravelPlanner.Resources.Strings.AppResources.Account_ChooseNewOwnerFormat, "Roma"))), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .Callback<string, IReadOnlyList<string>, string?>((_, options, _) => offered = options)
+                    .ReturnsAsync("Can");
+            var order = new List<string>();
+            _sharing.Setup(s => s.TransferOwnershipAsync(Roma.TripSyncId, "can")).Callback(() => order.Add("transfer")).Returns(Task.CompletedTask);
+            _account.Setup(a => a.DeleteAccountAsync(It.IsAny<CancellationToken>())).Callback(() => order.Add("delete")).Returns(Task.CompletedTask);
+
+            await CreateViewModelWithSharing().DeleteAccountCommand.ExecuteAsync(null);
+
+            Assert.NotNull(asked);
+            Assert.Equal(new[] { "Ayşe", "Can" }, offered); // editors first, never the user
+            Assert.Equal(new[] { "transfer", "delete" }, order);
+        }
+
+        [Fact]
+        public async Task DeleteAccount_SharedTrip_DeleteForEveryone_HandsNothingOver()
+        {
+            ConfirmDeletion("SİL");
+            WithSharedTrip();
+            _dialogs.Setup(d => d.ChooseAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .ReturnsAsync(TravelPlanner.Resources.Strings.AppResources.Account_DeleteForEveryone);
+
+            await CreateViewModelWithSharing().DeleteAccountCommand.ExecuteAsync(null);
+
+            _sharing.Verify(s => s.TransferOwnershipAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _account.Verify(a => a.DeleteAccountAsync(It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteAccount_SharedTrip_Cancel_ChangesNothing()
+        {
+            ConfirmDeletion("SİL");
+            WithSharedTrip();
+            _dialogs.Setup(d => d.ChooseAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .ReturnsAsync((string?)null);
+
+            await CreateViewModelWithSharing().DeleteAccountCommand.ExecuteAsync(null);
+
+            _sharing.Verify(s => s.TransferOwnershipAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _account.Verify(a => a.DeleteAccountAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task DeleteAccount_HandOverChosen_ButKeywordNotTyped_HandsNothingOver()
+        {
+            ConfirmDeletion(null);
+            WithSharedTrip();
+            _dialogs.Setup(d => d.ChooseAsync(It.Is<string>(t => t.Contains("2")), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .ReturnsAsync(TravelPlanner.Resources.Strings.AppResources.Account_TransferOwnership);
+            _dialogs.Setup(d => d.ChooseAsync(It.Is<string>(t => !t.Contains("2")), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .ReturnsAsync("Ayşe");
+
+            await CreateViewModelWithSharing().DeleteAccountCommand.ExecuteAsync(null);
+
+            _sharing.Verify(s => s.TransferOwnershipAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+            _account.Verify(a => a.DeleteAccountAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
         private static IAppInfo AppInfo()
         {
             var info = new Mock<IAppInfo>();
