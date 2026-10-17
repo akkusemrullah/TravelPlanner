@@ -82,7 +82,7 @@ namespace TravelPlanner.Services.Sync
 
         public event EventHandler? RemoteChangesApplied;
 
-        public event EventHandler<int>? ChangesRejected;
+        public event EventHandler<IReadOnlyList<RejectedChange>>? ChangesRejected;
 
         public event EventHandler<int>? QuotaExceeded;
 
@@ -199,6 +199,15 @@ namespace TravelPlanner.Services.Sync
                 if (uploaded > 0)
                     push = push.Add(await PushAsync(db, cancellationToken));
 
+                // TP-6: refused changes are rolled back already - refused new rows are gone, and their files and
+                // reminders go too. The user is told now, even if the pull that brings the server's copies fails.
+                CleanUpRemoved(push.FilesToDelete, push.RemovedTripIds);
+                if (push.RejectedChanges.Count > 0)
+                {
+                    RemoteChangesApplied?.Invoke(this, EventArgs.Empty);
+                    ChangesRejected?.Invoke(this, push.RejectedChanges);
+                }
+
                 var pulled = await PullAsync(db, push.NeedsFullPull, cancellationToken);
 
                 PendingCount = await db.Table<PendingChange>().CountAsync();
@@ -206,8 +215,6 @@ namespace TravelPlanner.Services.Sync
                 await db.InsertOrReplaceAsync(new SyncStateEntry { Key = LastSyncKey, Value = LastSyncedAtUtc.Value.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture) });
                 SetStatus(PendingCount == 0 ? SyncStatus.UpToDate : SyncStatus.Pending);
 
-                if (push.Rejected > 0)
-                    ChangesRejected?.Invoke(this, push.Rejected);
                 if (push.NewlyOverQuota + files.NewlyRefused > 0)
                     QuotaExceeded?.Invoke(this, push.NewlyOverQuota + files.NewlyRefused);
 
@@ -274,9 +281,23 @@ namespace TravelPlanner.Services.Sync
         {
             public static PushOutcome Empty { get; } = new(0, 0, 0, 0, false);
 
+            /// <summary>TP-6: the changes refused for good (what the user is told about).</summary>
+            public IReadOnlyList<RejectedChange> RejectedChanges { get; init; } = Array.Empty<RejectedChange>();
+
+            /// <summary>TP-6: attachment files (relative paths) of refused new rows that were removed.</summary>
+            public IReadOnlyList<string> FilesToDelete { get; init; } = Array.Empty<string>();
+
+            /// <summary>TP-6: refused new trips that were removed.</summary>
+            public IReadOnlyList<int> RemovedTripIds { get; init; } = Array.Empty<int>();
+
             public PushOutcome Add(PushOutcome other) => new(
                 Pushed + other.Pushed, Rejected + other.Rejected, Conflicts + other.Conflicts, Failed + other.Failed,
-                NeedsFullPull || other.NeedsFullPull, OverQuota + other.OverQuota, NewlyOverQuota + other.NewlyOverQuota);
+                NeedsFullPull || other.NeedsFullPull, OverQuota + other.OverQuota, NewlyOverQuota + other.NewlyOverQuota)
+            {
+                RejectedChanges = RejectedChanges.Concat(other.RejectedChanges).ToList(),
+                FilesToDelete = FilesToDelete.Concat(other.FilesToDelete).ToList(),
+                RemovedTripIds = RemovedTripIds.Concat(other.RemovedTripIds).ToList(),
+            };
         }
 
         private sealed record BatchItem(PendingChange Pending, JsonObject? Change);
@@ -376,6 +397,8 @@ namespace TravelPlanner.Services.Sync
 
             int pushed = 0, rejected = 0, conflicts = 0, failed = 0, overQuota = 0, newlyOverQuota = 0;
             var needsFullPull = false;
+            var rejections = new List<RejectedChange>();
+            var removed = new RemoteApplier.Outcome();
             var results = response.ValueKind == JsonValueKind.Array ? response : default;
 
             for (var i = 0; i < sent.Count; i++)
@@ -408,6 +431,7 @@ namespace TravelPlanner.Services.Sync
                     rejected++;
                     needsFullPull = true; // the server's copy wins - read it back
                     conn.Execute("DELETE FROM PendingChange WHERE Sequence = ?", pending.Sequence);
+                    rejections.Add(RollBack(conn, pending, reason, removed));
                     System.Diagnostics.Debug.WriteLine($"[Sync] {pending.EntityType} {pending.EntitySyncId} rejected: {reason}");
                 }
                 else if (status == "rejected" && reason == QuotaReason)
@@ -433,7 +457,47 @@ namespace TravelPlanner.Services.Sync
                 }
             }
 
-            return new PushOutcome(pushed, rejected, conflicts, failed, needsFullPull, overQuota, newlyOverQuota);
+            return new PushOutcome(pushed, rejected, conflicts, failed, needsFullPull, overQuota, newlyOverQuota)
+            {
+                RejectedChanges = rejections,
+                FilesToDelete = removed.FilesToDelete,
+                RemovedTripIds = removed.RemovedTripIds.ToList(),
+            };
+        }
+
+        /// <summary>
+        /// TP-6: undoes a change the server refused for good, so this device doesn't keep a version nobody else sees.
+        /// A row the server has is marked <see cref="RemoteApplier.StaleChangeSeq"/> - the full pull that follows
+        /// overwrites it with the server's copy even though that copy's change_seq is not newer. A new row that never
+        /// reached the server (ChangeSeq 0) has no copy to come back, so it is removed with what hangs on it. A refused
+        /// delete needs nothing here: the row is gone locally and the full pull brings the server's copy back.
+        /// </summary>
+        private static RejectedChange RollBack(SQLiteConnection conn, PendingChange pending, string reason, RemoteApplier.Outcome removed)
+        {
+            if (!SyncSchema.TryForEntityType(pending.EntityType, out var info))
+                return new RejectedChange(pending.EntityType, null, reason, RemovedLocally: false);
+
+            if (pending.Operation == ChangeOperation.Delete)
+            {
+                var deletedTitle = conn.ExecuteScalar<string>(
+                    "SELECT Title FROM Trash WHERE EntityType = ? AND EntitySyncId = ? ORDER BY DeletedAtUtc DESC LIMIT 1",
+                    info.EntityType, pending.EntitySyncId);
+                return new RejectedChange(info.EntityType, deletedTitle, reason, RemovedLocally: false);
+            }
+
+            var map = conn.GetMapping(info.ClrType);
+            if (conn.Query(map, $"SELECT * FROM \"{map.TableName}\" WHERE SyncId = ?", pending.EntitySyncId).FirstOrDefault() is not ISyncEntity local)
+                return new RejectedChange(info.EntityType, null, reason, RemovedLocally: false);
+
+            var title = info.ResolveTitle(local);
+            if (local.ChangeSeq == 0)
+            {
+                RemoteApplier.RemoveLocal(conn, local, removed);
+                return new RejectedChange(info.EntityType, title, reason, RemovedLocally: true);
+            }
+
+            conn.Execute($"UPDATE \"{map.TableName}\" SET ChangeSeq = ? WHERE SyncId = ?", RemoteApplier.StaleChangeSeq, local.SyncId);
+            return new RejectedChange(info.EntityType, title, reason, RemovedLocally: false);
         }
 
         /// <summary>Removes an outbox entry unless it was changed again while being sent (then it goes next round).</summary>
@@ -453,7 +517,7 @@ namespace TravelPlanner.Services.Sync
         internal async Task<UploadOutcome> UploadFilesAsync(SQLiteAsyncConnection db, CancellationToken cancellationToken)
         {
             var candidates = await db.QueryAsync<TripAttachment>(
-                "SELECT * FROM Attachment WHERE (RemotePath IS NULL OR RemotePath = '') AND ChangeSeq > 0");
+                "SELECT * FROM Attachment WHERE (RemotePath IS NULL OR RemotePath = '') AND ChangeSeq <> 0");
 
             int uploaded = 0, newlyRefused = 0;
             foreach (var attachment in candidates)
@@ -529,14 +593,7 @@ namespace TravelPlanner.Services.Sync
             await db.RunInTransactionAsync(conn => outcome = RemoteApplier.Apply(conn, response));
 
             // Outside SQLite: files of rows/trips that disappeared, and reminders of trips that changed.
-            foreach (var relativePath in outcome.FilesToDelete)
-                TryDelete(Path.Combine(_attachments.RootDirectory, relativePath.Replace('/', Path.DirectorySeparatorChar)));
-
-            foreach (var tripId in outcome.RemovedTripIds)
-            {
-                _attachments.DeleteFilesForTrip(tripId);
-                TryNotify(() => _notifications.CancelTripNotifications(tripId));
-            }
+            CleanUpRemoved(outcome.FilesToDelete, outcome.RemovedTripIds);
 
             foreach (var tripId in outcome.ChangedTripIds.Except(outcome.RemovedTripIds))
             {
@@ -558,6 +615,19 @@ namespace TravelPlanner.Services.Sync
                 RemoteChangesApplied?.Invoke(this, EventArgs.Empty);
 
             return outcome.Changed;
+        }
+
+        /// <summary>Deletes the files of removed attachment rows and trips, and the removed trips' reminders.</summary>
+        private void CleanUpRemoved(IEnumerable<string> filesToDelete, IEnumerable<int> removedTripIds)
+        {
+            foreach (var relativePath in filesToDelete)
+                TryDelete(Path.Combine(_attachments.RootDirectory, relativePath.Replace('/', Path.DirectorySeparatorChar)));
+
+            foreach (var tripId in removedTripIds)
+            {
+                _attachments.DeleteFilesForTrip(tripId);
+                TryNotify(() => _notifications.CancelTripNotifications(tripId));
+            }
         }
 
         private static async Task<long> ReadCursorAsync(SQLiteAsyncConnection db)

@@ -18,6 +18,13 @@ namespace TravelPlanner.Services.Sync
     /// <summary>What one sync round did.</summary>
     public sealed record SyncResult(int Pushed, int Rejected, int Conflicts, int FilesUploaded, int Pulled, int StillPending);
 
+    /// <summary>TP-6: a change the server refused for good, rolled back on this device.</summary>
+    /// <param name="EntityType">"Expense", "Todo" … (<see cref="SyncEntityInfo.EntityType"/>).</param>
+    /// <param name="Title">What the user calls the record (null when it has no name of its own, e.g. an expense share).</param>
+    /// <param name="Reason">The server's reason: "forbidden", "row_deleted", "trip_deleted", "trip_mismatch" or "unknown_entity".</param>
+    /// <param name="RemovedLocally">The row never reached the server, so it was removed from this device.</param>
+    public sealed record RejectedChange(string EntityType, string? Title, string Reason, bool RemovedLocally);
+
     /// <summary>
     /// Keeps the signed-in account's local database and the cloud in step (G4): sends the outbox, uploads attachment
     /// files (G5) and applies everyone's changes. Runs a few seconds after a local change, when the connection comes
@@ -40,9 +47,10 @@ namespace TravelPlanner.Services.Sync
 
         /// <summary>
         /// G6: the server refused some of this device's changes for good (the row was deleted meanwhile, or the
-        /// user's role changed); the argument is how many. The server's version has been restored locally.
+        /// user's role changed). TP-6: they are rolled back - the server's version is restored locally and a new row
+        /// the server never took is removed; the argument says which records and why (<see cref="SyncRejectionMessage"/>).
         /// </summary>
-        event EventHandler<int>? ChangesRejected;
+        event EventHandler<IReadOnlyList<RejectedChange>>? ChangesRejected;
 
         /// <summary>
         /// TP-3: the server refused some changes or files because a usage limit is reached (e.g. expenses per trip,

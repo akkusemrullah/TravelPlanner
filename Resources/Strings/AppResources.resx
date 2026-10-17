@@ -2016,8 +2016,20 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
   <data name="Split_MembersAlreadyAdded" xml:space="preserve">
     <value>Tüm üyeler zaten katılımcı.</value>
   </data>
-  <data name="Sync_RejectedFormat" xml:space="preserve">
-    <value>{0} değişikliğin uygulanamadı: kayıt başka biri tarafından silinmiş ya da bu seyahatteki yetkin değişmiş. Güncel hâli yüklendi.</value>
+  <data name="Sync_RejectedForbiddenFormat" xml:space="preserve">
+    <value>Bu seyahatte artık düzenleme yetkin yok, değişikliğin geri alındı: {0}.</value>
+  </data>
+  <data name="Sync_RejectedDeletedFormat" xml:space="preserve">
+    <value>Kayıt başka biri tarafından silindiği için değişikliğin uygulanamadı: {0}.</value>
+  </data>
+  <data name="Sync_RejectedOtherFormat" xml:space="preserve">
+    <value>Sunucu kabul etmediği için değişikliğin geri alındı: {0}.</value>
+  </data>
+  <data name="Sync_RejectedMoreFormat" xml:space="preserve">
+    <value>{0} ve {1} kayıt daha</value>
+  </data>
+  <data name="Sync_RejectedCountFormat" xml:space="preserve">
+    <value>{0} kayıt</value>
   </data>
   <data name="Sync_QuotaExceededFormat" xml:space="preserve">
     <value>{0} değişiklik ya da dosya buluta kaydedilemedi, çünkü bir kullanım sınırına ulaşıldı (örneğin bir seyahatte en fazla 2.000 masraf, 500 yer ya da 200 belge; belgeler için seyahat başına 250 MB). Bunlar bu cihazda duruyor; eski kayıt ya da belgeleri silip yer açtığında veya ertesi gün kendiliğinden yeniden denenir.</value>
