@@ -39,7 +39,7 @@ Hesap açmadan kullandığında seyahatlerin, planların, harcamaların, görevl
 Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
 
 ### Paylaşılan seyahatler
-Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını, e-posta adresini ve profil fotoğrafını görür. Davet kodunu yalnızca güvendiğin kişilerle paylaş.
+Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını ve profil fotoğrafını görür; e-posta adresleri yalnızca seyahatin sahibine görünür. Davet kodları varsayılan olarak tek kullanımlıktır ve 48 saat geçerlidir; kodu yalnızca davet ettiğin kişiyle paylaş.
 
 ### Yapay zekâ ile planlama
 Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır.  
@@ -120,7 +120,7 @@ Without an account, your trips, plans, expenses, to-dos, saved places, participa
 We do not use your data for advertising, profiling or marketing.
 
 ### Shared trips
-When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name, e-mail address and profile photo. Share invite codes only with people you trust.
+When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name and profile photo; e-mail addresses are only visible to the trip's owner. Invite codes are single-use and valid for 48 hours by default; share a code only with the person you invite.
 
 ### Planning with AI
 This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass).  

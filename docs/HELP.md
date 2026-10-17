@@ -66,10 +66,10 @@ Evet. Harcamalar sayfasındaki dışa aktarma düğmesiyle tüm harcamaları CSV
 ### Paylaşım ve hesap
 
 **Seyahatimi başkalarıyla nasıl paylaşırım?**  
-Seyahat detayında Üyeler ve davet'i aç, "Düzenleyici davet et" veya "Görüntüleyici davet et"e dokun ve oluşan kodu paylaş. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod 7 gün geçerlidir. Paylaşım için iki tarafın da giriş yapmış olması gerekir.
+Seyahat detayında Üyeler ve davet'i aç, "Davet kodu oluştur"a dokun ve oluşan kodu paylaş. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod tek kişi içindir ve 48 saat geçerlidir; birkaç kişiyi tek kodla çağırmak için "Birden çok kişi için kod"u seç (en fazla 10 kişi). Katılan herkes görüntüleyici olur, düzenleme yetkisini üye listesinden sen verirsin. Biri seyahatine katıldığında bildirim alırsın. Paylaşım için iki tarafın da giriş yapmış olması gerekir.
 
 **Sahibi, düzenleyici ve görüntüleyici ne demek?**  
-Sahibi her şeyi yapabilir, üyeleri yönetir ve seyahati silebilir. Düzenleyici seyahatin içeriğini ekleyip değiştirebilir. Görüntüleyici yalnızca görebilir. Seyahat üyeleri birbirinin adını, e-postasını ve profil fotoğrafını görür.
+Sahibi her şeyi yapabilir, üyeleri yönetir ve seyahati silebilir. Düzenleyici seyahatin içeriğini ekleyip değiştirebilir. Görüntüleyici yalnızca görebilir. Seyahat üyeleri birbirinin adını ve profil fotoğrafını görür; e-posta adreslerini yalnızca seyahatin sahibi görür.
 
 **Eşitleme nasıl çalışır?**  
 Giriş yaptıysan değişikliklerin birkaç saniye içinde otomatik olarak buluta gönderilir. İnternet yokken yaptığın değişiklikler saklanır ve bağlantı gelince gönderilir. Profil'deki "Şimdi eşitle" ile hemen eşitleyebilirsin.
@@ -172,10 +172,10 @@ Yes. Use the export button on the Expenses page to share every expense as a CSV 
 ### Sharing and your account
 
 **How do I share a trip?**  
-Open Members & invites in the trip, tap "Invite an editor" or "Invite a viewer" and share the code. The other person joins with Profile → Join with a code. Codes are valid for 7 days. Both of you need to be signed in.
+Open Members & invites in the trip, tap "Create an invite code" and share the code. The other person joins with Profile → Join with a code. A code is for one person and works for 48 hours; to invite several people with one code choose "Code for several people" (up to 10). Everyone joins as a viewer and you make them an editor in the members list. You get a notification when someone joins your trip. Both of you need to be signed in.
 
 **What do owner, editor and viewer mean?**  
-The owner can do everything, manages members and can delete the trip. Editors can add and change the trip's content. Viewers can only look. Trip members see each other's name, e-mail and profile photo.
+The owner can do everything, manages members and can delete the trip. Editors can add and change the trip's content. Viewers can only look. Trip members see each other's name and profile photo; only the trip's owner sees their e-mail addresses.
 
 **How does syncing work?**  
 When you're signed in, your changes go to the cloud within a few seconds. Changes made offline are kept and sent once you're back online. "Sync now" in Profile syncs right away.

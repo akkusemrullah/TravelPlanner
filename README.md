@@ -24,7 +24,7 @@ Seyahatlerinizi tek yerden planlamak için bir .NET MAUI uygulaması. Seyahat, g
 - Harita: günün rotası (plandaki yerler sırasıyla), haritaya basılı tutarak yer ekleme
 - Ayarlar: ad, varsayılan para birimi (₺ / € / $ / £), hatırlatma saati, tema (sistem / açık / koyu), dil (Türkçe / English)
 - Hesap (isteğe bağlı): e-posta veya Google ile giriş, cihazlar arası eşitleme (çevrimdışı değişiklikler kuyruğa alınır), hesabı uygulama içinden silme
-- Paylaşım: davet koduyla seyahate düzenleyici / görüntüleyici ekleme (kod 7 gün geçerli), üye ve rol yönetimi
+- Paylaşım: davet koduyla seyahate üye ekleme (kod tek kullanımlık ve 48 saat geçerli, isteğe bağlı en fazla 10 kişilik grup kodu; katılan görüntüleyici olur, düzenleme yetkisini sahip verir), üye ve rol yönetimi, yeni üye bildirimi; üyelerin e-postasını yalnızca seyahat sahibi görür
 - Yapay zekâ ile planlama: 4 soruluk sihirbaz, gün gün plan + yerler + görevler; Supabase Edge Function (`supabase/functions/plan-trip`) üzerinden OpenAI, hesap ve cihaz başına günde 5 plan; uygunsuz öneriyi bildirme bağlantısı
 - Çöp kutusu: silinenler 30 gün geri alınabilir; seçim moduyla (tek tek ya da "Tümünü seç") kalıcı olarak silinebilir - belge dosyalarının buluttaki kopyaları da silinir
 - Destek ve yasal (Profil sekmesi): yardım merkezi (aranabilir SSS), "Bize ulaşın" e-postası, gizlilik politikası, KVKK aydınlatma metni, kullanım koşulları, açık kaynak lisansları. Metinler `AppResources` içinde (`Privacy_Body`, `Kvkk_Body`, `Terms_Body`, `Licenses_Body`, `Help_Faq`; `## Başlık` / `? Soru` biçimi, `Helpers/DocumentText`), iletişim bilgileri `Helpers/AppConstants.cs` içinde

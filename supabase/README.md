@@ -31,6 +31,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…11_value_limits.sql` | SEC-01: tutar, kur, tarih, kategori, sıra ve saat sınırları (uygulamadaki `InputLimits` ile aynı); sınır dışı yazma `invalid` ile reddedilir |
 | `migrations/…12_ai_cost_limits.sql` | SEC-02: herkes için günlük global tavan, yeni hesaplara ilk 24 saatte düşük kota, hesap başına günde en fazla 2 iade |
 | `migrations/…13_quota_limits.sql` | TP-3: hesap/seyahat başına satır sınırları, günlük yeni satır ve dakikalık senkron sınırı, `trip-files` için dosya türü ve boyut sınırları, `items`/`avatar_url` uzunlukları |
+| `migrations/…14_invite_hardening.sql` | TP-4: davet kodları tek kullanımlık ve 48 saat geçerli, katılan görüntüleyici olur; yanlış kod denemesi sınırı; e-postalar yalnızca sahibe; yeni üye bildirimi için `get_recent_joins` |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti
@@ -73,6 +74,22 @@ için durur. Bu yüzden tek bir hesabın (ör. bir script ile) alanı dolduramam
 - Dashboard'da elle: **Authentication → Rate Limits** değerlerini gözden geçir (ör. e-posta gönderimi, kayıt ve
   giriş istekleri); CAPTCHA ve "Confirm email" açıkken toplu hesap açmak zaten zordur.
 
+## Davetler ve üyeler (TP-4)
+
+- `create_invite` varsayılan olarak **tek kullanımlık**, **48 saat** geçerli ve **görüntüleyici** daveti üretir.
+  Uygulamadaki "Birden çok kişi için kod" en fazla 10 kullanımlık kod ister (yine 48 saat). Katılan herkes
+  görüntüleyici olur; düzenleme yetkisini sahip sonradan verir (`set_member_role`). Eski uygulama sürümlerinin
+  "düzenleyici, 7 gün, sınırsız" isteği de aynı kurallara indirgenir; migration çalıştığında açıkta olan eski
+  davetler de en fazla bir kullanım daha, görüntüleyici olarak ve 48 saat içinde geçerli kalacak şekilde kısılır.
+- `accept_invite`: hesap başına saatte 10 yanlış kod; 10. yanlıştan sonra hesap 1 saat bekler (HTTP 429, `PT429`).
+  Yanlış kod hata değil **boş sonuç** döner (hata sayacı geri almasın diye); uygulama bunu "geçersiz kod" sayar.
+  Zaten üye olan biri kodu tekrar girerse kod harcanmaz.
+- E-posta: `get_trip_members` e-postaları yalnızca seyahatin sahibine (ve herkese kendi e-postasını) döndürür.
+  `profiles` tablosunun `email` kolonu API'den hiç okunamaz (kolon yetkisi); ad ve fotoğraf okunabilir.
+- `get_recent_joins(since)`: sahibin seyahatlerine `since`'ten sonra katılanlar (en fazla 7 gün geri, 20 kişi);
+  uygulama bununla "Ayşe, Roma seyahatine katıldı" bildirimini gösterir.
+- Sayılar `private.invite_limit()` içinde (migration 14).
+
 ## Yerel test (geliştirici için)
 
 PostgreSQL 15+ üzerinde, boş bir veritabanında:
@@ -80,7 +97,7 @@ PostgreSQL 15+ üzerinde, boş bir veritabanında:
 ```bash
 psql -d tp -f tests/00_local_stub.sql      # Supabase'in auth/storage parçalarının taklidi
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -d tp -f "$f"; done
-psql -d tp -f tests/sync_tests.sql          # 138 kontrol, sonda "ALL SYNC TESTS PASSED"
+psql -d tp -f tests/sync_tests.sql          # 165 kontrol, sonda "ALL SYNC TESTS PASSED"
 ```
 
 ## Yapay zekâ ile planlama (Edge Function `plan-trip`)

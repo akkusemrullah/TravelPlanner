@@ -1427,7 +1427,7 @@ Hesap açmadan kullandığında seyahatlerin, planların, harcamaların, görevl
 Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
 
 ## Paylaşılan seyahatler
-Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını, e-posta adresini ve profil fotoğrafını görür. Davet kodunu yalnızca güvendiğin kişilerle paylaş.
+Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını ve profil fotoğrafını görür; e-posta adresleri yalnızca seyahatin sahibine görünür. Davet kodları varsayılan olarak tek kullanımlıktır ve 48 saat geçerlidir; kodu yalnızca davet ettiğin kişiyle paylaş.
 
 ## Yapay zekâ ile planlama
 Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır.
@@ -1856,16 +1856,31 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
     <value>Davet et</value>
   </data>
   <data name="Members_InviteHint" xml:space="preserve">
-    <value>Bir davet kodu oluşturulur ve paylaşma menüsü açılır. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod 7 gün geçerlidir.</value>
+    <value>Kod tek kişi içindir ve 48 saat geçerlidir; kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Katılan herkes görüntüleyici olur, düzenleme yetkisini sonra bu listeden verebilirsin.</value>
   </data>
-  <data name="Members_InviteEditor" xml:space="preserve">
-    <value>Düzenleyici davet et</value>
+  <data name="Members_Invite" xml:space="preserve">
+    <value>Davet kodu oluştur</value>
   </data>
-  <data name="Members_InviteViewer" xml:space="preserve">
-    <value>Görüntüleyici davet et</value>
+  <data name="Members_InviteGroup" xml:space="preserve">
+    <value>Birden çok kişi için kod</value>
+  </data>
+  <data name="Members_InviteGroupTitle" xml:space="preserve">
+    <value>Grup kodu oluşturulsun mu?</value>
+  </data>
+  <data name="Members_InviteGroupMessageFormat" xml:space="preserve">
+    <value>Bu kodu {1} saat içinde en fazla {0} kişi kullanabilir; herkes görüntüleyici olarak katılır. Kod başkalarına iletilirse tanımadığın kişiler de katılabilir. Yalnızca güvendiğin bir gruba gönder.</value>
+  </data>
+  <data name="Members_InviteGroupConfirm" xml:space="preserve">
+    <value>Kodu oluştur</value>
   </data>
   <data name="Members_InviteInfoFormat" xml:space="preserve">
-    <value>{0} daveti · {1} tarihine kadar geçerli</value>
+    <value>{0} · {1} tarihine kadar geçerli</value>
+  </data>
+  <data name="Members_InviteUsesSingle" xml:space="preserve">
+    <value>Tek kullanımlık</value>
+  </data>
+  <data name="Members_InviteUsesGroupFormat" xml:space="preserve">
+    <value>En fazla {0} kişi</value>
   </data>
   <data name="Members_InviteShareTitle" xml:space="preserve">
     <value>Seyahat daveti</value>
@@ -1873,7 +1888,13 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
   <data name="Members_InviteShareFormat" xml:space="preserve">
     <value>Travel Planner'da "{0}" seyahatime katıl!
 Davet kodu: {1}
-Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine kadar geçerli.</value>
+Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine kadar geçerli. {3}</value>
+  </data>
+  <data name="Members_InviteShareSingle" xml:space="preserve">
+    <value>Kod yalnızca bir kişi içindir, lütfen başkasına iletme.</value>
+  </data>
+  <data name="Members_InviteShareGroupFormat" xml:space="preserve">
+    <value>Kodu en fazla {0} kişi kullanabilir.</value>
   </data>
   <data name="Members_MakeEditor" xml:space="preserve">
     <value>Düzenleyici yap</value>
@@ -1899,6 +1920,27 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
   <data name="Members_LeaveMessageFormat" xml:space="preserve">
     <value>"{0}" bu cihazdan ve hesabından kaldırılacak. Tekrar katılmak için yeni bir davet kodu gerekir.</value>
   </data>
+  <data name="Members_JoinedAgoFormat" xml:space="preserve">
+    <value>{0} katıldı</value>
+  </data>
+  <data name="Members_JoinedTitle" xml:space="preserve">
+    <value>Seyahatine yeni üye katıldı</value>
+  </data>
+  <data name="Members_JoinedOneFormat" xml:space="preserve">
+    <value>{0}, "{1}" seyahatine katıldı.</value>
+  </data>
+  <data name="Members_JoinedManyFormat" xml:space="preserve">
+    <value>"{1}" seyahatine {0} kişi katıldı.</value>
+  </data>
+  <data name="Members_JoinedTripsFormat" xml:space="preserve">
+    <value>Seyahatlerine {0} yeni üye katıldı.</value>
+  </data>
+  <data name="Members_JoinedHint" xml:space="preserve">
+    <value>Tanımadığın biriyse Üyeler ve davet ekranından çıkarabilirsin.</value>
+  </data>
+  <data name="Members_Someone" xml:space="preserve">
+    <value>Biri</value>
+  </data>
   <data name="Members_LoadError" xml:space="preserve">
     <value>Üyeler yüklenemedi.</value>
   </data>
@@ -1916,6 +1958,9 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
   </data>
   <data name="Sharing_ErrorInvalidInvite" xml:space="preserve">
     <value>Davet kodu geçersiz, süresi dolmuş ya da kullanılmış.</value>
+  </data>
+  <data name="Sharing_ErrorTooManyAttempts" xml:space="preserve">
+    <value>Çok fazla hatalı kod denendi. Lütfen bir saat sonra tekrar dene.</value>
   </data>
   <data name="Sharing_ErrorForbidden" xml:space="preserve">
     <value>Bunu yapma yetkin yok. Rolün değişmiş olabilir; sayfayı yenile.</value>
@@ -2548,7 +2593,7 @@ Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktar
 • OpenAI (ABD) – yalnızca yapay zekâ ile planlamayı kullandığında; gidilecek yer, tarihler, tercihlerin, notun ve kayıtlı yer adları. Adın, e-postan, harcamaların ve belgelerin aktarılmaz.
 • Google – yalnızca Google ile giriş yapmayı seçersen, giriş işlemi için.
 • Cloudflare, Inc. (ABD) – e-posta ile kayıt, giriş ve şifre sıfırlamada otomatik (bot) hesap açılmasını engelleyen güvenlik kontrolü için; IP adresi ve tarayıcı bilgileri.
-• Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın, e-postan ve profil fotoğrafın.
+• Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın ve profil fotoğrafın. E-postan yalnızca katıldığın seyahatin sahibine görünür.
 • Yetkili kamu kurum ve kuruluşları – hukuken zorunlu olduğunda.
 Bu hizmet sağlayıcıların bir kısmı yurt dışında bulunduğundan kişisel verilerin yurt dışına aktarılır. Aktarım, KVKK'nın 9. maddesine uygun şekilde; hizmet sağlayıcılarla yapılan sözleşmelerdeki uygun güvencelere, bunun mümkün olmadığı hâllerde ise ilgili özelliği kullanman sırasında verdiğin açık rızaya dayanılarak yapılır. Yapay zekâ ile planlama ve Google ile giriş tamamen isteğe bağlıdır; bunları kullanmadan uygulamanın diğer özelliklerinden yararlanabilirsin.
 
@@ -2678,9 +2723,9 @@ Evet. Harcamalar sayfasındaki dışa aktarma düğmesiyle tüm harcamaları CSV
 
 ## Paylaşım ve hesap
 ? Seyahatimi başkalarıyla nasıl paylaşırım?
-Seyahat detayında Üyeler ve davet'i aç, "Düzenleyici davet et" veya "Görüntüleyici davet et"e dokun ve oluşan kodu paylaş. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod 7 gün geçerlidir. Paylaşım için iki tarafın da giriş yapmış olması gerekir.
+Seyahat detayında Üyeler ve davet'i aç, "Davet kodu oluştur"a dokun ve oluşan kodu paylaş. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod tek kişi içindir ve 48 saat geçerlidir; birkaç kişiyi tek kodla çağırmak için "Birden çok kişi için kod"u seç (en fazla 10 kişi). Katılan herkes görüntüleyici olur, düzenleme yetkisini üye listesinden sen verirsin. Biri seyahatine katıldığında bildirim alırsın. Paylaşım için iki tarafın da giriş yapmış olması gerekir.
 ? Sahibi, düzenleyici ve görüntüleyici ne demek?
-Sahibi her şeyi yapabilir, üyeleri yönetir ve seyahati silebilir. Düzenleyici seyahatin içeriğini ekleyip değiştirebilir. Görüntüleyici yalnızca görebilir. Seyahat üyeleri birbirinin adını, e-postasını ve profil fotoğrafını görür.
+Sahibi her şeyi yapabilir, üyeleri yönetir ve seyahati silebilir. Düzenleyici seyahatin içeriğini ekleyip değiştirebilir. Görüntüleyici yalnızca görebilir. Seyahat üyeleri birbirinin adını ve profil fotoğrafını görür; e-posta adreslerini yalnızca seyahatin sahibi görür.
 ? Eşitleme nasıl çalışır?
 Giriş yaptıysan değişikliklerin birkaç saniye içinde otomatik olarak buluta gönderilir. İnternet yokken yaptığın değişiklikler saklanır ve bağlantı gelince gönderilir. Profil'deki "Şimdi eşitle" ile hemen eşitleyebilirsin.
 ? Şifremi unuttum, ne yapmalıyım?

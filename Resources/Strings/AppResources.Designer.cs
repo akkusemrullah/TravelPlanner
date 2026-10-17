@@ -5907,7 +5907,7 @@ namespace TravelPlanner.Resources.Strings {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Bir davet kodu oluşturulur ve paylaşma menüsü açılır. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod 7 gün geçerlidir..
+        ///   Looks up a localized string similar to Kod tek kişi içindir ve 48 saat geçerlidir; kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Katılan herkes görüntüleyici olur, düzenleme yetkisini sonra bu listeden verebilirsin..
         /// </summary>
         public static string Members_InviteHint {
             get {
@@ -5916,29 +5916,74 @@ namespace TravelPlanner.Resources.Strings {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Düzenleyici davet et.
+        ///   Looks up a localized string similar to Davet kodu oluştur.
         /// </summary>
-        public static string Members_InviteEditor {
+        public static string Members_Invite {
             get {
-                return ResourceManager.GetString("Members_InviteEditor", resourceCulture);
+                return ResourceManager.GetString("Members_Invite", resourceCulture);
             }
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Görüntüleyici davet et.
+        ///   Looks up a localized string similar to Birden çok kişi için kod.
         /// </summary>
-        public static string Members_InviteViewer {
+        public static string Members_InviteGroup {
             get {
-                return ResourceManager.GetString("Members_InviteViewer", resourceCulture);
+                return ResourceManager.GetString("Members_InviteGroup", resourceCulture);
             }
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to {0} daveti · {1} tarihine kadar geçerli.
+        ///   Looks up a localized string similar to Grup kodu oluşturulsun mu?.
+        /// </summary>
+        public static string Members_InviteGroupTitle {
+            get {
+                return ResourceManager.GetString("Members_InviteGroupTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Bu kodu {1} saat içinde en fazla {0} kişi kullanabilir; herkes görüntüleyici olarak katılır. Kod başkalarına iletilirse tanımadığın kişiler de katılabilir. Yalnızca güvendiğin bir gruba gönder..
+        /// </summary>
+        public static string Members_InviteGroupMessageFormat {
+            get {
+                return ResourceManager.GetString("Members_InviteGroupMessageFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kodu oluştur.
+        /// </summary>
+        public static string Members_InviteGroupConfirm {
+            get {
+                return ResourceManager.GetString("Members_InviteGroupConfirm", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0} · {1} tarihine kadar geçerli.
         /// </summary>
         public static string Members_InviteInfoFormat {
             get {
                 return ResourceManager.GetString("Members_InviteInfoFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tek kullanımlık.
+        /// </summary>
+        public static string Members_InviteUsesSingle {
+            get {
+                return ResourceManager.GetString("Members_InviteUsesSingle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to En fazla {0} kişi.
+        /// </summary>
+        public static string Members_InviteUsesGroupFormat {
+            get {
+                return ResourceManager.GetString("Members_InviteUsesGroupFormat", resourceCulture);
             }
         }
 
@@ -5952,11 +5997,29 @@ namespace TravelPlanner.Resources.Strings {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Travel Planner'da "{0}" seyahatime katıl! Davet kodu: {1} Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine kadar geçerli..
+        ///   Looks up a localized string similar to Travel Planner'da "{0}" seyahatime katıl!.
         /// </summary>
         public static string Members_InviteShareFormat {
             get {
                 return ResourceManager.GetString("Members_InviteShareFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kod yalnızca bir kişi içindir, lütfen başkasına iletme..
+        /// </summary>
+        public static string Members_InviteShareSingle {
+            get {
+                return ResourceManager.GetString("Members_InviteShareSingle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Kodu en fazla {0} kişi kullanabilir..
+        /// </summary>
+        public static string Members_InviteShareGroupFormat {
+            get {
+                return ResourceManager.GetString("Members_InviteShareGroupFormat", resourceCulture);
             }
         }
 
@@ -6033,6 +6096,69 @@ namespace TravelPlanner.Resources.Strings {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to {0} katıldı.
+        /// </summary>
+        public static string Members_JoinedAgoFormat {
+            get {
+                return ResourceManager.GetString("Members_JoinedAgoFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahatine yeni üye katıldı.
+        /// </summary>
+        public static string Members_JoinedTitle {
+            get {
+                return ResourceManager.GetString("Members_JoinedTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to {0}, "{1}" seyahatine katıldı..
+        /// </summary>
+        public static string Members_JoinedOneFormat {
+            get {
+                return ResourceManager.GetString("Members_JoinedOneFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to "{1}" seyahatine {0} kişi katıldı..
+        /// </summary>
+        public static string Members_JoinedManyFormat {
+            get {
+                return ResourceManager.GetString("Members_JoinedManyFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahatlerine {0} yeni üye katıldı..
+        /// </summary>
+        public static string Members_JoinedTripsFormat {
+            get {
+                return ResourceManager.GetString("Members_JoinedTripsFormat", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Tanımadığın biriyse Üyeler ve davet ekranından çıkarabilirsin..
+        /// </summary>
+        public static string Members_JoinedHint {
+            get {
+                return ResourceManager.GetString("Members_JoinedHint", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Biri.
+        /// </summary>
+        public static string Members_Someone {
+            get {
+                return ResourceManager.GetString("Members_Someone", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Üyeler yüklenemedi..
         /// </summary>
         public static string Members_LoadError {
@@ -6083,6 +6209,15 @@ namespace TravelPlanner.Resources.Strings {
         public static string Sharing_ErrorInvalidInvite {
             get {
                 return ResourceManager.GetString("Sharing_ErrorInvalidInvite", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Çok fazla hatalı kod denendi. Lütfen bir saat sonra tekrar dene..
+        /// </summary>
+        public static string Sharing_ErrorTooManyAttempts {
+            get {
+                return ResourceManager.GetString("Sharing_ErrorTooManyAttempts", resourceCulture);
             }
         }
 

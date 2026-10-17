@@ -12,7 +12,7 @@ namespace TravelPlanner.ViewModels
     /// <summary>One row of the members list.</summary>
     public sealed class MemberItem
     {
-        public MemberItem(TripMember member, bool viewerIsOwner)
+        public MemberItem(TripMember member, bool viewerIsOwner, DateTime? nowUtc = null)
         {
             Member = member;
             Name = member.IsMe ? string.Format(AppResources.Members_MeFormat, member.Name) : member.Name;
@@ -23,6 +23,10 @@ namespace TravelPlanner.ViewModels
             if (Initials.Length == 0)
                 Initials = "?";
             CanManage = viewerIsOwner && !member.IsMe && member.Role != TripRole.Owner;
+            // TP-4: the owner sees when each member joined, so someone unexpected stands out.
+            JoinedText = CanManage
+                ? string.Format(AppResources.Members_JoinedAgoFormat, SharingTexts.RelativeTime(member.JoinedAtUtc, nowUtc ?? DateTime.UtcNow))
+                : string.Empty;
         }
 
         public TripMember Member { get; }
@@ -34,11 +38,18 @@ namespace TravelPlanner.ViewModels
 
         /// <summary>The owner can change this member's role or remove them.</summary>
         public bool CanManage { get; }
+
+        /// <summary>"3 sa önce katıldı" - shown to the owner only.</summary>
+        public string JoinedText { get; }
+
+        public bool HasJoinedText => JoinedText.Length > 0;
     }
 
     /// <summary>
-    /// "Üyeler ve davet" (G6): who is on the trip, invite someone as editor or viewer (code shared through the
-    /// share sheet), change roles, remove members, or leave the trip. Everything here needs a connection.
+    /// "Üyeler ve davet" (G6): who is on the trip, invite someone (code shared through the share sheet), change
+    /// roles, remove members, or leave the trip. Everything here needs a connection.
+    /// TP-4: a code is single-use and valid for 48 hours unless a group code is asked for on purpose; whoever
+    /// joins is a viewer, and the owner makes them an editor here.
     /// </summary>
     [QueryProperty(nameof(TripId), "TripId")]
     public partial class MembersViewModel : ViewModelBase
@@ -113,7 +124,7 @@ namespace TravelPlanner.ViewModels
         [NotifyPropertyChangedFor(nameof(HasInvite))]
         private string? lastInviteCode;
 
-        /// <summary>"Düzenleyici daveti · 17 Ekim'e kadar geçerli".</summary>
+        /// <summary>"Tek kullanımlık · 19 Ekim 17:50 tarihine kadar geçerli".</summary>
         [ObservableProperty]
         private string lastInviteText = string.Empty;
 
@@ -165,13 +176,26 @@ namespace TravelPlanner.ViewModels
             IsNotShared = Members.Count <= 1;
         }, AppResources.Members_LoadError);
 
+        /// <summary>The default: a code for one person (single-use, 48 hours, joins as viewer).</summary>
         [RelayCommand]
-        private Task InviteEditorAsync() => InviteAsync(TripRole.Editor);
+        private Task InviteAsync() => CreateInviteAsync(forGroup: false);
 
+        /// <summary>A code several people can use - only after the owner confirmed they mean it.</summary>
         [RelayCommand]
-        private Task InviteViewerAsync() => InviteAsync(TripRole.Viewer);
+        private Task InviteGroupAsync() => RunSafeAsync(async () =>
+        {
+            if (TripId == 0 || !CheckOnline())
+                return;
 
-        private Task InviteAsync(TripRole role) => RunSafeAsync(async () =>
+            if (!await Dialogs.ConfirmAsync(AppResources.Members_InviteGroupTitle,
+                    string.Format(AppResources.Members_InviteGroupMessageFormat, SharingService.GroupInviteMaxUses, SharingService.InviteValidHours),
+                    AppResources.Members_InviteGroupConfirm, AppResources.Common_Cancel))
+                return;
+
+            await CreateInviteAsync(forGroup: true);
+        }, AppResources.Members_ActionError);
+
+        private Task CreateInviteAsync(bool forGroup) => RunSafeAsync(async () =>
         {
             if (TripId == 0 || !CheckOnline())
                 return;
@@ -179,7 +203,7 @@ namespace TravelPlanner.ViewModels
             TripInvite invite;
             try
             {
-                invite = await _sharing.CreateInviteAsync(TripId, role);
+                invite = await _sharing.CreateInviteAsync(TripId, forGroup);
             }
             catch (SharingException ex)
             {
@@ -187,14 +211,20 @@ namespace TravelPlanner.ViewModels
                 return;
             }
 
-            var until = invite.ExpiresAtUtc.ToLocalTime().ToString("d MMMM", CultureInfo.CurrentCulture);
+            var until = invite.ExpiresAtUtc.ToLocalTime().ToString("d MMMM HH:mm", CultureInfo.CurrentCulture);
+            var uses = invite.IsGroupInvite
+                ? string.Format(AppResources.Members_InviteUsesGroupFormat, invite.MaxUses)
+                : AppResources.Members_InviteUsesSingle;
             LastInviteCode = SharingTexts.FormatCode(invite.Code);
-            LastInviteText = string.Format(AppResources.Members_InviteInfoFormat, SharingTexts.RoleName(role), until);
+            LastInviteText = string.Format(AppResources.Members_InviteInfoFormat, uses, until);
 
             await _share.RequestAsync(new ShareTextRequest
             {
                 Title = AppResources.Members_InviteShareTitle,
-                Text = string.Format(AppResources.Members_InviteShareFormat, TripName, LastInviteCode, until),
+                Text = string.Format(AppResources.Members_InviteShareFormat, TripName, LastInviteCode, until,
+                    invite.IsGroupInvite
+                        ? string.Format(AppResources.Members_InviteShareGroupFormat, invite.MaxUses)
+                        : AppResources.Members_InviteShareSingle),
             });
         }, AppResources.Members_ActionError);
 

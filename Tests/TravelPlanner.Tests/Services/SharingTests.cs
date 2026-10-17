@@ -210,14 +210,47 @@ namespace TravelPlanner.Tests
                 ? """[ { "code": "ABCD2345", "expires_at": "2026-10-17T10:00:00+00:00" } ]"""
                 : "[]";
 
-            var invite = await Create().CreateInviteAsync(trip.Id, TripRole.Editor);
+            var invite = await Create().CreateInviteAsync(trip.Id);
 
             Assert.Equal("ABCD2345", invite.Code);
             Assert.Equal(new DateTime(2026, 10, 17, 10, 0, 0, DateTimeKind.Utc), invite.ExpiresAtUtc);
             _sync.Verify(s => s.SyncNowAsync(It.IsAny<CancellationToken>()), Times.Once);
             var call = Assert.Single(_client.Calls);
             Assert.Equal(trip.SyncId, call.Arguments["p_trip_id"]!.GetValue<string>());
-            Assert.Equal("editor", call.Arguments["p_role"]!.GetValue<string>());
+        }
+
+        [Fact]
+        public async Task TP4_AnInvite_IsSingleUse_For48Hours_AndMakesAViewer()
+        {
+            var trip = await SharingFakes.NewTripAsync(_trips);
+            SyncMarksUploaded(trip);
+            _client.Handler = (_, _) => """[ { "code": "ABCD2345", "expires_at": "2026-10-19T10:00:00+00:00" } ]""";
+
+            var invite = await Create().CreateInviteAsync(trip.Id);
+
+            var call = Assert.Single(_client.Calls);
+            Assert.Equal("viewer", call.Arguments["p_role"]!.GetValue<string>());
+            Assert.Equal(1, call.Arguments["p_max_uses"]!.GetValue<int>());
+            Assert.Equal(48, call.Arguments["p_valid_hours"]!.GetValue<int>());
+            Assert.Equal(TripRole.Viewer, invite.Role);
+            Assert.Equal(1, invite.MaxUses);
+            Assert.False(invite.IsGroupInvite);
+        }
+
+        [Fact]
+        public async Task TP4_AGroupCode_IsAskedForOnPurpose()
+        {
+            var trip = await SharingFakes.NewTripAsync(_trips);
+            SyncMarksUploaded(trip);
+            _client.Handler = (_, _) => """[ { "code": "ABCD2345", "expires_at": "2026-10-19T10:00:00+00:00" } ]""";
+
+            var invite = await Create().CreateInviteAsync(trip.Id, forGroup: true);
+
+            var call = Assert.Single(_client.Calls);
+            Assert.Equal(SharingService.GroupInviteMaxUses, call.Arguments["p_max_uses"]!.GetValue<int>());
+            Assert.Equal("viewer", call.Arguments["p_role"]!.GetValue<string>());
+            Assert.True(invite.IsGroupInvite);
+            Assert.Equal(10, invite.MaxUses);
         }
 
         [Fact]
@@ -226,7 +259,7 @@ namespace TravelPlanner.Tests
             var trip = await SharingFakes.NewTripAsync(_trips);
             _sync.Setup(s => s.SyncNowAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new SyncResult(0, 0, 0, 0, 0, 1));
 
-            var ex = await Assert.ThrowsAsync<SharingException>(() => Create().CreateInviteAsync(trip.Id, TripRole.Viewer));
+            var ex = await Assert.ThrowsAsync<SharingException>(() => Create().CreateInviteAsync(trip.Id));
 
             Assert.Equal(SharingErrorKind.NotUploaded, ex.Kind);
             Assert.Empty(_client.Calls);
@@ -238,7 +271,7 @@ namespace TravelPlanner.Tests
             var trip = await SharingFakes.NewTripAsync(_trips);
 
             Assert.Equal(SharingErrorKind.Offline,
-                (await Assert.ThrowsAsync<SharingException>(() => Create(online: false).CreateInviteAsync(trip.Id, TripRole.Editor))).Kind);
+                (await Assert.ThrowsAsync<SharingException>(() => Create(online: false).CreateInviteAsync(trip.Id))).Kind);
 
             ChangeTracker.CurrentUserId = null;
             Assert.Equal(SharingErrorKind.NotSignedIn,
@@ -284,6 +317,22 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP4_AWrongCode_ComesBackEmpty_AndTooManyTriesAreReported()
+        {
+            // the server counts a wrong code and answers with no rows (an error would undo the count)
+            _client.Handler = (_, _) => "[]";
+            var invalid = await Assert.ThrowsAsync<SharingException>(() => Create().AcceptInviteAsync("ABCD2345"));
+            Assert.Equal(SharingErrorKind.InvalidInvite, invalid.Kind);
+            _sync.Verify(s => s.SyncNowAsync(It.IsAny<CancellationToken>()), Times.Never);
+
+            // after 10 wrong codes: HTTP 429 / PT429 for an hour
+            _client.Handler = (_, _) => throw new SyncException(SyncErrorKind.Server, "HTTP 429", status: 429, serverCode: "PT429");
+            var blocked = await Assert.ThrowsAsync<SharingException>(() => Create().AcceptInviteAsync("ABCD2345"));
+            Assert.Equal(SharingErrorKind.TooManyAttempts, blocked.Kind);
+            Assert.Equal(AppResources.Sharing_ErrorTooManyAttempts, SharingTexts.ErrorFor(blocked.Kind));
+        }
+
+        [Fact]
         public async Task Members_AreListed_AndRemembered()
         {
             var trip = await SharingFakes.NewTripAsync(_trips);
@@ -300,6 +349,48 @@ namespace TravelPlanner.Tests
             Assert.Equal(TripRole.Editor, members[1].Role);
             Assert.Equal("ayse@example.com", members[1].Name);
             Assert.Equal("ayse@example.com", await _access.GetUserNameAsync(SharingFakes.Ayse));
+        }
+
+        [Fact]
+        public async Task TP4_AViewer_GetsNoEmails_AndOldOnesAreForgotten()
+        {
+            var trip = await SharingFakes.NewTripAsync(_trips);
+            await (await _db.Connection).ExecuteAsync("UPDATE Trip SET ChangeSeq = 5 WHERE Id = ?", trip.Id);
+            // what an older version remembered
+            await _access.RememberUsersAsync(new[] { new KnownUser { UserId = SharingFakes.Ayse, DisplayName = "Ayşe", Email = "ayse@example.com" } });
+            _client.Handler = (_, _) => $$"""
+                [ { "user_id": "{{SharingFakes.Ayse}}", "role": "owner", "display_name": "Ayşe", "email": null, "joined_at": "2026-10-10T09:00:00+00:00" },
+                  { "user_id": "{{SharingFakes.Me}}", "role": "viewer", "display_name": "Emrullah", "email": "e@example.com", "joined_at": "2026-10-10T10:00:00+00:00" } ]
+                """;
+
+            var members = await Create().GetMembersAsync(trip.Id);
+
+            Assert.Null(members[0].Email);
+            Assert.Equal("Ayşe", members[0].Name);
+            var remembered = await (await _db.Connection).FindAsync<KnownUser>(SharingFakes.Ayse);
+            Assert.Null(remembered!.Email);
+            Assert.Equal("Ayşe", await _access.GetUserNameAsync(SharingFakes.Ayse));
+        }
+
+        [Fact]
+        public async Task TP4_RecentJoins_AreRead()
+        {
+            _client.Handler = (_, _) => $$"""
+                [ { "trip_id": "11111111-1111-1111-1111-111111111111", "trip_name": "Roma", "user_id": "{{SharingFakes.Ayse}}",
+                    "display_name": "Ayşe", "role": "viewer", "joined_at": "2026-10-17T12:30:00.123456+00:00" },
+                  { "trip_id": null, "user_id": "x", "joined_at": "2026-10-17T12:31:00+00:00" } ]
+                """;
+            var since = new DateTime(2026, 10, 17, 12, 0, 0, DateTimeKind.Utc);
+
+            var joins = await Create().GetRecentJoinsAsync(since);
+
+            var join = Assert.Single(joins);
+            Assert.Equal("Roma", join.TripName);
+            Assert.Equal("Ayşe", join.DisplayName);
+            Assert.Equal(new DateTime(2026, 10, 17, 12, 30, 0, DateTimeKind.Utc).AddTicks(1234560), join.JoinedAtUtc);
+            var call = Assert.Single(_client.Calls);
+            Assert.Equal("get_recent_joins", call.Function);
+            Assert.Equal(since, DateTime.Parse(call.Arguments["p_since"]!.GetValue<string>(), null, System.Globalization.DateTimeStyles.RoundtripKind));
         }
 
         [Fact]
@@ -407,12 +498,51 @@ namespace TravelPlanner.Tests
             Assert.False(vm.Members[0].CanManage); // me
             Assert.True(vm.Members[1].CanManage);
 
-            _sharing.Setup(s => s.CreateInviteAsync(3, TripRole.Editor))
-                    .ReturnsAsync(new TripInvite("ABCD2345", TripRole.Editor, DateTime.UtcNow.AddDays(7)));
-            await vm.InviteEditorCommand.ExecuteAsync(null);
+            _sharing.Setup(s => s.CreateInviteAsync(3, false))
+                    .ReturnsAsync(new TripInvite("ABCD2345", TripRole.Viewer, DateTime.UtcNow.AddHours(48)));
+            await vm.InviteCommand.ExecuteAsync(null);
 
             Assert.Equal("ABCD 2345", vm.LastInviteCode);
-            _share.Verify(s => s.RequestAsync(It.Is<ShareTextRequest>(r => r.Text!.Contains("ABCD 2345") && r.Text.Contains("Roma"))), Times.Once);
+            Assert.Contains(AppResources.Members_InviteUsesSingle, vm.LastInviteText);
+            _share.Verify(s => s.RequestAsync(It.Is<ShareTextRequest>(r => r.Text!.Contains("ABCD 2345") && r.Text.Contains("Roma")
+                                                                           && r.Text.Contains(AppResources.Members_InviteShareSingle))), Times.Once);
+        }
+
+        [Fact]
+        public async Task TP4_AGroupCode_NeedsAConfirmation()
+        {
+            var vm = Create(TripRole.Owner);
+            await vm.LoadCommand.ExecuteAsync(null);
+            _sharing.Setup(s => s.CreateInviteAsync(3, true))
+                    .ReturnsAsync(new TripInvite("WXYZ2345", TripRole.Viewer, DateTime.UtcNow.AddHours(48), 10));
+
+            _dialogs.Setup(d => d.ConfirmAsync(AppResources.Members_InviteGroupTitle, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                    .ReturnsAsync(false);
+            await vm.InviteGroupCommand.ExecuteAsync(null);
+            _sharing.Verify(s => s.CreateInviteAsync(It.IsAny<int>(), It.IsAny<bool>()), Times.Never);
+
+            _dialogs.Setup(d => d.ConfirmAsync(AppResources.Members_InviteGroupTitle, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                    .ReturnsAsync(true);
+            await vm.InviteGroupCommand.ExecuteAsync(null);
+
+            _sharing.Verify(s => s.CreateInviteAsync(3, true), Times.Once);
+            Assert.Contains("10", vm.LastInviteText);
+            _share.Verify(s => s.RequestAsync(It.Is<ShareTextRequest>(r => r.Text!.Contains("WXYZ 2345") && r.Text.Contains("10"))), Times.Once);
+        }
+
+        [Fact]
+        public async Task TP4_TheOwner_SeesWhenMembersJoined()
+        {
+            var vm = Create(TripRole.Owner);
+            await vm.LoadCommand.ExecuteAsync(null);
+
+            Assert.False(vm.Members[0].HasJoinedText);    // me
+            Assert.True(vm.Members[1].HasJoinedText);     // Ayşe
+            Assert.Equal(string.Format(AppResources.Members_JoinedAgoFormat, AppResources.Time_JustNow), vm.Members[1].JoinedText);
+
+            var asEditor = Create(TripRole.Editor);
+            await asEditor.LoadCommand.ExecuteAsync(null);
+            Assert.False(asEditor.Members[1].HasJoinedText);
         }
 
         [Fact]

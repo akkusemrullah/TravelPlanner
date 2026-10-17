@@ -22,5 +22,11 @@ namespace TravelPlanner.Services
         /// aren't available (unsupported platform or permission denied) so the caller can fall back to an in-app message.
         /// </summary>
         Task<bool> ShowBudgetAlertAsync(Trip trip, int thresholdPercent, double usagePercent);
+
+        /// <summary>
+        /// TP-4: shows an immediate "someone joined your trip" notification. Returns false when notifications aren't
+        /// available, so the caller can show the message in the app instead.
+        /// </summary>
+        Task<bool> ShowMemberJoinedAsync(string title, string message);
     }
 }

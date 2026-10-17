@@ -13,6 +13,7 @@ namespace TravelPlanner
         private readonly ISyncService _sync;
         private readonly IDialogService _dialogs;
         private readonly ITripService _trips;
+        private readonly IMemberJoinWatcher _memberJoins;
         private bool _shellShown;
 
         // Reminders mention the day's activities and the open to-dos, so they are re-planned when those change
@@ -33,7 +34,7 @@ namespace TravelPlanner
 
         public App(INotificationService notificationService, ISettingsService settings, IThemeService themeService,
                    ITrashService trashService, IAccountService account, IPreferences preferences, ISyncService sync,
-                   ITripAccessService tripAccess, IDialogService dialogs, ITripService trips)
+                   ITripAccessService tripAccess, IDialogService dialogs, ITripService trips, IMemberJoinWatcher memberJoins)
         {
             // Language first: every page reads its {x:Static} strings when it's built (TP-301).
             LocalizationHelper.Apply(settings.Language);
@@ -46,6 +47,7 @@ namespace TravelPlanner
             _sync = sync;
             _dialogs = dialogs;
             _trips = trips;
+            _memberJoins = memberJoins;
 
             // G4: a sync that brought other people's changes reloads the visible page.
             _sync.RemoteChangesApplied += (_, _) =>
@@ -79,6 +81,13 @@ namespace TravelPlanner
             _sync.QuotaExceeded += (_, count) => MainThread.BeginInvokeOnMainThread(() =>
                 dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
                     string.Format(TravelPlanner.Resources.Strings.AppResources.Sync_QuotaExceededFormat, count)).FireAndForget());
+
+            // TP-4: tell the owner when someone joins one of their trips (asked after a sync, at most every 2 minutes).
+            _sync.StatusChanged += (_, _) =>
+            {
+                if (_shellShown && _sync.Status == SyncStatus.UpToDate)
+                    CheckMemberJoinsAsync().FireAndForget();
+            };
 
             // Signing in / out switches the local data: rebuild the shell so every page reloads from the new data.
             _account.AccountChanged += (_, _) => MainThread.BeginInvokeOnMainThread(() => RebuildShellAsync().FireAndForget());
@@ -231,6 +240,27 @@ namespace TravelPlanner
             await Task.Delay(900); // the shell is rebuilt for the guest data first
             await MainThread.InvokeOnMainThreadAsync(() =>
                 _dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Account_EndedTitle, message));
+        }
+
+        /// <summary>TP-4: "Ayşe joined Roma" - as a notification, or in the app when notifications are off.</summary>
+        private async Task CheckMemberJoinsAsync()
+        {
+            try
+            {
+                var joins = await _memberJoins.CheckAsync();
+                if (joins.Count == 0)
+                    return;
+
+                var (title, message) = MemberJoinWatcher.BuildMessage(joins);
+                if (await _notificationService.ShowMemberJoinedAsync(title, message))
+                    return;
+
+                await MainThread.InvokeOnMainThreadAsync(() => _dialogs.ShowMessageAsync(title, message));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Sharing] New-member check failed: {ex.Message}");
+            }
         }
 
         protected override void OnSleep()
