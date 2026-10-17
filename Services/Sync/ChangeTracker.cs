@@ -144,6 +144,7 @@ namespace TravelPlanner.Services.Sync
                 changed = ChangedProperties(map, stored, entity);
                 if (changed.Count == 0)
                     return conn.Update(entity);
+                AddCoupledFields(entity, changed);
             }
 
             EnsureAllowed(conn, info.ResolveTripSyncId(conn, entity), entity, isDelete: false);
@@ -328,6 +329,25 @@ namespace TravelPlanner.Services.Sync
                 throw new TripAccessException(TripAccessDenied.ReadOnly);
             if (isDelete && entity is Trip)
                 throw new TripAccessException(TripAccessDenied.OwnerOnly);
+        }
+
+        /// <summary>Expense fields whose values only mean something together with the amount's currency.</summary>
+        private static readonly string[] ExpenseAmountFields =
+        {
+            nameof(Expense.AmountMinor), nameof(Expense.ExchangeRate), nameof(Expense.OriginalAmountMinor), nameof(Expense.OriginalCurrencyCode),
+        };
+
+        /// <summary>
+        /// TP-11: an expense's amount always travels with the currency it is in, even when that currency itself
+        /// didn't change here - the trip may have been converted elsewhere meanwhile, and the server converts an
+        /// amount in an older currency on arrival only when it knows which currency that is.
+        /// </summary>
+        private static void AddCoupledFields(ISyncEntity entity, List<string> changed)
+        {
+            if (entity is Expense { AmountCurrencyCode: not null } &&
+                changed.Any(f => ExpenseAmountFields.Contains(f)) &&
+                !changed.Contains(nameof(Expense.AmountCurrencyCode)))
+                changed.Add(nameof(Expense.AmountCurrencyCode));
         }
 
         private static List<string> ChangedProperties(TableMapping map, object stored, object current)

@@ -1059,6 +1059,71 @@ select test.eq((select array_agg(path order by path) from private.file_cleanup_q
 delete from private.file_cleanup_queue;
 delete from storage.objects where name like 'trips/' || :'t7' || '/%';
 
+-- ------------------------------------------------------------------------------- TP-11: trip currency (migration 19)
+\set t11    'bbbbbbbb-0000-0000-0000-000000000011'
+\set e11a   'bbbbbbbb-0000-0000-0000-0000000011a1'
+\set e11b   'bbbbbbbb-0000-0000-0000-0000000011b1'
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t11', 'full', true, 'fields',
+        jsonb_build_object('name', 'Viyana', 'start_date', '2026-11-01', 'end_date', '2026-11-03', 'currency_code', 'TRY')),
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e11a', 'trip_id', :'t11', 'full', true, 'fields',
+        jsonb_build_object('amount_minor', 100000, 'original_amount_minor', 100000, 'original_currency_code', 'TRY',
+                           'exchange_rate', 1, 'date', '2026-11-01', 'amount_currency_code', 'TRY'))
+)) as res;
+select test.eq((select count(*) from r, jsonb_array_elements(r.res) e where e ->> 'status' = 'applied'), 2::bigint, 'TP-11: Ali''s TRY trip with a 1000 TRY expense');
+
+-- the currency can't be changed field by field while the trip has expenses
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t11', 'base_version', 1, 'fields', jsonb_build_object('currency_code', 'EUR')))) as res;
+select test.eq(test.reason((select res from r)), 'invalid', 'TP-11: a plain currency_code edit is refused');
+
+-- one atomic conversion
+select test.eq((public.convert_trip_currency(:'t11', 'TRY', 'EUR', 0.025) ->> 'converted')::int, 1, 'TP-11: convert_trip_currency converts the expense');
+select test.eq((select currency_code from public.trips where id = :'t11'), 'EUR', 'TP-11: the trip is in EUR');
+select test.eq((select amount_minor from public.expenses where id = :'e11a'), 2500::bigint, 'TP-11: 1000 TRY became 25 EUR');
+select test.eq((select amount_currency_code from public.expenses where id = :'e11a'), 'EUR', 'TP-11: and is marked EUR');
+
+-- a second conversion based on the old currency (someone else converted first) is refused
+do $$
+begin
+    perform public.convert_trip_currency('bbbbbbbb-0000-0000-0000-000000000011', 'TRY', 'USD', 0.03);
+    raise exception 'FAILED: a conversion from a stale currency went through';
+exception when sqlstate 'TPC01' then raise notice 'ok - TP-11: a conversion from a stale currency is refused';
+end $$;
+
+-- an expense added offline in TRY arrives after the conversion: it is converted on arrival
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e11b', 'trip_id', :'t11', 'full', true, 'fields',
+        jsonb_build_object('amount_minor', 150000, 'original_amount_minor', 150000, 'original_currency_code', 'TRY',
+                           'exchange_rate', 1, 'date', '2026-11-02', 'amount_currency_code', 'TRY')))) as res;
+select test.eq(test.status((select res from r)), 'applied', 'TP-11: the late TRY expense is taken');
+select test.eq((select amount_minor from public.expenses where id = :'e11b'), 3750::bigint, 'TP-11: 1500 TRY is stored as 37.50 EUR');
+select test.eq((select amount_currency_code from public.expenses where id = :'e11b'), 'EUR', 'TP-11: marked EUR');
+select test.eq((select original_amount_minor from public.expenses where id = :'e11b'), 150000::bigint, 'TP-11: what was typed stays');
+
+-- converting back to TRY restores the typed amounts
+select public.convert_trip_currency(:'t11', 'EUR', 'TRY', 40);
+select test.eq((select amount_minor from public.expenses where id = :'e11b'), 150000::bigint, 'TP-11: back in TRY = the typed amount');
+select test.eq((select exchange_rate from public.expenses where id = :'e11b'), 1::double precision, 'TP-11: with rate 1');
+reset role;
+
+-- a viewer can't convert
+insert into public.trip_members (trip_id, user_id, role, invited_by) values (:'t11', :'can', 'viewer', :'ali');
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+do $$
+begin
+    perform public.convert_trip_currency('bbbbbbbb-0000-0000-0000-000000000011', 'TRY', 'EUR', 0.025);
+    raise exception 'FAILED: a viewer converted the trip';
+exception when insufficient_privilege then raise notice 'ok - TP-11: a viewer cannot convert';
+end $$;
+reset role;
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'

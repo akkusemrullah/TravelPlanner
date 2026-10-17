@@ -49,6 +49,14 @@ namespace TravelPlanner.Models
         /// <summary>Rate used to convert the original amount into the trip currency (1 when no conversion).</summary>
         public double ExchangeRate { get; set; } = 1d;
 
+        /// <summary>
+        /// TP-11: the currency <see cref="AmountMinor"/> is in - the trip's currency when the amount was written.
+        /// Normally equal to the trip's; differs only for a moment when the trip's currency changed elsewhere while
+        /// this amount was written (the server converts it on arrival). Null for expenses from older versions.
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.MaxLength(3)]
+        public string? AmountCurrencyCode { get; set; }
+
         public DateTime Date { get; set; } = DateTime.Today;
 
         /// <summary>Who paid (TP-504). Null = not part of the cost split.</summary>
@@ -62,7 +70,7 @@ namespace TravelPlanner.Models
         public string? TripCurrencyCode { get; set; }
 
         [Ignore]
-        public string FormattedAmount => MoneyFormatter.FormatIn(Amount, TripCurrencyCode);
+        public string FormattedAmount => MoneyFormatter.FormatIn(Amount, AmountCurrencyCode ?? TripCurrencyCode);
 
         /// <summary>True when the expense was entered in a different currency than the trip's.</summary>
         [Ignore]

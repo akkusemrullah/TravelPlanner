@@ -3884,6 +3884,24 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string for TripForm_CurrencyChangeOffline.
+        /// </summary>
+        public static string TripForm_CurrencyChangeOffline {
+            get {
+                return ResourceManager.GetString("TripForm_CurrencyChangeOffline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for TripForm_CurrencyChangedElsewhere.
+        /// </summary>
+        public static string TripForm_CurrencyChangedElsewhere {
+            get {
+                return ResourceManager.GetString("TripForm_CurrencyChangedElsewhere", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bu seyahatin {0} harcaması {1} cinsinden kayıtlı. Güncel kurla {2}'ye çevrilsin mi? Girdiğiniz bütçe olduğu gibi {2} kabul edilir..
         /// </summary>
         public static string TripForm_CurrencyChangeMessage {

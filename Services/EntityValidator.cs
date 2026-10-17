@@ -50,6 +50,8 @@ namespace TravelPlanner.Services
                         return "invalid category";
                     if (expense.OriginalCurrencyCode is not null && !MoneyFormatter.IsSupported(expense.OriginalCurrencyCode))
                         return "unknown currency";
+                    if (expense.AmountCurrencyCode is not null && !MoneyFormatter.IsSupported(expense.AmountCurrencyCode))
+                        expense.AmountCurrencyCode = null; // TP-11: just a label - fall back to the trip's currency
                     return null;
 
                 case Place place:

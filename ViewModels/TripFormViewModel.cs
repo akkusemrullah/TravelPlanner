@@ -18,6 +18,7 @@ namespace TravelPlanner.ViewModels
         private readonly IBudgetAlertService _budgetAlerts;
         private readonly IConnectivity _connectivity;
         private readonly IActivityService? _activityService;
+        private readonly ITripCurrencyService? _tripCurrency;
 
         /// <summary>True while typing without internet - shows a hint that suggestions can't load (TP-306).</summary>
         [ObservableProperty]
@@ -94,7 +95,8 @@ namespace TravelPlanner.ViewModels
             ISettingsService settings,
             IConnectivity connectivity,
             IDialogService dialogs,
-            IActivityService? activityService = null)
+            IActivityService? activityService = null,
+            ITripCurrencyService? tripCurrency = null)
             : base(dialogs)
         {
             _tripService = tripService;
@@ -104,8 +106,26 @@ namespace TravelPlanner.ViewModels
             _budgetAlerts = budgetAlerts;
             _connectivity = connectivity;
             _activityService = activityService;
+            _tripCurrency = tripCurrency;
 
             SelectedCurrency = FindCurrency(settings.CurrencyCode);
+        }
+
+        /// <summary>TP-11: through the currency service (server-side for trips in the cloud); without it, on the device.</summary>
+        private async Task<TripCurrencyChangeOutcome> ConvertCurrencyAsync(int tripId, string from, string to, decimal rate)
+        {
+            if (_tripCurrency is not null)
+                return await _tripCurrency.ConvertAsync(tripId, from, to, rate);
+
+            try
+            {
+                await _expenseService.ConvertTripExpensesAsync(tripId, from, to, rate);
+                return TripCurrencyChangeOutcome.Converted;
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                return TripCurrencyChangeOutcome.TooLarge;
+            }
         }
 
         private SettingsOption<string> FindCurrency(string? code) =>
@@ -290,6 +310,7 @@ namespace TravelPlanner.ViewModels
 
             // TP-403: changing the currency of a trip that already has expenses re-expresses them in the new
             // currency at today's rate - after asking, since it rewrites stored amounts.
+            string? convertedCurrency = null;
             if (_existingTrip is not null &&
                 !string.Equals(_existingTrip.EffectiveCurrencyCode, newCurrency, StringComparison.OrdinalIgnoreCase))
             {
@@ -311,18 +332,26 @@ namespace TravelPlanner.ViewModels
                         return;
                     }
 
-                    try
+                    var outcome = await ConvertCurrencyAsync(_existingTrip.Id, oldCurrency, newCurrency, quote.Rate);
+                    if (outcome != TripCurrencyChangeOutcome.Converted)
                     {
-                        await _expenseService.ConvertTripExpensesAsync(_existingTrip.Id, oldCurrency, newCurrency, quote.Rate);
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        // A converted amount would exceed the money limit (e.g. a large EUR expense into HUF/JPY).
-                        // The conversion ran in one transaction, so nothing was changed.
-                        ValidationMessage = string.Format(AppResources.Money_TooLargeFormat,
-                            MoneyFormatter.FormatIn(InputLimits.MaxMoneyAmount, newCurrency, 0));
+                        // Nothing was changed (the conversion is one transaction, on the device or on the server).
+                        ValidationMessage = outcome switch
+                        {
+                            // A converted amount would exceed the money limit (e.g. a large EUR expense into HUF/JPY).
+                            TripCurrencyChangeOutcome.TooLarge => string.Format(AppResources.Money_TooLargeFormat,
+                                MoneyFormatter.FormatIn(InputLimits.MaxMoneyAmount, newCurrency, 0)),
+                            TripCurrencyChangeOutcome.Offline => AppResources.TripForm_CurrencyChangeOffline,
+                            TripCurrencyChangeOutcome.ChangedElsewhere => AppResources.TripForm_CurrencyChangedElsewhere,
+                            _ => AppResources.Access_ReadOnly,
+                        };
                         return;
                     }
+
+                    // TP-11: the trip now has the currency the conversion stored (for a shared trip: once the
+                    // server's result is synced) - the form must not set it ahead of its expenses.
+                    if (_tripCurrency is not null)
+                        convertedCurrency = (await _tripService.GetByIdAsync(_existingTrip.Id))?.CurrencyCode ?? newCurrency;
                 }
             }
 
@@ -333,7 +362,7 @@ namespace TravelPlanner.ViewModels
             trip.StartDate = StartDate.Date;
             trip.EndDate = EndDate.Date;
             trip.PlannedBudget = PlannedBudget;
-            trip.CurrencyCode = newCurrency;
+            trip.CurrencyCode = convertedCurrency ?? newCurrency;
             trip.Description = InputLimits.Truncate(Description, 500);
 
             await _tripService.SaveAsync(trip);

@@ -48,6 +48,8 @@ namespace TravelPlanner.Services
         {
             Validate(expense);
             var db = await _databaseService.Connection;
+            // TP-11: the amount is in the trip's currency (the form sets the one it converted into).
+            expense.AmountCurrencyCode ??= await GetTripCurrencyAsync(db, expense.TripId);
             return await db.SaveTrackedAsync(expense);
         }
 
@@ -157,6 +159,8 @@ namespace TravelPlanner.Services
                         var newRate = (expense.ExchangeRate <= 0 ? 1d : expense.ExchangeRate) * (double)rate;
                         expense.ExchangeRate = InputLimits.IsValidRate(newRate) ? newRate : (double)rate;
                     }
+
+                    expense.AmountCurrencyCode = toCurrency; // TP-11
 
                     changed += conn.UpdateTracked(expense);
                 }

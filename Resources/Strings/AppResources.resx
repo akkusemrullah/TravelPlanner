@@ -1028,6 +1028,12 @@
   <data name="TripForm_CurrencyChangeAccept" xml:space="preserve">
     <value>Çevir</value>
   </data>
+  <data name="TripForm_CurrencyChangeOffline" xml:space="preserve">
+    <value>Bulutta olan bir seyahatin para birimi yalnızca internet varken değiştirilebilir; böylece diğer üyelerin masrafları da aynı anda çevrilir.</value>
+  </data>
+  <data name="TripForm_CurrencyChangedElsewhere" xml:space="preserve">
+    <value>Bu seyahatin para birimi az önce başka bir üye tarafından değiştirildi. Güncel hali yükleniyor; gerekirse tekrar dene.</value>
+  </data>
   <data name="Fx_Unavailable" xml:space="preserve">
     <value>Döviz kuru alınamadı. İnternet bağlantınızı kontrol edin ya da tutarı seyahatin para biriminde girin.</value>
   </data>
