@@ -13,7 +13,17 @@ namespace TravelPlanner.Services.Sync
 
         internal const string CursorKey = "pull_cursor";
         internal const string LastSyncKey = "last_sync_utc";
-        internal const int BatchSize = 200;
+        internal const string LastFullPullKey = "last_full_pull_utc";
+
+        /// <summary>TP-8: small calls finish well inside the server's time limit for one apply_changes call.</summary>
+        internal const int BatchSize = 50;
+
+        /// <summary>
+        /// TP-8: everything is read again (p_since = 0) once in this period - a safety net in case the cursor ever
+        /// moved past a row (the server prevents that since migration 18, but a missed row would otherwise stay
+        /// missing until it changes again).
+        /// </summary>
+        internal static readonly TimeSpan FullPullInterval = TimeSpan.FromDays(1);
         internal const int MaxAttemptsBeforeBackoff = 5;
         internal static readonly TimeSpan BackoffDelay = TimeSpan.FromMinutes(30);
         internal static readonly TimeSpan DefaultDelay = TimeSpan.FromSeconds(1);
@@ -208,7 +218,7 @@ namespace TravelPlanner.Services.Sync
                     ChangesRejected?.Invoke(this, push.RejectedChanges);
                 }
 
-                var pulled = await PullAsync(db, push.NeedsFullPull, cancellationToken);
+                var pulled = await PullAsync(db, push.NeedsFullPull || await IsFullPullDueAsync(db), cancellationToken);
 
                 PendingCount = await db.Table<PendingChange>().CountAsync();
                 LastSyncedAtUtc = UtcNow();
@@ -591,6 +601,8 @@ namespace TravelPlanner.Services.Sync
 
             RemoteApplier.Outcome outcome = new();
             await db.RunInTransactionAsync(conn => outcome = RemoteApplier.Apply(conn, response));
+            if (fromStart)
+                await db.InsertOrReplaceAsync(new SyncStateEntry { Key = LastFullPullKey, Value = UtcNow().Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture) });
 
             // Outside SQLite: files of rows/trips that disappeared, and reminders of trips that changed.
             CleanUpRemoved(outcome.FilesToDelete, outcome.RemovedTripIds);
@@ -628,6 +640,18 @@ namespace TravelPlanner.Services.Sync
                 _attachments.DeleteFilesForTrip(tripId);
                 TryNotify(() => _notifications.CancelTripNotifications(tripId));
             }
+        }
+
+        /// <summary>TP-8: no full pull yet on this device, or the last one is older than <see cref="FullPullInterval"/>.</summary>
+        private async Task<bool> IsFullPullDueAsync(SQLiteAsyncConnection db)
+        {
+            var entry = await db.FindAsync<SyncStateEntry>(LastFullPullKey);
+            if (!long.TryParse(entry?.Value, System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out var ticks) ||
+                ticks < DateTime.MinValue.Ticks || ticks > DateTime.MaxValue.Ticks)
+                return true;
+            var last = new DateTime(ticks, DateTimeKind.Utc);
+            var now = UtcNow();
+            return now - last >= FullPullInterval || last > now; // a clock set back doesn't postpone it for good
         }
 
         private static async Task<long> ReadCursorAsync(SQLiteAsyncConnection db)

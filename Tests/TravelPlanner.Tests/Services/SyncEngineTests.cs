@@ -464,6 +464,64 @@ namespace TravelPlanner.Tests
             Assert.NotEqual(0, await OutboxCountAsync());
         }
 
+        // ------------------------------------------------------------------ TP-8: small calls, a daily full pull
+
+        [Fact]
+        public async Task Push_SendsAtMostFiftyChangesPerCall()
+        {
+            var trip = await NewTripAsync();
+            for (var i = 0; i < 60; i++)
+                await _expenses.SaveAsync(new Expense { TripId = trip.Id, Amount = i + 1, Date = new DateTime(2026, 8, 21) });
+            var total = await OutboxCountAsync();
+            Assert.True(total > SyncService.BatchSize);
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
+
+            await _sync.SyncNowAsync();
+
+            var calls = _client.Calls.Where(c => c.Function == "apply_changes").Select(c => c.Arguments["p_changes"]!.AsArray().Count).ToList();
+            Assert.Equal(50, SyncService.BatchSize);
+            Assert.All(calls, count => Assert.True(count <= SyncService.BatchSize));
+            Assert.Equal(total, calls.Sum());
+            Assert.Equal(0, await OutboxCountAsync());
+        }
+
+        [Fact]
+        public async Task EverythingIsPulledAgain_OnceADay()
+        {
+            var now = new DateTime(2026, 10, 17, 12, 0, 0, DateTimeKind.Utc);
+            _sync.UtcNow = () => now;
+            _client.Handler = (_, _) => FakeSupabaseClient.EmptyPull(40);
+            long LastSince() => _client.Calls.Last(c => c.Function == "pull_changes").Arguments["p_since"]!.GetValue<long>();
+
+            await _sync.SyncNowAsync();
+            Assert.Equal(0, LastSince()); // a device that never did one starts with a full pull
+
+            now = now.AddHours(23);
+            await _sync.SyncNowAsync();
+            Assert.Equal(40, LastSince()); // within the day: from the cursor
+
+            now = now.AddHours(1);
+            await _sync.SyncNowAsync();
+            Assert.Equal(0, LastSince()); // a day later: everything again ...
+
+            await _sync.SyncNowAsync();
+            Assert.Equal(40, LastSince()); // ... once
+        }
+
+        [Fact]
+        public async Task FullPull_IsNotPostponedForGood_ByAClockSetBack()
+        {
+            var now = new DateTime(2026, 10, 17, 12, 0, 0, DateTimeKind.Utc);
+            _sync.UtcNow = () => now;
+            _client.Handler = (_, _) => FakeSupabaseClient.EmptyPull(40);
+            await _sync.SyncNowAsync(); // full pull at 12:00
+
+            now = now.AddDays(-3);
+            await _sync.SyncNowAsync();
+
+            Assert.Equal(0, _client.Calls.Last(c => c.Function == "pull_changes").Arguments["p_since"]!.GetValue<long>());
+        }
+
         [Fact]
         public async Task RefusedUpload_StaysLocal_IsNotResentUntilTheBackoff_AndIsReportedOnce()
         {

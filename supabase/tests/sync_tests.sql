@@ -479,6 +479,69 @@ select set_config('request.jwt.claim.sub', :'can', false);
 set role authenticated;
 select test.eq((public.pull_changes((select cursor from c)) -> 'expenses' -> 0 ->> 'deleted_at') is not null, true, 'a delete arrives as a row with deleted_at');
 
+-- ------------------------------------------------------------------------------- TP-8: slow concurrent writes
+-- The scenario: a sync call (session B) writes a to-do and stays open - waiting on row locks, say - for more
+-- than 10 seconds. Meanwhile Ali writes another to-do: it gets a HIGHER change_seq and commits first. Before
+-- TP-8 the viewer's cursor moved past Ali's row once it was 10 s old, so B's row (lower change_seq, committed
+-- later) never reached the viewer. Now the cursor stops before anything an open transaction may still commit.
+reset role;
+select test.eq((select proconfig @> array['lock_timeout=2s'] from pg_proc where oid = 'public.apply_changes(jsonb)'::regprocedure),
+               true, 'TP-8: apply_changes waits at most 2 s for a row lock');
+select test.eq(private.pull_safe_before() <= now() - interval '10 seconds', true, 'TP-8: the safe point is at least 10 s back');
+do $$
+declare v_first timestamptz; v_second timestamptz;
+begin
+    update public.todos set title = 'Pasaport' where id = '77777777-7777-7777-7777-777777777777' returning updated_at into v_first;
+    perform pg_sleep(0.05);
+    update public.todos set title = 'Pasaport' where id = '77777777-7777-7777-7777-777777777777' returning updated_at into v_second;
+    perform test.eq(v_second > v_first and v_first > now(), true, 'TP-8: updated_at is the write time, not the transaction start');
+end $$;
+
+-- The scenario itself needs a second session (dblink); without it this part is skipped. It waits 10.5 s.
+select exists (select 1 from pg_available_extensions where name = 'dblink') as has_dblink \gset
+\if :has_dblink
+create extension if not exists dblink;
+\set quick 'cccccccc-0000-0000-0000-000000000008'
+select dblink_connect('tp8', format('dbname=%s port=%s', current_database(), current_setting('port')));
+select dblink_exec('tp8', 'begin');
+select dblink_exec('tp8', format('update public.todos set title = %L where id = %L', 'Yavaş yazma', :'todo'));
+drop table if exists slow;
+create temp table slow as
+    select seq from dblink('tp8', format('select change_seq from public.todos where id = %L', :'todo')) as t(seq bigint);
+grant select on slow to authenticated;
+
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Todo', 'op', 'upsert', 'id', :'quick', 'trip_id', :'trip', 'full', true,
+                       'fields', jsonb_build_object('title', 'Hızlı yazma', 'is_completed', false))))), 'applied',
+               'TP-8: Ali writes a to-do while the slow call is still open');
+reset role;
+select test.eq((select change_seq from public.todos where id = :'quick') > (select seq from slow), true,
+               'TP-8: his row has the higher change_seq but commits first');
+select pg_sleep(10.5);
+
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+drop table if exists p8;
+create temp table p8 as select public.pull_changes((select cursor from c)) as res;
+select test.eq((select count(*) from jsonb_array_elements(res -> 'todos') r where r ->> 'id' = :'quick'), 1::bigint,
+               'TP-8: the viewer gets Ali''s row') from p8;
+select test.eq((res ->> 'cursor')::bigint < (select seq from slow), true,
+               'TP-8: but the cursor stays before the open call''s row') from p8;
+
+reset role;
+select dblink_exec('tp8', 'commit');
+select dblink_disconnect('tp8');
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+select test.eq((select count(*) from jsonb_array_elements(public.pull_changes((select (res ->> 'cursor')::bigint from p8)) -> 'todos') r
+                where r ->> 'title' = 'Yavaş yazma'), 1::bigint, 'TP-8: the slow row arrives once it commits');
+reset role;
+\else
+\echo 'skipped - TP-8: dblink is not installed, the slow concurrent write scenario did not run'
+\endif
+
 -- ------------------------------------------------------------------------------- members
 reset role;
 select set_config('request.jwt.claim.sub', :'ali', false);
