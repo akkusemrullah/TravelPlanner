@@ -25,10 +25,11 @@ namespace TravelPlanner.ViewModels
         /// <summary>PDFs and images, per platform (Android MIME types, Apple UTIs, Windows extensions).</summary>
         internal static readonly FilePickerFileType DocumentTypes = new(new Dictionary<DevicePlatform, IEnumerable<string>>
         {
-            [DevicePlatform.Android] = new[] { "application/pdf", "image/*" },
+            // TP-3: exactly what the cloud accepts (AttachmentService.CloudContentType)
+            [DevicePlatform.Android] = new[] { "application/pdf", "image/jpeg", "image/png", "image/heic", "image/heif", "image/webp" },
             [DevicePlatform.iOS] = new[] { "com.adobe.pdf", "public.image" },
             [DevicePlatform.MacCatalyst] = new[] { "com.adobe.pdf", "public.image" },
-            [DevicePlatform.WinUI] = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".heic", ".webp" },
+            [DevicePlatform.WinUI] = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp" },
         });
 
         [ObservableProperty]
@@ -182,6 +183,10 @@ namespace TravelPlanner.ViewModels
             {
                 await Dialogs.ShowMessageAsync(AppResources.Common_Info,
                     string.Format(AppResources.Attachments_TooLargeFormat, TripAttachment.FormatSize(ex.MaxBytes)));
+            }
+            catch (UnsupportedAttachmentTypeException)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, AppResources.Attachments_UnsupportedType);
             }
         }, AppResources.Attachments_AddError);
 

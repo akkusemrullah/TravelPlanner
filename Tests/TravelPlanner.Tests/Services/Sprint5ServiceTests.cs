@@ -170,6 +170,38 @@ namespace TravelPlanner.Tests
             Assert.Equal(expected, AttachmentService.DetectKind(name, type));
         }
 
+        [Theory]
+        [InlineData("bilet.pdf", "application/pdf", "application/pdf")]
+        [InlineData("IMG_001.JPG", null, "image/jpeg")]
+        [InlineData("foto", "image/jpg", "image/jpeg")]
+        [InlineData("scan.heic", "application/octet-stream", "image/heic")]
+        [InlineData("x.webp", "IMAGE/WEBP; charset=binary", "image/webp")]
+        [InlineData("anim.gif", "image/gif", null)]
+        [InlineData("notlar.docx", null, null)]
+        public void CloudContentType_IsAPhotoOrPdfType_OrNull(string name, string? type, string? expected)
+        {
+            Assert.Equal(expected, AttachmentService.CloudContentType(name, type));
+        }
+
+        [Fact]
+        public async Task Add_RefusesFileTypesTheCloudDoesNotTake()
+        {
+            await Assert.ThrowsAsync<UnsupportedAttachmentTypeException>(() => _service.AddAsync(3, Bytes(10), "notlar.txt", "text/plain"));
+
+            Assert.Empty(await _service.GetByTripIdAsync(3));
+            var folder = Path.Combine(_root, "attachments", "3");
+            Assert.False(Directory.Exists(folder) && Directory.EnumerateFiles(folder).Any());
+        }
+
+        [Fact]
+        public async Task Add_StoresTheNormalizedType()
+        {
+            var attachment = await _service.AddAsync(3, Bytes(10), "IMG_2.jpeg", "image/jpg");
+
+            Assert.Equal("image/jpeg", attachment.ContentType);
+            Assert.Equal(AttachmentKind.Photo, attachment.Kind);
+        }
+
         [Fact]
         public async Task Add_CopiesTheFileIntoAppStorage_AndDeleteRemovesIt()
         {

@@ -1220,6 +1220,9 @@
   <data name="Attachments_TooLargeFormat" xml:space="preserve">
     <value>Dosya çok büyük (en fazla {0}).</value>
   </data>
+  <data name="Attachments_UnsupportedType" xml:space="preserve">
+    <value>Bu dosya türü eklenemiyor. Fotoğraf (JPEG, PNG, HEIC, WebP) ya da PDF seçebilirsin.</value>
+  </data>
   <data name="Attachments_FileMissing" xml:space="preserve">
     <value>Dosya bulunamadı. Yedekten geri yüklenmemiş olabilir.</value>
   </data>
@@ -1967,6 +1970,9 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
   </data>
   <data name="Sync_RejectedFormat" xml:space="preserve">
     <value>{0} değişikliğin uygulanamadı: kayıt başka biri tarafından silinmiş ya da bu seyahatteki yetkin değişmiş. Güncel hâli yüklendi.</value>
+  </data>
+  <data name="Sync_QuotaExceededFormat" xml:space="preserve">
+    <value>{0} değişiklik ya da dosya buluta kaydedilemedi, çünkü bir kullanım sınırına ulaşıldı (örneğin bir seyahatte en fazla 2.000 masraf, 500 yer ya da 200 belge; belgeler için seyahat başına 250 MB). Bunlar bu cihazda duruyor; eski kayıt ya da belgeleri silip yer açtığında veya ertesi gün kendiliğinden yeniden denenir.</value>
   </data>
   <data name="Trash_Title" xml:space="preserve">
     <value>Çöp kutusu</value>

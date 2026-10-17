@@ -372,6 +372,195 @@ do $$ begin
 exception when insufficient_privilege then raise notice 'ok - nothing outside trips/<trip_id>/';
 end $$;
 
+-- ------------------------------------------------------------------------------- TP-3: usage limits (migration 13)
+-- Small test limits: private.quota_limit reads test.quota_override first.
+reset role;
+create table test.quota_override (key text primary key, value bigint);
+grant select on test.quota_override to authenticated;
+alter function private.quota_limit(text) rename to quota_limit_real;
+create function private.quota_limit(p_key text) returns bigint language sql stable set search_path = '' as $$
+    select coalesce((select o.value from test.quota_override o where o.key = p_key), private.quota_limit_real(p_key))
+$$;
+grant execute on function private.quota_limit(text) to authenticated;
+insert into test.quota_override values ('expenses', 3);
+
+\set t2 'aaaaaaaa-0000-0000-0000-000000000002'
+\set t3 'aaaaaaaa-0000-0000-0000-000000000003'
+\set t4 'aaaaaaaa-0000-0000-0000-000000000004'
+\set e1 'eeeeeeee-0000-0000-0000-000000000001'
+\set e2 'eeeeeeee-0000-0000-0000-000000000002'
+\set e3 'eeeeeeee-0000-0000-0000-000000000003'
+\set e4 'eeeeeeee-0000-0000-0000-000000000004'
+\set e5 'eeeeeeee-0000-0000-0000-000000000005'
+
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+drop table if exists r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t2', 'full', true, 'fields',
+        jsonb_build_object('name', 'Paris', 'start_date', '2026-09-01', 'end_date', '2026-09-03')),
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e1', 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 100, 'date', '2026-09-01')),
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e2', 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 200, 'date', '2026-09-01')),
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e3', 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 300, 'date', '2026-09-01')),
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e4', 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 400, 'date', '2026-09-01'))
+)) as res;
+select test.eq((select count(*) from r, jsonb_array_elements(r.res) e where e ->> 'status' = 'applied'), 4::bigint, 'quota: trip + 3 expenses fit');
+select test.eq((select test.status(res, 4) || '/' || test.reason(res, 4) from r), 'rejected/quota', 'quota: the 4th expense of a trip is refused as "quota"');
+select test.eq((select res -> 4 ->> 'error' from r), 'quota: at most 3 expenses per trip', 'quota: the error names the limit');
+select test.eq((select count(*) from public.expenses where trip_id = :'t2'), 3::bigint, 'quota: nothing of the refused change is stored');
+
+-- the trash: a deleted row frees a live place; bringing it back needs one again
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'delete', 'id', :'e3', 'trip_id', :'t2')))), 'deleted', 'quota: delete one expense');
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e4', 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 400, 'date', '2026-09-01'))))), 'applied', 'quota: then a new one fits');
+select test.eq(test.reason(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e3', 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 300, 'date', '2026-09-01'))))), 'quota', 'quota: restoring from the trash counts as well');
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', :'e1', 'trip_id', :'t2',
+        'fields', jsonb_build_object('amount_minor', 150))))), 'applied', 'quota: editing at the limit is fine');
+-- trash counts up to twice the limit: 1 live + 5 deleted = 6 rows, then even free live places don't help
+reset role;
+update public.expenses set deleted_at = now() where id in (:'e1', :'e2');
+insert into public.expenses (id, trip_id, amount_minor, date, deleted_at)
+values (:'e5', :'t2', 1, '2026-09-01', now()), (gen_random_uuid(), :'t2', 1, '2026-09-01', now());
+set role authenticated;
+select test.eq(test.reason(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Expense', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', :'t2', 'full', true,
+        'fields', jsonb_build_object('amount_minor', 1, 'date', '2026-09-01'))))), 'quota', 'quota: a full trash counts too');
+
+-- trips per account
+reset role;
+insert into test.quota_override
+select 'trips', count(*) from public.trips where owner_id = :'ali' and deleted_at is null;
+set role authenticated;
+select test.eq(test.reason(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t3', 'full', true, 'fields',
+        jsonb_build_object('name', 'Lyon', 'start_date', '2026-09-01', 'end_date', '2026-09-03'))))), 'quota', 'quota: trips per account');
+reset role;
+delete from test.quota_override where key = 'trips';
+
+-- new rows per account per day
+insert into test.quota_override
+select 'new_rows_per_day', day_rows + 1 from private.sync_usage where user_id = :'ali';
+set role authenticated;
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t3', 'full', true, 'fields',
+        jsonb_build_object('name', 'Lyon', 'start_date', '2026-09-01', 'end_date', '2026-09-03'))))), 'applied', 'quota: under the daily row limit');
+select test.eq(test.reason(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Todo', 'op', 'upsert', 'id', gen_random_uuid(), 'trip_id', :'t3', 'full', true,
+        'fields', jsonb_build_object('title', 'x'))))), 'quota', 'quota: new rows per account per day');
+reset role;
+delete from test.quota_override where key = 'new_rows_per_day';
+
+-- calls and changes per minute (HTTP 429)
+insert into test.quota_override values ('calls_per_minute', 0);
+set role authenticated;
+do $$ begin
+    perform public.apply_changes('[]'::jsonb);
+    raise exception 'FAILED: a call over the per-minute limit went through';
+exception when sqlstate 'PT429' then raise notice 'ok - too many calls in a minute get 429';
+end $$;
+reset role;
+update test.quota_override set key = 'changes_per_minute' where key = 'calls_per_minute';
+insert into test.quota_override values ('calls_per_minute', 1000);  -- this script makes many calls a minute
+delete from private.sync_usage;                                     -- start the minute from 0 changes
+set role authenticated;
+select test.eq(jsonb_array_length(public.apply_changes('[]'::jsonb)), 0, 'rate: a call without changes fits 0 changes a minute');
+do $$ begin
+    perform public.apply_changes(jsonb_build_array(jsonb_build_object('entity', 'Todo', 'op', 'delete', 'id', gen_random_uuid())));
+    raise exception 'FAILED: changes over the per-minute limit went through';
+exception when sqlstate 'PT429' then raise notice 'ok - too many changes in a minute get 429';
+end $$;
+reset role;
+delete from test.quota_override where key in ('changes_per_minute', 'calls_per_minute');
+
+-- Storage: MIME types, size and files per trip, size per account
+select test.eq((select allowed_mime_types from storage.buckets where id = 'trip-files'),
+               array['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/webp', 'application/pdf'],
+               'storage: only photos and PDFs are accepted');
+insert into test.quota_override values ('storage_bytes_per_trip', 1000), ('storage_files_per_trip', 3), ('storage_bytes_per_account', 1500);
+set role authenticated;
+insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/' || :'t2' || '/a.pdf', '{"size": 600}');
+do $$ begin
+    insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/aaaaaaaa-0000-0000-0000-000000000002/b.pdf', '{"size": 500}');
+    raise exception 'FAILED: a trip went over its storage size';
+exception when insufficient_privilege then raise notice 'ok - a trip cannot go over its storage size';
+end $$;
+insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/' || :'t2' || '/b.pdf', '{"size": 300}');
+update storage.objects set metadata = '{"size": 700}' where name = 'trips/' || :'t2' || '/a.pdf';
+select test.eq((select sum((metadata ->> 'size')::bigint) from storage.objects where name like 'trips/' || :'t2' || '/%'), 1000::numeric,
+               'storage: replacing a file counts only its new size');
+do $$ begin
+    update storage.objects set metadata = '{"size": 701}' where name = 'trips/aaaaaaaa-0000-0000-0000-000000000002/a.pdf';
+    raise exception 'FAILED: a replaced file went over the trip size';
+exception when insufficient_privilege then raise notice 'ok - a replaced file cannot go over the trip size';
+end $$;
+reset role;
+update test.quota_override set value = 2000 where key = 'storage_bytes_per_trip';
+set role authenticated;
+insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/' || :'t2' || '/c.pdf', '{"size": 10}');
+do $$ begin
+    insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/aaaaaaaa-0000-0000-0000-000000000002/d.pdf', '{"size": 1}');
+    raise exception 'FAILED: a trip went over its file count';
+exception when insufficient_privilege then raise notice 'ok - a trip cannot go over its file count';
+end $$;
+-- the account: 1010 bytes in Paris, Lyon gets the rest of 1500
+do $$ begin
+    insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/aaaaaaaa-0000-0000-0000-000000000003/x.pdf', '{"size": 491}');
+    raise exception 'FAILED: an account went over its storage size';
+exception when insufficient_privilege then raise notice 'ok - an account cannot go over its storage size';
+end $$;
+insert into storage.objects (bucket_id, name, metadata) values ('trip-files', 'trips/' || :'t3' || '/x.pdf', '{"size": 490}');
+-- full account: refused before the upload already (no size known yet)
+do $$ begin
+    insert into storage.objects (bucket_id, name) values ('trip-files', 'trips/aaaaaaaa-0000-0000-0000-000000000003/y.pdf');
+    raise exception 'FAILED: an upload to a full account was not refused up front';
+exception when insufficient_privilege then raise notice 'ok - a full account is refused before the upload';
+end $$;
+reset role;
+delete from test.quota_override where key like 'storage%';
+
+-- text limits
+set role authenticated;
+select test.eq((select test.status(res) || '/' || test.reason(res) from (select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'PackingTemplate', 'op', 'upsert', 'id', gen_random_uuid(), 'full', true,
+                       'fields', jsonb_build_object('name', 'Uzun', 'items', repeat('x', 32001))))) as res) q),
+               'rejected/invalid', 'packing template items are at most 32 000 characters');
+update public.profiles set avatar_url = 'https://example.com/a.png' where id = :'ali';
+do $$ begin
+    update public.profiles set avatar_url = 'javascript:alert(1)' where id = '00000000-0000-0000-0000-00000000a111';
+    raise exception 'FAILED: a non-https avatar_url was stored';
+exception when check_violation then raise notice 'ok - avatar_url must be https://';
+end $$;
+do $$ begin
+    update public.profiles set avatar_url = 'https://' || repeat('x', 493) where id = '00000000-0000-0000-0000-00000000a111';
+    raise exception 'FAILED: a 501 character avatar_url was stored';
+exception when check_violation then raise notice 'ok - avatar_url is at most 500 characters';
+end $$;
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+    ('00000000-0000-0000-0000-00000000a555', 'odd@example.com', '{"avatar_url": "http://insecure.example.com/a.png"}'),
+    ('00000000-0000-0000-0000-00000000a666', 'pic@example.com', '{"avatar_url": "https://lh3.example.com/a.png"}');
+select test.eq((select avatar_url from public.profiles where email = 'odd@example.com'), null::text, 'sign-up drops an odd provider avatar');
+select test.eq((select avatar_url from public.profiles where email = 'pic@example.com'), 'https://lh3.example.com/a.png', 'sign-up keeps an https avatar');
+delete from auth.users where id in ('00000000-0000-0000-0000-00000000a555', '00000000-0000-0000-0000-00000000a666');
+
+-- back to the real limits; the test trips go
+drop function private.quota_limit(text);
+alter function private.quota_limit_real(text) rename to quota_limit;
+drop table test.quota_override;
+delete from private.sync_usage;  -- the rest of the script calls quickly again
+delete from storage.objects where name like 'trips/aaaaaaaa-%';
+delete from public.trips where id in (:'t2', :'t3');
+select test.eq(private.quota_limit('expenses'), 2000::bigint, 'the real limits are back');
+
 -- ------------------------------------------------------------------------------- trip delete, purge, account delete
 reset role;
 select set_config('request.jwt.claim.sub', :'ali', false);

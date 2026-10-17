@@ -42,6 +42,8 @@ create table if not exists storage.objects (
     owner uuid,
     owner_id text
 );
+alter table storage.buckets add column if not exists allowed_mime_types text[];
+alter table storage.objects add column if not exists metadata jsonb;
 alter table storage.objects enable row level security;
 grant usage on schema storage to authenticated;
 grant select, insert, update, delete on storage.objects to authenticated;

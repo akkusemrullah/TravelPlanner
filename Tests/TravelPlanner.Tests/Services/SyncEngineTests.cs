@@ -32,8 +32,19 @@ namespace TravelPlanner.Tests
         public Task<JsonElement> InvokeFunctionAsync(string name, JsonObject body, CancellationToken cancellationToken = default) =>
             RpcAsync("fn:" + name, body, cancellationToken);
 
+        /// <summary>When set, an upload whose path this returns an exception for fails with it (TP-3).</summary>
+        public Func<string, Exception?>? UploadError { get; set; }
+
+        public int UploadAttempts { get; private set; }
+
+        public Dictionary<string, string?> UploadedTypes { get; } = new();
+
         public async Task UploadAsync(string bucket, string path, Stream content, string? contentType, CancellationToken cancellationToken = default)
         {
+            UploadAttempts++;
+            if (UploadError?.Invoke(path) is { } error)
+                throw error;
+            UploadedTypes[$"{bucket}/{path}"] = contentType;
             using var memory = new MemoryStream();
             await content.CopyToAsync(memory, cancellationToken);
             Storage[$"{bucket}/{path}"] = memory.ToArray();
@@ -218,6 +229,89 @@ namespace TravelPlanner.Tests
             var pending = Assert.Single(await (await _db.Connection).Table<PendingChange>().ToListAsync());
             Assert.Equal(1, pending.Attempts);
             Assert.Equal(SyncStatus.Pending, _sync.Status);
+        }
+
+        [Fact]
+        public async Task QuotaRejection_KeepsTheChange_RetriesAfterTheBackoff_AndTellsTheUserOnce()
+        {
+            var now = new DateTime(2026, 10, 17, 12, 0, 0, DateTimeKind.Utc);
+            _sync.UtcNow = () => now;
+            await NewTripAsync();
+            _client.Handler = (fn, args) => fn == "apply_changes"
+                ? FakeSupabaseClient.AnswerAll(args, "rejected", "quota")
+                : FakeSupabaseClient.EmptyPull();
+            var told = new List<int>();
+            _sync.QuotaExceeded += (_, count) => told.Add(count);
+
+            var result = await _sync.SyncNowAsync();
+
+            Assert.Equal(0, result.Rejected); // not dropped like a final rejection
+            var pendings = await (await _db.Connection).Table<PendingChange>().ToListAsync();
+            Assert.NotEmpty(pendings);
+            Assert.All(pendings, p => Assert.StartsWith("quota", p.LastError));
+            Assert.Equal(new[] { pendings.Count }, told);
+            Assert.Equal(SyncStatus.Pending, _sync.Status);
+
+            // not sent again right away ...
+            var sent = _client.Calls.Count(c => c.Function == "apply_changes");
+            await _sync.SyncNowAsync();
+            Assert.Equal(sent, _client.Calls.Count(c => c.Function == "apply_changes"));
+
+            // ... only after the back-off, and the user isn't told a second time
+            now = now.Add(SyncService.BackoffDelay).AddMinutes(1);
+            await _sync.SyncNowAsync();
+            Assert.Equal(sent + 1, _client.Calls.Count(c => c.Function == "apply_changes"));
+            Assert.Equal(new[] { pendings.Count }, told);
+            Assert.Equal(pendings.Count, await OutboxCountAsync());
+
+            // once there is room again it goes through
+            now = now.Add(SyncService.BackoffDelay).AddMinutes(1);
+            _client.Handler = (fn, args) => fn == "apply_changes"
+                ? FakeSupabaseClient.AnswerAll(args, "applied")
+                : FakeSupabaseClient.EmptyPull();
+            await _sync.SyncNowAsync();
+            Assert.Equal(0, await OutboxCountAsync());
+        }
+
+        [Fact]
+        public async Task TooManyCallsAMinute_IsNotAnError()
+        {
+            await NewTripAsync();
+            _client.Handler = (fn, _) => fn == "apply_changes"
+                ? throw new SyncException(SyncErrorKind.Server, "HTTP 429: too many sync requests", status: 429, serverCode: "PT429")
+                : FakeSupabaseClient.EmptyPull();
+
+            await _sync.SyncNowAsync();
+
+            Assert.Equal(SyncStatus.Pending, _sync.Status);
+            Assert.NotEqual(0, await OutboxCountAsync());
+        }
+
+        [Fact]
+        public async Task RefusedUpload_StaysLocal_IsNotResentUntilTheBackoff_AndIsReportedOnce()
+        {
+            var now = new DateTime(2026, 10, 17, 12, 0, 0, DateTimeKind.Utc);
+            _sync.UtcNow = () => now;
+            var trip = await NewTripAsync();
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "IMG_1.JPG", null);
+            _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
+            _client.UploadError = _ => new SyncException(SyncErrorKind.Rejected, "HTTP 400: new row violates row-level security policy", status: 400);
+            var told = new List<int>();
+            _sync.QuotaExceeded += (_, count) => told.Add(count);
+
+            Assert.Equal(0, (await _sync.SyncNowAsync()).FilesUploaded);
+            Assert.Equal(1, _client.UploadAttempts);
+            Assert.Equal(new[] { 1 }, told);
+
+            await _sync.SyncNowAsync(); // within the back-off: the file isn't sent again
+            Assert.Equal(1, _client.UploadAttempts);
+
+            now = now.Add(SyncService.BackoffDelay).AddMinutes(1);
+            _client.UploadError = null;
+            Assert.Equal(1, (await _sync.SyncNowAsync()).FilesUploaded);
+            Assert.Equal(new[] { 1 }, told);
+            // a picker without a type: uploaded as what its extension says, which the bucket accepts
+            Assert.Equal("image/jpeg", _client.UploadedTypes[$"trip-files/trips/{trip.SyncId}/{file.SyncId}.jpg"]);
         }
 
         [Fact]
