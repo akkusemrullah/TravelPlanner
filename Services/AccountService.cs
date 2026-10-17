@@ -150,14 +150,21 @@ namespace TravelPlanner.Services
             var session = _auth.CurrentSession ?? throw new InvalidOperationException("Not signed in.");
             var cloud = _cloud ?? throw new InvalidOperationException("No cloud client.");
 
-            // 1. Files of the trips this account owns. Supabase won't delete a user who still owns Storage objects,
-            //    and after step 2 nobody could reach these files any more. Listed first, deleted together, so a lost
-            //    connection most likely stops us before anything is gone.
-            var files = new List<string>();
-            foreach (var tripSyncId in await OwnedTripSyncIdsAsync())
-                files.AddRange(await cloud.ListAsync(SyncService.Bucket, $"trips/{tripSyncId}", cancellationToken));
-            if (files.Count > 0)
-                await cloud.DeleteAsync(SyncService.Bucket, files, cancellationToken);
+            // 1. Files of the trips this account owns, right away. Only a head start: delete_account queues every file
+            //    of those trips too, and the server's nightly clean-up deletes whatever is left (TP-7, migration 17).
+            //    So a Storage hiccup here doesn't stop the account from being deleted.
+            try
+            {
+                var files = new List<string>();
+                foreach (var tripSyncId in await OwnedTripSyncIdsAsync())
+                    files.AddRange(await cloud.ListAsync(SyncService.Bucket, $"trips/{tripSyncId}", cancellationToken));
+                if (files.Count > 0)
+                    await cloud.DeleteAsync(SyncService.Bucket, files, cancellationToken);
+            }
+            catch (SyncException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Account] Files left to the server's clean-up: {ex.Message}");
+            }
 
             // 2. Server: owned trips (with everything in them), memberships, invites, profile, templates, the login.
             await cloud.RpcAsync("delete_account", new JsonObject(), cancellationToken);

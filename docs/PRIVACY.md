@@ -58,8 +58,8 @@ Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, A
 
 ### Saklama süresi ve silme
 - Hesabın açık olduğu sürece verilerini saklarız.
-- Sildiğin bir kayıt 30 gün çöp kutusunda kalır ve geri alınabilir. Süre dolduğunda ya da çöp kutusundan kalıcı olarak sildiğinde cihazdan silinir; sunucudaki silinmiş kopyası en geç 30 gün içinde otomatik olarak tamamen temizlenir. Kalıcı olarak silinen belgelerin buluttaki dosyaları da (internet bağlantısı varsa hemen) silinir.
-- Hesabını Profil → Hesabımı sil ile sildiğinde: sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler, profilin, üyeliklerin ve giriş bilgilerin hemen silinir. Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır ancak artık hesabınla ilişkilendirilmez.
+- Sildiğin bir kayıt 30 gün çöp kutusunda kalır ve geri alınabilir. Süre dolduğunda ya da çöp kutusundan kalıcı olarak sildiğinde cihazdan silinir; sunucudaki silinmiş kopyası en geç 30 gün içinde otomatik olarak tamamen temizlenir. Kalıcı olarak silinen belgelerin buluttaki dosyaları da internet bağlantısı varsa hemen, yoksa sunucunun gece temizliğiyle silinir; bir belgenin dosyası, belgeyi silmenden en geç 31 gün sonra buluttan tamamen kaldırılır.
+- Hesabını Profil → Hesabımı sil ile sildiğinde: sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler, profilin, üyeliklerin ve giriş bilgilerin hemen silinir. Bu seyahatlere yüklenen belge ve fotoğraf dosyaları da hemen, bir bağlantı sorunu olursa en geç 2 gün içinde buluttan silinir. Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır ancak artık hesabınla ilişkilendirilmez.
 - Uygulamaya erişemiyorsan hesabının silinmesini emrullahakkus@gmail.com adresine, hesabının e-posta adresinden yazarak isteyebilirsin; talebini en geç 30 gün içinde yerine getiririz.
 - Sunucu güvenlik kayıtları kısa süre tutulur ve ardından silinir.
 
@@ -139,8 +139,8 @@ Accounts and cloud storage are provided by Supabase (data on servers in Frankfur
 
 ### Retention and deletion
 - We keep your data while your account exists.
-- A deleted record stays in the trash for 30 days and can be restored. When that time is up, or when you delete it permanently from the trash, it is removed from the device; the server's deleted copy is purged automatically within 30 days at the latest. The cloud files of permanently deleted documents are removed as well (right away when you are online).
-- When you delete your account with Profile → Delete my account, the trips you own with everything in them and their files, your profile, memberships and sign-in data are deleted immediately. Content you added to other people's trips stays part of those trips but is no longer linked to your account.
+- A deleted record stays in the trash for 30 days and can be restored. When that time is up, or when you delete it permanently from the trash, it is removed from the device; the server's deleted copy is purged automatically within 30 days at the latest. The cloud files of permanently deleted documents are removed as well, right away when you are online, otherwise by the server's nightly clean-up; a document's file is removed from the cloud completely within 31 days of deleting the document at the latest.
+- When you delete your account with Profile → Delete my account, the trips you own with everything in them and their files, your profile, memberships and sign-in data are deleted immediately. The document and photo files uploaded to those trips are removed from the cloud right away as well, or within 2 days at the latest if there is a connection problem. Content you added to other people's trips stays part of those trips but is no longer linked to your account.
 - If you can't use the app, you can ask for your account to be deleted by writing to emrullahakkus@gmail.com from the e-mail address of your account; we complete the request within 30 days.
 - Server security logs are kept for a short time and then deleted.
 

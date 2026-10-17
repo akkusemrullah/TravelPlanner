@@ -99,7 +99,7 @@ PostgreSQL 15+ üzerinde, boş bir veritabanında:
 ```bash
 psql -d tp -f tests/00_local_stub.sql      # Supabase'in auth/storage parçalarının taklidi
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -d tp -f "$f"; done
-psql -d tp -f tests/sync_tests.sql          # 197 kontrol, sonda "ALL SYNC TESTS PASSED"
+psql -d tp -f tests/sync_tests.sql          # 205 kontrol, sonda "ALL SYNC TESTS PASSED"
 ```
 
 ## Silinen dosyaların temizliği (G7, Edge Function `purge-files`)
@@ -116,6 +116,10 @@ temizliği (migration 6) satırı kalıcı silince dosyası artık kimsenin işi
   15 dk sonra yeniden denenir, 10 denemeden sonra kuyrukta bekler. Kuyruktayken bir satır o yolu yeniden
   kullanırsa (çöpten geri alma) dosya silinmez.
 - Uygulama da kendi çöpünü boşaltırken dosyayı siler (`TrashService`); bu sunucu tarafı, onun kaçırdıklarını yakalar.
+- Hesap silme (migration 17): `delete_account` sahibi olunan seyahatlerin klasörlerindeki **tüm** dosyaları (adı ne olursa
+  olsun, yeni yüklenmiş olsa da) aynı işlemde kuyruğa yazar; dosyalar aynı gece silinir. Uygulamanın önce kendisinin
+  silmesi yedek olarak durur, Storage'a ulaşamazsa hesap silme yine de tamamlanır. Gece taraması da artık var olmayan
+  bir seyahatin klasöründe 1 günden eski ne kalmışsa kuyruğa koyar.
 
 Kurulum (bir kez):
 
@@ -126,7 +130,7 @@ Kurulum (bir kez):
 5. Fonksiyonu yayınla, **Verify JWT kapalı** (çağıran kullanıcı değil, kontrol gizli değerle yapılır):
    `npx supabase functions deploy purge-files --project-ref bobliztrprgqhnudnhrs --no-verify-jwt`
    (Dashboard'dan: adı `purge-files`, dosyalar `functions/purge-files/index.ts` ve `functions/purge-files/cleanup.ts`.)
-6. Migration 16'yı (ya da `all_in_one.sql`'i) çalıştır; cron işi `travelplanner-purge-files` kurulur.
+6. Migration 16 ve 17'yi (ya da `all_in_one.sql`'i) çalıştır; cron işi `travelplanner-purge-files` kurulur.
 7. Kontrol: `select count(*) from private.file_cleanup_queue;` ertesi sabah 0'a yakın olmalı;
    Edge Functions → purge-files → Logs'ta `purge-files {"deleted":…}` satırı görünür. Elle denemek için:
    `select net.http_post(url := 'https://bobliztrprgqhnudnhrs.supabase.co/functions/v1/purge-files', headers := jsonb_build_object('Authorization', 'Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name = 'file_cleanup_secret')));`

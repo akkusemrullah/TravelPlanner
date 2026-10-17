@@ -472,6 +472,34 @@ namespace TravelPlanner.Tests
             Assert.Equal("Paris", Assert.Single(await _trips.GetAllAsync()).Name);
         }
 
+        [Fact]
+        public async Task DeleteAccount_StorageFails_StillDeletesTheAccount_TheServerCleansUpTheFiles()
+        {
+            var userDirectory = await SignInWithTripsAsync();
+            _cloud.StorageError = new SyncException(SyncErrorKind.Network, "storage unreachable");
+
+            await _account.DeleteAccountAsync();
+
+            Assert.Empty(_cloud.Deleted);                 // left to delete_account's queue (migration 17)
+            Assert.Contains(_cloud.Calls, c => c.Function == "delete_account");
+            Assert.False(_account.IsSignedIn);
+            Assert.Null(_account.ActiveUserId);
+            Assert.False(Directory.Exists(userDirectory));
+        }
+
+        [Fact]
+        public async Task DeleteAccount_Cancelled_DoesNotDeleteTheAccount()
+        {
+            var userDirectory = await SignInWithTripsAsync();
+            _cloud.StorageError = new OperationCanceledException();
+
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(() => _account.DeleteAccountAsync());
+
+            Assert.DoesNotContain(_cloud.Calls, c => c.Function == "delete_account");
+            Assert.True(_account.IsSignedIn);
+            Assert.True(Directory.Exists(userDirectory));
+        }
+
         private void AccountStatusIs(string? state) =>
             _cloud.Handler = (function, _) => function == "account_status"
                 ? (state is null ? throw new SyncException(SyncErrorKind.Network, "offline") : $"\"{state}\"")

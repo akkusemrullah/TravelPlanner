@@ -16,13 +16,13 @@ Hesabının kayıtlı olduğu e-posta adresinden **emrullahakkus@gmail.com** adr
 
 ### Neler silinir?
 - Hesabın ve giriş bilgilerin, profilin (ad, e-posta, profil fotoğrafı adresi).
-- Sahibi olduğun tüm seyahatler ve içindeki her şey (plan, yerler, harcamalar, katılımcılar, görevler, bavul şablonları) ile buluta yüklenen belgeler ve fotoğraflar.
+- Sahibi olduğun tüm seyahatler ve içindeki her şey (plan, yerler, harcamalar, katılımcılar, görevler, bavul şablonları) ile buluta yüklenen belgeler ve fotoğraflar. Dosyalar hemen silinir; bir bağlantı sorunu olursa sunucu bunları en geç 2 gün içinde kendisi siler.
 - Seyahat üyeliklerin ve oluşturduğun davetler; yapay zekâ planlayıcısının hesabına bağlı günlük kullanım sayaçları.
 
 ### Neler kalır?
 - Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır, ancak artık hesabınla ilişkilendirilmez.
 - Yapay zekâ kotası için tutulan, cihazından türetilen geri çevrilemeyen özet ve günlük sayaç (kişiyi tanımlamaz); kısa süreli sunucu güvenlik kayıtları kendiliğinden silinir.
-- Daha önce silinmiş kayıtların sunucudaki kopyaları en geç 30 gün içinde otomatik olarak temizlenir.
+- Daha önce silinmiş kayıtların sunucudaki kopyaları en geç 30 gün içinde, belgelerin buluttaki dosyaları en geç 31 gün içinde otomatik olarak temizlenir.
 
 ### Hesabını silmeden yalnızca verilerini silmek
 Herhangi bir kaydı (seyahat, harcama, belge…) uygulamada silebilirsin. Silinenler 30 gün çöp kutusunda kalır; **Profil → Çöp kutusu**'nda çöp kutusu simgesine dokunup seçtiklerini hemen kalıcı olarak da silebilirsin.
@@ -41,13 +41,13 @@ Send an e-mail with the subject "Account deletion request" from your account's e
 
 ### What is deleted
 - Your account and sign-in data, your profile (name, e-mail, profile photo address).
-- All trips you own with everything in them (plan, places, expenses, participants, to-dos, packing templates) and the documents and photos uploaded to the cloud.
+- All trips you own with everything in them (plan, places, expenses, participants, to-dos, packing templates) and the documents and photos uploaded to the cloud. The files are deleted right away; if there is a connection problem, the server deletes them itself within 2 days at the latest.
 - Your trip memberships and the invites you created; the daily AI planner usage counters linked to your account.
 
 ### What is kept
 - Content you added to other people's trips stays part of those trips but is no longer linked to your account.
 - The irreversible device hash and daily count kept for the AI quota (they don't identify you); short-lived server security logs are deleted automatically.
-- Server copies of records deleted earlier are purged automatically within 30 days.
+- Server copies of records deleted earlier are purged automatically within 30 days, the cloud files of documents within 31 days.
 
 ### Deleting data without deleting the account
 You can delete any record (trip, expense, document …) in the app. Deleted items stay in the trash for 30 days; in **Profile → Trash** tap the trash icon to delete selected items permanently right away.

@@ -996,6 +996,46 @@ select test.eq((select array_agg(path order by path) from private.file_cleanup_q
 delete from private.file_cleanup_queue;
 delete from storage.objects where name like 'trips/' || :'t7' || '/%';
 
+-- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
+\set t8     'bbbbbbbb-0000-0000-0000-000000000008'
+\set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'
+\set gone   'bbbbbbbb-0000-0000-0000-0000000000f8'
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+drop table r;
+create temp table r as select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t8', 'full', true, 'fields',
+        jsonb_build_object('name', 'Porto', 'start_date', '2026-10-01', 'end_date', '2026-10-03', 'currency_code', 'EUR')),
+    jsonb_build_object('entity', 'Attachment', 'op', 'upsert', 'id', :'f8', 'trip_id', :'t8', 'full', true,
+        'fields', jsonb_build_object('display_name', 'pasaport', 'kind', 0, 'storage_path', 'trips/' || :'t8' || '/' || :'f8' || '.jpg'))
+)) as res;
+select test.eq((select count(*) from r, jsonb_array_elements(r.res) e where e ->> 'status' = 'applied'), 2::bigint, 'TP-7: Ali''s trip with a passport photo');
+reset role;
+insert into storage.objects (bucket_id, name, created_at) values
+    ('trip-files', 'trips/' || :'t8' || '/' || :'f8' || '.jpg', now() - interval '5 days'),
+    ('trip-files', 'trips/' || :'t8' || '/notlar.txt', now() - interval '5 days'),          -- not an attachment key
+    ('trip-files', 'trips/' || :'t8' || '/' || gen_random_uuid() || '.pdf', now()),        -- uploaded while the app was listing
+    ('trip-files', 'trips/' || :'gone' || '/vize.pdf', now() - interval '2 days'),          -- folder of a trip that is gone
+    ('trip-files', 'trips/' || :'gone' || '/yeni.jpg', now());                              -- ... but uploaded just now
+
+-- the nightly scan: a gone trip's folder is emptied (after a day); a live trip's files are not touched
+delete from private.file_cleanup_queue;
+select test.eq(private.queue_orphan_files(), 1, 'TP-7: orphan scan queues one file');
+select test.eq((select array_agg(path) from private.file_cleanup_queue), array['trips/' || :'gone' || '/vize.pdf'],
+               'TP-7: the day-old file of a trip that no longer exists, nothing of a live trip');
+delete from private.file_cleanup_queue;
+
+-- the queue is not the users' business
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+do $$
+begin
+    perform 1 from private.file_cleanup_queue;
+    raise exception 'FAILED: a signed-in user could read the clean-up queue';
+exception when insufficient_privilege then raise notice 'ok - TP-7: users cannot read the clean-up queue';
+end $$;
+reset role;
+
 -- A file Ali uploaded to someone else's trip must not block deleting his account (Supabase refuses to delete
 -- users who own Storage objects) - it stays for that trip, without an owner.
 insert into storage.objects (bucket_id, name, owner, owner_id)
@@ -1011,5 +1051,14 @@ select test.eq((select count(*) from public.trips), 0::bigint, 'and the trips it
 select test.eq((select count(*) from public.packing_templates), 0::bigint, 'and its packing templates');
 select test.eq((select owner from storage.objects where name like '%/foto.jpg'), null::uuid, 'his uploads elsewhere lose their owner');
 select test.eq((select count(*) from storage.objects where name like '%/foto.jpg'), 1::bigint, 'but stay for the other trip');
+select test.eq((select count(*) from private.file_cleanup_queue where path like 'trips/' || :'t8' || '/%'), 3::bigint,
+               'TP-7: delete_account queues all files of his trip (attachment, other name, fresh upload)');
+select test.eq((select count(*) from private.file_cleanup_queue where path not like 'trips/' || :'t8' || '/%'), 0::bigint,
+               'TP-7: and nothing of other trips (his upload elsewhere stays)');
+set role service_role;
+select test.eq(cardinality(public.file_cleanup_claim(10)), 3, 'TP-7: purge-files gets them the same night');
+reset role;
+delete from private.file_cleanup_queue;
+delete from storage.objects where name like 'trips/' || :'t8' || '/%' or name like 'trips/' || :'gone' || '/%';
 
 \echo ALL SYNC TESTS PASSED
