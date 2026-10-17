@@ -365,7 +365,24 @@ namespace TravelPlanner.ViewModels
         }, AppResources.Backup_ImportError);
 
         [RelayCommand]
-        private async Task OpenPrivacyAsync() => await Shell.Current.GoToAsync(Routes.Privacy);
+        private Task OpenPrivacyAsync() => OpenDocumentAsync(LegalDocuments.PrivacyKey);
+
+        // ================= Support and legal (Profil → Destek / Yasal ve gizlilik) =================
+
+        /// <summary>Where the "Bize ulaşın" row writes to.</summary>
+        public string SupportEmail => AppConstants.SupportEmail;
+
+        /// <summary>Opens a legal document: "privacy", "kvkk", "terms" or "licenses".</summary>
+        [RelayCommand]
+        private Task OpenDocumentAsync(string? key) => RunSafeAsync(() =>
+            Shell.Current.GoToAsync($"{Routes.Privacy}?doc={LegalDocuments.Key(LegalDocuments.FromKey(key))}"));
+
+        [RelayCommand]
+        private Task OpenHelpCenterAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.HelpCenter));
+
+        [RelayCommand]
+        private Task ContactSupportAsync() =>
+            RunSafeAsync(() => SupportContact.ComposeOrShowAddressAsync(Dialogs, AppResources.Help_MailSubject));
 
         // ================= G6: trash and joining a shared trip =================
 

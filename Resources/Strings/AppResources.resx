@@ -1392,32 +1392,81 @@
     <value>Görüntüle</value>
   </data>
   <data name="Privacy_Body" xml:space="preserve">
-    <value>TravelPlanner gizliliğinize saygı duyar. Kısaca: verileriniz cihazınızda kalır.
+    <value>Bu politika, Travel Planner uygulamasını kullandığında hangi kişisel verilerin işlendiğini, nerede saklandığını, kimlerle paylaşıldığını ve bunlar üzerindeki haklarını açıklar. Türkiye'deki kullanıcılar için ayrıca KVKK Aydınlatma Metni'ne bakabilirsin.
 
-Hangi veriler saklanır?
-Seyahatleriniz, planlarınız, harcamalarınız, görevleriniz, kayıtlı yerleriniz, katılımcı adları ve eklediğiniz belge/fotoğraflar yalnızca bu cihazdaki uygulama alanında saklanır. Hesap, kayıt veya bulut sunucusu yoktur; bu verileri biz göremeyiz.
+## Kısaca
+• Uygulamayı hesap açmadan (misafir olarak) kullanabilirsin; bu durumda tüm verilerin yalnızca cihazında kalır.
+• Hesap açarsan seyahat verilerin, cihazların arasında eşitlemek ve paylaşmak için Avrupa Birliği'ndeki (Frankfurt, Almanya) sunucularda saklanır.
+• Reklam, analiz aracı veya kullanıcı takibi yoktur. Verilerini satmayız ve reklam için kullanmayız.
+• Yapay zekâ ile planlama isteğe bağlıdır; kullandığında yalnızca plan için gereken bilgiler yapay zekâ hizmetine gönderilir.
+• Hesabını ve verilerini istediğin zaman uygulama içinden silebilirsin.
 
-İnternete ne gönderilir?
-Uygulama yalnızca şu ücretsiz servislere, ilgili özelliği kullandığınızda istek gönderir:
-• Open-Meteo: hava durumu ve şehir arama (şehir adı, koordinat).
-• Photon (komoot): yer adı arama ve haritada seçilen noktanın adı (arama metni, koordinat).
+## Veri sorumlusu ve iletişim
+Uygulamayı {publisher} adıyla yayımlayan {controller}, {address}.
+E-posta: {email}
+
+## Misafir kullanım
+Hesap açmadan kullandığında seyahatlerin, planların, harcamaların, görevlerin, kayıtlı yerlerin, katılımcı adları ve eklediğin belgeler/fotoğraflar yalnızca bu cihazdaki uygulama alanında saklanır. Bu verileri biz göremeyiz. Uygulamayı kaldırdığında bu veriler de cihazdan silinir.
+
+## Hesap açtığında işlenen veriler
+• Hesap bilgileri: e-posta adresin, adın ve soyadın (veya Google'dan gelen adın), Google ile giriş yaptıysan profil fotoğrafının adresi ve sana verilen hesap kimliği. Şifren yalnızca şifrelenmiş (hash) olarak giriş hizmetimizde tutulur; biz göremeyiz.
+• Seyahat verileri: seyahat adı, ülke ve şehir, tarihler, bütçe ve para birimi, açıklama; gün gün plan ve etkinlikler; kayıtlı yerler ve konumları; harcamalar (tutar, para birimi, kategori, tarih, açıklama, kimin ödediği); katılımcı adları ve harcama bölüşümleri; görevler; bavul şablonları.
+• Belgeler ve fotoğraflar: seyahate eklediğin bilet, rezervasyon, vize PDF'i veya fotoğraf dosyaları. Bu dosyalarda pasaport veya kimlik bilgisi gibi hassas bilgiler olabilir; yalnızca gerçekten ihtiyaç duyduğun belgeleri eklemeni öneririz.
+• Paylaşım bilgileri: seyahat üyelikleri, rolün (sahibi, düzenleyici, görüntüleyici), oluşturduğun davet kodları ve bir kaydı kimin, ne zaman eklediği veya değiştirdiği.
+• Teknik veriler: oturum bilgileri, eşitleme sırasında sunucu kayıtlarına düşen IP adresi ve istek bilgileri (kısa süreli güvenlik ve hata ayıklama kayıtları).
+
+## Verileri hangi amaçlarla kullanıyoruz
+• Hesabını oluşturmak, giriş yapmanı sağlamak ve e-posta adresini doğrulamak.
+• Seyahat verilerini cihazların arasında eşitlemek, yedeklemek ve seçtiğin kişilerle paylaşmak.
+• İstediğinde yapay zekâ ile seyahat planı hazırlamak.
+• Hizmetin güvenliğini sağlamak, kötüye kullanımı (ör. günlük yapay zekâ kotasının aşılmasını) önlemek ve askıya alınan hesapları engellemek.
+• Destek taleplerini yanıtlamak ve yasal yükümlülükleri yerine getirmek.
+Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
+
+## Paylaşılan seyahatler
+Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını, e-posta adresini ve profil fotoğrafını görür. Davet kodunu yalnızca güvendiğin kişilerle paylaş.
+
+## Yapay zekâ ile planlama
+Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır.
+Günlük plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile günlük kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz.
+Özel istek notuna kişisel veya hassas bilgi yazmamanı öneririz. Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları kontrol et. Uygunsuz bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
+
+## Kullanılan dış hizmetler
+Uygulama bazı özellikler için doğrudan cihazından şu ücretsiz hizmetlere istek gönderir:
+• Open-Meteo: hava durumu, iklim ortalamaları ve şehir arama (şehir adı, koordinat).
+• Photon (komoot, OpenStreetMap verisi): yer adı arama ve haritada seçilen noktanın adı (arama metni, koordinat).
 • OpenFreeMap: harita görüntüleri (görüntülenen bölge).
-• Frankfurter: döviz kurları (para birimi çifti, tarih).
-Bu servisler, her internet isteğinde olduğu gibi IP adresinizi görebilir. İsteklerde kişisel bilgileriniz (adınız, harcamalarınız, belgeleriniz) gönderilmez.
+• Frankfurter (Avrupa Merkez Bankası kurları): döviz kurları (para birimi çifti, tarih).
+Bu hizmetler, her internet isteğinde olduğu gibi IP adresini görebilir. Bu isteklere adın, e-postan, harcamaların veya belgelerin eklenmez.
+Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, Almanya'daki sunucularda). Google ile giriş yaparsan giriş işlemi Google tarafından yürütülür ve Google'ın gizlilik politikası geçerlidir.
 
-İzinler
-Kamera ve fotoğraflar yalnızca bir belge veya fotoğraf eklemeyi seçtiğinizde kullanılır. Bildirimler cihazda planlanır (seyahat hatırlatmaları, bütçe uyarıları).
+## Saklama süresi ve silme
+• Hesabın açık olduğu sürece verilerini saklarız.
+• Sildiğin bir kayıt 30 gün çöp kutusunda kalır ve geri alınabilir. Süre dolduğunda ya da çöp kutusundan kalıcı olarak sildiğinde cihazdan silinir; sunucudaki silinmiş kopyası en geç 30 gün içinde otomatik olarak tamamen temizlenir. Kalıcı olarak silinen belgelerin buluttaki dosyaları da (internet bağlantısı varsa hemen) silinir.
+• Hesabını Profil → Hesabımı sil ile sildiğinde: sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler, profilin, üyeliklerin ve giriş bilgilerin hemen silinir. Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır ancak artık hesabınla ilişkilendirilmez.
+• Uygulamaya erişemiyorsan hesabının silinmesini {email} adresine, hesabının e-posta adresinden yazarak isteyebilirsin; talebini en geç 30 gün içinde yerine getiririz.
+• Sunucu güvenlik kayıtları kısa süre tutulur ve ardından silinir.
 
-Reklam, analiz, takip
-Uygulamada reklam, analiz aracı veya kullanıcı takibi yoktur.
+## Güvenlik
+Uygulama ile sunucu arasındaki tüm iletişim şifrelidir (HTTPS/TLS). Sunucudaki her tablo satır düzeyinde erişim kurallarıyla korunur: bir seyahati yalnızca üyeleri görebilir, yalnızca yetkili üyeler değiştirebilir. Belge dosyaları herkese kapalı bir depoda tutulur. Hiçbir sistem kusursuz değildir; bir güvenlik ihlalini öğrenirsek yasaların gerektirdiği şekilde seni ve ilgili kurumları bilgilendiririz.
 
-Yedekler ve paylaşım
-Yedek (.zip) ve PDF dosyaları yalnızca siz istediğinizde oluşturulur ve sizin seçtiğiniz yere (ör. Dosyalar, Drive, e-posta) gönderilir.
+## İzinler
+• Bildirimler: seyahat hatırlatmaları ve bütçe uyarıları cihazında planlanır.
+• Kamera ve fotoğraflar: yalnızca bir belge veya fotoğraf eklemeyi seçtiğinde kullanılır.
+• İnternet: eşitleme, hava durumu, harita ve kurlar için.
+Uygulama konum izni istemez ve rehberine erişmez.
 
-Verilerin silinmesi
-Uygulamayı kaldırdığınızda tüm verileri cihazdan silinir. Tek tek seyahatleri uygulama içinden silebilirsiniz.
+## Yedekler ve paylaşım
+Yedek (.zip), PDF ve CSV dosyaları yalnızca sen istediğinde oluşturulur ve senin seçtiğin yere (ör. Dosyalar, Drive, e-posta) gönderilir. Bu dosyaları nerede sakladığın ve kimlerle paylaştığın senin kontrolündedir.
 
-Sorularınız için mağaza sayfasındaki geliştirici iletişim adresini kullanabilirsiniz.</value>
+## Çocuklar
+Uygulama çocuklara yönelik değildir. 13 yaşından küçük çocukların hesap açmasını istemiyoruz. Bir çocuğun bize veri verdiğini düşünüyorsan {email} adresine yaz, siliriz.
+
+## Hakların
+Verilerine erişme, düzeltme, silme, işlenmesine itiraz etme ve verilerinin bir kopyasını alma hakkın vardır. Pek çoğunu uygulama içinden kendin yapabilirsin: adını Profil'den değiştirebilir, Yedekleme → Dışa aktar ile verilerinin kopyasını alabilir, kayıtlarını ve hesabını silebilirsin. Diğer talepler için {email} adresine yaz. Türkiye'deki hakların KVKK Aydınlatma Metni'nde ayrıntılı olarak anlatılır.
+
+## Değişiklikler
+Bu politikayı uygulama değiştikçe güncelleyebiliriz. Önemli değişiklikleri uygulama içinde duyururuz; güncel sürüm her zaman Profil → Yasal ve gizlilik altında yer alır.</value>
   </data>
   <data name="Map_NoRoute" xml:space="preserve">
     <value>Rota gösterme</value>
@@ -1923,7 +1972,7 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
     <value>Çöp kutusu</value>
   </data>
   <data name="Trash_Hint" xml:space="preserve">
-    <value>Silinenler 30 gün boyunca geri alınabilir.</value>
+    <value>Silinenleri 30 gün içinde geri al ya da kalıcı olarak sil.</value>
   </data>
   <data name="Trash_Empty" xml:space="preserve">
     <value>Çöp kutusu boş.</value>
@@ -2332,5 +2381,324 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
   </data>
   <data name="Notification_AfterTripBody" xml:space="preserve">
     <value>Harcama özetine ve kimin kime ne kadar borçlu olduğuna göz at.</value>
+  </data>
+  <data name="Trash_PageHint" xml:space="preserve">
+    <value>Silinenler 30 gün boyunca burada kalır, sonra kendiliğinden kalıcı olarak silinir. Beklemek istemiyorsan sağ üstteki çöp kutusuna dokun, silmek istediklerini seç (ya da Tümünü seç) ve kalıcı olarak sil. Kalıcı olarak silinenler geri alınamaz.</value>
+  </data>
+  <data name="Trash_SelectA11y" xml:space="preserve">
+    <value>Kalıcı olarak silmek için seç</value>
+  </data>
+  <data name="Trash_DeleteForever" xml:space="preserve">
+    <value>Kalıcı olarak sil</value>
+  </data>
+  <data name="Trash_DeleteForeverTitle" xml:space="preserve">
+    <value>Kalıcı olarak silinsin mi?</value>
+  </data>
+  <data name="Trash_DeleteForeverMessageFormat" xml:space="preserve">
+    <value>"{0}" kalıcı olarak silinecek ve artık geri alınamayacak.</value>
+  </data>
+  <data name="Trash_DeleteForeverManyFormat" xml:space="preserve">
+    <value>{0} öğe kalıcı olarak silinecek ve artık geri alınamayacak. Seyahatlerle birlikte içindeki her şey de silinir.</value>
+  </data>
+  <data name="Trash_DeleteError" xml:space="preserve">
+    <value>Seçilenler kalıcı olarak silinemedi.</value>
+  </data>
+  <data name="Profile_Support" xml:space="preserve">
+    <value>Destek</value>
+  </data>
+  <data name="Profile_Legal" xml:space="preserve">
+    <value>Yasal ve gizlilik</value>
+  </data>
+  <data name="Help_Title" xml:space="preserve">
+    <value>Yardım merkezi</value>
+  </data>
+  <data name="Help_Heading" xml:space="preserve">
+    <value>Nasıl yardımcı olabiliriz?</value>
+  </data>
+  <data name="Help_Subtitle" xml:space="preserve">
+    <value>Sık sorulan sorular ve kısa kullanım rehberi.</value>
+  </data>
+  <data name="Help_RowHint" xml:space="preserve">
+    <value>Sık sorulan sorular ve kullanım rehberi</value>
+  </data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve">
+    <value>Soru ara (ör. çöp kutusu, davet, kur)</value>
+  </data>
+  <data name="Help_NoResults" xml:space="preserve">
+    <value>Aramana uyan bir soru bulamadık. Farklı bir kelime dene ya da bize yaz.</value>
+  </data>
+  <data name="Help_ClearSearch" xml:space="preserve">
+    <value>Aramayı temizle</value>
+  </data>
+  <data name="Help_ContactTitle" xml:space="preserve">
+    <value>Aradığını bulamadın mı?</value>
+  </data>
+  <data name="Help_ContactHintFormat" xml:space="preserve">
+    <value>Sorularını, önerilerini ve hata bildirimlerini {0} adresine yazabilirsin. Genellikle birkaç iş günü içinde dönüyoruz.</value>
+  </data>
+  <data name="Help_WriteToUs" xml:space="preserve">
+    <value>Bize yaz</value>
+  </data>
+  <data name="Help_ContactRow" xml:space="preserve">
+    <value>Bize ulaşın</value>
+  </data>
+  <data name="Help_MailSubject" xml:space="preserve">
+    <value>Travel Planner destek</value>
+  </data>
+  <data name="Help_NoMailAppFormat" xml:space="preserve">
+    <value>E-posta uygulaması açılamadı. Adresimizi panoya kopyaladık; dilediğin uygulamadan {0} adresine yazabilirsin.</value>
+  </data>
+  <data name="Legal_UpdatedFormat" xml:space="preserve">
+    <value>Son güncelleme: {0}</value>
+  </data>
+  <data name="Legal_MailSubjectFormat" xml:space="preserve">
+    <value>Travel Planner – {0}</value>
+  </data>
+  <data name="Legal_QuestionsTitle" xml:space="preserve">
+    <value>Sorun mu var?</value>
+  </data>
+  <data name="Legal_QuestionsHint" xml:space="preserve">
+    <value>Bu metin veya verilerin hakkında bize yazabilirsin.</value>
+  </data>
+  <data name="Kvkk_Title" xml:space="preserve">
+    <value>KVKK aydınlatma metni</value>
+  </data>
+  <data name="Terms_Title" xml:space="preserve">
+    <value>Kullanım koşulları</value>
+  </data>
+  <data name="Licenses_Title" xml:space="preserve">
+    <value>Açık kaynak lisansları</value>
+  </data>
+  <data name="Auth_LegalText1" xml:space="preserve">
+    <value>Devam ederek </value>
+  </data>
+  <data name="Auth_LegalTerms" xml:space="preserve">
+    <value>Kullanım Koşulları</value>
+  </data>
+  <data name="Auth_LegalText2" xml:space="preserve">
+    <value>'nı kabul etmiş olursun. Kişisel verilerinin nasıl işlendiği </value>
+  </data>
+  <data name="Auth_LegalPrivacy" xml:space="preserve">
+    <value>Gizlilik Politikası</value>
+  </data>
+  <data name="Auth_LegalAnd" xml:space="preserve">
+    <value> ve </value>
+  </data>
+  <data name="Auth_LegalKvkk" xml:space="preserve">
+    <value>KVKK Aydınlatma Metni</value>
+  </data>
+  <data name="Auth_LegalText3" xml:space="preserve">
+    <value>'nde anlatılır.</value>
+  </data>
+  <data name="AiPlan_Report" xml:space="preserve">
+    <value>Uygunsuz ya da zararlı bir öneri mi gördün? Bildir</value>
+  </data>
+  <data name="AiPlan_ReportSubject" xml:space="preserve">
+    <value>Yapay zekâ önerisi bildirimi</value>
+  </data>
+  <data name="AiPlan_ReportBodyFormat" xml:space="preserve">
+    <value>Gidilecek yer: {0}
+Plan özeti: {1}
+
+Sorunu kısaca anlat (hangi gün, hangi öneri, neden uygunsuz):
+</value>
+  </data>
+  <data name="Kvkk_Body" xml:space="preserve">
+    <value>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, Travel Planner uygulaması kapsamında işlenen kişisel verilerin hakkında seni bilgilendirmek isteriz.
+
+## 1. Veri sorumlusu
+Ad soyad: {controller} ({publisher})
+Adres: {address}
+E-posta: {email}
+Telefon: {phone}
+
+## 2. İşlenen kişisel veriler
+Uygulamayı hesap açmadan kullandığında verilerin yalnızca cihazında kalır ve tarafımızca işlenmez. Hesap açtığında aşağıdaki veriler işlenir:
+• Kimlik: ad soyad.
+• İletişim: e-posta adresi.
+• Kullanıcı işlem verileri: seyahat bilgileri (ad, ülke, şehir, tarihler, bütçe, açıklama), gün gün plan, kayıtlı yerler ve konumları, harcama kayıtları (tutar, para birimi, kategori, açıklama, ödeyen), katılımcı adları, görevler, bavul şablonları, yapay zekâ planlayıcısına verdiğin cevaplar ve notlar.
+• Görsel ve belge verileri: seyahate eklediğin fotoğraflar ve belgeler (bilet, rezervasyon, vize vb.), Google ile giriş yaptıysan profil fotoğrafının adresi.
+• İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası için cihaz kimliğinden türetilen geri çevrilemeyen özet ve günlük kullanım sayısı.
+Uygulama özel nitelikli kişisel veri talep etmez. Eklediğin belgelerde (ör. pasaport, vize) bu tür veriler bulunabilir; bu belgeler yalnızca senin talimatınla saklanır ve başka bir amaçla işlenmez. Gerekmedikçe bu tür belgeleri eklememeni öneririz.
+
+## 3. İşleme amaçları
+• Üyelik işlemlerinin yürütülmesi, kimlik doğrulama ve hesabın yönetimi.
+• Seyahat planlama hizmetinin sunulması: verilerin saklanması, cihazlar arasında eşitlenmesi ve seçtiğin kişilerle paylaşılması.
+• Talep ettiğinde yapay zekâ ile seyahat planı hazırlanması.
+• Bilgi güvenliğinin sağlanması, kötüye kullanımın ve yetkisiz erişimin önlenmesi.
+• Taleplerin ve şikâyetlerin yanıtlanması.
+• Mevzuattan doğan yükümlülüklerin yerine getirilmesi ve yetkili kurumların taleplerinin karşılanması.
+
+## 4. Hukuki sebepler ve toplama yöntemi
+Kişisel verilerin, uygulamadaki formlar ve kullanım sırasında otomatik yollarla elektronik ortamda toplanır ve KVKK'nın 5. maddesinin 2. fıkrasındaki şu hukuki sebeplere dayanılarak işlenir:
+• (c) Hizmet sözleşmesinin kurulması ve ifası için gerekli olması (hesap, eşitleme, paylaşım, yapay zekâ ile planlama).
+• (ç) Veri sorumlusunun hukuki yükümlülüğünü yerine getirebilmesi.
+• (e) Bir hakkın tesisi, kullanılması veya korunması.
+• (f) İlgili kişinin temel hak ve özgürlüklerine zarar vermemek kaydıyla veri sorumlusunun meşru menfaati (hizmet güvenliği, kötüye kullanımın ve kota aşımının önlenmesi).
+
+## 5. Aktarılan taraflar ve yurt dışına aktarım
+Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktarılabilir:
+• Supabase Inc. (barındırma, kimlik doğrulama ve dosya depolama; veriler Frankfurt, Almanya'daki sunucularda tutulur).
+• OpenAI (ABD) – yalnızca yapay zekâ ile planlamayı kullandığında; gidilecek yer, tarihler, tercihlerin, notun ve kayıtlı yer adları. Adın, e-postan, harcamaların ve belgelerin aktarılmaz.
+• Google – yalnızca Google ile giriş yapmayı seçersen, giriş işlemi için.
+• Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın, e-postan ve profil fotoğrafın.
+• Yetkili kamu kurum ve kuruluşları – hukuken zorunlu olduğunda.
+Bu hizmet sağlayıcıların bir kısmı yurt dışında bulunduğundan kişisel verilerin yurt dışına aktarılır. Aktarım, KVKK'nın 9. maddesine uygun şekilde; hizmet sağlayıcılarla yapılan sözleşmelerdeki uygun güvencelere, bunun mümkün olmadığı hâllerde ise ilgili özelliği kullanman sırasında verdiğin açık rızaya dayanılarak yapılır. Yapay zekâ ile planlama ve Google ile giriş tamamen isteğe bağlıdır; bunları kullanmadan uygulamanın diğer özelliklerinden yararlanabilirsin.
+
+## 6. Saklama süresi
+Kişisel verilerin hesabın açık olduğu sürece saklanır. Silinen kayıtlar en geç 30 gün içinde kalıcı olarak silinir. Hesabını sildiğinde sahibi olduğun seyahatler, belgeler ve profil bilgilerin derhâl silinir. Kanunen saklanması gereken veriler ilgili süre boyunca saklanır ve süre sonunda silinir, yok edilir veya anonim hâle getirilir.
+
+## 7. KVKK'nın 11. maddesi kapsamındaki hakların
+Veri sorumlusuna başvurarak:
+• (a) Kişisel verilerinin işlenip işlenmediğini öğrenme,
+• (b) İşlenmişse buna ilişkin bilgi talep etme,
+• (c) İşlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme,
+• (ç) Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,
+• (d) Eksik veya yanlış işlenmişse düzeltilmesini isteme,
+• (e) KVKK'nın 7. maddesindeki şartlar çerçevesinde silinmesini veya yok edilmesini isteme,
+• (f) (d) ve (e) bentlerindeki işlemlerin, verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme,
+• (g) İşlenen verilerin münhasıran otomatik sistemlerle analiz edilmesi suretiyle aleyhine bir sonucun ortaya çıkmasına itiraz etme,
+• (ğ) Kanuna aykırı işlenmesi sebebiyle zarara uğraman hâlinde zararın giderilmesini talep etme
+haklarına sahipsin.
+
+## 8. Başvuru
+Taleplerini, kimliğini doğrulamamızı sağlayacak bilgilerle birlikte hesabına kayıtlı e-posta adresinden {email} adresine e-posta göndererek ya da {address} adresine yazılı olarak iletebilirsin. Başvurun, niteliğine göre en kısa sürede ve en geç 30 gün içinde ücretsiz olarak sonuçlandırılır; işlemin ayrıca bir maliyet gerektirmesi hâlinde Kişisel Verileri Koruma Kurulu'nca belirlenen tarife uygulanabilir.
+Düzeltme, kopya alma ve silme işlemlerinin çoğunu uygulama içinden kendin de yapabilirsin: Profil → Ad, Yedekleme → Dışa aktar, Çöp kutusu → Kalıcı olarak sil ve Hesabımı sil.</value>
+  </data>
+  <data name="Terms_Body" xml:space="preserve">
+    <value>Bu koşullar, {publisher} adıyla {controller} tarafından sunulan Travel Planner mobil uygulamasının ("Uygulama") kullanımını düzenler. Uygulamayı kullanarak bu koşulları kabul etmiş olursun.
+
+## 1. Hizmet
+Uygulama; seyahat planlama, gün gün plan, görev ve bavul listesi, bütçe ve harcama takibi, harcama bölüşme, belge saklama, hava durumu ve harita gösterimi, yedekleme ile isteğe bağlı hesap, bulut eşitleme, seyahat paylaşma ve yapay zekâ ile plan önerisi özellikleri sunar. Uygulama ücretsizdir ve reklam içermez. Özellikler zamanla değişebilir, eklenebilir veya kaldırılabilir.
+
+## 2. Hesap
+Uygulamayı hesap açmadan kullanabilirsin. Hesap açarsan doğru bilgiler vermek, şifreni gizli tutmak ve hesabındaki işlemlerden sorumlu olmak sana aittir. Hesabın yetkisiz kullanıldığını düşünürsen şifreni değiştir ve bize {email} adresinden bildir. Hesap açmak için en az 13 yaşında olmalısın.
+
+## 3. Senin içeriğin
+Uygulamaya eklediğin seyahatler, notlar, harcamalar, fotoğraflar ve belgeler sana aittir. Bunları yalnızca hizmeti sunmak (saklamak, eşitlemek, seçtiğin kişilerle paylaşmak, istediğinde plan önerisi hazırlamak) için işleriz. Eklediğin içeriğin hukuka uygun olmasından, başkalarının haklarını (ör. kişilik hakları, telif hakkı) ihlal etmemesinden ve paylaştığın kişilerin bu içeriği görmesine izin vermekten sen sorumlusun.
+
+## 4. Paylaşılan seyahatler
+Bir seyahatin sahibi, üyeleri davet edebilir, rollerini değiştirebilir ve onları çıkarabilir. Düzenleyiciler seyahatin içeriğini değiştirebilir; görüntüleyiciler yalnızca görebilir. Bir seyahati yalnızca sahibi silebilir. Davet kodlarını yalnızca güvendiğin kişilerle paylaş.
+
+## 5. Yapay zekâ önerileri
+Yapay zekâ ile planlama, otomatik olarak üretilen öneriler sunar. Bu öneriler hatalı, eksik veya güncelliğini yitirmiş olabilir (ör. açılış saatleri, fiyatlar, ulaşım, güvenlik koşulları). Önerileri uygulamadan önce resmî kaynaklardan kontrol etmek senin sorumluluğundadır. Özelliğin kullanımı günlük bir hakla sınırlıdır; bu sınır değiştirilebilir. Uygunsuz veya zararlı bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
+
+## 6. Üçüncü taraf bilgileri
+Hava durumu, döviz kurları, harita ve yer bilgileri üçüncü taraf hizmetlerden alınır ve yalnızca bilgilendirme amaçlıdır. Bunların doğruluğunu veya kesintisiz olacağını garanti edemeyiz. Finansal, hukuki veya seyahat güvenliğiyle ilgili kararlarını yalnızca bu bilgilere dayandırma.
+
+## 7. Kabul edilemez kullanım
+Uygulamayı; hukuka aykırı, zararlı, nefret söylemi içeren veya başkalarının haklarını ihlal eden içerik saklamak veya paylaşmak, sistemlere yetkisiz erişmeye çalışmak, güvenlik önlemlerini veya kullanım sınırlarını aşmaya çalışmak, hizmeti aşırı yükleyecek şekilde otomatik araçlarla kullanmak ya da başkalarını taciz etmek için kullanamazsın. Bu koşulların ihlali hâlinde hesabı askıya alabilir veya kapatabiliriz.
+
+## 8. Hizmetin sunulması ve sorumluluk
+Uygulama "olduğu gibi" sunulur. Hizmetin kesintisiz veya hatasız olacağını garanti etmeyiz. Önemli belgelerinin ve verilerinin bir kopyasını (Profil → Yedekleme → Dışa aktar) düzenli olarak almanı öneririz. Yürürlükteki mevzuatın izin verdiği ölçüde, uygulamanın kullanımından doğan dolaylı zararlardan sorumlu değiliz; kanunen sınırlandırılamayan sorumluluklar saklıdır.
+
+## 9. Hesabın sonlandırılması
+Hesabını istediğin zaman Profil → Hesabımı sil ile kapatabilirsin; bu durumda ne olacağı Gizlilik Politikası'nda anlatılır. Bu koşulları ciddi şekilde ihlal eden hesapları askıya alabilir veya kapatabiliriz.
+
+## 10. Değişiklikler
+Bu koşulları güncelleyebiliriz. Önemli değişiklikleri uygulama içinde duyururuz. Değişiklikten sonra uygulamayı kullanmaya devam etmen, güncel koşulları kabul ettiğin anlamına gelir.
+
+## 11. Uygulanacak hukuk ve iletişim
+Bu koşullara Türkiye Cumhuriyeti kanunları uygulanır. Tüketici olarak sahip olduğun yasal haklar saklıdır. Soruların için: {email}</value>
+  </data>
+  <data name="Licenses_Body" xml:space="preserve">
+    <value>Travel Planner aşağıdaki açık kaynak yazılımları, yazı tiplerini ve açık verileri kullanır. Tüm haklar ilgili sahiplerine aittir; lisans metinlerinin tamamına proje sayfalarından ulaşabilirsin.
+
+## Yazılımlar
+• .NET ve .NET MAUI – MIT Lisansı, © .NET Foundation ve katkıda bulunanlar
+• CommunityToolkit.Mvvm – MIT Lisansı, © .NET Foundation ve katkıda bulunanlar
+• Microsoft.Extensions (Http, Resilience, Logging) – MIT Lisansı, © .NET Foundation
+• Polly – BSD 3-Clause Lisansı, © App vNext
+• sqlite-net-pcl – MIT Lisansı, © Krueger Systems, Inc.
+• SQLitePCLRaw – Apache 2.0 Lisansı, © Eric Sink; SQLite – kamu malı
+• PDFsharp – MIT Lisansı, © empira Software GmbH
+• Plugin.LocalNotification – MIT Lisansı, © Elvin (Tharindu) Thudugala
+• MapLibre GL JS – BSD 3-Clause Lisansı, © MapLibre katkıda bulunanları
+
+## Yazı tipleri ve simgeler
+• Inter – SIL Open Font License 1.1, © The Inter Project Authors
+• Lucide simgeleri – ISC Lisansı, © Lucide Contributors
+
+## Harita ve veri kaynakları
+• Harita verisi © OpenStreetMap katkıda bulunanları, Open Database License (ODbL)
+• Harita görüntüleri: OpenFreeMap, OpenMapTiles şeması
+• Yer arama: Photon, komoot (OpenStreetMap verisi)
+• Hava durumu ve şehir arama: Open-Meteo.com, Creative Commons Attribution 4.0 (CC BY 4.0)
+• Döviz kurları: Frankfurter, Avrupa Merkez Bankası referans kurları</value>
+  </data>
+  <data name="Help_Faq" xml:space="preserve">
+    <value>## Başlarken
+? Travel Planner'ı hesap açmadan kullanabilir miyim?
+Evet. İlk açılışta "Misafir olarak devam et"i seçebilirsin. Bu durumda tüm verilerin yalnızca bu cihazda kalır. İstediğin zaman Profil → Giriş yap / Hesap oluştur ile hesap açabilirsin.
+? Hesap açınca ne değişir?
+Seyahatlerin buluta yedeklenir ve aynı hesapla giriş yaptığın tüm cihazlarında eşitlenir. Ayrıca seyahatlerini arkadaşlarınla paylaşabilir ve yapay zekâ ile plan oluşturabilirsin.
+? Uygulama ücretli mi?
+Hayır. Travel Planner ücretsizdir; reklam ve kullanıcı takibi içermez.
+? Dili veya temayı nasıl değiştiririm?
+Profil → Tercihler altından dili (Türkçe / English), temayı (sistem, açık, koyu), varsayılan para birimini ve hatırlatma saatini seçip Kaydet'e dokun. Dil değişikliği uygulama yeniden açılınca tamamen uygulanır.
+
+## Seyahatler ve plan
+? Yeni bir seyahati nasıl oluştururum?
+Seyahatler sekmesinde + düğmesine dokun; ad, şehir, tarih aralığı, bütçe ve para birimini girip kaydet.
+? Gün gün planı nasıl hazırlarım?
+Seyahat detayında Gün gün plan'ı aç ve bir güne etkinlik ekle. İstersen saat verebilir, etkinliğe kayıtlı bir yeri bağlayabilir ve tutamaçtan sürükleyerek sırasını değiştirebilirsin. Seyahat sürerken detay sayfasında "Bugün" kartı görünür.
+? Bir seyahati kopyalayabilir miyim?
+Evet. Seyahat detayında "Seyahati kopyala"ya dokun. Görevler (işaretsiz), yerler, günlük plan ve katılımcılar yeni seyahate kopyalanır; tarihleri değiştirirsen plan da kayar.
+? Hatırlatmalar ne zaman gelir?
+Bitmemiş görevler varsa yolculuktan 3 gün önce bir hazırlık hatırlatması, seyahat boyunca etkinliği olan her günün sabahı o günün planı ve dönüşün ertesi sabahı harcama özeti gelir. Saati Profil → Hatırlatma saati'nden seçebilirsin. Bildirimlerin açık olduğundan emin ol.
+? Hava durumu nasıl hesaplanıyor?
+Önümüzdeki 16 gün için gerçek tahmin gösterilir. Daha ileri tarihler için aynı günlerin son 3 yıldaki ortalaması kullanılır ve bu açıkça belirtilir.
+
+## Yapay zekâ ile planlama
+? Yapay zekâ planlayıcısı nasıl çalışır?
+Seyahat detayında "Yapay zekâ ile planla"ya dokun, 4 soruyu (ilgi alanları, tempo, bütçe, kiminle) cevapla. Hazırlanan gün gün planı, gezilecek yerleri ve görevleri incele; istediklerini seçip plana ekle. Bu özellik için giriş yapman ve internet bağlantısı gerekir.
+? Günde kaç plan oluşturabilirim?
+Her gün 5 plan hakkın var. Hak sayısı hem hesabına hem cihazına bağlıdır ve her gün yenilenir. Bir plan oluşturulamazsa hakkın geri verilir.
+? Yapay zekâya hangi bilgilerim gönderiliyor?
+Yalnızca plan için gerekenler: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, cevapların, varsa yazdığın not ve seyahatte zaten kayıtlı yerlerin adları. Adın, e-postan, harcamaların ve belgelerin gönderilmez. Nota kişisel bilgi yazmamanı öneririz.
+? Öneri yanlış ya da uygunsuz olursa ne yapmalıyım?
+Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları mutlaka kontrol et. Uygunsuz veya zararlı bir öneri görürsen plan ekranındaki "Bildir" bağlantısıyla bize ilet.
+
+## Bütçe ve harcamalar
+? Farklı bir para birimiyle harcama girebilir miyim?
+Evet. Harcamayı ödediğin para birimiyle gir; tutar, Avrupa Merkez Bankası kuru ile seyahatin para birimine otomatik çevrilir ve orijinal tutar da saklanır.
+? Harcamaları arkadaşlarımla nasıl bölüşürüm?
+Seyahat detayında Bölüşme'yi aç, katılımcıları ekle. Her harcamada kimin ödediğini ve kimler arasında bölüşüldüğünü seç; uygulama kimin kime ne kadar borçlu olduğunu hesaplar.
+? Bütçe uyarıları ne zaman gelir?
+Harcamaların bütçenin %80'ine ve %100'üne ulaştığında bildirim alırsın.
+? Harcamaları dışa aktarabilir miyim?
+Evet. Harcamalar sayfasındaki dışa aktarma düğmesiyle tüm harcamaları CSV dosyası olarak (Excel ve Google E-Tablolar ile açılabilir) paylaşabilirsin.
+
+## Paylaşım ve hesap
+? Seyahatimi başkalarıyla nasıl paylaşırım?
+Seyahat detayında Üyeler ve davet'i aç, "Düzenleyici davet et" veya "Görüntüleyici davet et"e dokun ve oluşan kodu paylaş. Kodu alan kişi uygulamada Profil → Davet koduyla katıl'dan seyahate katılır. Kod 7 gün geçerlidir. Paylaşım için iki tarafın da giriş yapmış olması gerekir.
+? Sahibi, düzenleyici ve görüntüleyici ne demek?
+Sahibi her şeyi yapabilir, üyeleri yönetir ve seyahati silebilir. Düzenleyici seyahatin içeriğini ekleyip değiştirebilir. Görüntüleyici yalnızca görebilir. Seyahat üyeleri birbirinin adını, e-postasını ve profil fotoğrafını görür.
+? Eşitleme nasıl çalışır?
+Giriş yaptıysan değişikliklerin birkaç saniye içinde otomatik olarak buluta gönderilir. İnternet yokken yaptığın değişiklikler saklanır ve bağlantı gelince gönderilir. Profil'deki "Şimdi eşitle" ile hemen eşitleyebilirsin.
+? Şifremi unuttum, ne yapmalıyım?
+Giriş ekranında "Şifremi unuttum"a dokun, e-posta adresini yaz. Gelen kodla yeni şifreni belirleyebilirsin.
+? Hesabımı nasıl silerim?
+Profil → Hesabımı sil'e dokun ve iki adımlı onayı tamamla (internet bağlantısı gerekir). Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir, paylaşılan seyahatlerden çıkarılırsın. Silmeden önce Yedekleme → Dışa aktar ile verilerinin kopyasını alabilirsin. Uygulamaya erişemiyorsan {email} adresine hesabının e-posta adresinden yazarak silinmesini isteyebilirsin.
+
+## Belgeler, yedek ve çöp kutusu
+? Seyahate belge veya fotoğraf ekleyebilir miyim?
+Evet. Seyahat detayında Belgeler'den kamera, galeri veya dosya ile bilet, rezervasyon, vize PDF'i ya da fotoğraf ekleyebilirsin (dosya başına en fazla 50 MB). Belgeler internet olmadan da açılır; giriş yaptıysan buluta da yedeklenir.
+? Sildiğim bir şeyi geri alabilir miyim?
+Evet. Silinenler 30 gün boyunca Profil → Çöp kutusu'nda kalır. "Geri al"a dokunarak geri getirebilirsin; bir seyahat içindeki her şeyle birlikte geri gelir.
+? Çöp kutusundakileri kalıcı olarak nasıl silerim?
+Çöp kutusunda sağ üstteki çöp kutusu simgesine dokun. Silmek istediklerini tek tek seç ya da "Tümünü seç"e dokun, ardından sil ve onayla. Kalıcı olarak silinenler geri alınamaz; 30 gün dolduğunda ise silinenler zaten kendiliğinden kalıcı olarak silinir.
+? Yedek nasıl alırım ve geri yüklerim?
+Profil → Yedekleme → Dışa aktar ile tüm seyahatlerin, harcamaların, planların ve belgelerin tek bir .zip dosyasına aktarılır. Dosyayı Drive, Dosyalar veya e-posta ile saklayabilirsin. Geri yükle ile başka bir cihaza aktarabilirsin; geri yükleme o cihazdaki tüm verilerin yerine yedektekileri koyar.
+
+## Gizlilik ve güvenlik
+? Verilerim nerede saklanıyor?
+Misafir olarak kullanıyorsan yalnızca cihazında. Hesap açtıysan ayrıca Avrupa Birliği'ndeki (Frankfurt, Almanya) şifreli bağlantıyla erişilen sunucularda. Ayrıntılar Gizlilik Politikası'nda.
+? Verilerimi reklam veya başka amaçlarla kullanıyor musunuz?
+Hayır. Uygulamada reklam, analiz aracı ve kullanıcı takibi yoktur; verilerini satmayız.
+? Uygulama hangi izinleri istiyor?
+Bildirimler (hatırlatmalar ve bütçe uyarıları), kamera ve fotoğraflar (yalnızca belge veya fotoğraf eklerken) ve internet. Konum izni istemez, rehberine erişmez.
+? KVKK kapsamındaki haklarımı nasıl kullanırım?
+Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine hesabının e-posta adresinden yaz. Talebini en geç 30 gün içinde ücretsiz olarak sonuçlandırırız. Ayrıntılar KVKK Aydınlatma Metni'nde.</value>
   </data>
 </root>

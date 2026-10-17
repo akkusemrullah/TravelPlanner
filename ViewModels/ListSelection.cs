@@ -43,10 +43,10 @@ namespace TravelPlanner.ViewModels
 
     /// <summary>
     /// Multi-select state of one list page ("Seçerek sil"). Rows remember their tick in
-    /// <see cref="SyncEntityBase.IsSelected"/>; the selection itself is kept by row id, so it survives the list being
+    /// <see cref="ISelectableRow.IsSelected"/> (for models: <see cref="SyncEntityBase.IsSelected"/>); the selection itself is kept by row id, so it survives the list being
     /// reloaded (a sync bringing a trip mate's change) or filtered - <see cref="Sync"/> re-applies it to the new rows.
     /// </summary>
-    public sealed class ListSelection<T> : ObservableObject, IListSelection where T : SyncEntityBase, ISyncEntity
+    public sealed class ListSelection<T> : ObservableObject, IListSelection where T : class, ISelectableRow
     {
         private readonly Func<IEnumerable<T>> _items;
         private readonly HashSet<int> _selectedIds = new();

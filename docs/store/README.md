@@ -10,3 +10,5 @@
 
 Önerilen ekran görüntüsü sırası: 1) Ana sayfa (öne çıkan seyahat) 2) Gün gün plan 3) Hava tahmini 4) Harcama analizi 5) Bölüşme özeti 6) Harita ve rota 7) Belgeler 8) Koyu tema.
 Ekran görüntülerini örnek (kurgusal) verilerle alın; gerçek kişi adları ve belgeler kullanmayın.
+
+Mağaza kaydında istenen bağlantılar (GitHub Pages ile `docs/` yayınlandıktan sonra, bkz. `docs/RELEASE.md`): gizlilik politikası → `PRIVACY`, hesap ve veri silme → `ACCOUNT_DELETION`, web sitesi / destek → `HELP`; destek e-postası `Helpers/AppConstants.SupportEmail`.

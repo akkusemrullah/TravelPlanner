@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+    The app's legal documents: privacy policy, KVKK notice, terms of use, open-source licences.
+    Route Routes.Privacy?doc=privacy|kvkk|terms|licenses (Helpers/LegalDocuments). The texts live in AppResources
+    (Privacy_Body, Kvkk_Body …) with "## Heading" lines; the public copies are in docs/.
+-->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              x:Class="TravelPlanner.Views.PrivacyPage"
+             x:DataType="vm:LegalDocumentViewModel"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
 
@@ -15,21 +23,51 @@
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.Privacy_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" LineBreakMode="TailTruncation" />
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,20,16,28" Spacing="16">
+            <VerticalStackLayout Padding="16,20,16,32" Spacing="16">
+                <!-- Header: icon, title, last updated -->
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                    <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Shield}" />
+                    <Border Grid.Column="0" Style="{StaticResource IconTile}" VerticalOptions="Center">
+                        <Label x:Name="HeaderIcon" Style="{StaticResource Icon}" Text="{StaticResource Ic.Lock}" />
                     </Border>
-                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Privacy_Title}" Style="{StaticResource Text.H2}" VerticalOptions="Center" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="{Binding Title}" Style="{StaticResource Text.H2}" LineBreakMode="WordWrap" SemanticProperties.HeadingLevel="Level1" />
+                        <Label Text="{Binding UpdatedText}" Style="{StaticResource Text.Caption}" />
+                    </VerticalStackLayout>
                 </Grid>
+
+                <!-- The document, one block per section -->
                 <Border Style="{StaticResource Card}" Padding="20">
-                    <Label Text="{x:Static res:AppResources.Privacy_Body}" Style="{StaticResource Text.Body}" FontSize="14" LineHeight="1.4"
-                           TextColor="{DynamicResource tp-text-2}" />
+                    <VerticalStackLayout Spacing="18" BindableLayout.ItemsSource="{Binding Sections}">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="helpers:DocumentSection">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="{Binding Heading}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap"
+                                           SemanticProperties.HeadingLevel="Level2"
+                                           IsVisible="{Binding Heading, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    <Label Text="{Binding Body}" Style="{StaticResource Text.Body}" FontSize="14" LineHeight="1.4"
+                                           TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap"
+                                           IsVisible="{Binding Body, Converter={StaticResource StringNotEmptyConverter}}" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Questions about the document -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding ShowContact}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <Label Text="{x:Static res:AppResources.Legal_QuestionsTitle}" Style="{StaticResource Text.Title}" />
+                            <Label Text="{x:Static res:AppResources.Legal_QuestionsHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1" Text="{x:Static res:AppResources.Help_WriteToUs}" Command="{Binding ContactCommand}"
+                                Style="{StaticResource Btn.Secondary.Sm}" HeightRequest="38" VerticalOptions="Center" />
+                    </Grid>
                 </Border>
             </VerticalStackLayout>
         </ScrollView>

@@ -136,7 +136,9 @@ namespace TravelPlanner.ViewModels
         private Task TakePhotoAsync() => PickAndStoreAsync(() => _mediaPicker.CapturePhotoAsync());
 
         [RelayCommand]
-        private Task PickPhotoAsync() => PickAndStoreAsync(() => _mediaPicker.PickPhotoAsync());
+        // MAUI 10: PickPhotoAsync is obsolete - PickPhotosAsync with a limit of one photo.
+        private Task PickPhotoAsync() => PickAndStoreAsync(async () =>
+            (await _mediaPicker.PickPhotosAsync(new MediaPickerOptions { SelectionLimit = 1 }))?.FirstOrDefault());
 
         [RelayCommand]
         private Task PickDocumentAsync() => PickAndStoreAsync(() => _filePicker.PickAsync(new PickOptions

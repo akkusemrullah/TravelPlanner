@@ -262,6 +262,91 @@ namespace TravelPlanner.Tests
             Assert.False(File.Exists(trashed));
         }
 
+        private async Task<string> BatchOfAsync(ISyncEntity entity)
+        {
+            var syncId = entity.SyncId;
+            return (await (await _db.Connection).Table<TrashItem>().Where(t => t.EntitySyncId == syncId).FirstAsync()).BatchId;
+        }
+
+        [Fact]
+        public async Task DeleteForever_RemovesOnlyTheChosenBatches_AndTheirFiles()
+        {
+            var trip = await NewTripAsync();
+            var a = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "a.pdf", "application/pdf");
+            var b = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 2 }), "b.pdf", "application/pdf");
+            await _attachments.DeleteAsync(a);
+            await _attachments.DeleteAsync(b);
+            var batchA = await BatchOfAsync(a);
+
+            Assert.Equal(1, await _trash.DeleteForeverAsync(new[] { batchA }));
+
+            var left = Assert.Single(await _trash.GetEntriesAsync());
+            Assert.NotEqual(batchA, left.BatchId);
+            Assert.False(File.Exists(_attachments.GetTrashPath(a)));
+            Assert.True(File.Exists(_attachments.GetTrashPath(b)));
+            Assert.Equal(0, await _trash.RestoreAsync(batchA)); // nothing left to restore
+        }
+
+        [Fact]
+        public async Task DeleteForever_ATrip_RemovesEverythingDeletedWithIt()
+        {
+            var trip = await NewTripAsync();
+            await _todos.SaveAsync(new TodoItem { TripId = trip.Id, Title = "Pasaport" });
+            await _trips.DeleteAsync(trip);
+            var entry = Assert.Single(await _trash.GetEntriesAsync());
+            Assert.True(entry.ItemCount >= 2);
+            Assert.NotEqual(0, entry.RootItemId);
+
+            Assert.Equal(entry.ItemCount, await _trash.DeleteForeverAsync(new[] { entry.BatchId }));
+
+            Assert.Empty(await _trash.GetEntriesAsync());
+            Assert.Equal(0, await (await _db.Connection).Table<TrashItem>().CountAsync());
+        }
+
+        [Fact]
+        public async Task DeleteForever_SignedIn_AlsoRemovesTheCloudCopyOfFiles()
+        {
+            var cloud = new Mock<ISupabaseClient>();
+            var auth = new Mock<IAuthService>();
+            auth.SetupGet(x => x.IsSignedIn).Returns(true);
+            var trash = new TrashService(_db.Service, _attachments, cloud.Object, auth.Object);
+            var trip = await NewTripAsync();
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "bilet.PDF", "application/pdf");
+            await _attachments.DeleteAsync(file);
+
+            await trash.DeleteForeverAsync(new[] { await BatchOfAsync(file) });
+
+            var expected = $"trips/{trip.SyncId}/{file.SyncId}.pdf";
+            cloud.Verify(c => c.DeleteAsync(SyncService.Bucket,
+                It.Is<IReadOnlyCollection<string>>(p => p.Count == 1 && p.Contains(expected)), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteForever_AsGuest_OrOffline_StillDeletesLocally()
+        {
+            var cloud = new Mock<ISupabaseClient>();
+            cloud.Setup(c => c.DeleteAsync(It.IsAny<string>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<CancellationToken>()))
+                 .ThrowsAsync(new HttpRequestException("offline"));
+            var auth = new Mock<IAuthService>();
+            auth.SetupGet(x => x.IsSignedIn).Returns(true);
+            var trash = new TrashService(_db.Service, _attachments, cloud.Object, auth.Object);
+            var trip = await NewTripAsync();
+            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "a.pdf", "application/pdf");
+            await _attachments.DeleteAsync(file);
+
+            Assert.Equal(1, await trash.DeleteForeverAsync(new[] { await BatchOfAsync(file) }));
+            Assert.Empty(await trash.GetEntriesAsync());
+
+            // Guest: the cloud is never asked.
+            var guestCloud = new Mock<ISupabaseClient>();
+            var guestAuth = new Mock<IAuthService>();
+            var guestTrash = new TrashService(_db.Service, _attachments, guestCloud.Object, guestAuth.Object);
+            var other = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "b.pdf", "application/pdf");
+            await _attachments.DeleteAsync(other);
+            await guestTrash.DeleteForeverAsync(new[] { await BatchOfAsync(other) });
+            guestCloud.VerifyNoOtherCalls();
+        }
+
         [Fact]
         public void MergeFields_UnionsNames_AndAllFieldsWins()
         {

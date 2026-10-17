@@ -1,18 +1,24 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using TravelPlanner.Models;
 using TravelPlanner.Resources.Strings;
 using TravelPlanner.Services;
 
 namespace TravelPlanner.ViewModels
 {
-    /// <summary>One deleted item in the trash list.</summary>
-    public sealed class TrashItemView
+    /// <summary>One deleted item in the trash list. Tickable in "Seçerek sil" mode (<see cref="ISelectableRow"/>).</summary>
+    public sealed class TrashItemView : ISelectableRow, INotifyPropertyChanged
     {
+        private bool _isSelected;
+
         public TrashItemView(TrashEntry entry, string? tripName, DateTime nowUtc)
         {
             Entry = entry;
+            // The root trash row's id is unique; entries built elsewhere (tests) fall back to the batch id.
+            Id = entry.RootItemId != 0 ? entry.RootItemId : StringComparer.Ordinal.GetHashCode(entry.BatchId);
             Title = string.IsNullOrWhiteSpace(entry.Title) ? KindName(entry.EntityType) : entry.Title!;
 
             var parts = new List<string> { KindName(entry.EntityType) };
@@ -27,9 +33,29 @@ namespace TravelPlanner.ViewModels
         }
 
         public TrashEntry Entry { get; }
+
+        public int Id { get; }
+
+        /// <summary>"Trip", "Expense" … - picks the row's icon.</summary>
+        public string Kind => Entry.EntityType;
+
         public string Title { get; }
         public string Subtitle { get; }
         public string ExpiryText { get; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value)
+                    return;
+                _isSelected = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+            }
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public static string KindName(string entityType) => entityType switch
         {
@@ -45,8 +71,12 @@ namespace TravelPlanner.ViewModels
         };
     }
 
-    /// <summary>Çöp kutusu (G1/G6): everything deleted in the last 30 days, restorable with one tap.</summary>
-    public partial class TrashViewModel : ViewModelBase
+    /// <summary>
+    /// Çöp kutusu (G1/G6): everything deleted in the last 30 days, restorable with one tap. The trash button opens
+    /// the same "Seçerek sil" mode as every other list - rows are ticked one by one or with "Tümünü seç", and one
+    /// confirmation deletes them for good ("Kalıcı olarak sil").
+    /// </summary>
+    public partial class TrashViewModel : ViewModelBase, ISelectableListViewModel
     {
         private readonly ITrashService _trash;
         private readonly ITripService _trips;
@@ -56,6 +86,12 @@ namespace TravelPlanner.ViewModels
         {
             _trash = trash;
             _trips = trips;
+            Selection = new ListSelection<TrashItemView>(() => Items);
+            Selection.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(Selection.IsActive))
+                    OnPropertyChanged(nameof(ShowDeleteMenu));
+            };
         }
 
         /// <summary>Clock (replaceable in tests).</summary>
@@ -63,7 +99,15 @@ namespace TravelPlanner.ViewModels
 
         public ObservableCollection<TrashItemView> Items { get; } = new();
 
+        public ListSelection<TrashItemView> Selection { get; }
+
+        IListSelection ISelectableListViewModel.Selection => Selection;
+
+        /// <summary>The app bar's trash button (enters selection mode) - only with something to delete.</summary>
+        public bool ShowDeleteMenu => HasItems && Selection.IsInactive;
+
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowDeleteMenu))]
         private bool hasItems;
 
         [ObservableProperty]
@@ -88,14 +132,22 @@ namespace TravelPlanner.ViewModels
                 Items.Add(new TrashItemView(entry, tripName, now));
             }
 
-            HasItems = Items.Count > 0;
-            IsEmpty = !HasItems;
+            UpdateEmptyState();
+            Selection.Sync();
         }, AppResources.Trash_LoadError);
+
+        /// <summary>A tap on a row: ticks it in selection mode (outside it the row's own button restores).</summary>
+        [RelayCommand]
+        private void ItemTapped(TrashItemView? item)
+        {
+            if (item is not null && Selection.IsActive)
+                Selection.Toggle(item);
+        }
 
         [RelayCommand]
         private Task RestoreAsync(TrashItemView? item) => RunSafeAsync(async () =>
         {
-            if (item is null) return;
+            if (item is null || Selection.IsActive) return;
 
             var restored = await _trash.RestoreAsync(item.Entry.BatchId);
             await Dialogs.ShowMessageAsync(AppResources.Common_Info, restored > 0
@@ -105,7 +157,56 @@ namespace TravelPlanner.ViewModels
             await LoadAsync();
         }, AppResources.Trash_RestoreError);
 
+        // ================= Deleting for good =================
+
         [RelayCommand]
-        private async Task GoBackAsync() => await Shell.Current.GoToAsync("..");
+        private Task DeleteSelectedAsync() =>
+            RunSafeAsync(() => DeleteForeverAsync(Selection.SelectedItems, Selection.DeleteTitle), AppResources.Trash_DeleteError);
+
+        private async Task DeleteForeverAsync(IReadOnlyList<TrashItemView> items, string title)
+        {
+            if (items.Count == 0)
+                return;
+
+            var confirmed = items.Count == 1
+                ? await Dialogs.ConfirmAsync(AppResources.Trash_DeleteForeverTitle,
+                    string.Format(CultureInfo.CurrentCulture, AppResources.Trash_DeleteForeverMessageFormat, items[0].Title),
+                    AppResources.Trash_DeleteForever)
+                : await Dialogs.ConfirmAsync(title,
+                    string.Format(CultureInfo.CurrentCulture, AppResources.Trash_DeleteForeverManyFormat, items.Count),
+                    AppResources.Trash_DeleteForever);
+            if (!confirmed)
+                return;
+
+            try
+            {
+                await _trash.DeleteForeverAsync(items.Select(i => i.Entry.BatchId).ToList());
+                foreach (var item in items)
+                    Items.Remove(item);
+            }
+            finally
+            {
+                UpdateEmptyState();
+                Selection.Cancel();
+            }
+        }
+
+        [RelayCommand]
+        private async Task GoBackAsync()
+        {
+            if (Selection.IsActive)
+            {
+                Selection.Cancel();
+                return;
+            }
+
+            await Shell.Current.GoToAsync("..");
+        }
+
+        private void UpdateEmptyState()
+        {
+            HasItems = Items.Count > 0;
+            IsEmpty = !HasItems;
+        }
     }
 }

@@ -38,6 +38,7 @@ namespace TravelPlanner
             Routing.RegisterRoute(Routes.Members, typeof(MembersPage)); // G6
             Routing.RegisterRoute(Routes.Trash, typeof(TrashPage));     // G6
             Routing.RegisterRoute(Routes.AiPlanner, typeof(AiPlannerPage)); // AI trip planner
+            Routing.RegisterRoute(Routes.HelpCenter, typeof(HelpCenterPage)); // help centre
         }
     }
 }

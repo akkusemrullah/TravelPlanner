@@ -193,6 +193,13 @@
                         <Label Text="{Binding Summary}" IsVisible="{Binding HasSummary}" Style="{StaticResource Text.Body}" FontSize="14" LineBreakMode="WordWrap" />
                         <Label Text="{Binding TruncatedText}" IsVisible="{Binding HasTruncatedText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
                         <Label Text="{x:Static res:AppResources.AiPlan_Disclaimer}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                        <!-- Google Play AI-generated content policy: report an offensive / harmful suggestion. -->
+                        <Label Text="{x:Static res:AppResources.AiPlan_Report}" Style="{StaticResource Text.Link}" FontSize="13"
+                               SemanticProperties.Description="{x:Static res:AppResources.AiPlan_Report}">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ReportContentCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.Header>

@@ -213,15 +213,53 @@
                     </Border>
                 </VerticalStackLayout>
 
-                <!-- ════════ About ════════ -->
+                <!-- ════════ Support ════════ -->
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Profile_About}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Label Text="{x:Static res:AppResources.Profile_Support}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Border Style="{StaticResource Card.List}">
+                        <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Help_Title}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenHelpCenterCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Compass}" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{x:Static res:AppResources.Help_Title}" Style="{StaticResource Text.Body}" />
+                                <Label Text="{x:Static res:AppResources.Help_RowHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Help_ContactRow}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ContactSupportCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Notebook}" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="{x:Static res:AppResources.Help_ContactRow}" Style="{StaticResource Text.Body}" />
+                                <Label Text="{Binding SupportEmail}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ════════ Legal & privacy (Google Play: privacy policy reachable in the app) ════════ -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{x:Static res:AppResources.Profile_Legal}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
                               SemanticProperties.Description="{x:Static res:AppResources.Privacy_Title}">
                             <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding OpenPrivacyCommand}" />
+                                <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="privacy" />
                             </Grid.GestureRecognizers>
                             <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
                                 <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Lock}" />
@@ -230,6 +268,49 @@
                             <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                         </Grid>
                         <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Kvkk_Title}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="kvkk" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Shield}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Kvkk_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Terms_Title}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="terms" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Scale}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Terms_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Licenses_Title}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="licenses" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.FileText}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Licenses_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ════════ About ════════ -->
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="{x:Static res:AppResources.Profile_About}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Border Style="{StaticResource Card.List}">
                         <!-- Publisher. -->
                         <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="56">
                             <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
@@ -248,7 +329,6 @@
                                 <Label Text="{Binding CopyrightText}" Style="{StaticResource Text.Caption}" />
                             </VerticalStackLayout>
                         </Grid>
-                        </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
 

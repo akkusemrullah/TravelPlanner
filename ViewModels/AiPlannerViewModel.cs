@@ -328,6 +328,16 @@ namespace TravelPlanner.ViewModels
                 other.IsSelected = ReferenceEquals(other, choice);
         }
 
+        /// <summary>
+        /// Google Play's AI-generated content policy: users can report an offensive or harmful suggestion. Opens a mail
+        /// to support naming the destination and the summary shown - nothing else from the trip.
+        /// </summary>
+        [RelayCommand]
+        private Task ReportContentAsync() => RunSafeAsync(() =>
+            SupportContact.ComposeOrShowAddressAsync(Dialogs, AppResources.AiPlan_ReportSubject,
+                string.Format(CultureInfo.CurrentCulture, AppResources.AiPlan_ReportBodyFormat,
+                    _trip?.City ?? string.Empty, Summary ?? string.Empty)));
+
         /// <summary>The answers as the Edge Function expects them.</summary>
         internal AiPlanRequest BuildRequest(Trip trip, IReadOnlyList<string> existingPlaces) => new(
             Language: CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en" ? "en" : "tr",

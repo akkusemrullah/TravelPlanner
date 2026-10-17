@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DOTNET_VERSION: '9.0.x'
+  DOTNET_VERSION: '10.0.x'
   DOTNET_NOLOGO: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   APP_PROJECT: TravelPlanner.csproj
@@ -61,15 +61,21 @@ jobs:
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android
 
+      # .NET 10 targets Android API 36; make sure that SDK platform is on the runner (else error XA5207).
+      - name: Install Android dependencies
+        run: >
+          dotnet build ${{ env.APP_PROJECT }} -t:InstallAndroidDependencies -f net10.0-android
+          -p:TargetFrameworks=net10.0-android -p:AndroidSdkDirectory="$ANDROID_HOME" -p:AcceptAndroidSDKLicenses=true
+
       - name: Restore
-        run: dotnet restore ${{ env.APP_PROJECT }} -p:TargetFrameworks=net9.0-android
+        run: dotnet restore ${{ env.APP_PROJECT }} -p:TargetFrameworks=net10.0-android
 
       # Pull requests: compile-check only (no secrets are available to PRs from forks).
       - name: Build (unsigned)
         if: github.event_name == 'pull_request'
         run: >
-          dotnet build ${{ env.APP_PROJECT }} -c Release -f net9.0-android --no-restore
-          -p:TargetFrameworks=net9.0-android
+          dotnet build ${{ env.APP_PROJECT }} -c Release -f net10.0-android --no-restore
+          -p:TargetFrameworks=net10.0-android
 
       # main: signed .aab. The build number always increases with the workflow run number.
       - name: Decode keystore
@@ -90,8 +96,8 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: >
-          dotnet publish ${{ env.APP_PROJECT }} -c Release -f net9.0-android --no-restore
-          -p:TargetFrameworks=net9.0-android
+          dotnet publish ${{ env.APP_PROJECT }} -c Release -f net10.0-android --no-restore
+          -p:TargetFrameworks=net10.0-android
           -p:AndroidPackageFormat=aab
           -p:ApplicationVersion=${{ github.run_number }}
           -p:AndroidKeyStore=true

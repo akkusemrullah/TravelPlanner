@@ -1,4 +1,5 @@
 using Plugin.LocalNotification;
+using Plugin.LocalNotification.Core.Models;
 using TravelPlanner.Helpers;
 using TravelPlanner.Models;
 using TravelPlanner.Resources.Strings;
@@ -115,7 +116,8 @@ namespace TravelPlanner.Services
                 NotificationId = id,
                 Title = title,
                 Description = message,
-                Schedule = new NotificationRequestSchedule { NotifyTime = notifyTime }
+                // Plugin.LocalNotification 14: NotifyTime is a DateTimeOffset (local wall-clock time, as before).
+                Schedule = new NotificationRequestSchedule { NotifyTime = new DateTimeOffset(notifyTime) }
             };
 
             return LocalNotificationCenter.Current.Show(request);

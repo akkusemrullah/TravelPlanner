@@ -19,4 +19,16 @@ public partial class TrashPage : ContentPage
         base.OnAppearing();
         this.LoadOnAppearing(() => _viewModel.LoadCommand.Execute(null));
     }
+
+    // Hardware/gesture back first leaves "Seçerek sil" mode instead of the page.
+    protected override bool OnBackButtonPressed()
+    {
+        if (_viewModel.Selection.IsActive)
+        {
+            _viewModel.Selection.Cancel();
+            return true;
+        }
+
+        return base.OnBackButtonPressed();
+    }
 }

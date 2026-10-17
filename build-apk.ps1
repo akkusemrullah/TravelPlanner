@@ -1,6 +1,6 @@
 ﻿# TravelPlanner - signed Release APK (for direct download; the Play Store build is the .aab, see docs/RELEASE.md)
 # Run from the project folder:   powershell -ExecutionPolicy Bypass -File .\build-apk.ps1
-# Output: bin\Release\net9.0-android\publish\com.eaksoft.travelplanner-Signed.apk
+# Output: bin\Release\net10.0-android\publish\com.eaksoft.travelplanner-Signed.apk
 
 param(
     [string]$KeyStore = "travelplanner.keystore",
@@ -21,10 +21,10 @@ $env:TP_KEY_PASS = if ([string]::IsNullOrEmpty($keyPlain)) { $env:TP_STORE_PASS 
 
 try {
     # Old outputs out of the way, so the APK in publish\ is surely the new one.
-    if (Test-Path "bin\Release\net9.0-android") { Remove-Item "bin\Release\net9.0-android" -Recurse -Force }
+    if (Test-Path "bin\Release\net10.0-android") { Remove-Item "bin\Release\net10.0-android" -Recurse -Force }
 
-    dotnet publish TravelPlanner.csproj -c Release -f net9.0-android `
-        -p:TargetFrameworks=net9.0-android `
+    dotnet publish TravelPlanner.csproj -c Release -f net10.0-android `
+        -p:TargetFrameworks=net10.0-android `
         -p:AndroidPackageFormat=apk `
         -p:AndroidKeyStore=true `
         -p:AndroidSigningKeyStore="$((Resolve-Path $KeyStore).Path)" `
@@ -33,7 +33,7 @@ try {
         -p:AndroidSigningKeyPass=env:TP_KEY_PASS
     if ($LASTEXITCODE -ne 0) { throw "Derleme başarısız." }
 
-    $apk = Get-ChildItem "bin\Release\net9.0-android\publish\*-Signed.apk" | Select-Object -First 1
+    $apk = Get-ChildItem "bin\Release\net10.0-android\publish\*-Signed.apk" | Select-Object -First 1
     "{0}  ({1:N1} MB)" -f $apk.FullName, ($apk.Length / 1MB)
     explorer.exe /select,"$($apk.FullName)"
 }

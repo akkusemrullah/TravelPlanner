@@ -106,7 +106,7 @@ public partial class MapPage : ContentPage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MapPage] Failed to render map: {ex}");
-            await DisplayAlert(AppResources.Common_Error, AppResources.Map_RenderError, AppResources.Common_Ok);
+            await DisplayAlertAsync(AppResources.Common_Error, AppResources.Map_RenderError, AppResources.Common_Ok);
         }
     }
 

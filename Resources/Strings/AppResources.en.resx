@@ -1392,32 +1392,81 @@
     <value>View</value>
   </data>
   <data name="Privacy_Body" xml:space="preserve">
-    <value>TravelPlanner respects your privacy. In short: your data stays on your device.
+    <value>This policy explains which personal data is processed when you use the Travel Planner app, where it is stored, who it is shared with and what your rights are. Users in Turkey should also see the KVKK Notice.
 
-What is stored?
-Your trips, plans, expenses, to-dos, saved places, participant names and the documents/photos you add are stored only in the app's storage on this device. There is no account, sign-up or cloud server; we cannot see this data.
+## In short
+• You can use the app without an account (as a guest); then all your data stays only on your device.
+• If you create an account, your trip data is stored on servers in the European Union (Frankfurt, Germany) so it can be synced between your devices and shared.
+• There are no ads, no analytics tools and no tracking. We don't sell your data or use it for advertising.
+• Planning with AI is optional; when you use it, only what the plan needs is sent to the AI service.
+• You can delete your account and your data from within the app at any time.
 
-What is sent over the internet?
-The app only contacts these free services, when you use the related feature:
-• Open-Meteo: weather and city search (city name, coordinates).
-• Photon (komoot): place search and the name of a point picked on the map (search text, coordinates).
+## Data controller and contact
+{controller}, publishing the app as {publisher}, {address}.
+E-mail: {email}
+
+## Using the app as a guest
+Without an account, your trips, plans, expenses, to-dos, saved places, participant names and the documents/photos you add are stored only in the app's storage on this device. We cannot see this data. Uninstalling the app deletes it from the device.
+
+## Data processed when you create an account
+• Account data: your e-mail address, your name (or the name from Google), the address of your profile photo if you sign in with Google, and your account id. Your password is kept only as a hash by our sign-in service; we can't see it.
+• Trip data: trip name, country and city, dates, budget and currency, description; the day plan and activities; saved places and their locations; expenses (amount, currency, category, date, description, who paid); participant names and cost splits; to-dos; packing templates.
+• Documents and photos: tickets, reservations, visa PDFs or photos you attach to a trip. These files may contain sensitive information such as passport or ID details; we recommend attaching only the documents you really need.
+• Sharing data: trip memberships, your role (owner, editor, viewer), invite codes you create, and who added or changed a record and when.
+• Technical data: session data, and the IP address and request details recorded in server logs while syncing (short-lived security and troubleshooting logs).
+
+## What we use the data for
+• Creating your account, signing you in and verifying your e-mail address.
+• Syncing your trip data between your devices, backing it up and sharing it with the people you choose.
+• Preparing a trip plan with AI when you ask for one.
+• Keeping the service secure, preventing abuse (e.g. exceeding the daily AI quota) and blocking suspended accounts.
+• Answering support requests and meeting legal obligations.
+We do not use your data for advertising, profiling or marketing.
+
+## Shared trips
+When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name, e-mail address and profile photo. Share invite codes only with people you trust.
+
+## Planning with AI
+This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass).
+To apply the daily plan quota we keep your account id and an irreversible hash (SHA-256) derived from your device's id, with a daily usage count; your device's actual id never leaves the device.
+Please don't put personal or sensitive information in the note. AI suggestions can be wrong; check opening hours, prices and bookings. You can report an inappropriate suggestion with the "Report" link on the plan screen.
+
+## External services
+For some features the app sends requests directly from your device to these free services:
+• Open-Meteo: weather, climate averages and city search (city name, coordinates).
+• Photon (komoot, OpenStreetMap data): place search and the name of a point picked on the map (search text, coordinates).
 • OpenFreeMap: map images (the area shown).
-• Frankfurter: exchange rates (currency pair, date).
-Like any internet request, these services can see your IP address. No personal information (your name, expenses, documents) is sent.
+• Frankfurter (European Central Bank rates): exchange rates (currency pair, date).
+Like any internet request, these services can see your IP address. Your name, e-mail, expenses or documents are not included.
+Accounts and cloud storage are provided by Supabase (data on servers in Frankfurt, Germany). If you sign in with Google, the sign-in is handled by Google and Google's privacy policy applies.
 
-Permissions
-The camera and photos are used only when you choose to add a document or photo. Notifications are scheduled on the device (trip reminders, budget alerts).
+## Retention and deletion
+• We keep your data while your account exists.
+• A deleted record stays in the trash for 30 days and can be restored. When that time is up, or when you delete it permanently from the trash, it is removed from the device; the server's deleted copy is purged automatically within 30 days at the latest. The cloud files of permanently deleted documents are removed as well (right away when you are online).
+• When you delete your account with Profile → Delete my account, the trips you own with everything in them and their files, your profile, memberships and sign-in data are deleted immediately. Content you added to other people's trips stays part of those trips but is no longer linked to your account.
+• If you can't use the app, you can ask for your account to be deleted by writing to {email} from the e-mail address of your account; we complete the request within 30 days.
+• Server security logs are kept for a short time and then deleted.
 
-Ads, analytics, tracking
-The app contains no ads, no analytics and no user tracking.
+## Security
+All communication between the app and the server is encrypted (HTTPS/TLS). Every table on the server is protected by row-level access rules: only a trip's members can see it and only authorised members can change it. Documents are kept in a private storage bucket. No system is perfect; if we learn of a security breach we will inform you and the authorities as the law requires.
 
-Backups and sharing
-Backup (.zip) and PDF files are created only when you ask and are sent only where you choose (e.g. Files, Drive, e-mail).
+## Permissions
+• Notifications: trip reminders and budget alerts are scheduled on your device.
+• Camera and photos: used only when you choose to add a document or photo.
+• Internet: for syncing, weather, maps and exchange rates.
+The app does not ask for your location and does not access your contacts.
 
-Deleting data
-Uninstalling the app deletes all of its data from the device. You can delete individual trips inside the app.
+## Backups and sharing
+Backup (.zip), PDF and CSV files are created only when you ask and are sent only where you choose (e.g. Files, Drive, e-mail). Where you keep these files and who you share them with is up to you.
 
-For questions, please use the developer contact address on the store page.</value>
+## Children
+The app is not directed at children. We don't want children under 13 to create accounts. If you believe a child has given us data, write to {email} and we will delete it.
+
+## Your rights
+You have the right to access, correct and delete your data, to object to its processing and to get a copy of it. You can do most of this yourself in the app: change your name in Profile, take a copy with Backup → Export, and delete records and your account. For anything else, write to {email}. Your rights under Turkish law are described in detail in the KVKK Notice.
+
+## Changes
+We may update this policy as the app changes. We will announce important changes in the app; the current version is always available under Profile → Legal &amp; privacy.</value>
   </data>
   <data name="Map_NoRoute" xml:space="preserve">
     <value>No route</value>
@@ -1923,7 +1972,7 @@ In the app tap Profile → Join with a code and enter it. The code works until {
     <value>Trash</value>
   </data>
   <data name="Trash_Hint" xml:space="preserve">
-    <value>Deleted items can be restored for 30 days.</value>
+    <value>Restore deleted items within 30 days, or delete them for good.</value>
   </data>
   <data name="Trash_Empty" xml:space="preserve">
     <value>The trash is empty.</value>
@@ -2332,5 +2381,323 @@ In the app tap Profile → Join with a code and enter it. The code works until {
   </data>
   <data name="Notification_AfterTripBody" xml:space="preserve">
     <value>See your spending summary and who owes whom.</value>
+  </data>
+  <data name="Trash_PageHint" xml:space="preserve">
+    <value>Deleted items stay here for 30 days and are then deleted for good automatically. Don't want to wait? Tap the trash icon at the top right, select what to delete (or Select all) and delete it permanently. Permanently deleted items can't be restored.</value>
+  </data>
+  <data name="Trash_SelectA11y" xml:space="preserve">
+    <value>Select to delete permanently</value>
+  </data>
+  <data name="Trash_DeleteForever" xml:space="preserve">
+    <value>Delete permanently</value>
+  </data>
+  <data name="Trash_DeleteForeverTitle" xml:space="preserve">
+    <value>Delete permanently?</value>
+  </data>
+  <data name="Trash_DeleteForeverMessageFormat" xml:space="preserve">
+    <value>"{0}" will be deleted permanently and can no longer be restored.</value>
+  </data>
+  <data name="Trash_DeleteForeverManyFormat" xml:space="preserve">
+    <value>{0} items will be deleted permanently and can no longer be restored. Trips go with everything in them.</value>
+  </data>
+  <data name="Trash_DeleteError" xml:space="preserve">
+    <value>The selected items couldn't be deleted.</value>
+  </data>
+  <data name="Profile_Support" xml:space="preserve">
+    <value>Support</value>
+  </data>
+  <data name="Profile_Legal" xml:space="preserve">
+    <value>Legal &amp; privacy</value>
+  </data>
+  <data name="Help_Title" xml:space="preserve">
+    <value>Help centre</value>
+  </data>
+  <data name="Help_Heading" xml:space="preserve">
+    <value>How can we help?</value>
+  </data>
+  <data name="Help_Subtitle" xml:space="preserve">
+    <value>Frequently asked questions and a short guide.</value>
+  </data>
+  <data name="Help_RowHint" xml:space="preserve">
+    <value>FAQ and how-to guide</value>
+  </data>
+  <data name="Help_SearchPlaceholder" xml:space="preserve">
+    <value>Search (e.g. trash, invite, exchange rate)</value>
+  </data>
+  <data name="Help_NoResults" xml:space="preserve">
+    <value>No question matches your search. Try another word or write to us.</value>
+  </data>
+  <data name="Help_ClearSearch" xml:space="preserve">
+    <value>Clear search</value>
+  </data>
+  <data name="Help_ContactTitle" xml:space="preserve">
+    <value>Didn't find what you need?</value>
+  </data>
+  <data name="Help_ContactHintFormat" xml:space="preserve">
+    <value>Send questions, ideas and bug reports to {0}. We usually reply within a few working days.</value>
+  </data>
+  <data name="Help_WriteToUs" xml:space="preserve">
+    <value>Write to us</value>
+  </data>
+  <data name="Help_ContactRow" xml:space="preserve">
+    <value>Contact us</value>
+  </data>
+  <data name="Help_MailSubject" xml:space="preserve">
+    <value>Travel Planner support</value>
+  </data>
+  <data name="Help_NoMailAppFormat" xml:space="preserve">
+    <value>No mail app could be opened. We copied our address to the clipboard - write to {0} from any app.</value>
+  </data>
+  <data name="Legal_UpdatedFormat" xml:space="preserve">
+    <value>Last updated: {0}</value>
+  </data>
+  <data name="Legal_MailSubjectFormat" xml:space="preserve">
+    <value>Travel Planner – {0}</value>
+  </data>
+  <data name="Legal_QuestionsTitle" xml:space="preserve">
+    <value>Questions?</value>
+  </data>
+  <data name="Legal_QuestionsHint" xml:space="preserve">
+    <value>Write to us about this text or your data.</value>
+  </data>
+  <data name="Kvkk_Title" xml:space="preserve">
+    <value>KVKK notice (Turkey)</value>
+  </data>
+  <data name="Terms_Title" xml:space="preserve">
+    <value>Terms of use</value>
+  </data>
+  <data name="Licenses_Title" xml:space="preserve">
+    <value>Open-source licences</value>
+  </data>
+  <data name="Auth_LegalText1" xml:space="preserve">
+    <value>By continuing you accept the </value>
+  </data>
+  <data name="Auth_LegalTerms" xml:space="preserve">
+    <value>Terms of Use</value>
+  </data>
+  <data name="Auth_LegalText2" xml:space="preserve">
+    <value>. How your personal data is processed is explained in the </value>
+  </data>
+  <data name="Auth_LegalPrivacy" xml:space="preserve">
+    <value>Privacy Policy</value>
+  </data>
+  <data name="Auth_LegalAnd" xml:space="preserve">
+    <value> and the </value>
+  </data>
+  <data name="Auth_LegalKvkk" xml:space="preserve">
+    <value>KVKK Notice</value>
+  </data>
+  <data name="Auth_LegalText3" xml:space="preserve">
+    <value>.</value>
+  </data>
+  <data name="AiPlan_Report" xml:space="preserve">
+    <value>Seen an inappropriate or harmful suggestion? Report it</value>
+  </data>
+  <data name="AiPlan_ReportSubject" xml:space="preserve">
+    <value>Report of an AI suggestion</value>
+  </data>
+  <data name="AiPlan_ReportBodyFormat" xml:space="preserve">
+    <value>Destination: {0}
+Plan summary: {1}
+
+Please describe the problem (which day, which suggestion, why it is inappropriate):
+</value>
+  </data>
+  <data name="Kvkk_Body" xml:space="preserve">
+    <value>This notice is given under Turkey's Personal Data Protection Law No. 6698 ("KVKK") about the personal data processed in the Travel Planner app.
+
+## 1. Data controller
+Name: {controller} ({publisher})
+Address: {address}
+E-mail: {email}
+Phone: {phone}
+
+## 2. Personal data processed
+When you use the app without an account, your data stays on your device and is not processed by us. With an account, the following is processed:
+• Identity: name and surname.
+• Contact: e-mail address.
+• User transaction data: trip details (name, country, city, dates, budget, description), the day plan, saved places and their locations, expense records (amount, currency, category, description, payer), participant names, to-dos, packing templates, your answers and notes to the AI planner.
+• Visual and document data: photos and documents you attach to trips (tickets, reservations, visas …), the address of your profile photo if you sign in with Google.
+• Transaction security: account id, session data, IP address and server logs, an irreversible hash derived from the device id and a daily usage count for the AI quota.
+The app does not ask for special categories of personal data. Documents you attach (e.g. passport, visa) may contain such data; they are stored only on your instruction and are not processed for any other purpose. We recommend not attaching such documents unless necessary.
+
+## 3. Purposes
+• Running the membership, authenticating you and managing your account.
+• Providing the trip planning service: storing your data, syncing it between devices and sharing it with the people you choose.
+• Preparing a trip plan with AI when you ask for one.
+• Information security, preventing abuse and unauthorised access.
+• Answering requests and complaints.
+• Meeting legal obligations and requests of competent authorities.
+
+## 4. Legal grounds and method of collection
+Your personal data is collected electronically through the forms in the app and automatically while you use it, and processed on the following grounds of KVKK article 5(2):
+• (c) It is necessary for concluding and performing the service contract (account, sync, sharing, planning with AI).
+• (ç) It is necessary for the data controller to meet a legal obligation.
+• (e) It is necessary to establish, exercise or protect a right.
+• (f) It is necessary for the data controller's legitimate interests, provided your fundamental rights and freedoms are not harmed (service security, preventing abuse and quota misuse).
+
+## 5. Recipients and transfers abroad
+Your personal data may be shared, only for the purposes above, with:
+• Supabase Inc. (hosting, authentication and file storage; data kept on servers in Frankfurt, Germany).
+• OpenAI (USA) – only when you use planning with AI: the destination, dates, your preferences, your note and the names of saved places. Your name, e-mail, expenses and documents are not transferred.
+• Google – only if you choose to sign in with Google, for the sign-in.
+• Members of a trip you share – only through an invite you create: the trip's content and your name, e-mail and profile photo.
+• Competent public authorities – where the law requires.
+As some of these providers are located abroad, your personal data is transferred abroad. Transfers are made in line with KVKK article 9: on the basis of appropriate safeguards in the agreements with the providers, or, where that is not possible, on the basis of the explicit consent you give when using the feature concerned. Planning with AI and signing in with Google are entirely optional; you can use the app's other features without them.
+
+## 6. Retention
+Your personal data is kept while your account exists. Deleted records are permanently deleted within 30 days at the latest. When you delete your account, the trips you own, their documents and your profile are deleted immediately. Data that must be kept by law is kept for that period and then deleted, destroyed or anonymised.
+
+## 7. Your rights under KVKK article 11
+By applying to the data controller you can:
+• (a) learn whether your personal data is processed,
+• (b) request information if it has been processed,
+• (c) learn the purpose of the processing and whether it is used accordingly,
+• (ç) know the third parties in Turkey or abroad to whom it is transferred,
+• (d) request correction if it is incomplete or incorrect,
+• (e) request deletion or destruction under the conditions of KVKK article 7,
+• (f) request that third parties to whom it was transferred are notified of (d) and (e),
+• (g) object to a result against you arising exclusively from automated analysis,
+• (ğ) claim compensation if you suffer damage from unlawful processing.
+
+## 8. How to apply
+Send your request with information that lets us verify your identity by e-mail from your account's address to {email}, or in writing to {address}. Requests are answered free of charge as soon as possible and within 30 days at the latest; if the request involves an additional cost, the fee set by the Personal Data Protection Board may apply.
+You can also do most corrections, copies and deletions yourself in the app: Profile → Name, Backup → Export, Trash → Delete permanently and Delete my account.</value>
+  </data>
+  <data name="Terms_Body" xml:space="preserve">
+    <value>These terms govern the use of the Travel Planner mobile app (the "App") provided by {controller} under the name {publisher}. By using the App you accept these terms.
+
+## 1. The service
+The App offers trip planning, a day plan, to-do and packing lists, budget and expense tracking, cost splitting, document storage, weather and maps, backups, and optional accounts, cloud sync, trip sharing and AI plan suggestions. The App is free and has no ads. Features may change, be added or be removed over time.
+
+## 2. Accounts
+You can use the App without an account. If you create one, you must give accurate information, keep your password secret and are responsible for what happens in your account. If you think your account has been used without permission, change your password and tell us at {email}. You must be at least 13 years old to create an account.
+
+## 3. Your content
+The trips, notes, expenses, photos and documents you add belong to you. We process them only to provide the service (store, sync, share with the people you choose, prepare a plan suggestion when you ask). You are responsible for your content being lawful, not infringing other people's rights (e.g. personal rights, copyright), and for allowing the people you share it with to see it.
+
+## 4. Shared trips
+A trip's owner can invite members, change their roles and remove them. Editors can change the trip's content; viewers can only see it. Only the owner can delete a trip. Share invite codes only with people you trust.
+
+## 5. AI suggestions
+Planning with AI gives automatically generated suggestions. They may be wrong, incomplete or out of date (e.g. opening hours, prices, transport, safety conditions). It is your responsibility to check them with official sources before relying on them. Use of the feature is limited by a daily quota, which may change. You can report an inappropriate or harmful suggestion with the "Report" link on the plan screen.
+
+## 6. Third-party information
+Weather, exchange rates, maps and place details come from third-party services and are for information only. We can't guarantee they are accurate or always available. Don't base financial, legal or travel-safety decisions on them alone.
+
+## 7. Unacceptable use
+You may not use the App to store or share unlawful, harmful or hateful content or content that infringes other people's rights, to try to gain unauthorised access to systems, to get around security measures or usage limits, to overload the service with automated tools, or to harass others. If these terms are breached we may suspend or close the account.
+
+## 8. Provision of the service and liability
+The App is provided "as is". We don't guarantee that the service will be uninterrupted or error-free. We recommend regularly taking a copy of your important documents and data (Profile → Backup → Export). To the extent permitted by law, we are not liable for indirect damages arising from the use of the App; liability that cannot be limited by law remains unaffected.
+
+## 9. Ending your account
+You can close your account at any time with Profile → Delete my account; what happens then is described in the Privacy Policy. We may suspend or close accounts that seriously breach these terms.
+
+## 10. Changes
+We may update these terms. We will announce important changes in the App. Continuing to use the App after a change means you accept the updated terms.
+
+## 11. Governing law and contact
+These terms are governed by the laws of the Republic of Turkey. Your statutory rights as a consumer are not affected. Questions: {email}</value>
+  </data>
+  <data name="Licenses_Body" xml:space="preserve">
+    <value>Travel Planner uses the following open-source software, fonts and open data. All rights belong to their respective owners; the full licence texts are available on the project pages.
+
+## Software
+• .NET and .NET MAUI – MIT License, © .NET Foundation and contributors
+• CommunityToolkit.Mvvm – MIT License, © .NET Foundation and contributors
+• Microsoft.Extensions (Http, Resilience, Logging) – MIT License, © .NET Foundation
+• Polly – BSD 3-Clause License, © App vNext
+• sqlite-net-pcl – MIT License, © Krueger Systems, Inc.
+• SQLitePCLRaw – Apache 2.0 License, © Eric Sink; SQLite – public domain
+• PDFsharp – MIT License, © empira Software GmbH
+• Plugin.LocalNotification – MIT License, © Elvin (Tharindu) Thudugala
+• MapLibre GL JS – BSD 3-Clause License, © MapLibre contributors
+
+## Fonts and icons
+• Inter – SIL Open Font License 1.1, © The Inter Project Authors
+• Lucide icons – ISC License, © Lucide Contributors
+
+## Maps and data
+• Map data © OpenStreetMap contributors, Open Database License (ODbL)
+• Map images: OpenFreeMap, OpenMapTiles schema
+• Place search: Photon by komoot (OpenStreetMap data)
+• Weather and city search: Open-Meteo.com, Creative Commons Attribution 4.0 (CC BY 4.0)
+• Exchange rates: Frankfurter, European Central Bank reference rates</value>
+  </data>
+  <data name="Help_Faq" xml:space="preserve">
+    <value>## Getting started
+? Can I use Travel Planner without an account?
+Yes. Choose "Continue as guest" when you first open the app. All your data then stays only on this device. You can create an account any time with Profile → Sign in / Create account.
+? What changes when I create an account?
+Your trips are backed up to the cloud and synced to every device you sign in on. You can also share trips with friends and create plans with AI.
+? Is the app free?
+Yes. Travel Planner is free, with no ads and no tracking.
+? How do I change the language or theme?
+Under Profile → Preferences, choose the language (Türkçe / English), the theme (system, light, dark), the default currency and the reminder time, then tap Save. A language change fully applies after the app is restarted.
+
+## Trips and plans
+? How do I create a trip?
+On the Trips tab tap +, enter a name, city, dates, budget and currency, and save.
+? How do I build a day plan?
+Open Day plan in the trip and add activities to a day. You can give them a time, link a saved place and reorder them by dragging the handle. While the trip is on, a "Today" card appears on the trip page.
+? Can I copy a trip?
+Yes. Tap "Duplicate trip" on the trip page. To-dos (unchecked), places, the day plan and participants are copied to the new trip; if you change the dates, the plan moves with them.
+? When do reminders arrive?
+If to-dos are still open, a preparation reminder 3 days before departure; during the trip, each morning's plan on days with activities; and an expense summary the morning after you return. Pick the time in Profile → Reminder time and make sure notifications are allowed.
+? How is the weather calculated?
+For the next 16 days you see the real forecast. Further ahead, the average of the same days over the last 3 years is used, and this is shown clearly.
+
+## Planning with AI
+? How does the AI planner work?
+Tap "Plan with AI" on the trip page and answer 4 questions (interests, pace, budget, companions). Review the day-by-day plan, places and to-dos it prepares, then pick what you want and add it to your trip. You need an account and an internet connection.
+? How many plans can I create a day?
+5 plans a day. The count is tied to both your account and your device and renews daily. If a plan fails, the plan is given back.
+? What is sent to the AI?
+Only what the plan needs: the destination city and country, the start date and number of days, your answers, your note (if any) and the names of places already in the trip. Your name, e-mail, expenses and documents are not sent. Please don't put personal information in the note.
+? What if a suggestion is wrong or inappropriate?
+AI suggestions can be wrong; always check opening hours, prices and bookings. If you see an inappropriate or harmful suggestion, report it with the "Report" link on the plan screen.
+
+## Budget and expenses
+? Can I enter an expense in another currency?
+Yes. Enter it in the currency you paid in; it is converted to the trip's currency at the European Central Bank rate and the original amount is kept too.
+? How do I split costs with friends?
+Open Split costs in the trip and add participants. For each expense choose who paid and who shares it; the app works out who owes whom how much.
+? When do budget alerts arrive?
+When your expenses reach 80% and 100% of the budget.
+? Can I export my expenses?
+Yes. Use the export button on the Expenses page to share every expense as a CSV file (opens in Excel and Google Sheets).
+
+## Sharing and your account
+? How do I share a trip?
+Open Members &amp; invites in the trip, tap "Invite an editor" or "Invite a viewer" and share the code. The other person joins with Profile → Join with a code. Codes are valid for 7 days. Both of you need to be signed in.
+? What do owner, editor and viewer mean?
+The owner can do everything, manages members and can delete the trip. Editors can add and change the trip's content. Viewers can only look. Trip members see each other's name, e-mail and profile photo.
+? How does syncing work?
+When you're signed in, your changes go to the cloud within a few seconds. Changes made offline are kept and sent once you're back online. "Sync now" in Profile syncs right away.
+? I forgot my password.
+Tap "Forgot password?" on the sign-in screen and enter your e-mail address. Use the code you receive to set a new password.
+? How do I delete my account?
+Tap Profile → Delete my account and complete the two-step confirmation (you need to be online). The trips you own, everything in them and their files are deleted from the cloud, and you leave the trips shared with you. Before that you can take a copy with Backup → Export. If you can't use the app, write to {email} from your account's e-mail address and ask for the deletion.
+
+## Documents, backups and the trash
+? Can I attach documents or photos to a trip?
+Yes. In Documents, add tickets, reservations, visa PDFs or photos from the camera, gallery or files (up to 50 MB each). They open offline too, and are backed up to the cloud when you're signed in.
+? Can I undo a deletion?
+Yes. Deleted items stay in Profile → Trash for 30 days. Tap "Restore" to bring one back; a trip comes back with everything in it.
+? How do I delete items in the trash permanently?
+In the trash, tap the trash icon at the top right. Select the items one by one or tap "Select all", then delete and confirm. Permanently deleted items can't be restored; after 30 days deleted items are removed permanently anyway.
+? How do I back up and restore?
+Profile → Backup → Export puts all your trips, expenses, plans and documents into one .zip file you can keep in Drive, Files or e-mail. Restore brings it to another device; restoring replaces all data on that device with the backup.
+
+## Privacy and security
+? Where is my data stored?
+As a guest, only on your device. With an account, also on servers in the European Union (Frankfurt, Germany), reached over an encrypted connection. Details are in the Privacy Policy.
+? Do you use my data for ads or anything else?
+No. There are no ads, no analytics and no tracking, and we don't sell your data.
+? Which permissions does the app ask for?
+Notifications (reminders and budget alerts), camera and photos (only when adding a document or photo) and internet. It doesn't ask for your location or access your contacts.
+? How do I exercise my data rights (KVKK)?
+For access, correction, deletion and other requests, write to {email} from your account's e-mail address. We answer free of charge within 30 days. See the KVKK Notice for details.</value>
   </data>
 </root>

@@ -4,16 +4,16 @@
     Unit tests for TravelPlanner (TP-204).
 
     The app is a multi-targeted MAUI executable (android/ios/maccatalyst/windows), which a plain
-    net9.0 test project can't reference directly. Instead the platform-independent source files
+    net10.0 test project can't reference directly. Instead the platform-independent source files
     (Models, Helpers, Services, ViewModels) are LINKED in and compiled against the platform-neutral
-    net9.0 build of Microsoft.Maui.Controls. Views, Platforms, App/AppShell, MauiProgram and
-    NotificationService (Plugin.LocalNotification has no net9.0 build) are left out.
+    net10.0 build of Microsoft.Maui.Controls. Views, Platforms, App/AppShell, MauiProgram and
+    NotificationService (Plugin.LocalNotification needs the MAUI platform build) are left out.
 
     Run:  dotnet test Tests/TravelPlanner.Tests
   -->
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
@@ -25,7 +25,7 @@
     <Compile Include="..\..\Models\**\*.cs" Link="App\Models\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\Helpers\**\*.cs" Link="App\Helpers\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\ViewModels\**\*.cs" Link="App\ViewModels\%(RecursiveDir)%(Filename)%(Extension)" />
-    <!-- NotificationService needs Plugin.LocalNotification (no net9.0 build); ThemeService needs the XAML theme dictionaries;
+    <!-- NotificationService needs Plugin.LocalNotification (platform build); ThemeService needs the XAML theme dictionaries;
          Services/Pdf (PDFsharp renderer) reads app-package fonts and is exercised on device, not in unit tests. -->
     <Compile Include="..\..\Services\**\*.cs" Exclude="..\..\Services\NotificationService.cs;..\..\Services\ThemeService.cs;..\..\Services\Pdf\**" Link="App\Services\%(RecursiveDir)%(Filename)%(Extension)" />
 
@@ -38,11 +38,11 @@
 
   <ItemGroup>
     <!-- Same libraries the app uses (platform-neutral builds). -->
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.50" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
     <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
     <!-- G3/G4: IHttpClientFactory (SupabaseAuthService, SupabaseClient) -->
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.18" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.13" />
 
     <!-- Test tooling -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />

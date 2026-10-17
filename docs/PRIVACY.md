@@ -1,68 +1,167 @@
-# Gizlilik Politikası / Privacy Policy – TravelPlanner
+# Gizlilik Politikası / Privacy Policy – Travel Planner
 
-Son güncelleme / Last updated: 2026-10-09
+Son güncelleme: 16 Ekim 2026 · Last updated: 16 October 2026
 
-> Bu metin uygulama içindeki *Ayarlar → Gizlilik politikası* sayfasıyla aynıdır. Mağaza kaydı için herkese açık bir adreste (ör. GitHub Pages) yayınlayın ve aşağıdaki iletişim satırını doldurun.
-> This text matches the in-app *Settings → Privacy policy* page. Publish it at a public URL (e.g. GitHub Pages) for the store listing and fill in the contact line below.
+> Bu metin uygulamadaki *Profil → Yasal ve gizlilik* sayfasıyla aynıdır (kaynak: `Resources/Strings/AppResources*.resx`). Uygulamadaki metni değiştirdiğinde bu dosyayı da güncelle.
 
 ## Türkçe
 
-TravelPlanner gizliliğinize saygı duyar. Kısaca: verileriniz cihazınızda kalır.
+Bu politika, Travel Planner uygulamasını kullandığında hangi kişisel verilerin işlendiğini, nerede saklandığını, kimlerle paylaşıldığını ve bunlar üzerindeki haklarını açıklar. Türkiye'deki kullanıcılar için ayrıca KVKK Aydınlatma Metni'ne bakabilirsin.
 
-Hangi veriler saklanır?
-Seyahatleriniz, planlarınız, harcamalarınız, görevleriniz, kayıtlı yerleriniz, katılımcı adları ve eklediğiniz belge/fotoğraflar yalnızca bu cihazdaki uygulama alanında saklanır. Hesap, kayıt veya bulut sunucusu yoktur; bu verileri biz göremeyiz.
+### Kısaca
+- Uygulamayı hesap açmadan (misafir olarak) kullanabilirsin; bu durumda tüm verilerin yalnızca cihazında kalır.
+- Hesap açarsan seyahat verilerin, cihazların arasında eşitlemek ve paylaşmak için Avrupa Birliği'ndeki (Frankfurt, Almanya) sunucularda saklanır.
+- Reklam, analiz aracı veya kullanıcı takibi yoktur. Verilerini satmayız ve reklam için kullanmayız.
+- Yapay zekâ ile planlama isteğe bağlıdır; kullandığında yalnızca plan için gereken bilgiler yapay zekâ hizmetine gönderilir.
+- Hesabını ve verilerini istediğin zaman uygulama içinden silebilirsin.
 
-İnternete ne gönderilir?
-Uygulama yalnızca şu ücretsiz servislere, ilgili özelliği kullandığınızda istek gönderir:
-• Open-Meteo: hava durumu ve şehir arama (şehir adı, koordinat).
-• Photon (komoot): yer adı arama ve haritada seçilen noktanın adı (arama metni, koordinat).
-• OpenFreeMap: harita görüntüleri (görüntülenen bölge).
-• Frankfurter: döviz kurları (para birimi çifti, tarih).
-Bu servisler, her internet isteğinde olduğu gibi IP adresinizi görebilir. İsteklerde kişisel bilgileriniz (adınız, harcamalarınız, belgeleriniz) gönderilmez.
+### Veri sorumlusu ve iletişim
+Uygulamayı EAKSOFT adıyla yayımlayan Emrullah AKKUŞ, Erciş / Van, Türkiye.  
+E-posta: emrullahakkus@gmail.com
 
-İzinler
-Kamera ve fotoğraflar yalnızca bir belge veya fotoğraf eklemeyi seçtiğinizde kullanılır. Bildirimler cihazda planlanır (seyahat hatırlatmaları, bütçe uyarıları).
+### Misafir kullanım
+Hesap açmadan kullandığında seyahatlerin, planların, harcamaların, görevlerin, kayıtlı yerlerin, katılımcı adları ve eklediğin belgeler/fotoğraflar yalnızca bu cihazdaki uygulama alanında saklanır. Bu verileri biz göremeyiz. Uygulamayı kaldırdığında bu veriler de cihazdan silinir.
 
-Reklam, analiz, takip
-Uygulamada reklam, analiz aracı veya kullanıcı takibi yoktur.
+### Hesap açtığında işlenen veriler
+- Hesap bilgileri: e-posta adresin, adın ve soyadın (veya Google'dan gelen adın), Google ile giriş yaptıysan profil fotoğrafının adresi ve sana verilen hesap kimliği. Şifren yalnızca şifrelenmiş (hash) olarak giriş hizmetimizde tutulur; biz göremeyiz.
+- Seyahat verileri: seyahat adı, ülke ve şehir, tarihler, bütçe ve para birimi, açıklama; gün gün plan ve etkinlikler; kayıtlı yerler ve konumları; harcamalar (tutar, para birimi, kategori, tarih, açıklama, kimin ödediği); katılımcı adları ve harcama bölüşümleri; görevler; bavul şablonları.
+- Belgeler ve fotoğraflar: seyahate eklediğin bilet, rezervasyon, vize PDF'i veya fotoğraf dosyaları. Bu dosyalarda pasaport veya kimlik bilgisi gibi hassas bilgiler olabilir; yalnızca gerçekten ihtiyaç duyduğun belgeleri eklemeni öneririz.
+- Paylaşım bilgileri: seyahat üyelikleri, rolün (sahibi, düzenleyici, görüntüleyici), oluşturduğun davet kodları ve bir kaydı kimin, ne zaman eklediği veya değiştirdiği.
+- Teknik veriler: oturum bilgileri, eşitleme sırasında sunucu kayıtlarına düşen IP adresi ve istek bilgileri (kısa süreli güvenlik ve hata ayıklama kayıtları).
 
-Yedekler ve paylaşım
-Yedek (.zip) ve PDF dosyaları yalnızca siz istediğinizde oluşturulur ve sizin seçtiğiniz yere (ör. Dosyalar, Drive, e-posta) gönderilir.
+### Verileri hangi amaçlarla kullanıyoruz
+- Hesabını oluşturmak, giriş yapmanı sağlamak ve e-posta adresini doğrulamak.
+- Seyahat verilerini cihazların arasında eşitlemek, yedeklemek ve seçtiğin kişilerle paylaşmak.
+- İstediğinde yapay zekâ ile seyahat planı hazırlamak.
+- Hizmetin güvenliğini sağlamak, kötüye kullanımı (ör. günlük yapay zekâ kotasının aşılmasını) önlemek ve askıya alınan hesapları engellemek.
+- Destek taleplerini yanıtlamak ve yasal yükümlülükleri yerine getirmek.
 
-Verilerin silinmesi
-Uygulamayı kaldırdığınızda tüm verileri cihazdan silinir. Tek tek seyahatleri uygulama içinden silebilirsiniz.
+Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
 
-Sorularınız için mağaza sayfasındaki geliştirici iletişim adresini kullanabilirsiniz.
+### Paylaşılan seyahatler
+Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını, e-posta adresini ve profil fotoğrafını görür. Davet kodunu yalnızca güvendiğin kişilerle paylaş.
 
-İletişim: [geliştirici e-posta adresi]
+### Yapay zekâ ile planlama
+Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır.  
+Günlük plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile günlük kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz.  
+Özel istek notuna kişisel veya hassas bilgi yazmamanı öneririz. Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları kontrol et. Uygunsuz bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
+
+### Kullanılan dış hizmetler
+Uygulama bazı özellikler için doğrudan cihazından şu ücretsiz hizmetlere istek gönderir:
+- Open-Meteo: hava durumu, iklim ortalamaları ve şehir arama (şehir adı, koordinat).
+- Photon (komoot, OpenStreetMap verisi): yer adı arama ve haritada seçilen noktanın adı (arama metni, koordinat).
+- OpenFreeMap: harita görüntüleri (görüntülenen bölge).
+- Frankfurter (Avrupa Merkez Bankası kurları): döviz kurları (para birimi çifti, tarih).
+
+Bu hizmetler, her internet isteğinde olduğu gibi IP adresini görebilir. Bu isteklere adın, e-postan, harcamaların veya belgelerin eklenmez.  
+Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, Almanya'daki sunucularda). Google ile giriş yaparsan giriş işlemi Google tarafından yürütülür ve Google'ın gizlilik politikası geçerlidir.
+
+### Saklama süresi ve silme
+- Hesabın açık olduğu sürece verilerini saklarız.
+- Sildiğin bir kayıt 30 gün çöp kutusunda kalır ve geri alınabilir. Süre dolduğunda ya da çöp kutusundan kalıcı olarak sildiğinde cihazdan silinir; sunucudaki silinmiş kopyası en geç 30 gün içinde otomatik olarak tamamen temizlenir. Kalıcı olarak silinen belgelerin buluttaki dosyaları da (internet bağlantısı varsa hemen) silinir.
+- Hesabını Profil → Hesabımı sil ile sildiğinde: sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler, profilin, üyeliklerin ve giriş bilgilerin hemen silinir. Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır ancak artık hesabınla ilişkilendirilmez.
+- Uygulamaya erişemiyorsan hesabının silinmesini emrullahakkus@gmail.com adresine, hesabının e-posta adresinden yazarak isteyebilirsin; talebini en geç 30 gün içinde yerine getiririz.
+- Sunucu güvenlik kayıtları kısa süre tutulur ve ardından silinir.
+
+### Güvenlik
+Uygulama ile sunucu arasındaki tüm iletişim şifrelidir (HTTPS/TLS). Sunucudaki her tablo satır düzeyinde erişim kurallarıyla korunur: bir seyahati yalnızca üyeleri görebilir, yalnızca yetkili üyeler değiştirebilir. Belge dosyaları herkese kapalı bir depoda tutulur. Hiçbir sistem kusursuz değildir; bir güvenlik ihlalini öğrenirsek yasaların gerektirdiği şekilde seni ve ilgili kurumları bilgilendiririz.
+
+### İzinler
+- Bildirimler: seyahat hatırlatmaları ve bütçe uyarıları cihazında planlanır.
+- Kamera ve fotoğraflar: yalnızca bir belge veya fotoğraf eklemeyi seçtiğinde kullanılır.
+- İnternet: eşitleme, hava durumu, harita ve kurlar için.
+
+Uygulama konum izni istemez ve rehberine erişmez.
+
+### Yedekler ve paylaşım
+Yedek (.zip), PDF ve CSV dosyaları yalnızca sen istediğinde oluşturulur ve senin seçtiğin yere (ör. Dosyalar, Drive, e-posta) gönderilir. Bu dosyaları nerede sakladığın ve kimlerle paylaştığın senin kontrolündedir.
+
+### Çocuklar
+Uygulama çocuklara yönelik değildir. 13 yaşından küçük çocukların hesap açmasını istemiyoruz. Bir çocuğun bize veri verdiğini düşünüyorsan emrullahakkus@gmail.com adresine yaz, siliriz.
+
+### Hakların
+Verilerine erişme, düzeltme, silme, işlenmesine itiraz etme ve verilerinin bir kopyasını alma hakkın vardır. Pek çoğunu uygulama içinden kendin yapabilirsin: adını Profil'den değiştirebilir, Yedekleme → Dışa aktar ile verilerinin kopyasını alabilir, kayıtlarını ve hesabını silebilirsin. Diğer talepler için emrullahakkus@gmail.com adresine yaz. Türkiye'deki hakların KVKK Aydınlatma Metni'nde ayrıntılı olarak anlatılır.
+
+### Değişiklikler
+Bu politikayı uygulama değiştikçe güncelleyebiliriz. Önemli değişiklikleri uygulama içinde duyururuz; güncel sürüm her zaman Profil → Yasal ve gizlilik altında yer alır.
 
 ## English
 
-TravelPlanner respects your privacy. In short: your data stays on your device.
+This policy explains which personal data is processed when you use the Travel Planner app, where it is stored, who it is shared with and what your rights are. Users in Turkey should also see the KVKK Notice.
 
-What is stored?
-Your trips, plans, expenses, to-dos, saved places, participant names and the documents/photos you add are stored only in the app's storage on this device. There is no account, sign-up or cloud server; we cannot see this data.
+### In short
+- You can use the app without an account (as a guest); then all your data stays only on your device.
+- If you create an account, your trip data is stored on servers in the European Union (Frankfurt, Germany) so it can be synced between your devices and shared.
+- There are no ads, no analytics tools and no tracking. We don't sell your data or use it for advertising.
+- Planning with AI is optional; when you use it, only what the plan needs is sent to the AI service.
+- You can delete your account and your data from within the app at any time.
 
-What is sent over the internet?
-The app only contacts these free services, when you use the related feature:
-• Open-Meteo: weather and city search (city name, coordinates).
-• Photon (komoot): place search and the name of a point picked on the map (search text, coordinates).
-• OpenFreeMap: map images (the area shown).
-• Frankfurter: exchange rates (currency pair, date).
-Like any internet request, these services can see your IP address. No personal information (your name, expenses, documents) is sent.
+### Data controller and contact
+Emrullah AKKUŞ, publishing the app as EAKSOFT, Erciş / Van, Türkiye.  
+E-mail: emrullahakkus@gmail.com
 
-Permissions
-The camera and photos are used only when you choose to add a document or photo. Notifications are scheduled on the device (trip reminders, budget alerts).
+### Using the app as a guest
+Without an account, your trips, plans, expenses, to-dos, saved places, participant names and the documents/photos you add are stored only in the app's storage on this device. We cannot see this data. Uninstalling the app deletes it from the device.
 
-Ads, analytics, tracking
-The app contains no ads, no analytics and no user tracking.
+### Data processed when you create an account
+- Account data: your e-mail address, your name (or the name from Google), the address of your profile photo if you sign in with Google, and your account id. Your password is kept only as a hash by our sign-in service; we can't see it.
+- Trip data: trip name, country and city, dates, budget and currency, description; the day plan and activities; saved places and their locations; expenses (amount, currency, category, date, description, who paid); participant names and cost splits; to-dos; packing templates.
+- Documents and photos: tickets, reservations, visa PDFs or photos you attach to a trip. These files may contain sensitive information such as passport or ID details; we recommend attaching only the documents you really need.
+- Sharing data: trip memberships, your role (owner, editor, viewer), invite codes you create, and who added or changed a record and when.
+- Technical data: session data, and the IP address and request details recorded in server logs while syncing (short-lived security and troubleshooting logs).
 
-Backups and sharing
-Backup (.zip) and PDF files are created only when you ask and are sent only where you choose (e.g. Files, Drive, e-mail).
+### What we use the data for
+- Creating your account, signing you in and verifying your e-mail address.
+- Syncing your trip data between your devices, backing it up and sharing it with the people you choose.
+- Preparing a trip plan with AI when you ask for one.
+- Keeping the service secure, preventing abuse (e.g. exceeding the daily AI quota) and blocking suspended accounts.
+- Answering support requests and meeting legal obligations.
 
-Deleting data
-Uninstalling the app deletes all of its data from the device. You can delete individual trips inside the app.
+We do not use your data for advertising, profiling or marketing.
 
-For questions, please use the developer contact address on the store page.
+### Shared trips
+When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name, e-mail address and profile photo. Share invite codes only with people you trust.
 
-Contact: [developer e-mail address]
+### Planning with AI
+This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass).  
+To apply the daily plan quota we keep your account id and an irreversible hash (SHA-256) derived from your device's id, with a daily usage count; your device's actual id never leaves the device.  
+Please don't put personal or sensitive information in the note. AI suggestions can be wrong; check opening hours, prices and bookings. You can report an inappropriate suggestion with the "Report" link on the plan screen.
+
+### External services
+For some features the app sends requests directly from your device to these free services:
+- Open-Meteo: weather, climate averages and city search (city name, coordinates).
+- Photon (komoot, OpenStreetMap data): place search and the name of a point picked on the map (search text, coordinates).
+- OpenFreeMap: map images (the area shown).
+- Frankfurter (European Central Bank rates): exchange rates (currency pair, date).
+
+Like any internet request, these services can see your IP address. Your name, e-mail, expenses or documents are not included.  
+Accounts and cloud storage are provided by Supabase (data on servers in Frankfurt, Germany). If you sign in with Google, the sign-in is handled by Google and Google's privacy policy applies.
+
+### Retention and deletion
+- We keep your data while your account exists.
+- A deleted record stays in the trash for 30 days and can be restored. When that time is up, or when you delete it permanently from the trash, it is removed from the device; the server's deleted copy is purged automatically within 30 days at the latest. The cloud files of permanently deleted documents are removed as well (right away when you are online).
+- When you delete your account with Profile → Delete my account, the trips you own with everything in them and their files, your profile, memberships and sign-in data are deleted immediately. Content you added to other people's trips stays part of those trips but is no longer linked to your account.
+- If you can't use the app, you can ask for your account to be deleted by writing to emrullahakkus@gmail.com from the e-mail address of your account; we complete the request within 30 days.
+- Server security logs are kept for a short time and then deleted.
+
+### Security
+All communication between the app and the server is encrypted (HTTPS/TLS). Every table on the server is protected by row-level access rules: only a trip's members can see it and only authorised members can change it. Documents are kept in a private storage bucket. No system is perfect; if we learn of a security breach we will inform you and the authorities as the law requires.
+
+### Permissions
+- Notifications: trip reminders and budget alerts are scheduled on your device.
+- Camera and photos: used only when you choose to add a document or photo.
+- Internet: for syncing, weather, maps and exchange rates.
+
+The app does not ask for your location and does not access your contacts.
+
+### Backups and sharing
+Backup (.zip), PDF and CSV files are created only when you ask and are sent only where you choose (e.g. Files, Drive, e-mail). Where you keep these files and who you share them with is up to you.
+
+### Children
+The app is not directed at children. We don't want children under 13 to create accounts. If you believe a child has given us data, write to emrullahakkus@gmail.com and we will delete it.
+
+### Your rights
+You have the right to access, correct and delete your data, to object to its processing and to get a copy of it. You can do most of this yourself in the app: change your name in Profile, take a copy with Backup → Export, and delete records and your account. For anything else, write to emrullahakkus@gmail.com. Your rights under Turkish law are described in detail in the KVKK Notice.
+
+### Changes
+We may update this policy as the app changes. We will announce important changes in the app; the current version is always available under Profile → Legal & privacy.

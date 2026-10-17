@@ -58,22 +58,22 @@ namespace TravelPlanner.Views
             // 1) The logo drops in (0 - 700 ms); it starts hopping by itself - the same loading animation as
             //    everywhere else in the app - and keeps hopping while the splash is up.
             await Task.WhenAll(
-                Logo.FadeTo(1, 300, Easing.CubicOut),
-                Logo.TranslateTo(0, 0, 700, Easing.CubicOut));
+                Logo.FadeToAsync(1, 300, Easing.CubicOut),
+                Logo.TranslateToAsync(0, 0, 700, Easing.CubicOut));
 
             // 2) Wordmark slides in (700 - 1300 ms).
             await Task.WhenAll(
-                Wordmark.FadeTo(1, 600, Easing.CubicOut),
-                Wordmark.TranslateTo(0, 0, 600, Easing.CubicOut));
+                Wordmark.FadeToAsync(1, 600, Easing.CubicOut),
+                Wordmark.TranslateToAsync(0, 0, 600, Easing.CubicOut));
 
             // 3) Tagline + publisher (1300 - 1800 ms).
             await Task.WhenAll(
-                Tagline.FadeTo(1, 500, Easing.CubicOut),
-                Footer.FadeTo(1, 500, Easing.CubicOut));
+                Tagline.FadeToAsync(1, 500, Easing.CubicOut),
+                Footer.FadeToAsync(1, 500, Easing.CubicOut));
 
             // 4) Hold while the logo hops, then fade everything out (1800 - 4000 ms).
             await Task.Delay(1900);
-            await Root.FadeTo(0, 300, Easing.CubicIn);
+            await Root.FadeToAsync(0, 300, Easing.CubicIn);
         }
     }
 }

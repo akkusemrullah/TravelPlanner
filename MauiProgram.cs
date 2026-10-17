@@ -95,7 +95,11 @@ namespace TravelPlanner
                 new AttachmentService(sp.GetRequiredService<IDatabaseService>(), FileSystem.AppDataDirectory,
                                       sp.GetRequiredService<ISupabaseClient>()));
             services.AddSingleton<ISplitService, SplitService>();             // TP-504
-            services.AddSingleton<ITrashService, TrashService>();             // G1 - 30-day trash
+            services.AddSingleton<ITrashService>(sp => new TrashService(      // G1 - 30-day trash (+ "Kalıcı olarak sil":
+                sp.GetRequiredService<IDatabaseService>(),                    //   cloud copies of deleted files go too)
+                sp.GetRequiredService<IAttachmentService>(),
+                sp.GetRequiredService<ISupabaseClient>(),
+                sp.GetRequiredService<IAuthService>()));
 
             // G3: account (Supabase Auth over plain HTTP; tokens in the platform's secure storage).
             services.AddSingleton<ISecureStorage>(SecureStorage.Default);
@@ -173,6 +177,8 @@ namespace TravelPlanner
             services.AddTransient<MembersViewModel>();  // G6
             services.AddTransient<TrashViewModel>();    // G6
             services.AddTransient<AiPlannerViewModel>(); // AI trip planner
+            services.AddTransient<LegalDocumentViewModel>(); // privacy / KVKK / terms / licences
+            services.AddTransient<HelpCenterViewModel>();    // help centre (FAQ, contact)
         }
 
         // Pages navigated to via Shell routes also need to be DI-registered so their
@@ -201,6 +207,7 @@ namespace TravelPlanner
             services.AddTransient<MembersPage>();       // G6
             services.AddTransient<TrashPage>();         // G6
             services.AddTransient<AiPlannerPage>();     // AI trip planner
+            services.AddTransient<HelpCenterPage>();    // help centre
         }
 
         private static void ConfigureApiClient(HttpClient client)

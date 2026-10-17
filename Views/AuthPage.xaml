@@ -152,6 +152,33 @@
                     <Label Text="{x:Static res:AppResources.Auth_GuestHint}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
 
+                <!-- ════════ Legal (KVKK: inform before the data is collected) ════════ -->
+                <Label Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="8,0">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="{x:Static res:AppResources.Auth_LegalText1}" />
+                            <Span Text="{x:Static res:AppResources.Auth_LegalTerms}" TextColor="{DynamicResource tp-primary}" FontFamily="InterSemiBold">
+                                <Span.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnTermsTapped" />
+                                </Span.GestureRecognizers>
+                            </Span>
+                            <Span Text="{x:Static res:AppResources.Auth_LegalText2}" />
+                            <Span Text="{x:Static res:AppResources.Auth_LegalPrivacy}" TextColor="{DynamicResource tp-primary}" FontFamily="InterSemiBold">
+                                <Span.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnPrivacyTapped" />
+                                </Span.GestureRecognizers>
+                            </Span>
+                            <Span Text="{x:Static res:AppResources.Auth_LegalAnd}" />
+                            <Span Text="{x:Static res:AppResources.Auth_LegalKvkk}" TextColor="{DynamicResource tp-primary}" FontFamily="InterSemiBold">
+                                <Span.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnKvkkTapped" />
+                                </Span.GestureRecognizers>
+                            </Span>
+                            <Span Text="{x:Static res:AppResources.Auth_LegalText3}" />
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

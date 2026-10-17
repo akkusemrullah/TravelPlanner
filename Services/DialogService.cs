@@ -26,7 +26,7 @@ namespace TravelPlanner.Services
                 if (page is null)
                     return false;
 
-                return await page.DisplayAlert(title, message, accept ?? AppResources.Common_DeleteConfirm, cancel ?? AppResources.Common_Cancel);
+                return await page.DisplayAlertAsync(title, message, accept ?? AppResources.Common_DeleteConfirm, cancel ?? AppResources.Common_Cancel);
             });
         }
 
@@ -41,7 +41,7 @@ namespace TravelPlanner.Services
                 if (page is null)
                     return;
 
-                await page.DisplayAlert(AppResources.Common_Error, message, AppResources.Common_Ok);
+                await page.DisplayAlertAsync(AppResources.Common_Error, message, AppResources.Common_Ok);
             });
         }
     
@@ -53,7 +53,7 @@ namespace TravelPlanner.Services
                 if (page is null)
                     return;
 
-                await page.DisplayAlert(title, message, AppResources.Common_Ok);
+                await page.DisplayAlertAsync(title, message, AppResources.Common_Ok);
             });
         }
 
@@ -80,7 +80,7 @@ namespace TravelPlanner.Services
                     return null;
 
                 var cancelText = cancel ?? AppResources.Common_Cancel;
-                var choice = await page.DisplayActionSheet(title, cancelText, null, options.ToArray());
+                var choice = await page.DisplayActionSheetAsync(title, cancelText, null, options.ToArray());
                 return choice is null || choice == cancelText || !options.Contains(choice) ? null : choice;
             });
         }

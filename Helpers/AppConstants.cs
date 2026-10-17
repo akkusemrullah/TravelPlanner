@@ -104,6 +104,23 @@ namespace TravelPlanner.Helpers
         /// <summary>Upper bound on the day tabs built for one trip - same as <see cref="MaxTripDays"/>.</summary>
         public const int MaxItineraryDays = MaxTripDays;
 
+        // ---------- Contact / data controller (legal texts, help centre) ----------
+        // Shown in the privacy policy, the KVKK notice, the terms of use and the help centre ({email}, {controller} …
+        // in those texts - see Helpers/DocumentText). Change them here only.
+
+        /// <summary>Where users write for support, data requests (KVKK article 11) and reports of AI content.</summary>
+        public const string SupportEmail = "emrullahakkus@gmail.com";
+
+        /// <summary>Data controller ("veri sorumlusu") under KVKK - the publisher, a natural person.</summary>
+        public const string DataControllerName = "Emrullah AKKUŞ";
+
+        public const string DataControllerAddress = "Erciş / Van, Türkiye";
+
+        public const string DataControllerPhone = "";
+
+        /// <summary>Publisher name shown in the app (About, terms of use).</summary>
+        public const string PublisherName = "EAKSOFT";
+
         // ---------- Misc ----------
 
         // The greeting name now comes from Settings (ISettingsService.UserName, TP-305).

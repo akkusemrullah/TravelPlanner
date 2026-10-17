@@ -6857,5 +6857,393 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Notification_AfterTripBody", resourceCulture);
             }
         }
+    
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Silinenler 30 gün boyunca burada kalır, sonra kendiliğinden kalıcı olarak silinir. Beklemek istemiyo.
+        /// </summary>
+        public static string Trash_PageHint {
+            get {
+                return ResourceManager.GetString("Trash_PageHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kalıcı olarak silmek için seç.
+        /// </summary>
+        public static string Trash_SelectA11y {
+            get {
+                return ResourceManager.GetString("Trash_SelectA11y", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kalıcı olarak sil.
+        /// </summary>
+        public static string Trash_DeleteForever {
+            get {
+                return ResourceManager.GetString("Trash_DeleteForever", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kalıcı olarak silinsin mi?.
+        /// </summary>
+        public static string Trash_DeleteForeverTitle {
+            get {
+                return ResourceManager.GetString("Trash_DeleteForeverTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to "{0}" kalıcı olarak silinecek ve artık geri alınamayacak..
+        /// </summary>
+        public static string Trash_DeleteForeverMessageFormat {
+            get {
+                return ResourceManager.GetString("Trash_DeleteForeverMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} öğe kalıcı olarak silinecek ve artık geri alınamayacak. Seyahatlerle birlikte içindeki her şey d.
+        /// </summary>
+        public static string Trash_DeleteForeverManyFormat {
+            get {
+                return ResourceManager.GetString("Trash_DeleteForeverManyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seçilenler kalıcı olarak silinemedi..
+        /// </summary>
+        public static string Trash_DeleteError {
+            get {
+                return ResourceManager.GetString("Trash_DeleteError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Destek.
+        /// </summary>
+        public static string Profile_Support {
+            get {
+                return ResourceManager.GetString("Profile_Support", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yasal ve gizlilik.
+        /// </summary>
+        public static string Profile_Legal {
+            get {
+                return ResourceManager.GetString("Profile_Legal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yardım merkezi.
+        /// </summary>
+        public static string Help_Title {
+            get {
+                return ResourceManager.GetString("Help_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nasıl yardımcı olabiliriz?.
+        /// </summary>
+        public static string Help_Heading {
+            get {
+                return ResourceManager.GetString("Help_Heading", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sık sorulan sorular ve kısa kullanım rehberi..
+        /// </summary>
+        public static string Help_Subtitle {
+            get {
+                return ResourceManager.GetString("Help_Subtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sık sorulan sorular ve kullanım rehberi.
+        /// </summary>
+        public static string Help_RowHint {
+            get {
+                return ResourceManager.GetString("Help_RowHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Soru ara (ör. çöp kutusu, davet, kur).
+        /// </summary>
+        public static string Help_SearchPlaceholder {
+            get {
+                return ResourceManager.GetString("Help_SearchPlaceholder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aramana uyan bir soru bulamadık. Farklı bir kelime dene ya da bize yaz..
+        /// </summary>
+        public static string Help_NoResults {
+            get {
+                return ResourceManager.GetString("Help_NoResults", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aramayı temizle.
+        /// </summary>
+        public static string Help_ClearSearch {
+            get {
+                return ResourceManager.GetString("Help_ClearSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aradığını bulamadın mı?.
+        /// </summary>
+        public static string Help_ContactTitle {
+            get {
+                return ResourceManager.GetString("Help_ContactTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sorularını, önerilerini ve hata bildirimlerini {0} adresine yazabilirsin. Genellikle birkaç iş günü .
+        /// </summary>
+        public static string Help_ContactHintFormat {
+            get {
+                return ResourceManager.GetString("Help_ContactHintFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bize yaz.
+        /// </summary>
+        public static string Help_WriteToUs {
+            get {
+                return ResourceManager.GetString("Help_WriteToUs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bize ulaşın.
+        /// </summary>
+        public static string Help_ContactRow {
+            get {
+                return ResourceManager.GetString("Help_ContactRow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Travel Planner destek.
+        /// </summary>
+        public static string Help_MailSubject {
+            get {
+                return ResourceManager.GetString("Help_MailSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to E-posta uygulaması açılamadı. Adresimizi panoya kopyaladık; dilediğin uygulamadan {0} adresine yazab.
+        /// </summary>
+        public static string Help_NoMailAppFormat {
+            get {
+                return ResourceManager.GetString("Help_NoMailAppFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Son güncelleme: {0}.
+        /// </summary>
+        public static string Legal_UpdatedFormat {
+            get {
+                return ResourceManager.GetString("Legal_UpdatedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Travel Planner – {0}.
+        /// </summary>
+        public static string Legal_MailSubjectFormat {
+            get {
+                return ResourceManager.GetString("Legal_MailSubjectFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sorun mu var?.
+        /// </summary>
+        public static string Legal_QuestionsTitle {
+            get {
+                return ResourceManager.GetString("Legal_QuestionsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bu metin veya verilerin hakkında bize yazabilirsin..
+        /// </summary>
+        public static string Legal_QuestionsHint {
+            get {
+                return ResourceManager.GetString("Legal_QuestionsHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to KVKK aydınlatma metni.
+        /// </summary>
+        public static string Kvkk_Title {
+            get {
+                return ResourceManager.GetString("Kvkk_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kullanım koşulları.
+        /// </summary>
+        public static string Terms_Title {
+            get {
+                return ResourceManager.GetString("Terms_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Açık kaynak lisansları.
+        /// </summary>
+        public static string Licenses_Title {
+            get {
+                return ResourceManager.GetString("Licenses_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Devam ederek .
+        /// </summary>
+        public static string Auth_LegalText1 {
+            get {
+                return ResourceManager.GetString("Auth_LegalText1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kullanım Koşulları.
+        /// </summary>
+        public static string Auth_LegalTerms {
+            get {
+                return ResourceManager.GetString("Auth_LegalTerms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 'nı kabul etmiş olursun. Kişisel verilerinin nasıl işlendiği .
+        /// </summary>
+        public static string Auth_LegalText2 {
+            get {
+                return ResourceManager.GetString("Auth_LegalText2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gizlilik Politikası.
+        /// </summary>
+        public static string Auth_LegalPrivacy {
+            get {
+                return ResourceManager.GetString("Auth_LegalPrivacy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to  ve .
+        /// </summary>
+        public static string Auth_LegalAnd {
+            get {
+                return ResourceManager.GetString("Auth_LegalAnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to KVKK Aydınlatma Metni.
+        /// </summary>
+        public static string Auth_LegalKvkk {
+            get {
+                return ResourceManager.GetString("Auth_LegalKvkk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 'nde anlatılır..
+        /// </summary>
+        public static string Auth_LegalText3 {
+            get {
+                return ResourceManager.GetString("Auth_LegalText3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uygunsuz ya da zararlı bir öneri mi gördün? Bildir.
+        /// </summary>
+        public static string AiPlan_Report {
+            get {
+                return ResourceManager.GetString("AiPlan_Report", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yapay zekâ önerisi bildirimi.
+        /// </summary>
+        public static string AiPlan_ReportSubject {
+            get {
+                return ResourceManager.GetString("AiPlan_ReportSubject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gidilecek yer: {0}.
+        /// </summary>
+        public static string AiPlan_ReportBodyFormat {
+            get {
+                return ResourceManager.GetString("AiPlan_ReportBodyFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, Travel Planner uygulaması kapsamın.
+        /// </summary>
+        public static string Kvkk_Body {
+            get {
+                return ResourceManager.GetString("Kvkk_Body", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bu koşullar, {publisher} adıyla {controller} tarafından sunulan Travel Planner mobil uygulamasının (.
+        /// </summary>
+        public static string Terms_Body {
+            get {
+                return ResourceManager.GetString("Terms_Body", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Travel Planner aşağıdaki açık kaynak yazılımları, yazı tiplerini ve açık verileri kullanır. Tüm hakl.
+        /// </summary>
+        public static string Licenses_Body {
+            get {
+                return ResourceManager.GetString("Licenses_Body", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ## Başlarken.
+        /// </summary>
+        public static string Help_Faq {
+            get {
+                return ResourceManager.GetString("Help_Faq", resourceCulture);
+            }
+        }
     }
 }

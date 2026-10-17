@@ -12,6 +12,9 @@ namespace TravelPlanner.Services
     {
         /// <summary>When it is purged for good.</summary>
         public DateTime ExpiresAtUtc => DeletedAtUtc.AddDays(TrashService.RetentionDays);
+
+        /// <summary>Local id of the batch's root trash row - a stable number for the list's selection mode (0 = unknown).</summary>
+        public int RootItemId { get; init; }
     }
 
     /// <summary>
@@ -29,6 +32,14 @@ namespace TravelPlanner.Services
         /// Returns how many rows came back.
         /// </summary>
         Task<int> RestoreAsync(string batchId);
+
+        /// <summary>
+        /// Deletes the given batches for good, before their 30 days are up ("Kalıcı olarak sil"): the same clean-up as
+        /// <see cref="PurgeExpiredAsync"/> - the trash rows and the attachment files kept for restoring (on the device
+        /// and, when signed in and online, in the cloud). Afterwards they can't be restored; the server's deleted copy
+        /// of the rows is purged by its nightly job within 30 days of the deletion. Returns how many trash rows went.
+        /// </summary>
+        Task<int> DeleteForeverAsync(IReadOnlyCollection<string> batchIds);
 
         /// <summary>Removes items older than <see cref="TrashService.RetentionDays"/> days (and their files). Returns how many.</summary>
         Task<int> PurgeExpiredAsync();

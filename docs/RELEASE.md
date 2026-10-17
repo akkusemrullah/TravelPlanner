@@ -67,6 +67,45 @@ Play Console'a otomatik yükleme bilinçli olarak eklenmedi; ilk sürümler elle
 - [ ] Testler yeşil, emülatörde ve gerçek cihazda duman testi (seyahat, plan, harcama, belge ekleme, yedek al/geri yükle, PDF paylaş, harita)
 - [ ] Açık ve koyu temada ekranlar kontrol edildi
 - [ ] Mağaza metinleri ve ekran görüntüleri güncel (`docs/store/`)
-- [ ] Gizlilik politikası yayında ve mağazadaki bağlantı doğru (`docs/PRIVACY.md`)
-- [ ] Play Console *Veri güvenliği* formu: veri toplanmıyor / paylaşılmıyor (bkz. gizlilik politikası)
+- [ ] Yasal metinler güncel ve yayında: `docs/PRIVACY.md`, `docs/KVKK.md`, `docs/TERMS.md`, `docs/ACCOUNT_DELETION.md`, `docs/HELP.md` (uygulamadaki metinlerle aynı; metin değiştiyse `DocumentText.LastUpdated` da güncellendi)
+- [ ] Play Console: gizlilik politikası ve hesap silme bağlantıları doğru, *Veri güvenliği* formu aşağıdaki tabloya uygun
+- [ ] İletişim bilgileri doğru (`Helpers/AppConstants.cs` → `SupportEmail`, `DataController*`)
 - [ ] Git etiketi atıldı
+
+## Yasal sayfaların yayınlanması (GitHub Pages)
+
+Depo → *Settings → Pages* → *Deploy from a branch* → `main` / `/docs`. Birkaç dakika sonra sayfalar şu adreslerde açılır:
+
+| Sayfa | Adres | Nerede kullanılır |
+| --- | --- | --- |
+| Gizlilik politikası | `https://<kullanıcı>.github.io/TravelPlanner/PRIVACY` | Play Console → *Uygulama içeriği → Gizlilik politikası*, App Store |
+| Hesap ve veri silme | `https://<kullanıcı>.github.io/TravelPlanner/ACCOUNT_DELETION` | Play Console → *Veri güvenliği → Hesap silme bağlantısı* |
+| KVKK aydınlatma metni | `https://<kullanıcı>.github.io/TravelPlanner/KVKK` | Mağaza açıklaması / web sitesi |
+| Kullanım koşulları | `https://<kullanıcı>.github.io/TravelPlanner/TERMS` | Mağaza açıklaması / web sitesi |
+| Yardım merkezi | `https://<kullanıcı>.github.io/TravelPlanner/HELP` | Play Console → *Mağaza ayarları → Web sitesi* |
+
+## Play Console *Veri güvenliği* formu
+
+Uygulama hesap olmadan da çalışır; aşağıdakiler yalnızca (isteğe bağlı) hesapla toplanır. Yapay zekâ (OpenAI) ve barındırma (Supabase) hizmet sağlayıcısı olarak bizim adımıza işlediği, seyahat üyeleriyle paylaşımı da kullanıcı başlattığı için Play'in tanımına göre **"paylaşılan" değil, yalnızca "toplanan"** veridir.
+
+| Veri türü (Play) | Toplanıyor | Zorunlu / isteğe bağlı | Amaç |
+| --- | --- | --- | --- |
+| Kişisel bilgiler → Ad | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi |
+| Kişisel bilgiler → E-posta adresi | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi |
+| Kişisel bilgiler → Kullanıcı kimlikleri | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi |
+| Finansal bilgiler → Diğer finansal bilgiler (girilen harcama kayıtları) | Evet | İsteğe bağlı | Uygulama işlevselliği |
+| Fotoğraflar ve videolar → Fotoğraflar | Evet | İsteğe bağlı | Uygulama işlevselliği |
+| Dosyalar ve belgeler | Evet | İsteğe bağlı | Uygulama işlevselliği |
+| Uygulama etkinliği → Kullanıcının oluşturduğu diğer içerik (seyahat, plan, notlar, yapay zekâ cevapları) | Evet | İsteğe bağlı | Uygulama işlevselliği |
+| Cihaz veya diğer kimlikler (yapay zekâ kotası için SHA-256 özet) | Evet | İsteğe bağlı (yapay zekâ) | Dolandırıcılığı önleme, güvenlik ve uyumluluk |
+| Konum | **Hayır** (cihaz konumu alınmaz; yerler kullanıcı tarafından seçilir) | – | – |
+
+- Veriler aktarım sırasında şifreleniyor: **Evet** (HTTPS/TLS).
+- Kullanıcılar verilerinin silinmesini isteyebilir: **Evet** – uygulama içinde *Profil → Hesabımı sil*, çöp kutusunda *Kalıcı olarak sil*, ayrıca `ACCOUNT_DELETION` sayfası.
+- Reklam: **Yok**. Hedef kitle: **13 yaş ve üzeri** (çocuklara yönelik değil).
+- Yapay zekâ ile üretilen içerik: kullanıcılar uygunsuz öneriyi plan ekranındaki **Bildir** bağlantısıyla bildirebilir (Google Play AI-Generated Content politikası).
+
+## KVKK notları
+
+- Veri sorumlusu bilgileri `Helpers/AppConstants.cs` içindedir; uygulama içi ve `docs/` metinleri bunları kullanır.
+- Yurt dışına aktarım (OpenAI – ABD, Supabase): KVKK md. 9 kapsamında hizmet sağlayıcıların standart sözleşmelerinin imzalanması ve gerekiyorsa Kurul'a bildirilmesi veri sorumlusunun sorumluluğundadır. Metinleri yayınlamadan önce bir hukukçuya kontrol ettirmen önerilir.

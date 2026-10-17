@@ -11,9 +11,22 @@ namespace TravelPlanner.Models
     /// Never write these rows with <c>Insert/Update/Delete</c> directly - go through
     /// <see cref="Services.Sync.ChangeTracker"/>, which keeps the metadata, the outbox and the trash in step.
     /// </summary>
-    public interface ISyncEntity
+    /// <summary>
+    /// A row a list can tick in its "Seçerek sil" mode (<see cref="ViewModels.ListSelection{T}"/>): every synced model,
+    /// and rows that aren't models themselves (the trash list).
+    /// </summary>
+    public interface ISelectableRow
     {
-        int Id { get; set; }
+        /// <summary>Stable identity of the row while the list is shown (the selection is kept by it).</summary>
+        int Id { get; }
+
+        /// <summary>Ticked in selection mode; must raise PropertyChanged so the row's tick updates.</summary>
+        bool IsSelected { get; set; }
+    }
+
+    public interface ISyncEntity : ISelectableRow
+    {
+        new int Id { get; set; }
 
         /// <summary>Global identity (Guid, "d" format). Assigned on first insert, never changes.</summary>
         string SyncId { get; set; }

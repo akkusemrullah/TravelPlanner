@@ -23,5 +23,6 @@ namespace TravelPlanner.Helpers
         public const string Members = "Members";                 // G6
         public const string Trash = "Trash";                     // G6
         public const string AiPlanner = "AiPlanner";             // AI trip planner
+        public const string HelpCenter = "HelpCenter";           // help centre (FAQ, contact)
     }
 }

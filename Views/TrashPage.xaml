@@ -4,16 +4,19 @@
              xmlns:controls="clr-namespace:TravelPlanner.Controls"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:views="clr-namespace:TravelPlanner.Views"
              x:Class="TravelPlanner.Views.TrashPage"
              x:DataType="vm:TrashViewModel"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
 
-    <!-- G6: things deleted in the last 30 days; a trip comes back with everything that was in it. -->
+    <!-- G6: things deleted in the last 30 days; a trip comes back with everything that was in it.
+         The trash button opens the same "Seçerek sil" mode as every list: tick rows (or "Tümünü seç") and delete
+         them for good with one confirmation. -->
     <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- ════════ App bar ════════ -->
-        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*,Auto" IsVisible="{Binding Selection.IsInactive}">
             <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
@@ -21,27 +24,98 @@
                 <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Label Grid.Column="1" Text="{x:Static res:AppResources.Trash_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Border Grid.Column="2" Style="{StaticResource IconButton}" IsVisible="{Binding ShowDeleteMenu}"
+                    SemanticProperties.Description="{x:Static res:AppResources.Trash_SelectA11y}"
+                    ToolTipProperties.Text="{x:Static res:AppResources.Trash_SelectA11y}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Selection.StartCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Delete}" />
+            </Border>
         </Grid>
+        <!-- "Seçerek sil" mode: [×] 3 seçildi [Tümünü seç] [sil] - here "sil" deletes for good. -->
+        <views:SelectionAppBar Grid.Row="0" IsVisible="{Binding Selection.IsActive}" />
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <Grid Grid.Row="2">
             <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
                 <ScrollView>
                     <VerticalStackLayout Padding="16,20,16,28" Spacing="12">
-                        <Label Text="{x:Static res:AppResources.Trash_Hint}" Style="{StaticResource Text.Caption}" Margin="4,0" LineBreakMode="WordWrap"
-                               IsVisible="{Binding HasItems}" />
+                        <!-- How the trash works: restore within 30 days, or delete for good. -->
+                        <Border Style="{StaticResource Card.Flat}" Padding="14,12" IsVisible="{Binding HasItems}">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-text-2}" VerticalOptions="Start" />
+                                <Label Grid.Column="1" Text="{x:Static res:AppResources.Trash_PageHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                            </Grid>
+                        </Border>
                         <VerticalStackLayout Spacing="10" BindableLayout.ItemsSource="{Binding Items}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="vm:TrashItemView">
                                     <Border Style="{StaticResource Card}">
-                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                            <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource tp-accent}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TrashViewModel}}, Path=ItemTappedCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <Border Grid.Column="0" Style="{StaticResource IconTile}" VerticalOptions="Center">
+                                                <Grid>
+                                                    <!-- What was deleted (trip, expense …). -->
+                                                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.File}"
+                                                           IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TrashViewModel}}, Path=Selection.IsInactive}">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Trip">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.Trips}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Expense">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.Receipt}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Todo">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.Todo}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Place">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.Pin}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Activity">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.CalendarDays}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Attachment">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.Attachment}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="Participant">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.User}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding Kind}" Value="PackingTemplate">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.Checklist}" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                    <!-- Selection mode: the tile shows the tick. -->
+                                                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Circle}" TextColor="{DynamicResource tp-text-3}"
+                                                           IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TrashViewModel}}, Path=Selection.IsActive}">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.CheckCircle}" />
+                                                                <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Grid>
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                                 <Label Text="{Binding Title}" Style="{StaticResource Text.Title}" LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding Subtitle}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding ExpiryText}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-3}" />
                                             </VerticalStackLayout>
-                                            <Button Grid.Column="1" Text="{x:Static res:AppResources.Trash_Restore}" Style="{StaticResource Btn.Secondary.Sm}"
+                                            <Button Grid.Column="2" Text="{x:Static res:AppResources.Trash_Restore}" Style="{StaticResource Btn.Secondary.Sm}"
                                                     HeightRequest="38" VerticalOptions="Center"
+                                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TrashViewModel}}, Path=Selection.IsInactive}"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TrashViewModel}}, Path=RestoreCommand}"
                                                     CommandParameter="{Binding .}" />
                                         </Grid>

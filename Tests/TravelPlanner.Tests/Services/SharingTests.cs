@@ -505,6 +505,87 @@ namespace TravelPlanner.Tests
         }
     }
 
+    public class TrashPermanentDeleteTests
+    {
+        private static (TrashViewModel Vm, Mock<ITrashService> Trash, Mock<IDialogService> Dialogs) Create(bool confirm = true)
+        {
+            var now = new DateTime(2026, 10, 10, 12, 0, 0, DateTimeKind.Utc);
+            var trash = new Mock<ITrashService>();
+            trash.Setup(t => t.GetEntriesAsync(null)).ReturnsAsync(new List<TrashEntry>
+            {
+                new("b1", "Expense", "Taksi", null, now.AddDays(-2), null, 1) { RootItemId = 11 },
+                new("b2", "Trip", "Paris", null, now.AddDays(-3), null, 5) { RootItemId = 12 },
+            });
+            trash.Setup(t => t.DeleteForeverAsync(It.IsAny<IReadOnlyCollection<string>>())).ReturnsAsync(1);
+            var trips = new Mock<ITripService>();
+            trips.Setup(t => t.GetAllAsync()).ReturnsAsync(new List<Trip>());
+            var dialogs = Fakes.Dialogs(confirm);
+            var vm = new TrashViewModel(trash.Object, trips.Object, dialogs.Object) { UtcNow = () => now };
+            return (vm, trash, dialogs);
+        }
+
+        [Fact]
+        public async Task SelectedItems_AreDeletedForGood_AfterOneConfirmation()
+        {
+            var (vm, trash, dialogs) = Create();
+            await vm.LoadCommand.ExecuteAsync(null);
+            Assert.True(vm.ShowDeleteMenu);
+
+            vm.Selection.Start();
+            vm.ItemTappedCommand.Execute(vm.Items[0]);
+            Assert.True(vm.Items[0].IsSelected);
+            await vm.DeleteSelectedCommand.ExecuteAsync(null);
+
+            trash.Verify(t => t.DeleteForeverAsync(It.Is<IReadOnlyCollection<string>>(ids => ids.Count == 1 && ids.Contains("b1"))), Times.Once);
+            dialogs.Verify(d => d.ConfirmAsync(AppResources.Trash_DeleteForeverTitle, It.Is<string>(m => m.Contains("Taksi")),
+                AppResources.Trash_DeleteForever, It.IsAny<string?>()), Times.Once);
+            Assert.Single(vm.Items);
+            Assert.False(vm.Selection.IsActive);
+        }
+
+        [Fact]
+        public async Task SelectAll_DeletesEverything_AndShowsTheEmptyState()
+        {
+            var (vm, trash, _) = Create();
+            await vm.LoadCommand.ExecuteAsync(null);
+
+            vm.Selection.Start();
+            vm.Selection.ToggleAll();
+            Assert.Equal(2, vm.Selection.Count);
+            await vm.DeleteSelectedCommand.ExecuteAsync(null);
+
+            trash.Verify(t => t.DeleteForeverAsync(It.Is<IReadOnlyCollection<string>>(ids => ids.Count == 2)), Times.Once);
+            Assert.Empty(vm.Items);
+            Assert.True(vm.IsEmpty);
+            Assert.False(vm.ShowDeleteMenu);
+        }
+
+        [Fact]
+        public async Task Declining_KeepsEverything()
+        {
+            var (vm, trash, _) = Create(confirm: false);
+            await vm.LoadCommand.ExecuteAsync(null);
+
+            vm.Selection.Start(vm.Items[1]);
+            await vm.DeleteSelectedCommand.ExecuteAsync(null);
+
+            trash.Verify(t => t.DeleteForeverAsync(It.IsAny<IReadOnlyCollection<string>>()), Times.Never);
+            Assert.Equal(2, vm.Items.Count);
+        }
+
+        [Fact]
+        public async Task InSelectionMode_ATapTicks_AndRestoreIsOff()
+        {
+            var (vm, trash, _) = Create();
+            await vm.LoadCommand.ExecuteAsync(null);
+
+            vm.Selection.Start();
+            await vm.RestoreCommand.ExecuteAsync(vm.Items[0]);
+
+            trash.Verify(t => t.RestoreAsync(It.IsAny<string>()), Times.Never);
+        }
+    }
+
     public class SharingTextTests
     {
         [Fact]

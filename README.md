@@ -1,6 +1,6 @@
 # TravelPlanner
 
-Seyahatlerinizi tek yerden planlamak için bir .NET MAUI uygulaması. Seyahat, görev, harcama ve gezilecek yer kaydı tutabilir, bütçenizi takip edebilir, gideceğiniz yerin hava durumunu ve haritasını görebilirsiniz. Tüm veriler cihazda (SQLite) saklanır. Kullanılan web servisleri ücretsizdir ve API anahtarı gerektirmez.
+Seyahatlerinizi tek yerden planlamak için bir .NET MAUI uygulaması. Seyahat, görev, harcama ve gezilecek yer kaydı tutabilir, bütçenizi takip edebilir, gideceğiniz yerin hava durumunu ve haritasını görebilirsiniz. Uygulama hesap olmadan (misafir) çalışır ve veriler cihazda (SQLite) saklanır; isteğe bağlı bir hesapla (Supabase, AB – Frankfurt) veriler cihazlar arasında eşitlenir, seyahatler paylaşılır ve yapay zekâ ile plan oluşturulur. Cihazdan çağrılan web servisleri ücretsizdir ve API anahtarı gerektirmez.
 
 ## Özellikler
 
@@ -23,15 +23,20 @@ Seyahatlerinizi tek yerden planlamak için bir .NET MAUI uygulaması. Seyahat, g
 - Yedekleme: tüm veriler ve belgeler tek .zip dosyasına; başka cihaza geri yükleme
 - Harita: günün rotası (plandaki yerler sırasıyla), haritaya basılı tutarak yer ekleme
 - Ayarlar: ad, varsayılan para birimi (₺ / € / $ / £), hatırlatma saati, tema (sistem / açık / koyu), dil (Türkçe / English)
+- Hesap (isteğe bağlı): e-posta veya Google ile giriş, cihazlar arası eşitleme (çevrimdışı değişiklikler kuyruğa alınır), hesabı uygulama içinden silme
+- Paylaşım: davet koduyla seyahate düzenleyici / görüntüleyici ekleme (kod 7 gün geçerli), üye ve rol yönetimi
+- Yapay zekâ ile planlama: 4 soruluk sihirbaz, gün gün plan + yerler + görevler; Supabase Edge Function (`supabase/functions/plan-trip`) üzerinden OpenAI, hesap ve cihaz başına günde 5 plan; uygunsuz öneriyi bildirme bağlantısı
+- Çöp kutusu: silinenler 30 gün geri alınabilir; seçim moduyla (tek tek ya da "Tümünü seç") kalıcı olarak silinebilir - belge dosyalarının buluttaki kopyaları da silinir
+- Destek ve yasal (Profil sekmesi): yardım merkezi (aranabilir SSS), "Bize ulaşın" e-postası, gizlilik politikası, KVKK aydınlatma metni, kullanım koşulları, açık kaynak lisansları. Metinler `AppResources` içinde (`Privacy_Body`, `Kvkk_Body`, `Terms_Body`, `Licenses_Body`, `Help_Faq`; `## Başlık` / `? Soru` biçimi, `Helpers/DocumentText`), iletişim bilgileri `Helpers/AppConstants.cs` içinde
 
 ## Gereksinimler
 
 | Araç | Sürüm |
 | --- | --- |
-| .NET SDK | 9.0 |
+| .NET SDK | 10.0 (`global.json`) |
 | MAUI workload | `dotnet workload install maui` |
-| Visual Studio 2022 | 17.12 veya üstü, ".NET Multi-platform App UI development" iş yüküyle |
-| Android | Android SDK API 35 (emülatör: Pixel 7 – API 35 ile test edildi), en az API 21 |
+| Visual Studio 2026 | 18.0 veya üstü (VS 2022 .NET 10 projelerini açamaz), ".NET Multi-platform App UI development" iş yüküyle |
+| Android | Android SDK API 36 (hedef; Google Play zorunluluğu), en az API 24 |
 | iOS / Mac Catalyst | Xcode yüklü bir Mac (eşleştirilmiş Mac veya doğrudan macOS) |
 
 ## Kurulum ve çalıştırma
@@ -40,7 +45,7 @@ Seyahatlerinizi tek yerden planlamak için bir .NET MAUI uygulaması. Seyahat, g
 git clone <repo-adresi>
 cd TravelPlanner
 dotnet restore
-dotnet build -t:Run -f net9.0-android      # Android emülatörde çalıştır
+dotnet build -t:Run -f net10.0-android      # Android emülatörde çalıştır
 ```
 
 Visual Studio'da `TravelPlanner.sln` dosyasını açıp hedef olarak Android emülatörünü seçmeniz de yeterli.
@@ -109,6 +114,8 @@ Kullanıcının (veya geri yüklenen bir yedeğin) girebileceği her değerin ü
 | [MapLibre GL JS 4.7.1](https://maplibre.org) | Harita kütüphanesi | `Resources/Raw/maplibre` içinde paketli (BSD-3) |
 | [Photon reverse](https://photon.komoot.io) | Haritada seçilen noktanın adı | Anahtarsız, ücretsiz |
 | [PDFsharp 6.1](https://docs.pdfsharp.net) | Seyahat özeti PDF'i (cihazda üretilir) | MIT lisansı, ağ bağlantısı yok |
+| [Supabase](https://supabase.com) | Hesap, eşitleme, paylaşım, belge depolama (yalnızca giriş yapınca) | Proje bölgesi Frankfurt (AB); tablolar RLS ile korunur |
+| [OpenAI](https://openai.com) | Yapay zekâ ile planlama (Edge Function üzerinden, anahtar yalnızca sunucuda) | İsteğe bağlı; günlük kota |
 
 **Ücretsiz API denetimi (Sprint 4):** Önceki sürümde kullanılan CARTO raster harita karoları artık API anahtarı istiyor ve ücretsiz ticari kullanımı sınırlıyor; harita, tamamen ücretsiz ve anahtarsız OpenFreeMap + MapLibre'ye taşındı (`Resources/Raw/leaflet` artık paketlenmiyor, klasör silinebilir). Open-Meteo'nun ücretsiz planı **ticari olmayan** kullanım içindir (günde 10.000 istek altında); uygulama ücretli/reklamlı olarak yayınlanırsa Open-Meteo'nun ticari planı veya ticari kullanıma açık bir alternatif (ör. MET Norway, yalnızca ~9 günlük tahmin) değerlendirilmelidir. Photon'un herkese açık sunucusu adil kullanım koşuluyla ücretsizdir.
 
@@ -134,5 +141,6 @@ Tests/        Birim test projesi
 
 - `.github/workflows/ci.yml`: her PR/push'ta birim testleri + Android derlemesi, `main`'de imzalı `.aab`.
 - `docs/RELEASE.md`: sürümleme, keystore oluşturma ve güvenli saklama, GitHub secrets, sürüm kontrol listesi.
-- `docs/PRIVACY.md`: gizlilik politikası (uygulamada *Ayarlar → Gizlilik politikası*).
+- `docs/PRIVACY.md`, `docs/KVKK.md`, `docs/TERMS.md`: gizlilik politikası, KVKK aydınlatma metni ve kullanım koşulları (uygulamada *Profil → Yasal ve gizlilik*; GitHub Pages ile yayınlanır, bkz. `docs/RELEASE.md`).
+- `docs/ACCOUNT_DELETION.md`: Google Play'in hesap/veri silme bağlantısı için sayfa. `docs/HELP.md`: yardım merkezinin web kopyası.
 - `docs/store/`: mağaza metinleri (TR/EN), 512 px ikon, öne çıkan görsel.

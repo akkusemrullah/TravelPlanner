@@ -10,13 +10,25 @@ namespace TravelPlanner.Services
         /// <summary>How long deleted items can be restored.</summary>
         public const int RetentionDays = 30;
 
+        /// <summary>How long removing cloud copies of deleted files may take before it is left for later.</summary>
+        private static readonly TimeSpan CloudTimeout = TimeSpan.FromSeconds(20);
+
         private readonly IDatabaseService _databaseService;
         private readonly IAttachmentService _attachments;
+        private readonly ISupabaseClient? _cloud;
+        private readonly IAuthService? _auth;
 
-        public TrashService(IDatabaseService databaseService, IAttachmentService attachments)
+        /// <param name="cloud">
+        /// When given (and signed in), the cloud copies of attachment files are removed together with the trash
+        /// entries - after that nothing could restore them. Null = local only (tests, guests).
+        /// </param>
+        public TrashService(IDatabaseService databaseService, IAttachmentService attachments,
+                            ISupabaseClient? cloud = null, IAuthService? auth = null)
         {
             _databaseService = databaseService;
             _attachments = attachments;
+            _cloud = cloud;
+            _auth = auth;
         }
 
         /// <summary>Clock (replaceable in tests).</summary>
@@ -37,7 +49,7 @@ namespace TravelPlanner.Services
                 .Where(x => x.Root is not null)
                 .Select(x => (Root: x.Root!, x.Count))
                 .Select(x => new TrashEntry(x.Root.BatchId, x.Root.EntityType, x.Root.Title, x.Root.TripSyncId,
-                                            x.Root.DeletedAtUtc, x.Root.DeletedBy, x.Count))
+                                            x.Root.DeletedAtUtc, x.Root.DeletedBy, x.Count) { RootItemId = x.Root.Id })
                 .OrderByDescending(e => e.DeletedAtUtc)
                 .ToList();
         }
@@ -88,23 +100,85 @@ namespace TravelPlanner.Services
             return restored;
         }
 
+        public async Task<int> DeleteForeverAsync(IReadOnlyCollection<string> batchIds)
+        {
+            ArgumentNullException.ThrowIfNull(batchIds);
+            var db = await _databaseService.Connection;
+
+            var items = new List<TrashItem>();
+            foreach (var batchId in batchIds.Where(id => !string.IsNullOrEmpty(id)).Distinct())
+                items.AddRange(await db.Table<TrashItem>().Where(t => t.BatchId == batchId).ToListAsync());
+
+            await RemoveForGoodAsync(db, items);
+            return items.Count;
+        }
+
         public async Task<int> PurgeExpiredAsync()
         {
             var db = await _databaseService.Connection;
             var cutoff = UtcNow().AddDays(-RetentionDays);
             var expired = await db.Table<TrashItem>().Where(t => t.DeletedAtUtc < cutoff).ToListAsync();
-            if (expired.Count == 0)
-                return 0;
 
-            var attachmentType = SyncSchema.For<TripAttachment>().EntityType;
-            foreach (var item in expired.Where(i => i.EntityType == attachmentType))
-            {
-                if (Deserialize(item, SyncSchema.For<TripAttachment>()) is TripAttachment attachment)
-                    _attachments.DeleteTrashedFile(attachment);
-            }
-
-            await db.ExecuteAsync("DELETE FROM Trash WHERE DeletedAtUtc < ?", cutoff);
+            await RemoveForGoodAsync(db, expired);
             return expired.Count;
+        }
+
+        /// <summary>
+        /// The one way trash rows leave for good (expired or "Kalıcı olarak sil"): the rows, the attachment files
+        /// kept for restoring, and - signed in - the cloud copies of those files.
+        /// </summary>
+        private async Task RemoveForGoodAsync(SQLiteAsyncConnection db, IReadOnlyList<TrashItem> items)
+        {
+            if (items.Count == 0)
+                return;
+
+            var attachmentInfo = SyncSchema.For<TripAttachment>();
+            var attachments = items
+                .Where(i => i.EntityType == attachmentInfo.EntityType)
+                .Select(i => (Item: i, Attachment: Deserialize(i, attachmentInfo) as TripAttachment))
+                .Where(x => x.Attachment is not null)
+                .Select(x => (x.Item.TripSyncId, Attachment: x.Attachment!))
+                .ToList();
+
+            var ids = items.Select(i => i.Id).ToList();
+            await db.RunInTransactionAsync(conn =>
+            {
+                foreach (var id in ids)
+                    conn.Delete<TrashItem>(id);
+            });
+
+            foreach (var (_, attachment) in attachments)
+                _attachments.DeleteTrashedFile(attachment);
+
+            await DeleteCloudFilesAsync(attachments);
+        }
+
+        /// <summary>
+        /// Best effort: offline (or with a trip the account can no longer change) the cloud file simply stays; it can't
+        /// be reached from the app any more either way.
+        /// </summary>
+        private async Task DeleteCloudFilesAsync(IReadOnlyList<(string? TripSyncId, TripAttachment Attachment)> attachments)
+        {
+            if (_cloud is null || _auth?.IsSignedIn != true)
+                return;
+
+            var paths = attachments
+                .Where(a => !string.IsNullOrEmpty(a.TripSyncId) && !string.IsNullOrEmpty(a.Attachment.SyncId))
+                .Select(a => SyncService.RemotePathFor(a.TripSyncId!, a.Attachment))
+                .Distinct()
+                .ToList();
+            if (paths.Count == 0)
+                return;
+
+            try
+            {
+                using var timeout = new CancellationTokenSource(CloudTimeout);
+                await _cloud.DeleteAsync(SyncService.Bucket, paths, timeout.Token);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TrashService] Cloud files not removed: {ex.Message}");
+            }
         }
 
         private static ISyncEntity? Deserialize(TrashItem item, SyncEntityInfo info)

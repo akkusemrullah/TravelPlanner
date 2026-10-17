@@ -85,7 +85,7 @@ namespace TravelPlanner.Controls
             if (animate && Handler is not null)
             {
                 _thumb.CancelAnimations();
-                _ = _thumb.TranslateTo(x, 0, 140, Easing.CubicOut);
+                _ = _thumb.TranslateToAsync(x, 0, 140, Easing.CubicOut);
             }
             else
             {
