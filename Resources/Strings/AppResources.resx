@@ -1438,7 +1438,7 @@ Uygulama bazı özellikler için doğrudan cihazından şu ücretsiz hizmetlere 
 • OpenFreeMap: harita görüntüleri (görüntülenen bölge).
 • Frankfurter (Avrupa Merkez Bankası kurları): döviz kurları (para birimi çifti, tarih).
 Bu hizmetler, her internet isteğinde olduğu gibi IP adresini görebilir. Bu isteklere adın, e-postan, harcamaların veya belgelerin eklenmez.
-Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, Almanya'daki sunucularda). Google ile giriş yaparsan giriş işlemi Google tarafından yürütülür ve Google'ın gizlilik politikası geçerlidir.
+Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, Almanya'daki sunucularda). Google ile giriş yaparsan giriş işlemi Google tarafından yürütülür ve Google'ın gizlilik politikası geçerlidir. E-posta ile kayıt olurken, giriş yaparken veya şifre sıfırlarken otomatik (bot) hesap açılmasını engellemek için Cloudflare Turnstile güvenlik kontrolü kullanılır; bu kontrol sırasında Cloudflare, Inc. (ABD) cihazının IP adresini ve tarayıcı bilgilerini (ör. tarayıcı türü ve dili) işler. Google ile girişte kullanılmaz.
 
 ## Saklama süresi ve silme
 • Hesabın açık olduğu sürece verilerini saklarız.
@@ -2541,6 +2541,7 @@ Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktar
 • Supabase Inc. (barındırma, kimlik doğrulama ve dosya depolama; veriler Frankfurt, Almanya'daki sunucularda tutulur).
 • OpenAI (ABD) – yalnızca yapay zekâ ile planlamayı kullandığında; gidilecek yer, tarihler, tercihlerin, notun ve kayıtlı yer adları. Adın, e-postan, harcamaların ve belgelerin aktarılmaz.
 • Google – yalnızca Google ile giriş yapmayı seçersen, giriş işlemi için.
+• Cloudflare, Inc. (ABD) – e-posta ile kayıt, giriş ve şifre sıfırlamada otomatik (bot) hesap açılmasını engelleyen güvenlik kontrolü için; IP adresi ve tarayıcı bilgileri.
 • Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın, e-postan ve profil fotoğrafın.
 • Yetkili kamu kurum ve kuruluşları – hukuken zorunlu olduğunda.
 Bu hizmet sağlayıcıların bir kısmı yurt dışında bulunduğundan kişisel verilerin yurt dışına aktarılır. Aktarım, KVKK'nın 9. maddesine uygun şekilde; hizmet sağlayıcılarla yapılan sözleşmelerdeki uygun güvencelere, bunun mümkün olmadığı hâllerde ise ilgili özelliği kullanman sırasında verdiğin açık rızaya dayanılarak yapılır. Yapay zekâ ile planlama ve Google ile giriş tamamen isteğe bağlıdır; bunları kullanmadan uygulamanın diğer özelliklerinden yararlanabilirsin.
@@ -2700,5 +2701,23 @@ Hayır. Uygulamada reklam, analiz aracı ve kullanıcı takibi yoktur; verilerin
 Bildirimler (hatırlatmalar ve bütçe uyarıları), kamera ve fotoğraflar (yalnızca belge veya fotoğraf eklerken) ve internet. Konum izni istemez, rehberine erişmez.
 ? KVKK kapsamındaki haklarımı nasıl kullanırım?
 Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine hesabının e-posta adresinden yaz. Talebini en geç 30 gün içinde ücretsiz olarak sonuçlandırırız. Ayrıntılar KVKK Aydınlatma Metni'nde.</value>
+  </data>
+  <data name="Auth_ErrorCaptcha" xml:space="preserve">
+    <value>Güvenlik kontrolü tamamlanamadı. Lütfen tekrar dene.</value>
+  </data>
+  <data name="Captcha_Title" xml:space="preserve">
+    <value>Güvenlik kontrolü</value>
+  </data>
+  <data name="Captcha_Subtitle" xml:space="preserve">
+    <value>Robot olmadığını doğruluyoruz, birkaç saniye sürer.</value>
+  </data>
+  <data name="Captcha_Failed" xml:space="preserve">
+    <value>Güvenlik kontrolü yüklenemedi. İnternet bağlantını kontrol edip tekrar dene.</value>
+  </data>
+  <data name="Captcha_Retry" xml:space="preserve">
+    <value>Tekrar dene</value>
+  </data>
+  <data name="Captcha_Cancel" xml:space="preserve">
+    <value>Vazgeç</value>
   </data>
 </root>

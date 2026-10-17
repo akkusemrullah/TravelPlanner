@@ -14,6 +14,8 @@ namespace TravelPlanner.Services
     /// E-mail sign-up is confirmed with the code from the "Confirm signup" e-mail and password reset uses the
     /// code from the "Reset password" e-mail (both templates contain {{ .Token }}), so neither needs a link
     /// that has to find its way back into the app. Google uses the browser + PKCE.
+    /// The e-mail calls the auth server protects with CAPTCHA (sign-up, password sign-in, resend, password reset)
+    /// carry a Cloudflare Turnstile token from <see cref="ICaptchaService"/> when one is configured.
     /// </summary>
     public class SupabaseAuthService : IAuthService
     {
@@ -30,19 +32,24 @@ namespace TravelPlanner.Services
         private readonly Func<HttpClient> _createClient;
         private readonly ISecureStorage _storage;
         private readonly IWebAuthenticator _webAuthenticator;
+        private readonly ICaptchaService _captcha;
         private readonly SemaphoreSlim _refreshLock = new(1, 1);
 
-        public SupabaseAuthService(IHttpClientFactory httpClientFactory, ISecureStorage storage, IWebAuthenticator webAuthenticator)
-            : this(() => httpClientFactory.CreateClient(HttpClientName), storage, webAuthenticator)
+        public SupabaseAuthService(IHttpClientFactory httpClientFactory, ISecureStorage storage, IWebAuthenticator webAuthenticator,
+                                   ICaptchaService captcha)
+            : this(() => httpClientFactory.CreateClient(HttpClientName), storage, webAuthenticator, captcha)
         {
         }
 
         /// <param name="createClient">Tests pass a client over a fake handler. BaseAddress defaults to the auth API.</param>
-        internal SupabaseAuthService(Func<HttpClient> createClient, ISecureStorage storage, IWebAuthenticator webAuthenticator)
+        /// <param name="captcha">CAPTCHA for the protected e-mail calls; none when null.</param>
+        internal SupabaseAuthService(Func<HttpClient> createClient, ISecureStorage storage, IWebAuthenticator webAuthenticator,
+                                     ICaptchaService? captcha = null)
         {
             _createClient = createClient;
             _storage = storage;
             _webAuthenticator = webAuthenticator;
+            _captcha = captcha ?? NoCaptcha.Instance;
         }
 
         /// <summary>Clock (replaceable in tests).</summary>
@@ -149,7 +156,7 @@ namespace TravelPlanner.Services
                 ["data"] = new Dictionary<string, object?> { ["full_name"] = displayName.Trim() },
             };
 
-            var response = await SendAsync(HttpMethod.Post, "signup", body);
+            var response = await SendAsync(HttpMethod.Post, "signup", await WithCaptchaAsync(body));
 
             // With "Confirm email" on, the answer is the (unconfirmed) user without tokens.
             if (response.ValueKind == JsonValueKind.Object && response.TryGetProperty("access_token", out _))
@@ -177,25 +184,37 @@ namespace TravelPlanner.Services
             await SaveSessionAsync(ParseSession(response), raise: true);
         }
 
-        public Task ResendSignUpCodeAsync(string email) =>
-            SendAsync(HttpMethod.Post, "resend", new Dictionary<string, object?>
+        public async Task ResendSignUpCodeAsync(string email) =>
+            await SendAsync(HttpMethod.Post, "resend", await WithCaptchaAsync(new Dictionary<string, object?>
             {
                 ["type"] = "signup",
                 ["email"] = NormalizeEmail(email),
-            });
+            }));
 
         public async Task SignInWithPasswordAsync(string email, string password)
         {
-            var response = await SendAsync(HttpMethod.Post, "token?grant_type=password", new Dictionary<string, object?>
+            var response = await SendAsync(HttpMethod.Post, "token?grant_type=password", await WithCaptchaAsync(new Dictionary<string, object?>
             {
                 ["email"] = NormalizeEmail(email),
                 ["password"] = password,
-            });
+            }));
             await SaveSessionAsync(ParseSession(response), raise: true);
         }
 
-        public Task SendPasswordResetCodeAsync(string email) =>
-            SendAsync(HttpMethod.Post, "recover", new Dictionary<string, object?> { ["email"] = NormalizeEmail(email) });
+        public async Task SendPasswordResetCodeAsync(string email) =>
+            await SendAsync(HttpMethod.Post, "recover", await WithCaptchaAsync(new Dictionary<string, object?> { ["email"] = NormalizeEmail(email) }));
+
+        /// <summary>
+        /// Adds a CAPTCHA token the way Supabase Auth expects it ({"gotrue_meta_security": {"captcha_token": …}}).
+        /// Asked right before each request: a token works once and only for a few minutes.
+        /// </summary>
+        private async Task<Dictionary<string, object?>> WithCaptchaAsync(Dictionary<string, object?> body)
+        {
+            var token = await _captcha.GetTokenAsync();
+            if (!string.IsNullOrEmpty(token))
+                body["gotrue_meta_security"] = new Dictionary<string, object?> { ["captcha_token"] = token };
+            return body;
+        }
 
         public async Task ResetPasswordWithCodeAsync(string email, string code, string newPassword)
         {
@@ -342,10 +361,15 @@ namespace TravelPlanner.Services
                 "otp_expired" or "otp_disabled" or "bad_code_verifier" or "flow_state_expired" or "flow_state_not_found" => AuthErrorKind.InvalidCode,
                 "over_email_send_rate_limit" or "over_request_rate_limit" or "over_sms_send_rate_limit" => AuthErrorKind.RateLimited,
                 "user_banned" => AuthErrorKind.Banned,
+                "captcha_failed" => AuthErrorKind.CaptchaFailed,
                 "refresh_token_not_found" or "refresh_token_already_used" or "session_not_found" or "session_expired" or "user_not_found"
                     => AuthErrorKind.SessionExpired,
                 _ => status == 429 ? AuthErrorKind.RateLimited : status >= 500 ? AuthErrorKind.Network : AuthErrorKind.Unknown,
             };
+
+            // Older servers have no error_code for a refused CAPTCHA ("captcha protection: request disallowed (...)").
+            if (kind == AuthErrorKind.Unknown && message?.Contains("captcha", StringComparison.OrdinalIgnoreCase) == true)
+                kind = AuthErrorKind.CaptchaFailed;
 
             // Older servers answer "Email not confirmed" as a generic invalid_grant.
             if (kind == AuthErrorKind.InvalidCredentials && message?.Contains("not confirmed", StringComparison.OrdinalIgnoreCase) == true)

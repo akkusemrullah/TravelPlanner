@@ -83,7 +83,8 @@ namespace TravelPlanner.Tests
             Assert.Equal(2, vm.Selection.Count);
             await vm.DeleteSelectedCommand.ExecuteAsync(null);
 
-            dialogs.Verify(d => d.ConfirmAsync(AppResources.Selection_DeleteSelectedTitle, It.Is<string>(m => m.Contains("2 seyahat")), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            // every row is ticked: the title says "Tümünü sil" (ListSelection.DeleteTitle)
+            dialogs.Verify(d => d.ConfirmAsync(AppResources.Selection_DeleteAllTitle, It.Is<string>(m => m.Contains("2 seyahat")), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             _trips.Verify(t => t.DeleteAsync(It.IsAny<Trip>()), Times.Exactly(2));
             Assert.Empty(vm.Trips);
             Assert.True(vm.HasNoTrips);

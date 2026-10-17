@@ -1,6 +1,6 @@
 # Gizlilik Politikası / Privacy Policy – Travel Planner
 
-Son güncelleme: 16 Ekim 2026 · Last updated: 16 October 2026
+Son güncelleme: 17 Ekim 2026 · Last updated: 17 October 2026
 
 > Bu metin uygulamadaki *Profil → Yasal ve gizlilik* sayfasıyla aynıdır (kaynak: `Resources/Strings/AppResources*.resx`). Uygulamadaki metni değiştirdiğinde bu dosyayı da güncelle.
 
@@ -54,7 +54,7 @@ Uygulama bazı özellikler için doğrudan cihazından şu ücretsiz hizmetlere 
 - Frankfurter (Avrupa Merkez Bankası kurları): döviz kurları (para birimi çifti, tarih).
 
 Bu hizmetler, her internet isteğinde olduğu gibi IP adresini görebilir. Bu isteklere adın, e-postan, harcamaların veya belgelerin eklenmez.  
-Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, Almanya'daki sunucularda). Google ile giriş yaparsan giriş işlemi Google tarafından yürütülür ve Google'ın gizlilik politikası geçerlidir.
+Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, Almanya'daki sunucularda). Google ile giriş yaparsan giriş işlemi Google tarafından yürütülür ve Google'ın gizlilik politikası geçerlidir. E-posta ile kayıt olurken, giriş yaparken veya şifre sıfırlarken otomatik (bot) hesap açılmasını engellemek için Cloudflare Turnstile güvenlik kontrolü kullanılır; bu kontrol sırasında Cloudflare, Inc. (ABD) cihazının IP adresini ve tarayıcı bilgilerini (ör. tarayıcı türü ve dili) işler. Google ile girişte kullanılmaz.
 
 ### Saklama süresi ve silme
 - Hesabın açık olduğu sürece verilerini saklarız.
@@ -135,7 +135,7 @@ For some features the app sends requests directly from your device to these free
 - Frankfurter (European Central Bank rates): exchange rates (currency pair, date).
 
 Like any internet request, these services can see your IP address. Your name, e-mail, expenses or documents are not included.  
-Accounts and cloud storage are provided by Supabase (data on servers in Frankfurt, Germany). If you sign in with Google, the sign-in is handled by Google and Google's privacy policy applies.
+Accounts and cloud storage are provided by Supabase (data on servers in Frankfurt, Germany). If you sign in with Google, the sign-in is handled by Google and Google's privacy policy applies. When you sign up, sign in or reset your password with e-mail, a Cloudflare Turnstile security check is used to stop automated (bot) sign-ups; during the check Cloudflare, Inc. (USA) processes your device's IP address and browser information (e.g. browser type and language). It isn't used for Google sign-in.
 
 ### Retention and deletion
 - We keep your data while your account exists.

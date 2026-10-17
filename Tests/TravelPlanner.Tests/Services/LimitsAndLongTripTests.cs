@@ -361,6 +361,115 @@ namespace TravelPlanner.Tests
             nullList.Places = null!;
             BackupService.Sanitize(nullList, Root);
             Assert.NotNull(nullList.Places);
+
+            var badCategory = ValidData();
+            badCategory.Expenses[0].Category = (ExpenseCategory)42;
+            Assert.Throws<InvalidBackupException>(() => BackupService.Sanitize(badCategory, Root));
+        }
+    }
+
+    /// <summary>SEC-01: the rules shared by a restored backup and a row pulled from the server.</summary>
+    public class EntityValidatorTests
+    {
+        [Fact]
+        public void Expense_LimitsMatchTheServer()
+        {
+            Expense Valid() => new() { AmountMinor = 1250, OriginalAmountMinor = 1250, ExchangeRate = 1, Date = new DateTime(2026, 9, 2), Category = ExpenseCategory.Food };
+
+            Assert.Null(EntityValidator.Validate(Valid()));
+
+            var edge = Valid();
+            edge.AmountMinor = InputLimits.MaxMoneyMinor;
+            edge.ExchangeRate = (double)InputLimits.MaxExchangeRate;
+            edge.Date = InputLimits.MaxDate;
+            Assert.Null(EntityValidator.Validate(edge));
+
+            var tooMuch = Valid();
+            tooMuch.AmountMinor = InputLimits.MaxMoneyMinor + 1;
+            Assert.Equal("invalid amount", EntityValidator.Validate(tooMuch));
+
+            var original = Valid();
+            original.OriginalAmountMinor = long.MaxValue;
+            Assert.Equal("invalid amount", EntityValidator.Validate(original));
+
+            foreach (var rate in new[] { 1e300, 0.0000001, double.NaN, double.PositiveInfinity, 0d })
+            {
+                var badRate = Valid();
+                badRate.ExchangeRate = rate;
+                Assert.Equal("invalid exchange rate", EntityValidator.Validate(badRate));
+            }
+
+            var oldDate = Valid();
+            oldDate.Date = new DateTime(1800, 1, 1);
+            Assert.Equal("invalid date", EntityValidator.Validate(oldDate));
+
+            var category = Valid();
+            category.Category = (ExpenseCategory)6;
+            Assert.Equal("invalid category", EntityValidator.Validate(category));
+
+            var currency = Valid();
+            currency.OriginalCurrencyCode = "XXX";
+            Assert.Equal("unknown currency", EntityValidator.Validate(currency));
+
+            var longText = Valid();
+            longText.Description = new string('a', 1000);
+            Assert.Null(EntityValidator.Validate(longText));
+            Assert.Equal(250, longText.Description!.Length);
+        }
+
+        [Fact]
+        public void Trip_DatesBudgetAndCurrency()
+        {
+            Trip Valid() => new() { Name = "Roma", StartDate = new DateTime(2026, 8, 20, 15, 0, 0), EndDate = new DateTime(2026, 8, 22), CurrencyCode = "EUR" };
+
+            var trip = Valid();
+            Assert.Null(EntityValidator.Validate(trip));
+            Assert.Equal(new DateTime(2026, 8, 20), trip.StartDate); // day value without time
+
+            var reversed = Valid();
+            reversed.EndDate = new DateTime(2026, 8, 1);
+            Assert.Equal("invalid dates", EntityValidator.Validate(reversed));
+
+            var far = Valid();
+            far.EndDate = new DateTime(2101, 1, 1);
+            Assert.Equal("invalid dates", EntityValidator.Validate(far));
+
+            var budget = Valid();
+            budget.PlannedBudgetMinor = -1;
+            Assert.Equal("invalid budget", EntityValidator.Validate(budget));
+
+            var currency = Valid();
+            currency.CurrencyCode = "ZZZ";
+            Assert.Null(EntityValidator.Validate(currency));
+            Assert.Null(currency.CurrencyCode); // falls back to the default currency
+        }
+
+        [Fact]
+        public void Activity_TimesAndOrderAreRepaired_DateIsChecked()
+        {
+            var activity = new TripActivity
+            {
+                Title = "Tur", Date = new DateTime(2026, 8, 21), StartTime = new TimeSpan(10, 0, 0), EndTime = new TimeSpan(9, 0, 0), SortOrder = int.MaxValue,
+            };
+            Assert.Null(EntityValidator.Validate(activity));
+            Assert.Null(activity.EndTime);                                  // end before start is dropped
+            Assert.Equal(EntityValidator.MaxSortOrder, activity.SortOrder);
+
+            var noStart = new TripActivity { Title = "Tur", Date = new DateTime(2026, 8, 21), EndTime = new TimeSpan(9, 0, 0) };
+            Assert.Null(EntityValidator.Validate(noStart));
+            Assert.Null(noStart.EndTime);
+
+            var badDay = new TripActivity { Title = "Tur", Date = new DateTime(2200, 1, 1) };
+            Assert.Equal("invalid date", EntityValidator.Validate(badDay));
+        }
+
+        [Fact]
+        public void PlaceAndAttachment()
+        {
+            Assert.Equal("invalid coordinates", EntityValidator.Validate(new Place { Name = "x", Latitude = double.NaN }));
+            Assert.Null(EntityValidator.Validate(new Place { Name = "x", Latitude = 41.89, Longitude = 12.49 }));
+            Assert.Equal("invalid kind", EntityValidator.Validate(new TripAttachment { DisplayName = "x", Kind = (AttachmentKind)9 }));
+            Assert.Equal("invalid size", EntityValidator.Validate(new TripAttachment { DisplayName = "x", SizeBytes = -1 }));
         }
     }
 }

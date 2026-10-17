@@ -3,6 +3,25 @@
 
 export const MAX_DAYS = 10;
 export const MAX_NOTES = 200;
+/** Largest request body the function reads (the real ones are 1-3 KB). */
+export const MAX_BODY_BYTES = 16 * 1024;
+/** Upper bound of max_completion_tokens for the plan (SEC-02; was 32 000). The secret AI_MAX_TOKENS can change it. */
+export const MAX_PLAN_TOKENS = 16_000;
+
+/**
+ * max_completion_tokens for one plan (SEC-02): what this trip really needs plus a margin, never more than `cap`.
+ * Every answer OpenAI sends is billed - also one cut off at this limit - so the limit is the cost of the worst
+ * case. Estimated sizes (JSON in Turkish, o200k tokens): one activity ~70, one place ~110, summary/todos/tips ~800;
+ * a "packed" day has 6 activities and ~5 new places. Reasoning tokens count towards the limit too.
+ * The function logs the real usage of every call ("openai usage ...") - tune these numbers with it.
+ */
+export function planTokenBudget(days: number, pace: string, effort: string, cap = MAX_PLAN_TOKENS): number {
+  const perDay: Record<string, number> = { relaxed: 650, balanced: 900, packed: 1250 }; // incl. ~25 % margin
+  const reasoning: Record<string, number> = { minimal: 1000, low: 3000, medium: 6000, high: 10000 };
+  const d = Math.min(Math.max(Math.trunc(days) || 1, 1), MAX_DAYS);
+  const need = 1300 + d * (perDay[pace] ?? perDay.balanced) + (reasoning[effort] ?? reasoning.low);
+  return Math.min(need, Math.max(2000, Math.trunc(cap) || MAX_PLAN_TOKENS));
+}
 
 export const INTERESTS = [
   "history", "museums", "food", "nature", "beach", "shopping", "nightlife", "art", "architecture", "family", "adventure", "relax",

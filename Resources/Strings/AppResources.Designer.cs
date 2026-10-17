@@ -4613,6 +4613,60 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Güvenlik kontrolü tamamlanamadı. Lütfen tekrar dene..
+        /// </summary>
+        public static string Auth_ErrorCaptcha {
+            get {
+                return ResourceManager.GetString("Auth_ErrorCaptcha", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Güvenlik kontrolü.
+        /// </summary>
+        public static string Captcha_Title {
+            get {
+                return ResourceManager.GetString("Captcha_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Robot olmadığını doğruluyoruz, birkaç saniye sürer. Bir kutu çıkarsa işaretle..
+        /// </summary>
+        public static string Captcha_Subtitle {
+            get {
+                return ResourceManager.GetString("Captcha_Subtitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Güvenlik kontrolü yüklenemedi. İnternet bağlantını kontrol edip tekrar dene..
+        /// </summary>
+        public static string Captcha_Failed {
+            get {
+                return ResourceManager.GetString("Captcha_Failed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tekrar dene.
+        /// </summary>
+        public static string Captcha_Retry {
+            get {
+                return ResourceManager.GetString("Captcha_Retry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Vazgeç.
+        /// </summary>
+        public static string Captcha_Cancel {
+            get {
+                return ResourceManager.GetString("Captcha_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Oturum kapatıldı.
         /// </summary>
         public static string Account_EndedTitle {

@@ -11,8 +11,10 @@ create table if not exists auth.users (
     id uuid primary key,
     email text,
     raw_user_meta_data jsonb not null default '{}',
-    banned_until timestamptz
+    banned_until timestamptz,
+    created_at timestamptz default now()
 );
+alter table auth.users add column if not exists created_at timestamptz default now();
 create table if not exists auth.sessions (
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references auth.users (id) on delete cascade

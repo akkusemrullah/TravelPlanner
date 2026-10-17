@@ -179,9 +179,102 @@ namespace TravelPlanner.Tests
         [InlineData(429, "Too many", AuthErrorKind.RateLimited)]
         [InlineData(502, "<html>", AuthErrorKind.Network)]
         [InlineData(400, """{"error_code":"user_banned","msg":"User is banned"}""", AuthErrorKind.Banned)]
+        [InlineData(400, """{"error_code":"captcha_failed","msg":"captcha protection: request disallowed (timeout-or-duplicate)"}""", AuthErrorKind.CaptchaFailed)]
+        [InlineData(400, """{"msg":"captcha protection: request disallowed (invalid-input-response)"}""", AuthErrorKind.CaptchaFailed)]
         public void ServerErrors_AreMapped(int status, string body, AuthErrorKind expected)
         {
             Assert.Equal(expected, SupabaseAuthService.MapError(status, body).Kind);
+        }
+
+        // ------------------------------------------------------------------ CAPTCHA (Cloudflare Turnstile)
+
+        private sealed class FakeCaptcha : ICaptchaService
+        {
+            public int Calls { get; private set; }
+
+            public Task<string?> GetTokenAsync(CancellationToken cancellationToken = default)
+            {
+                Calls++;
+                return Task.FromResult<string?>($"captcha-{Calls}");
+            }
+        }
+
+        private static string? CaptchaToken(string? body)
+        {
+            using var document = System.Text.Json.JsonDocument.Parse(body!);
+            return document.RootElement.TryGetProperty("gotrue_meta_security", out var meta)
+                ? meta.GetProperty("captcha_token").GetString()
+                : null;
+        }
+
+        [Fact]
+        public async Task Captcha_AFreshTokenGoesWithEveryProtectedEmailCall()
+        {
+            _http.Respond("token?grant_type=password", AuthFakes.SessionJson())
+                 .Respond("signup", """{ "id": "x", "email": "ali@example.com" }""")
+                 .Respond("resend", "{}")
+                 .Respond("recover", "{}");
+            var captcha = new FakeCaptcha();
+            var client = _http.CreateClient();
+            var auth = new SupabaseAuthService(() => client, _storage, _web.Object, captcha);
+
+            await auth.SignInWithPasswordAsync("ali@example.com", "secret1");
+            await auth.SignUpAsync("Ali", "ali@example.com", "secret1");
+            await auth.ResendSignUpCodeAsync("ali@example.com");
+            await auth.SendPasswordResetCodeAsync("ali@example.com");
+
+            Assert.Equal(4, captcha.Calls);
+            Assert.Equal(new[] { "captcha-1", "captcha-2", "captcha-3", "captcha-4" }, _http.Bodies.Select(CaptchaToken).ToArray());
+        }
+
+        [Fact]
+        public async Task Captcha_NotAskedForGoogleCodesOrRefresh()
+        {
+            _web.Setup(w => w.AuthenticateAsync(It.IsAny<WebAuthenticatorOptions>()))
+                .ReturnsAsync(new WebAuthenticatorResult(new Dictionary<string, string> { ["code"] = "abc" }));
+            _http.Respond("token?grant_type=pkce", AuthFakes.SessionJson(expiresAt: DateTimeOffset.UtcNow.AddSeconds(10).ToUnixTimeSeconds()))
+                 .Respond("token?grant_type=refresh_token", AuthFakes.SessionJson("access-2", "refresh-2"))
+                 .Respond("verify", AuthFakes.SessionJson());
+            var captcha = new FakeCaptcha();
+            var client = _http.CreateClient();
+            var auth = new SupabaseAuthService(() => client, _storage, _web.Object, captcha);
+
+            await auth.SignInWithGoogleAsync();
+            Assert.Equal("access-2", await auth.GetAccessTokenAsync());
+            await auth.VerifySignUpCodeAsync("ali@example.com", "123456");
+
+            Assert.Equal(0, captcha.Calls);
+            Assert.All(_http.Bodies, body => Assert.Null(CaptchaToken(body)));
+        }
+
+        [Fact]
+        public async Task Captcha_NotConfigured_SendsNoToken()
+        {
+            _http.Respond("token?grant_type=password", AuthFakes.SessionJson());
+
+            await CreateService().SignInWithPasswordAsync("ali@example.com", "secret1");
+
+            Assert.Null(CaptchaToken(_http.Bodies.Single()));
+        }
+
+        [Fact]
+        public async Task Captcha_Cancelled_SendsNothing()
+        {
+            var captcha = new Mock<ICaptchaService>();
+            captcha.Setup(c => c.GetTokenAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new AuthException(AuthErrorKind.Cancelled));
+            var client = _http.CreateClient();
+            var auth = new SupabaseAuthService(() => client, _storage, _web.Object, captcha.Object);
+
+            var ex = await Assert.ThrowsAsync<AuthException>(() => auth.SignInWithPasswordAsync("ali@example.com", "secret1"));
+
+            Assert.Equal(AuthErrorKind.Cancelled, ex.Kind);
+            Assert.Empty(_http.Requests);
+        }
+
+        [Fact]
+        public void Captcha_Failure_HasItsOwnMessage()
+        {
+            Assert.Equal(TravelPlanner.Resources.Strings.AppResources.Auth_ErrorCaptcha, AuthViewModel.MessageFor(AuthErrorKind.CaptchaFailed));
         }
 
         [Fact]

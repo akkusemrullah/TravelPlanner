@@ -6,6 +6,8 @@ namespace TravelPlanner.Services
     /// <summary>
     /// A stable, anonymous id of this phone for the AI planner's per-device daily quota: signing in with another
     /// account on the same phone doesn't give new plans. Only a salted SHA-256 hash leaves the device.
+    /// It is only a helper signal: the server can't check it (any 64-character hex string passes). The real limits are
+    /// the account quota, the lower quota of new accounts and the global daily ceiling (supabase migration 12, SEC-02).
     /// </summary>
     public interface IDeviceIdentity
     {
