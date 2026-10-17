@@ -1473,7 +1473,8 @@ Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, A
 ## Saklama süresi ve silme
 • Hesabın açık olduğu sürece verilerini saklarız.
 • Sildiğin bir kayıt 30 gün çöp kutusunda kalır ve geri alınabilir. Süre dolduğunda ya da çöp kutusundan kalıcı olarak sildiğinde cihazdan silinir; sunucudaki silinmiş kopyası en geç 30 gün içinde otomatik olarak tamamen temizlenir. Kalıcı olarak silinen belgelerin buluttaki dosyaları da internet bağlantısı varsa hemen, yoksa sunucunun gece temizliğiyle silinir; bir belgenin dosyası, belgeyi silmenden en geç 31 gün sonra buluttan tamamen kaldırılır.
-• Hesabını Profil → Hesabımı sil ile sildiğinde: sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler, profilin, üyeliklerin ve giriş bilgilerin hemen silinir. Bu seyahatlere yüklenen belge ve fotoğraf dosyaları da hemen, bir bağlantı sorunu olursa en geç 2 gün içinde buluttan silinir. Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır ancak artık hesabınla ilişkilendirilmez.
+• Hesabını Profil → Hesabımı sil ile sildiğinde: sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler, profilin, üyeliklerin ve giriş bilgilerin hemen silinir. Başkalarıyla paylaştığın seyahatler için silmeden önce sahipliği bir üyeye devretmeyi veya herkes için silmeyi seçersin; devrettiğin seyahatler yeni sahibinde kalır. Bu seyahatlere yüklenen belge ve fotoğraf dosyaları da hemen, bir bağlantı sorunu olursa en geç 2 gün içinde buluttan silinir. Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır ancak artık hesabınla ilişkilendirilmez.
+• Çıkış yaparken hesabının verilerini bu cihazda bırakmayı (bir sonraki girişte hızlı açılır) ya da bu cihazdan silmeyi seçersin; buluttaki verilerin bundan etkilenmez. Uygulamanın cihazdaki verileri Android’in Google yedeğine ve cihazdan cihaza aktarıma dahil edilmez.
 • Uygulamaya erişemiyorsan hesabının silinmesini {email} adresine, hesabının e-posta adresinden yazarak isteyebilirsin; talebini en geç 30 gün içinde yerine getiririz.
 • Sunucu güvenlik kayıtları kısa süre tutulur ve ardından silinir.
 
@@ -1624,7 +1625,7 @@ Bu politikayı uygulama değiştikçe güncelleyebiliriz. Önemli değişiklikle
   <data name="Account_DeleteMessage" xml:space="preserve">
     <value>Hesabın kalıcı olarak silinecek ve bu işlem geri alınamaz:
 
-• Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir; paylaştığın kişiler de bu seyahatlere erişemez.
+• Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir. Başkalarıyla paylaştığın her seyahat için bir sonraki adımda sahipliği bir üyeye devretmeyi veya herkes için silmeyi seçersin; devrettiğin seyahatler yeni sahibinde kalır.
 • Sana paylaşılan seyahatlerden çıkarılırsın.
 • Bu cihazdaki hesap verisi silinir, uygulama misafir olarak devam eder.
 
@@ -2664,7 +2665,7 @@ Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktar
 Bu hizmet sağlayıcıların bir kısmı yurt dışında bulunduğundan kişisel verilerin yurt dışına aktarılır. Aktarım, KVKK'nın 9. maddesine uygun şekilde; hizmet sağlayıcılarla yapılan sözleşmelerdeki uygun güvencelere, bunun mümkün olmadığı hâllerde ise ilgili özelliği kullanman sırasında verdiğin açık rızaya dayanılarak yapılır. Yapay zekâ ile planlama ve Google ile giriş tamamen isteğe bağlıdır; bunları kullanmadan uygulamanın diğer özelliklerinden yararlanabilirsin.
 
 ## 6. Saklama süresi
-Kişisel verilerin hesabın açık olduğu sürece saklanır. Silinen kayıtlar en geç 30 gün içinde kalıcı olarak silinir. Hesabını sildiğinde sahibi olduğun seyahatler, belgeler ve profil bilgilerin derhâl silinir; belge ve fotoğraf dosyaları buluttan derhâl, teknik bir aksaklık olursa en geç 2 gün içinde silinir. Silinen belgelerin buluttaki dosyaları en geç 31 gün içinde silinir. Kanunen saklanması gereken veriler ilgili süre boyunca saklanır ve süre sonunda silinir, yok edilir veya anonim hâle getirilir.
+Kişisel verilerin hesabın açık olduğu sürece saklanır. Silinen kayıtlar en geç 30 gün içinde kalıcı olarak silinir. Hesabını sildiğinde sahibi olduğun (başka bir üyeye devretmediğin) seyahatler, belgeler ve profil bilgilerin derhâl silinir; belge ve fotoğraf dosyaları buluttan derhâl, teknik bir aksaklık olursa en geç 2 gün içinde silinir. Silinen belgelerin buluttaki dosyaları en geç 31 gün içinde silinir. Kanunen saklanması gereken veriler ilgili süre boyunca saklanır ve süre sonunda silinir, yok edilir veya anonim hâle getirilir.
 
 ## 7. KVKK'nın 11. maddesi kapsamındaki hakların
 Veri sorumlusuna başvurarak:
@@ -2797,7 +2798,7 @@ Giriş yaptıysan değişikliklerin birkaç saniye içinde otomatik olarak bulut
 ? Şifremi unuttum, ne yapmalıyım?
 Giriş ekranında "Şifremi unuttum"a dokun, e-posta adresini yaz. Gelen kodla yeni şifreni belirleyebilirsin.
 ? Hesabımı nasıl silerim?
-Profil → Hesabımı sil'e dokun ve iki adımlı onayı tamamla (internet bağlantısı gerekir). Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir, paylaşılan seyahatlerden çıkarılırsın. Silmeden önce Yedekleme → Dışa aktar ile verilerinin kopyasını alabilirsin. Uygulamaya erişemiyorsan {email} adresine hesabının e-posta adresinden yazarak silinmesini isteyebilirsin.
+Profil → Hesabımı sil'e dokun ve iki adımlı onayı tamamla (internet bağlantısı gerekir). Sahibi olduğun seyahatler, içindeki her şey ve yüklenen belgeler buluttan silinir, paylaşılan seyahatlerden çıkarılırsın. Başkalarıyla paylaştığın seyahatlerin sahipliğini silmeden önce bir üyeye devredebilirsin. Silmeden önce Yedekleme → Dışa aktar ile verilerinin kopyasını alabilirsin. Uygulamaya erişemiyorsan {email} adresine hesabının e-posta adresinden yazarak silinmesini isteyebilirsin.
 
 ## Belgeler, yedek ve çöp kutusu
 ? Seyahate belge veya fotoğraf ekleyebilir miyim?

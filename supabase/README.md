@@ -26,6 +26,8 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…04_sharing_rpc.sql` | Davet oluştur/kabul/iptal, üyeler, rol, çıkar/ayrıl, hesabı sil |
 | `migrations/…05_storage.sql` | `trip-files` kovası ve `trips/<trip_id>/…` yolu için erişim kuralları |
 | `migrations/…06_cron.sql` | 30 günden eski silinmiş satırları her gece temizleme |
+| `migrations/…07_account_deletion.sql` | G7: `delete_account` (sahibi olunan seyahatler, üyelikler, profil, giriş bilgileri); hesabın başka seyahatlere yüklediği dosyalar sahipsiz kalır |
+| `migrations/…08_account_status.sql` | G7: `account_status`, banlanan/silinen hesabı RPC ve RLS anında reddeder (`require_uid`, `has_trip_role`), `private.ban_user` / `unban_user` (TP-14 ile `account_status` yalnızca kendi hesabını sorar) |
 | `migrations/…09_ai_planner.sql` | Yapay zekâ planı: hesap ve cihaz başına günlük kota (`ai_plan_quota`) |
 | `migrations/…10_ai_refund.sql` | OpenAI cevap veremezse planı geri veren tek kullanımlık fiş (`ai_plan_refund`) |
 | `migrations/…11_value_limits.sql` | SEC-01: tutar, kur, tarih, kategori, sıra ve saat sınırları (uygulamadaki `InputLimits` ile aynı); sınır dışı yazma `invalid` ile reddedilir |
@@ -34,6 +36,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…14_invite_hardening.sql` | TP-4: davet kodları tek kullanımlık ve 48 saat geçerli, katılan görüntüleyici olur; yanlış kod denemesi sınırı; e-postalar yalnızca sahibe; yeni üye bildirimi için `get_recent_joins` |
 | `migrations/…15_attachment_paths.sql` | TP-5: ekin `storage_path`'i yalnızca kendi dosyası (`trips/<trip_id>/<id>.<uzantı>`), `content_type`'ı yalnızca JPEG/PNG/HEIC/HEIF/WebP/PDF olabilir; aykırı yazma `invalid` ile reddedilir, eski bozuk değerler temizlenir |
 | `migrations/…16_file_cleanup.sql` | G7: kalıcı silinen eklerin dosyaları Storage'dan da silinir (kuyruk `private.file_cleanup_queue`, gece `purge-files` fonksiyonu) |
+| `migrations/…17_account_file_cleanup.sql` | TP-7: `delete_account` sahibi olunan seyahatlerin klasörlerindeki tüm dosyaları aynı işlemde temizlik kuyruğuna yazar; gece taraması var olmayan seyahatlerin klasörlerini de temizler |
 | `migrations/…18_pull_cursor_safety.sql` | TP-8: `pull_changes` cursor'ı hâlâ açık bir yazma transaction'ının satırını atlamaz (güvenli nokta: 10 sn önce ya da en eski açık yazma transaction'ının başlangıcı); `apply_changes` satır kilidi için en fazla 2 sn bekler, çağrı başına en fazla 6 sn sürer |
 | `migrations/…19_trip_currency.sql` | TP-11: para birimi değişimi tek atomik RPC'de (`convert_trip_currency`, yalnızca sahip/editör; başkası önce çevirdiyse reddedilir); masrafta tutarın para birimi (`amount_currency_code`); eski para biriminde geç gelen masraf kayıtlı kurla çevrilir; masraflı seyahatin `currency_code`'u `apply_changes` ile değiştirilemez |
 | `migrations/…20_ownership_transfer.sql` | TP-12: `get_owned_shared_trips` (sahibi olunan, başka üyesi olan seyahatler ve üye sayısı), `transfer_trip_ownership` (sahip → editör, seçilen üye → sahip); devredilen seyahat hesap silinince silinmez |
@@ -56,6 +59,12 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 - Çekme (TP-8): cursor yalnızca, daha düşük `change_seq` ile commit edebilecek hiçbir transaction'ın açık
   kalmadığı noktaya kadar ilerler; yeni satırlar yine gönderilir, sadece bir sonraki çekmede tekrar gelebilir.
   Uygulama çağrı başına en fazla 50 değişiklik gönderir ve günde bir kez her şeyi baştan çeker (`p_since = 0`).
+- Para birimi (TP-11): masraflı bir seyahatin `currency_code`'u `apply_changes` ile değişmez; uygulama bulut seyahatinde
+  `convert_trip_currency` çağırır (tek işlem, sahip/editör, başkası önce çevirdiyse `TPC01`). Masraf, tutarının para
+  birimini (`amount_currency_code`) taşır; eski para biriminde gelen masraf kayıtlı kurla çevrilir.
+- Sahiplik (TP-12): `owner_id` yalnızca `transfer_trip_ownership` ile değişir (sahip → editör, seçilen üye → sahip).
+- Hatalar (TP-14): reddedilen değişikliğin `error` alanında yalnızca kısa kod vardır (`duplicate`, `missing_parent`,
+  `out_of_range`, `missing_value`, `bad_value`, `busy`, `error`; kota mesajları hariç); ayrıntı sunucu loguna yazılır.
 
 ## Kullanım sınırları (TP-3)
 
@@ -107,7 +116,7 @@ PostgreSQL 15+ üzerinde, boş bir veritabanında:
 ```bash
 psql -d tp -f tests/00_local_stub.sql      # Supabase'in auth/storage parçalarının taklidi
 for f in migrations/*.sql; do psql -v ON_ERROR_STOP=1 -d tp -f "$f"; done
-psql -d tp -f tests/sync_tests.sql          # 205 kontrol, sonda "ALL SYNC TESTS PASSED"
+psql -d tp -f tests/sync_tests.sql          # ~250 kontrol, sonda "ALL SYNC TESTS PASSED"
 ```
 
 ## Silinen dosyaların temizliği (G7, Edge Function `purge-files`)
@@ -174,6 +183,9 @@ yeni hesap kotası ve global tavandır. Fonksiyon her OpenAI çağrısının ger
 1. SQL: `all_in_one.sql`'i (veya yalnızca migration 9, 10 ve 12'yi) SQL Editor'da çalıştır.
 2. Anahtar: Dashboard → **Edge Functions → Secrets** → `OPENAI_API_KEY` = OpenAI anahtarın
    (isteğe bağlı `AI_MODEL`, varsayılan `gpt-5-mini`; `AI_REASONING`; `AI_MAX_TOKENS`, varsayılan 16000).
+   `AI_MODEL` tanımlı değilse kod `gpt-5-mini` kullanır (`functions/plan-trip/index.ts`): `gpt-5-nano` daha ucuzdur ama
+   aynı yerleri tekrarlayan ve birbirinden uzak bölgeleri karıştıran planlar üretti. Maliyeti nano'ya göre hesapladıysan
+   `AI_MODEL` secret'ını bilinçli olarak ayarla (ör. `gpt-5-nano`; nano'da `AI_REASONING` varsayılanı `minimal`, diğerlerinde `low`).
 3. Fonksiyonu yayınla — iki yoldan biri:
    - **Dashboard:** Edge Functions → *Deploy a new function* → *Via Editor* → adı `plan-trip`;
      `functions/plan-trip/index.ts`, `functions/plan-trip/planner.ts`, `functions/plan-trip/openai.ts` ve `functions/plan-trip/places.ts` dosyalarını aynı adlarla ekle (openai.ts: OpenAI çağrısı ve istek gövdesi sınırı; places.ts: yerleri OpenStreetMap üzerinde doğrular, gerçek restoranları bulur);
@@ -212,4 +224,4 @@ kayıt olamaz ve giriş yapamaz:
    der — o durumda 4. adımı kapatıp anahtarı düzelt.
 
 Secret Key yalnızca Supabase'e girilir, uygulamaya ve depoya asla yazılmaz. Site Key herkese açıktır.
-Gizlilik politikası ve KVKK metnine Cloudflare (ABD) eklendi; web sitesindeki kopyaları da güncelle.
+Gizlilik politikası, KVKK metni (uygulama içi ve `docs/`) ve web sitesindeki kopyalar Cloudflare (ABD)'yi listeler.
