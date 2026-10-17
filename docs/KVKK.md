@@ -45,7 +45,7 @@ Kişisel verilerin, yukarıdaki amaçlarla sınırlı olarak şu taraflara aktar
 - OpenAI (ABD) – yalnızca yapay zekâ ile planlamayı kullandığında; gidilecek yer, tarihler, tercihlerin, notun ve kayıtlı yer adları. Adın, e-postan, harcamaların ve belgelerin aktarılmaz.
 - Google – yalnızca Google ile giriş yapmayı seçersen, giriş işlemi için.
 - Cloudflare, Inc. (ABD) – e-posta ile kayıt, giriş ve şifre sıfırlamada otomatik (bot) hesap açılmasını engelleyen güvenlik kontrolü için; IP adresi ve tarayıcı bilgileri.
-- Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın, e-postan ve profil fotoğrafın.
+- Paylaştığın seyahatin üyeleri – yalnızca senin oluşturduğun davetle; seyahat içeriği ile adın ve profil fotoğrafın. E-postan yalnızca katıldığın seyahatin sahibine görünür.
 - Yetkili kamu kurum ve kuruluşları – hukuken zorunlu olduğunda.
 
 Bu hizmet sağlayıcıların bir kısmı yurt dışında bulunduğundan kişisel verilerin yurt dışına aktarılır. Aktarım, KVKK'nın 9. maddesine uygun şekilde; hizmet sağlayıcılarla yapılan sözleşmelerdeki uygun güvencelere, bunun mümkün olmadığı hâllerde ise ilgili özelliği kullanman sırasında verdiğin açık rızaya dayanılarak yapılır. Yapay zekâ ile planlama ve Google ile giriş tamamen isteğe bağlıdır; bunları kullanmadan uygulamanın diğer özelliklerinden yararlanabilirsin.
@@ -112,7 +112,7 @@ Your personal data may be shared, only for the purposes above, with:
 - OpenAI (USA) – only when you use planning with AI: the destination, dates, your preferences, your note and the names of saved places. Your name, e-mail, expenses and documents are not transferred.
 - Google – only if you choose to sign in with Google, for the sign-in.
 - Cloudflare, Inc. (USA) – for the security check that stops automated (bot) sign-ups when you sign up, sign in or reset your password with e-mail: IP address and browser information.
-- Members of a trip you share – only through an invite you create: the trip's content and your name, e-mail and profile photo.
+- Members of a trip you share – only through an invite you create: the trip's content and your name and profile photo. Your e-mail is only visible to the owner of a trip you join.
 - Competent public authorities – where the law requires.
 
 As some of these providers are located abroad, your personal data is transferred abroad. Transfers are made in line with KVKK article 9: on the basis of appropriate safeguards in the agreements with the providers, or, where that is not possible, on the basis of the explicit consent you give when using the feature concerned. Planning with AI and signing in with Google are entirely optional; you can use the app's other features without them.

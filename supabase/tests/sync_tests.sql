@@ -116,7 +116,13 @@ select test.eq(length((select code from editor_invite)), 8, 'invite code has 8 c
 reset role;
 select set_config('request.jwt.claim.sub', :'ayse', false);
 set role authenticated;
-select test.eq((select role from public.accept_invite((select lower(code) from editor_invite))), 'editor', 'Ayşe joins as editor (code is case-insensitive)');
+select test.eq((select role from public.accept_invite((select lower(code) from editor_invite))), 'viewer', 'TP-4: Ayşe joins as viewer even from an "editor" invite (code is case-insensitive)');
+
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select public.set_member_role(:'trip', :'ayse', 'editor');
+select test.eq((select role from public.trip_members where trip_id = :'trip' and user_id = :'ayse'), 'editor', 'TP-4: the owner makes Ayşe an editor afterwards');
 
 reset role;
 select set_config('request.jwt.claim.sub', :'ayse', false);
@@ -135,11 +141,8 @@ select test.eq((select role from public.accept_invite((select code from viewer_i
 reset role;
 select set_config('request.jwt.claim.sub', :'deniz', false);
 set role authenticated;
-do $$ begin
-    perform public.accept_invite((select code from viewer_invite));
-    raise exception 'FAILED: single-use invite used twice';
-exception when no_data_found then raise notice 'ok - a single-use invite works once';
-end $$;
+select test.eq((select count(*) from public.accept_invite((select code from viewer_invite))), 0::bigint, 'a single-use invite works once (a used code returns no rows)');
+select test.eq((select count(*) from public.trip_members where trip_id = :'trip' and user_id = :'deniz'), 0::bigint, 'and Deniz did not join');
 
 -- ------------------------------------------------------------------------------- the viewer
 reset role;
@@ -152,6 +155,87 @@ select test.eq(test.reason(public.apply_changes(jsonb_build_array(
                        'fields', jsonb_build_object('amount_minor', 500, 'date', '2026-08-21'))))), 'forbidden', 'viewer cannot add an expense');
 select test.eq((select count(*) from public.trip_invites), 0::bigint, 'viewer does not see invites');
 select test.eq((select count(*) from public.get_trip_members(:'trip')), 3::bigint, 'members list has owner, editor, viewer');
+
+-- ------------------------------------------------------------------------------- TP-4: invites and e-mails (migration 14)
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+-- what an old app version asks for: editor, 7 days, unlimited
+create temp table old_app_invite as select code from public.create_invite(:'trip', 'editor', 168, null);
+select test.eq((select i.role from public.trip_invites i join old_app_invite x using (code)), 'viewer', 'TP-4: an old app''s editor invite becomes a viewer invite');
+select test.eq((select i.max_uses from public.trip_invites i join old_app_invite x using (code)), 1, 'TP-4: ... single-use');
+select test.eq((select i.expires_at <= now() + interval '48 hours' from public.trip_invites i join old_app_invite x using (code)), true, 'TP-4: ... valid for 48 hours at most');
+create temp table default_invite as select code from public.create_invite(:'trip');
+select test.eq((select i.role || '/' || i.max_uses from public.trip_invites i join default_invite x using (code)), 'viewer/1', 'TP-4: the default invite is single-use, viewer');
+create temp table group_invite as select code from public.create_invite(:'trip', 'viewer', 48, 10);
+select test.eq((select i.max_uses from public.trip_invites i join group_invite x using (code)), 10, 'TP-4: a group code is asked for on purpose (10 uses)');
+do $$ begin
+    perform public.create_invite('11111111-1111-1111-1111-111111111111', 'viewer', 48, 11);
+    raise exception 'FAILED: an invite for 11 people was created';
+exception when sqlstate '22023' then raise notice 'ok - TP-4: at most 10 uses per code';
+end $$;
+-- an invite handed out before migration 14 is cut down when the migration runs
+reset role;
+insert into public.trip_invites (trip_id, code, role, created_by, expires_at, max_uses, used_count)
+values (:'trip', 'OLDCODE2', 'editor', :'ali', now() + interval '6 days', null, 3);
+update public.trip_invites i
+set role = 'viewer', max_uses = least(coalesce(i.max_uses, i.used_count + 1), i.used_count + 1),
+    expires_at = least(i.expires_at, now() + make_interval(hours => private.invite_limit('valid_hours')))
+where i.code = 'OLDCODE2';   -- the statement from migration 14
+select test.eq((select role || '/' || max_uses from public.trip_invites where code = 'OLDCODE2'), 'viewer/4', 'TP-4: an old open invite gets one more use, as viewer');
+delete from public.trip_invites where code = 'OLDCODE2';
+
+-- Can (viewer) and Ayşe (editor) see names, but no one else's e-mail; Ali (owner) sees them all.
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+select test.eq((select count(*) from public.get_trip_members(:'trip') where email is not null), 1::bigint, 'TP-4: a viewer gets no e-mails but his own');
+select test.eq((select email from public.get_trip_members(:'trip') where user_id = :'can'), 'can@example.com', 'TP-4: ... his own is there');
+select test.eq((select display_name from public.get_trip_members(:'trip') where user_id = :'ali'), 'Ali Yılmaz', 'TP-4: ... names still are');
+select test.eq((select count(*) from (select id, display_name, avatar_url from public.profiles) p), 3::bigint, 'TP-4: trip mates'' names and photos can be read');
+do $$ begin
+    perform email from public.profiles;
+    raise exception 'FAILED: a trip mate read profiles.email';
+exception when insufficient_privilege then raise notice 'ok - TP-4: profiles.email is closed to the API';
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub', :'ayse', false);
+set role authenticated;
+select test.eq((select count(*) from public.get_trip_members(:'trip') where email is not null), 1::bigint, 'TP-4: an editor gets no e-mails but her own');
+select test.eq((select count(*) from public.get_recent_joins(null)), 0::bigint, 'TP-4: only the owner hears about new members');
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq((select count(*) from public.get_trip_members(:'trip') where email is not null), 3::bigint, 'TP-4: the owner sees every e-mail');
+select test.eq((select count(*) from public.get_recent_joins(null)), 2::bigint, 'TP-4: the owner hears that Ayşe and Can joined');
+select test.eq((select count(*) from public.get_recent_joins(now())), 0::bigint, 'TP-4: ... and nothing newer');
+
+-- Can already is a member: typing a used code again gives the trip back and costs nothing
+reset role;
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+select test.eq((select role from public.accept_invite((select code from viewer_invite))), 'viewer', 'TP-4: a member re-entering a used code gets the trip back');
+reset role;
+select test.eq((select count(*) from private.invite_attempts where user_id = :'can'), 0::bigint, 'TP-4: ... and it is not counted as a wrong code');
+
+-- Deniz guesses: 10 wrong codes in an hour, then 429 for an hour - even for a good code
+select set_config('request.jwt.claim.sub', :'deniz', false);
+set role authenticated;
+select count(*) from generate_series(2, 8) n cross join lateral public.accept_invite('ZZZZZZZ' || n);  -- 1 above + 7 wrong
+select test.eq((select count(*) from public.accept_invite('ZZZZZZZZ')), 0::bigint, 'TP-4: a wrong code returns no rows (9th)');
+select test.eq((select count(*) from public.accept_invite('ZZZZZZZY')), 0::bigint, 'TP-4: the 10th wrong code still answers');
+do $$ begin
+    perform public.accept_invite((select code from group_invite));
+    raise exception 'FAILED: an 11th try was allowed';
+exception when sqlstate 'PT429' then raise notice 'ok - TP-4: after 10 wrong codes the account waits an hour (429)';
+end $$;
+reset role;
+select test.eq((select blocked_until > now() + interval '59 minutes' from private.invite_attempts where user_id = :'deniz'), true, 'TP-4: blocked for an hour');
+update private.invite_attempts set blocked_until = now() - interval '1 second' where user_id = :'deniz';
+set role authenticated;
+select test.eq((select role from public.accept_invite((select code from group_invite))), 'viewer', 'TP-4: after the hour a good code works again');
+select public.leave_trip(:'trip');   -- Deniz is the stranger again for the tests below
+reset role;
+select test.eq((select used_count from public.trip_invites where code = (select code from group_invite)), 1, 'TP-4: a group code counts its uses');
 
 -- ------------------------------------------------------------------------------- editors edit different fields offline
 reset role;

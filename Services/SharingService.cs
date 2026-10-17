@@ -13,8 +13,17 @@ namespace TravelPlanner.Services
         public string Name => !string.IsNullOrWhiteSpace(DisplayName) ? DisplayName! : Email ?? "?";
     }
 
-    /// <summary>A fresh invite code (8 letters/digits) and when it stops working.</summary>
-    public sealed record TripInvite(string Code, TripRole Role, DateTime ExpiresAtUtc);
+    /// <summary>
+    /// A fresh invite code (8 letters/digits), when it stops working and how many people may use it (TP-4:
+    /// 1 unless a group code was asked for). Whoever joins is a viewer.
+    /// </summary>
+    public sealed record TripInvite(string Code, TripRole Role, DateTime ExpiresAtUtc, int MaxUses = 1)
+    {
+        public bool IsGroupInvite => MaxUses > 1;
+    }
+
+    /// <summary>TP-4: someone joined one of the user's own trips (for the "Ayşe joined Roma" notice).</summary>
+    public sealed record MemberJoin(string TripSyncId, string? TripName, string UserId, string? DisplayName, DateTime JoinedAtUtc);
 
     /// <summary>The trip an invite code led to.</summary>
     public sealed record JoinedTrip(string TripSyncId, TripRole Role, string? TripName, int? LocalTripId);
@@ -28,6 +37,8 @@ namespace TravelPlanner.Services
         NotUploaded,
         /// <summary>The code is wrong, expired, used up or revoked.</summary>
         InvalidInvite,
+        /// <summary>TP-4: too many wrong codes - the account has to wait (an hour) before trying again.</summary>
+        TooManyAttempts,
         /// <summary>Not allowed (not the owner / not a member any more).</summary>
         Forbidden,
         Unknown
@@ -50,13 +61,22 @@ namespace TravelPlanner.Services
     /// </summary>
     public interface ISharingService
     {
-        /// <summary>Makes an invite code for the trip (uploads the trip first if it isn't in the cloud yet). Owner only.</summary>
-        Task<TripInvite> CreateInviteAsync(int tripId, TripRole role);
+        /// <summary>
+        /// Makes an invite code for the trip (uploads the trip first if it isn't in the cloud yet). Owner only.
+        /// TP-4: the code is single-use and valid for <see cref="SharingService.InviteValidHours"/> hours; with
+        /// <paramref name="forGroup"/> up to <see cref="SharingService.GroupInviteMaxUses"/> people can use it.
+        /// Everyone joins as a viewer - the owner makes them an editor afterwards (<see cref="SetRoleAsync"/>).
+        /// </summary>
+        Task<TripInvite> CreateInviteAsync(int tripId, bool forGroup = false);
 
         /// <summary>Joins the trip behind <paramref name="code"/> and syncs it onto this device.</summary>
         Task<JoinedTrip> AcceptInviteAsync(string code);
 
+        /// <summary>The trip's members. TP-4: e-mails only come back for the owner (and the user's own).</summary>
         Task<IReadOnlyList<TripMember>> GetMembersAsync(int tripId);
+
+        /// <summary>TP-4: people who joined the user's own trips after <paramref name="sinceUtc"/> (null: the last few days).</summary>
+        Task<IReadOnlyList<MemberJoin>> GetRecentJoinsAsync(DateTime? sinceUtc, CancellationToken cancellationToken = default);
 
         /// <summary>Owner: makes a member an editor or a viewer.</summary>
         Task SetRoleAsync(int tripId, string userId, TripRole role);
@@ -70,8 +90,11 @@ namespace TravelPlanner.Services
 
     public class SharingService : ISharingService
     {
-        /// <summary>How long an invite code works.</summary>
-        public const int InviteValidHours = 24 * 7;
+        /// <summary>How long an invite code works (TP-4; the server allows no more).</summary>
+        public const int InviteValidHours = 48;
+
+        /// <summary>How many people one group code can bring in (TP-4; the server allows no more).</summary>
+        public const int GroupInviteMaxUses = 10;
 
         public const int CodeLength = 8;
 
@@ -94,25 +117,24 @@ namespace TravelPlanner.Services
         public static string NormalizeCode(string? code) =>
             new string((code ?? string.Empty).Where(char.IsLetterOrDigit).Select(char.ToUpperInvariant).ToArray());
 
-        public async Task<TripInvite> CreateInviteAsync(int tripId, TripRole role)
+        public async Task<TripInvite> CreateInviteAsync(int tripId, bool forGroup = false)
         {
-            if (role == TripRole.Owner)
-                throw new ArgumentOutOfRangeException(nameof(role), "An invite is for an editor or a viewer.");
-
+            var maxUses = forGroup ? GroupInviteMaxUses : 1;
             var tripSyncId = await RequireUploadedTripAsync(tripId);
             var rows = await CallAsync("create_invite", new JsonObject
             {
                 ["p_trip_id"] = tripSyncId,
-                ["p_role"] = TripRoles.ToServer(role),
+                ["p_role"] = TripRoles.Viewer,
                 ["p_valid_hours"] = InviteValidHours,
-                ["p_max_uses"] = null,
+                ["p_max_uses"] = maxUses,
             });
 
             var row = FirstRow(rows) ?? throw new SharingException(SharingErrorKind.Unknown, "create_invite returned nothing.");
             return new TripInvite(
                 SyncFieldMapper.GetString(row, "code") ?? throw new SharingException(SharingErrorKind.Unknown, "No code."),
-                role,
-                ParseUtc(SyncFieldMapper.GetString(row, "expires_at")) ?? DateTime.UtcNow.AddHours(InviteValidHours));
+                TripRole.Viewer,
+                ParseUtc(SyncFieldMapper.GetString(row, "expires_at")) ?? DateTime.UtcNow.AddHours(InviteValidHours),
+                maxUses);
         }
 
         public async Task<JoinedTrip> AcceptInviteAsync(string code)
@@ -121,6 +143,7 @@ namespace TravelPlanner.Services
             if (normalized.Length != CodeLength)
                 throw new SharingException(SharingErrorKind.InvalidInvite);
 
+            // TP-4: a wrong / expired / used-up code comes back as no rows (the server counts the wrong try).
             var rows = await CallAsync("accept_invite", new JsonObject { ["p_code"] = normalized }, inviteCall: true);
             var row = FirstRow(rows) ?? throw new SharingException(SharingErrorKind.InvalidInvite);
             var tripSyncId = SyncFieldMapper.GetString(row, "trip_id") ?? throw new SharingException(SharingErrorKind.InvalidInvite);
@@ -168,7 +191,8 @@ namespace TravelPlanner.Services
                 }
             }
 
-            // Names for "son düzenleyen", also offline later.
+            // Names for "son düzenleyen", also offline later. (TP-4: for editors/viewers the e-mail is empty now,
+            // which also clears e-mails remembered by older versions.)
             await _access.RememberUsersAsync(members.Select(m => new KnownUser
             {
                 UserId = m.UserId,
@@ -177,6 +201,43 @@ namespace TravelPlanner.Services
             }));
 
             return members;
+        }
+
+        public async Task<IReadOnlyList<MemberJoin>> GetRecentJoinsAsync(DateTime? sinceUtc, CancellationToken cancellationToken = default)
+        {
+            EnsureOnline();
+            JsonElement rows;
+            try
+            {
+                rows = await _client.RpcAsync("get_recent_joins", new JsonObject
+                {
+                    ["p_since"] = sinceUtc is { } since
+                        ? DateTime.SpecifyKind(since, DateTimeKind.Utc).ToString("O", CultureInfo.InvariantCulture)
+                        : null,
+                }, cancellationToken);
+            }
+            catch (SyncException ex)
+            {
+                throw new SharingException(MapError(ex, inviteCall: false), ex.Message, ex);
+            }
+
+            var joins = new List<MemberJoin>();
+            if (rows.ValueKind != JsonValueKind.Array)
+                return joins;
+
+            foreach (var row in rows.EnumerateArray())
+            {
+                var tripId = SyncFieldMapper.GetString(row, "trip_id");
+                var userId = SyncFieldMapper.GetString(row, "user_id");
+                var joinedAt = ParseUtc(SyncFieldMapper.GetString(row, "joined_at"));
+                if (string.IsNullOrEmpty(tripId) || string.IsNullOrEmpty(userId) || joinedAt is null)
+                    continue;
+
+                joins.Add(new MemberJoin(tripId, SyncFieldMapper.GetString(row, "trip_name"), userId,
+                                         SyncFieldMapper.GetString(row, "display_name"), joinedAt.Value));
+            }
+
+            return joins;
         }
 
         public async Task SetRoleAsync(int tripId, string userId, TripRole role)
@@ -258,10 +319,16 @@ namespace TravelPlanner.Services
             SyncErrorKind.NotSignedIn => SharingErrorKind.NotSignedIn,
             _ => ex.ServerCode switch
             {
+                "PT429" when inviteCall => SharingErrorKind.TooManyAttempts,
                 "P0002" when inviteCall => SharingErrorKind.InvalidInvite,
                 "42501" or "28000" => SharingErrorKind.Forbidden,
                 "P0002" => SharingErrorKind.Forbidden, // "no such member (or it is the owner)"
-                _ => ex.Status == 403 ? SharingErrorKind.Forbidden : SharingErrorKind.Unknown,
+                _ => ex.Status switch
+                {
+                    403 => SharingErrorKind.Forbidden,
+                    429 when inviteCall => SharingErrorKind.TooManyAttempts,
+                    _ => SharingErrorKind.Unknown,
+                },
             },
         };
 

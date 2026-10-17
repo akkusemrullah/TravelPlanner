@@ -1427,7 +1427,7 @@ Without an account, your trips, plans, expenses, to-dos, saved places, participa
 We do not use your data for advertising, profiling or marketing.
 
 ## Shared trips
-When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name, e-mail address and profile photo. Share invite codes only with people you trust.
+When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name and profile photo; e-mail addresses are only visible to the trip's owner. Invite codes are single-use and valid for 48 hours by default; share a code only with the person you invite.
 
 ## Planning with AI
 This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass).
@@ -1856,16 +1856,31 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
     <value>Invite</value>
   </data>
   <data name="Members_InviteHint" xml:space="preserve">
-    <value>An invite code is created and the share menu opens. The person joins in the app via Profile → Join with a code. The code works for 7 days.</value>
+    <value>The code is for one person and works for 48 hours; they join in the app via Profile → Join with a code. Everyone joins as a viewer - you can make them an editor in this list afterwards.</value>
   </data>
-  <data name="Members_InviteEditor" xml:space="preserve">
-    <value>Invite an editor</value>
+  <data name="Members_Invite" xml:space="preserve">
+    <value>Create an invite code</value>
   </data>
-  <data name="Members_InviteViewer" xml:space="preserve">
-    <value>Invite a viewer</value>
+  <data name="Members_InviteGroup" xml:space="preserve">
+    <value>Code for several people</value>
+  </data>
+  <data name="Members_InviteGroupTitle" xml:space="preserve">
+    <value>Create a group code?</value>
+  </data>
+  <data name="Members_InviteGroupMessageFormat" xml:space="preserve">
+    <value>Up to {0} people can use this code within {1} hours; everyone joins as a viewer. If the code is forwarded, people you don't know can join too. Only send it to a group you trust.</value>
+  </data>
+  <data name="Members_InviteGroupConfirm" xml:space="preserve">
+    <value>Create code</value>
   </data>
   <data name="Members_InviteInfoFormat" xml:space="preserve">
-    <value>{0} invite · valid until {1}</value>
+    <value>{0} · valid until {1}</value>
+  </data>
+  <data name="Members_InviteUsesSingle" xml:space="preserve">
+    <value>Single-use</value>
+  </data>
+  <data name="Members_InviteUsesGroupFormat" xml:space="preserve">
+    <value>Up to {0} people</value>
   </data>
   <data name="Members_InviteShareTitle" xml:space="preserve">
     <value>Trip invite</value>
@@ -1873,7 +1888,13 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
   <data name="Members_InviteShareFormat" xml:space="preserve">
     <value>Join my trip "{0}" on Travel Planner!
 Invite code: {1}
-In the app tap Profile → Join with a code and enter it. The code works until {2}.</value>
+In the app, tap Profile → Join with a code and enter it. The code works until {2}. {3}</value>
+  </data>
+  <data name="Members_InviteShareSingle" xml:space="preserve">
+    <value>The code is for one person only - please don't forward it.</value>
+  </data>
+  <data name="Members_InviteShareGroupFormat" xml:space="preserve">
+    <value>Up to {0} people can use the code.</value>
   </data>
   <data name="Members_MakeEditor" xml:space="preserve">
     <value>Make editor</value>
@@ -1899,6 +1920,27 @@ In the app tap Profile → Join with a code and enter it. The code works until {
   <data name="Members_LeaveMessageFormat" xml:space="preserve">
     <value>"{0}" will be removed from this device and your account. You'll need a new invite code to rejoin.</value>
   </data>
+  <data name="Members_JoinedAgoFormat" xml:space="preserve">
+    <value>Joined {0}</value>
+  </data>
+  <data name="Members_JoinedTitle" xml:space="preserve">
+    <value>Someone joined your trip</value>
+  </data>
+  <data name="Members_JoinedOneFormat" xml:space="preserve">
+    <value>{0} joined "{1}".</value>
+  </data>
+  <data name="Members_JoinedManyFormat" xml:space="preserve">
+    <value>{0} people joined "{1}".</value>
+  </data>
+  <data name="Members_JoinedTripsFormat" xml:space="preserve">
+    <value>{0} new members joined your trips.</value>
+  </data>
+  <data name="Members_JoinedHint" xml:space="preserve">
+    <value>If you don't know them, remove them in Members &amp; invites.</value>
+  </data>
+  <data name="Members_Someone" xml:space="preserve">
+    <value>Someone</value>
+  </data>
   <data name="Members_LoadError" xml:space="preserve">
     <value>Couldn't load the members.</value>
   </data>
@@ -1916,6 +1958,9 @@ In the app tap Profile → Join with a code and enter it. The code works until {
   </data>
   <data name="Sharing_ErrorInvalidInvite" xml:space="preserve">
     <value>The invite code is wrong, expired or already used.</value>
+  </data>
+  <data name="Sharing_ErrorTooManyAttempts" xml:space="preserve">
+    <value>Too many wrong codes. Please try again in an hour.</value>
   </data>
   <data name="Sharing_ErrorForbidden" xml:space="preserve">
     <value>You aren't allowed to do this. Your role may have changed; refresh the page.</value>
@@ -2548,7 +2593,7 @@ Your personal data may be shared, only for the purposes above, with:
 • OpenAI (USA) – only when you use planning with AI: the destination, dates, your preferences, your note and the names of saved places. Your name, e-mail, expenses and documents are not transferred.
 • Google – only if you choose to sign in with Google, for the sign-in.
 • Cloudflare, Inc. (USA) – for the security check that stops automated (bot) sign-ups when you sign up, sign in or reset your password with e-mail: IP address and browser information.
-• Members of a trip you share – only through an invite you create: the trip's content and your name, e-mail and profile photo.
+• Members of a trip you share – only through an invite you create: the trip's content and your name and profile photo. Your e-mail is only visible to the owner of a trip you join.
 • Competent public authorities – where the law requires.
 As some of these providers are located abroad, your personal data is transferred abroad. Transfers are made in line with KVKK article 9: on the basis of appropriate safeguards in the agreements with the providers, or, where that is not possible, on the basis of the explicit consent you give when using the feature concerned. Planning with AI and signing in with Google are entirely optional; you can use the app's other features without them.
 
@@ -2677,9 +2722,9 @@ Yes. Use the export button on the Expenses page to share every expense as a CSV 
 
 ## Sharing and your account
 ? How do I share a trip?
-Open Members &amp; invites in the trip, tap "Invite an editor" or "Invite a viewer" and share the code. The other person joins with Profile → Join with a code. Codes are valid for 7 days. Both of you need to be signed in.
+Open Members &amp; invites in the trip, tap "Create an invite code" and share the code. The other person joins with Profile → Join with a code. A code is for one person and works for 48 hours; to invite several people with one code choose "Code for several people" (up to 10). Everyone joins as a viewer and you make them an editor in the members list. You get a notification when someone joins your trip. Both of you need to be signed in.
 ? What do owner, editor and viewer mean?
-The owner can do everything, manages members and can delete the trip. Editors can add and change the trip's content. Viewers can only look. Trip members see each other's name, e-mail and profile photo.
+The owner can do everything, manages members and can delete the trip. Editors can add and change the trip's content. Viewers can only look. Trip members see each other's name and profile photo; only the trip's owner sees their e-mail addresses.
 ? How does syncing work?
 When you're signed in, your changes go to the cloud within a few seconds. Changes made offline are kept and sent once you're back online. "Sync now" in Profile syncs right away.
 ? I forgot my password.

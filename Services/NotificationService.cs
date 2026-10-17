@@ -109,6 +109,34 @@ namespace TravelPlanner.Services
             }
         }
 
+        /// <summary>TP-4: one id for every "new member" notice - a newer one replaces the older.</summary>
+        internal const int MemberJoinedNotificationId = 2_100_000_001;
+
+        public async Task<bool> ShowMemberJoinedAsync(string title, string message)
+        {
+            if (!IsSupported)
+                return false;
+
+            try
+            {
+                if (!await LocalNotificationCenter.Current.AreNotificationsEnabled())
+                    return false;
+
+                await LocalNotificationCenter.Current.Show(new NotificationRequest
+                {
+                    NotificationId = MemberJoinedNotificationId,
+                    Title = title,
+                    Description = message
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NotificationService] New-member notice failed: {ex}");
+                return false;
+            }
+        }
+
         private static Task ShowNotificationAsync(int id, string title, string message, DateTime notifyTime)
         {
             var request = new NotificationRequest

@@ -77,6 +77,7 @@
                                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                                 <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" LineBreakMode="TailTruncation" />
                                                 <Label Text="{Binding Email}" IsVisible="{Binding HasEmail}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding JoinedText}" IsVisible="{Binding HasJoinedText}" Style="{StaticResource Text.Caption}" LineBreakMode="TailTruncation" />
                                             </VerticalStackLayout>
                                             <HorizontalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
                                                 <Border Style="{StaticResource Tag}">
@@ -99,12 +100,11 @@
                         <Border Style="{StaticResource Card}">
                             <VerticalStackLayout Spacing="12">
                                 <Label Text="{x:Static res:AppResources.Members_InviteHint}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                    <Button Grid.Column="0" Text="{x:Static res:AppResources.Members_InviteEditor}" Command="{Binding InviteEditorCommand}"
-                                            Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40" />
-                                    <Button Grid.Column="1" Text="{x:Static res:AppResources.Members_InviteViewer}" Command="{Binding InviteViewerCommand}"
-                                            Style="{StaticResource Btn.Secondary.Sm}" HeightRequest="40" />
-                                </Grid>
+                                <!-- TP-4: one person by default; a group code only on purpose (with a warning). -->
+                                <Button Text="{x:Static res:AppResources.Members_Invite}" Command="{Binding InviteCommand}"
+                                        Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40" />
+                                <Button Text="{x:Static res:AppResources.Members_InviteGroup}" Command="{Binding InviteGroupCommand}"
+                                        Style="{StaticResource Btn.Secondary.Sm}" HeightRequest="40" />
                                 <VerticalStackLayout IsVisible="{Binding HasInvite}" Spacing="2" HorizontalOptions="Center">
                                     <Label Text="{Binding LastInviteCode}" FontFamily="InterBold" FontSize="26" CharacterSpacing="4"
                                            HorizontalTextAlignment="Center" TextColor="{DynamicResource tp-text}" />
