@@ -1330,6 +1330,84 @@ do $$ begin
 exception when sqlstate '22023' then raise notice 'ok - TP-33: days must fit the trip';
 end $$;
 
+-- ------------------------------------------------------------------------------- admin panel (migration 25)
+set role service_role;
+select test.eq((public.admin_overview() ->> 'explore_draft')::int >= 1, true, 'admin: overview counts drafts');
+select test.eq((select count(*) from jsonb_array_elements(public.admin_explore_list()) x where x ->> 'slug' = 'taslak'), 1::bigint,
+               'admin: the list shows drafts too');
+select test.eq(public.admin_explore_get('istanbul-3-gun') -> 'days' -> 0 -> 'activities' -> 0 ->> 'place',
+               public.admin_explore_get('istanbul-3-gun') -> 'places' -> 0 ->> 'key', 'admin: activities point at their place key');
+select test.eq(public.admin_explore_get('yok'), null::jsonb, 'admin: unknown slug gives null');
+-- what admin_explore_get returns goes back through admin_explore_upsert unchanged
+select public.admin_explore_upsert(public.admin_explore_get('istanbul-3-gun'));
+select test.eq(public.admin_explore_get('istanbul-3-gun') ->> 'title', 'İstanbul 3 gün', 'admin: round trip keeps the trip');
+select test.eq(jsonb_array_length(public.admin_explore_get('istanbul-3-gun') -> 'todos'), 2, 'admin: round trip keeps the to-dos');
+select test.eq(public.admin_explore_get('istanbul-3-gun') -> 'days' -> 0 -> 'activities' -> 0 ->> 'start', '09:00', 'admin: round trip keeps the times');
+select public.admin_explore_set_status('taslak', 'published');
+select test.eq((select status from public.explore_trips where slug = 'taslak'), 'published', 'admin: publish from the panel');
+select public.admin_explore_set_status('taslak', 'draft');
+
+select test.eq(jsonb_array_length(public.admin_users('ALI@example')), 1, 'admin: user search ignores case');
+select test.eq(jsonb_array_length(public.admin_users('%')), 0, 'admin: % in the search is literal');
+select test.eq(public.admin_user(:'ali') ->> 'email', 'ali@example.com', 'admin: one account');
+select test.eq(public.admin_user('00000000-0000-0000-0000-0000000000ff'), null::jsonb, 'admin: unknown account gives null');
+select test.eq((select count(*) from jsonb_array_elements(public.admin_trips(p_owner => :'can')) x where x ->> 'id' = :'t11'), 1::bigint, 'admin: trips of one owner');
+select test.eq(jsonb_array_length(public.admin_trips('VIYANA')), 1, 'admin: trip search ignores case');
+select test.eq(public.admin_trip(:'t11') ->> 'owner_email', 'can@example.com', 'admin: one trip with its owner');
+select test.eq(jsonb_array_length(public.admin_trip(:'t11') -> 'expenses'), 2, 'admin: and its expenses');
+select test.eq(public.admin_trip('00000000-0000-0000-0000-0000000000ff'), null::jsonb, 'admin: unknown trip gives null');
+
+select public.admin_set_ai_limit(:'ali', 20);
+select test.eq((public.admin_user(:'ali') ->> 'ai_limit')::int, 20, 'admin: an account limit of its own');
+select test.eq((public.admin_user(:'ali') ->> 'ai_custom_limit')::int, 20, 'admin: the panel shows it');
+reset role;
+insert into private.ai_usage (user_id, day, count) values (:'ali', current_date, 7)
+on conflict (user_id, day) do update set count = 7;
+insert into private.ai_device_usage (device, day, count) values (repeat('ab', 32), current_date, 7)
+on conflict (device, day) do update set count = 7;
+insert into private.ai_quota_ticket (user_id, device, day) values (:'ali', repeat('ab', 32), current_date);
+set role service_role;
+select public.admin_reset_ai_today(:'ali');
+reset role;
+select test.eq((select count from private.ai_usage where user_id = :'ali' and day = current_date), 0, 'admin: reset today''s account count');
+select test.eq((select count from private.ai_device_usage where device = repeat('ab', 32) and day = current_date), 0, 'admin: and its device');
+set role service_role;
+select public.admin_set_ai_limit(:'ali', null);
+reset role;
+select test.eq(private.ai_limit_for(:'ali'), private.ai_daily_limit(), 'admin: null goes back to the default');
+do $$ begin
+    perform public.admin_set_ai_limit('00000000-0000-0000-0000-00000000a111', 101);
+    raise exception 'FAILED: a limit over 100';
+exception when sqlstate '22023' then raise notice 'ok - admin: limit at most 100';
+end $$;
+
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+do $$ begin
+    perform public.admin_users(null, 10);
+    raise exception 'FAILED: a signed-in user listed the accounts';
+exception when insufficient_privilege then raise notice 'ok - admin: functions are not for signed-in users';
+end $$;
+do $$ begin
+    perform public.admin_trip('11111111-1111-1111-1111-111111111111');
+    raise exception 'FAILED: a signed-in user read a trip through the admin function';
+exception when insufficient_privilege then raise notice 'ok - admin: functions are not for signed-in users';
+end $$;
+do $$ begin
+    perform public.admin_set_ai_limit('00000000-0000-0000-0000-00000000a111', 100);
+    raise exception 'FAILED: a signed-in user raised their own AI limit';
+exception when insufficient_privilege then raise notice 'ok - admin: users cannot raise their own limit';
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub', '', false);
+set role anon;
+do $$ begin
+    perform public.admin_explore_upsert('{"slug": "x"}'::jsonb);
+    raise exception 'FAILED: anon called an admin function';
+exception when insufficient_privilege then raise notice 'ok - admin: functions are not for anon';
+end $$;
+reset role;
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'

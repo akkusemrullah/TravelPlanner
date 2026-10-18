@@ -77,6 +77,14 @@ yönetir (aynı anda tek "daha fazla" isteği, id ile tekilleştirme, `RangeObse
 eski isteği iptal eder). Kullanıcı planı eklediğinde `TripService.CreateFromTemplateAsync` tek transaction'da bağımsız bir kopya
 oluşturur (gün N = başlangıç + N − 1, her satır `InsertTracked` ile outbox'a). İçerik yönetimi: [docs/EXPLORE_CONTENT.md](docs/EXPLORE_CONTENT.md).
 
+## 5b. Yönetim paneli
+
+Ayrı, private bir depodadır: [akkusemrullah/TravelPlanner.Admin](https://github.com/akkusemrullah/TravelPlanner.Admin) (ASP.NET Core Razor Pages).
+Keşfet planlarını ekler/düzenler/yayınlar, kullanıcıları ve seyahatlerini (salt okunur) gösterir, AI kullanımını gösterir ve hesaba
+özel günlük AI hakkı verir. Supabase'e yalnızca sunucudan, service
+key ile, migration 25'teki `admin_*` RPC'leri üzerinden gider; tarayıcı anahtarı görmez. Giriş: izinli e-posta listesi +
+Supabase şifresi. Kurulum o deponun README'sinde.
+
 ## 6. Güvenlik özeti
 RLS + yalnızca RPC ile yazma, değer ve kota sınırları, Turnstile ve kayıt koruması, banlı/silinmiş hesabın anında reddi, kısa hata kodları. Ayrıntılar: [SECURITY.md](SECURITY.md).
 
