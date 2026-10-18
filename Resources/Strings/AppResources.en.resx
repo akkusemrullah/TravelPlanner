@@ -1398,10 +1398,10 @@
     <value>(copy)</value>
   </data>
   <data name="Backup_SharedTripsFormat" xml:space="preserve">
-    <value>This backup contains {0} shared trips: {1}. Restoring them as they are would overwrite the other members' later changes and bring back what they deleted. What should happen to these trips?</value>
+    <value>The backup has {0} shared trips</value>
   </data>
   <data name="Backup_SharedSkip" xml:space="preserve">
-    <value>Skip them, keep the cloud version (recommended)</value>
+    <value>Skip (recommended)</value>
   </data>
   <data name="Backup_SharedCopy" xml:space="preserve">
     <value>Restore as copies</value>
@@ -1545,7 +1545,7 @@ We may update this policy as the app changes. We will announce important changes
     <value>A trip can be at most {0} days long.</value>
   </data>
   <data name="TripForm_OutsideTitleFormat" xml:space="preserve">
-    <value>{0} activities fall outside the new dates. What should happen to them?</value>
+    <value>{0} activities fall outside the dates</value>
   </data>
   <data name="TripForm_OutsideMove" xml:space="preserve">
     <value>Move to the nearest trip day</value>
@@ -1650,7 +1650,7 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
     <value>Deleting the account needs an internet connection. Nothing was deleted; try again when you're online.</value>
   </data>
   <data name="Account_DeleteSharedTripFormat" xml:space="preserve">
-    <value>You share "{0}" with {1} people. When your account is deleted, this trip, its expenses and documents are deleted for them too. What should happen?</value>
+    <value>"{0}" is shared with {1} people</value>
   </data>
   <data name="Account_TransferOwnership" xml:space="preserve">
     <value>Hand it over</value>
@@ -1659,7 +1659,7 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
     <value>Delete for everyone</value>
   </data>
   <data name="Account_ChooseNewOwnerFormat" xml:space="preserve">
-    <value>Who should own "{0}" now?</value>
+    <value>Hand "{0}" over to</value>
   </data>
   <data name="Account_DeleteError" xml:space="preserve">
     <value>The account couldn't be deleted. Please try again later.</value>
@@ -1691,17 +1691,14 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
   <data name="Account_SignOutTitle" xml:space="preserve">
     <value>Sign out?</value>
   </data>
-  <data name="Account_SignOutMessage" xml:space="preserve">
-    <value>With "Sign out" your account's data stays on this device and opens quickly when you sign in again. On a borrowed or shared phone you can also delete it from this device; your data in the cloud is not deleted. After signing out, the guest data is shown.</value>
-  </data>
   <data name="Account_SignOutAndDelete" xml:space="preserve">
-    <value>Sign out and delete my data from this device</value>
+    <value>Sign out and delete from this device</value>
   </data>
   <data name="Account_SignOutPendingFormat" xml:space="preserve">
-    <value>Note: {0} changes haven't been uploaded to the cloud yet.</value>
+    <value>{0} changes not uploaded yet</value>
   </data>
   <data name="Account_SignOutLoseFormat" xml:space="preserve">
-    <value>{0} changes haven't been uploaded to the cloud yet. If your data is deleted from this device, these changes are lost. Continue?</value>
+    <value>{0} unsent changes will be lost. Delete anyway?</value>
   </data>
   <data name="Account_MoveGuestTitle" xml:space="preserve">
     <value>Move your trips to your account?</value>

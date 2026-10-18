@@ -274,9 +274,10 @@ namespace TravelPlanner.ViewModels
                 pending = _sync.PendingCount;
             }
 
-            var title = AppResources.Account_SignOutMessage;
-            if (pending > 0)
-                title += "\n\n" + string.Format(AppResources.Account_SignOutPendingFormat, pending);
+            // A short title: an action sheet can cut a long one off.
+            var title = pending > 0
+                ? string.Format(AppResources.Account_SignOutPendingFormat, pending)
+                : AppResources.Account_SignOutTitle;
 
             var choice = await Dialogs.ChooseAsync(title,
                 new[] { AppResources.Account_SignOut, AppResources.Account_SignOutAndDelete },
@@ -475,9 +476,9 @@ namespace TravelPlanner.ViewModels
         /// </summary>
         private async Task<SharedTripRestoreChoice> AskAboutSharedTripsAsync(SharedTripsInBackup shared)
         {
-            var names = string.Join(", ", shared.TripNames.Take(5)) + (shared.TripNames.Count > 5 ? ", …" : string.Empty);
+            // A short title: an action sheet can cut a long one off.
             var choice = await Dialogs.ChooseAsync(
-                string.Format(AppResources.Backup_SharedTripsFormat, shared.TripNames.Count, names),
+                string.Format(AppResources.Backup_SharedTripsFormat, shared.TripNames.Count),
                 new[] { AppResources.Backup_SharedSkip, AppResources.Backup_SharedCopy },
                 AppResources.Common_Cancel);
 
