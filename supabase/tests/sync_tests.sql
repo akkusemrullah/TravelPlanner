@@ -1351,6 +1351,11 @@ select test.eq(jsonb_array_length(public.admin_users('ALI@example')), 1, 'admin:
 select test.eq(jsonb_array_length(public.admin_users('%')), 0, 'admin: % in the search is literal');
 select test.eq(public.admin_user(:'ali') ->> 'email', 'ali@example.com', 'admin: one account');
 select test.eq(public.admin_user('00000000-0000-0000-0000-0000000000ff'), null::jsonb, 'admin: unknown account gives null');
+select test.eq((select count(*) from jsonb_array_elements(public.admin_trips(p_owner => :'can')) x where x ->> 'id' = :'t11'), 1::bigint, 'admin: trips of one owner');
+select test.eq(jsonb_array_length(public.admin_trips('VIYANA')), 1, 'admin: trip search ignores case');
+select test.eq(public.admin_trip(:'t11') ->> 'owner_email', 'can@example.com', 'admin: one trip with its owner');
+select test.eq(jsonb_array_length(public.admin_trip(:'t11') -> 'expenses'), 2, 'admin: and its expenses');
+select test.eq(public.admin_trip('00000000-0000-0000-0000-0000000000ff'), null::jsonb, 'admin: unknown trip gives null');
 
 select public.admin_set_ai_limit(:'ali', 20);
 select test.eq((public.admin_user(:'ali') ->> 'ai_limit')::int, 20, 'admin: an account limit of its own');
@@ -1381,6 +1386,11 @@ set role authenticated;
 do $$ begin
     perform public.admin_users(null, 10);
     raise exception 'FAILED: a signed-in user listed the accounts';
+exception when insufficient_privilege then raise notice 'ok - admin: functions are not for signed-in users';
+end $$;
+do $$ begin
+    perform public.admin_trip('11111111-1111-1111-1111-111111111111');
+    raise exception 'FAILED: a signed-in user read a trip through the admin function';
 exception when insufficient_privilege then raise notice 'ok - admin: functions are not for signed-in users';
 end $$;
 do $$ begin

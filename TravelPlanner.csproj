@@ -107,12 +107,6 @@
 		<None Remove="Tests\**" />
 		<Content Remove="Tests\**" />
 		<EmbeddedResource Remove="Tests\**" />
-		<!-- admin web panel: its own solution (admin/TravelPlanner.Admin.slnx) -->
-		<Compile Remove="admin\**" />
-		<MauiXaml Remove="admin\**" />
-		<None Remove="admin\**" />
-		<Content Remove="admin\**" />
-		<EmbeddedResource Remove="admin\**" />
 		<Compile Remove="_backup_sprint*\**" />
 		<None Remove="_backup_sprint*\**" />
 		<MauiXaml Remove="_backup_sprint*\**" />

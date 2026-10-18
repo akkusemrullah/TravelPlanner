@@ -3988,11 +3988,11 @@ alter table public.explore_trips add constraint explore_trips_thumb_path_check
 
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261018000025_admin_panel.sql
 -- =====================================================================================================
--- TravelPlanner - TP admin / 25: functions for the admin web panel (admin/ in this repository).
+-- TravelPlanner - TP admin / 25: functions for the admin web panel.
 --
--- The panel is a server-side ASP.NET Core app that calls these with the service role key (never in a browser,
--- never in the app). Every admin_* function below is executable by service_role ONLY - anon and signed-in users
--- get "permission denied". They wrap what was SQL-Editor-only so far:
+-- The panel (private repository TravelPlanner.Admin) is a server-side ASP.NET Core app that calls these with the
+-- service role key (never in a browser, never in the app). Every admin_* function below is executable by service_role
+-- ONLY - anon and signed-in users get "permission denied". They wrap what was SQL-Editor-only so far:
 --
 --   admin_overview()                       counts for the start page
 --   admin_explore_list()                   every sample trip, whatever its status
@@ -4003,6 +4003,7 @@ alter table public.explore_trips add constraint explore_trips_thumb_path_check
 --   admin_user(id)                         one account, its AI limit and the last 14 days of AI use
 --   admin_set_ai_limit(id, limit|null)     a daily AI plan limit of its own for one account (null = default)
 --   admin_reset_ai_today(id)               today's AI plans of the account (and its devices) start again
+--   admin_trips(query, owner, limit)       users' trips (read only), admin_trip(id) one trip with all its rows
 --
 -- private.ai_user_limits holds the per-account limits; private.ai_limit_for (migration 12) now reads it first,
 -- so ai_plan_quota / ai_plan_quota_status use it without any change. The global daily ceiling still applies.
@@ -4242,6 +4243,97 @@ begin
 end;
 $$;
 
+-- ------------------------------------------------------------------------------------------- trips (read only)
+-- Live trips, newest first: of one owner (p_owner) and/or whose name, city, country or owner e-mail contains p_query.
+create or replace function public.admin_trips(p_query text default null, p_owner uuid default null, p_limit int default 50)
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+    v_query   text := nullif(btrim(coalesce(p_query, '')), '');
+    v_pattern text;
+begin
+    if p_limit is null or p_limit not between 1 and 200 then
+        raise exception 'p_limit must be between 1 and 200' using errcode = '22023';
+    end if;
+    if v_query is not null then
+        if char_length(v_query) > 100 then
+            raise exception 'p_query is too long' using errcode = '22023';
+        end if;
+        v_pattern := '%' || replace(replace(replace(v_query, '\', '\\'), '%', '\%'), '_', '\_') || '%';
+    end if;
+
+    return coalesce((
+        select jsonb_agg(jsonb_build_object(
+                   'id', t.id, 'name', t.name, 'country', t.country, 'city', t.city,
+                   'start_date', t.start_date, 'end_date', t.end_date, 'currency_code', t.currency_code,
+                   'owner_id', t.owner_id, 'owner_email', u.email, 'updated_at', t.updated_at,
+                   'members', (select count(*) from public.trip_members m where m.trip_id = t.id))
+               order by t.created_at desc)
+        from (select t.*
+              from public.trips t
+              left join auth.users u on u.id = t.owner_id
+              where t.deleted_at is null
+                and (p_owner is null or t.owner_id = p_owner)
+                and (v_pattern is null or t.name ilike v_pattern or t.city ilike v_pattern
+                     or t.country ilike v_pattern or u.email ilike v_pattern)
+              order by t.created_at desc
+              limit p_limit) t
+        left join auth.users u on u.id = t.owner_id), '[]'::jsonb);
+end;
+$$;
+
+-- One trip with everything in it (live rows only); null when there is no such trip.
+create or replace function public.admin_trip(p_id uuid) returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+    select to_jsonb(t) - 'change_seq' - 'version' - 'created_by' - 'updated_by'
+        || jsonb_build_object(
+            'owner_email', (select u.email from auth.users u where u.id = t.owner_id),
+            'members', coalesce((
+                select jsonb_agg(jsonb_build_object('user_id', m.user_id, 'email', u.email, 'role', m.role,
+                                                    'joined_at', m.joined_at) order by m.joined_at)
+                from public.trip_members m left join auth.users u on u.id = m.user_id
+                where m.trip_id = t.id), '[]'::jsonb),
+            'participants', coalesce((
+                select jsonb_agg(jsonb_build_object('id', p.id, 'name', p.name) order by p.name)
+                from public.participants p where p.trip_id = t.id and p.deleted_at is null), '[]'::jsonb),
+            'expenses', coalesce((
+                select jsonb_agg(jsonb_build_object(
+                           'date', e.date, 'description', e.description, 'category', e.category,
+                           'amount_minor', e.amount_minor, 'amount_currency_code', coalesce(e.amount_currency_code, t.currency_code),
+                           'original_amount_minor', e.original_amount_minor,
+                           'original_currency_code', e.original_currency_code,
+                           'paid_by', (select p.name from public.participants p where p.id = e.paid_by_participant_id))
+                       order by e.date, e.created_at)
+                from public.expenses e where e.trip_id = t.id and e.deleted_at is null), '[]'::jsonb),
+            'places', coalesce((
+                select jsonb_agg(jsonb_build_object('name', p.name, 'description', p.description, 'latitude', p.latitude,
+                                                    'longitude', p.longitude, 'is_visited', p.is_visited) order by p.name)
+                from public.places p where p.trip_id = t.id and p.deleted_at is null), '[]'::jsonb),
+            'activities', coalesce((
+                select jsonb_agg(jsonb_build_object('date', a.date, 'start_time', to_char(a.start_time, 'HH24:MI'),
+                                                    'end_time', to_char(a.end_time, 'HH24:MI'), 'title', a.title, 'note', a.note,
+                                                    'place', (select p.name from public.places p where p.id = a.place_id))
+                       order by a.date, a.sort_order, a.start_time nulls last)
+                from public.activities a where a.trip_id = t.id and a.deleted_at is null), '[]'::jsonb),
+            'todos', coalesce((
+                select jsonb_agg(jsonb_build_object('title', d.title, 'is_completed', d.is_completed) order by d.created_at)
+                from public.todos d where d.trip_id = t.id and d.deleted_at is null), '[]'::jsonb),
+            'attachments', coalesce((
+                select jsonb_agg(jsonb_build_object('display_name', f.display_name, 'content_type', f.content_type,
+                                                    'size_bytes', f.size_bytes, 'created_at', f.created_at) order by f.created_at)
+                from public.attachments f where f.trip_id = t.id and f.deleted_at is null), '[]'::jsonb))
+    from public.trips t
+    where t.id = p_id
+$$;
+
 -- ------------------------------------------------------------------------------------------- grants
 -- service_role only (Supabase grants new public functions to anon and authenticated by default).
 do $$
@@ -4251,7 +4343,7 @@ begin
         'public.admin_overview()', 'public.admin_explore_list()', 'public.admin_explore_get(text)',
         'public.admin_explore_upsert(jsonb)', 'public.admin_explore_set_status(text, text)',
         'public.admin_users(text, int)', 'public.admin_user(uuid)', 'public.admin_set_ai_limit(uuid, int)',
-        'public.admin_reset_ai_today(uuid)'] loop
+        'public.admin_reset_ai_today(uuid)', 'public.admin_trips(text, uuid, int)', 'public.admin_trip(uuid)'] loop
         execute format('revoke all on function %s from public, anon, authenticated', f);
         execute format('grant execute on function %s to service_role', f);
     end loop;

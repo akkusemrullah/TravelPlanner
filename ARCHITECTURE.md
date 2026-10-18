@@ -79,10 +79,11 @@ oluşturur (gün N = başlangıç + N − 1, her satır `InsertTracked` ile outb
 
 ## 5b. Yönetim paneli
 
-`admin/` ayrı bir çözümdür (ASP.NET Core Razor Pages, mobil derlemeye girmez): Keşfet planlarını ekler/düzenler/yayınlar,
-kullanıcıları arar, AI kullanımını gösterir ve hesaba özel günlük AI hakkı verir. Supabase'e yalnızca sunucudan, service
+Ayrı, private bir depodadır: [akkusemrullah/TravelPlanner.Admin](https://github.com/akkusemrullah/TravelPlanner.Admin) (ASP.NET Core Razor Pages).
+Keşfet planlarını ekler/düzenler/yayınlar, kullanıcıları ve seyahatlerini (salt okunur) gösterir, AI kullanımını gösterir ve hesaba
+özel günlük AI hakkı verir. Supabase'e yalnızca sunucudan, service
 key ile, migration 25'teki `admin_*` RPC'leri üzerinden gider; tarayıcı anahtarı görmez. Giriş: izinli e-posta listesi +
-Supabase şifresi. Kurulum: [admin/README.md](admin/README.md).
+Supabase şifresi. Kurulum o deponun README'sinde.
 
 ## 6. Güvenlik özeti
 RLS + yalnızca RPC ile yazma, değer ve kota sınırları, Turnstile ve kayıt koruması, banlı/silinmiş hesabın anında reddi, kısa hata kodları. Ayrıntılar: [SECURITY.md](SECURITY.md).

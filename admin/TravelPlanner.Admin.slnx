@@ -1,8 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/TravelPlanner.Admin/TravelPlanner.Admin.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/TravelPlanner.Admin.Tests/TravelPlanner.Admin.Tests.csproj" />
-  </Folder>
-</Solution>
