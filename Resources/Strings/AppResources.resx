@@ -162,13 +162,46 @@
     <value>Bütçe</value>
   </data>
   <data name="Dashboard_EmptyTitle" xml:space="preserve">
-    <value>Henüz seyahat planın yok.</value>
+    <value>Henüz seyahatin yok</value>
   </data>
   <data name="Dashboard_EmptyBody" xml:space="preserve">
-    <value>İlk planını oluştur, tarihleri ve bütçeyi ekle; gerisini biz hatırlatırız.</value>
+    <value>Rotanı, bütçeni ve planını tek yerde topla.</value>
   </data>
   <data name="Dashboard_CreateTrip" xml:space="preserve">
     <value>Yeni Seyahat Oluştur</value>
+  </data>
+  <data name="Dashboard_EmptyBadge" xml:space="preserve">
+    <value>İlk seyahat</value>
+  </data>
+  <data name="Dashboard_EmptyWhere" xml:space="preserve">
+    <value>Nereye?</value>
+  </data>
+  <data name="Dashboard_FeaturesTitle" xml:space="preserve">
+    <value>Neler yapabilirsin</value>
+  </data>
+  <data name="Dashboard_FeaturePlan" xml:space="preserve">
+    <value>Gün gün plan</value>
+  </data>
+  <data name="Dashboard_FeaturePlanBody" xml:space="preserve">
+    <value>Yerleri ve etkinlikleri sırala</value>
+  </data>
+  <data name="Dashboard_FeatureBudget" xml:space="preserve">
+    <value>Bütçe takibi</value>
+  </data>
+  <data name="Dashboard_FeatureBudgetBody" xml:space="preserve">
+    <value>Harcamaları kaydet, hesabı böl</value>
+  </data>
+  <data name="Dashboard_FeatureShare" xml:space="preserve">
+    <value>Birlikte planla</value>
+  </data>
+  <data name="Dashboard_FeatureShareBody" xml:space="preserve">
+    <value>Arkadaşlarını seyahate davet et</value>
+  </data>
+  <data name="Dashboard_FeatureAi" xml:space="preserve">
+    <value>Yapay zekâ planı</value>
+  </data>
+  <data name="Dashboard_FeatureAiBody" xml:space="preserve">
+    <value>Sana özel rota önerisi al</value>
   </data>
   <data name="Dashboard_TotalTrips" xml:space="preserve">
     <value>Toplam Seyahat</value>
