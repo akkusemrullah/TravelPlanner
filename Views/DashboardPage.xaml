@@ -138,19 +138,120 @@
                     </Border>
 
                     <!-- ════════ Empty state ════════ -->
-                    <Border IsVisible="{Binding HasNoTrips}" Style="{StaticResource Card}" Padding="24,32">
-                        <VerticalStackLayout Spacing="16">
-                            <Border Style="{StaticResource EmptyIcon}">
-                                <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Plane}" TextColor="{DynamicResource tp-text-2}" />
+                    <!-- A blank boarding pass ("Nereye?") in the same ticket style as the featured trip, so the first
+                         screen already looks like the app; then a short list of what the app can do. -->
+                    <VerticalStackLayout IsVisible="{Binding HasNoTrips}" Spacing="24">
+                        <Border Style="{StaticResource Card.Ticket}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToAddTripCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid RowDefinitions="Auto,24,Auto">
+                                <Grid Grid.Row="0" Padding="20,18,20,18" RowSpacing="16" RowDefinitions="Auto,Auto,Auto">
+                                    <Grid.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource TicketStart}" Offset="0" />
+                                            <GradientStop Color="{StaticResource TicketEnd}" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Grid.Background>
+
+                                    <Border Grid.Row="0" Style="{StaticResource Ticket.Pill}">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Star}" TextColor="{StaticResource White}" VerticalOptions="Center" />
+                                            <Label Text="{x:Static res:AppResources.Dashboard_EmptyBadge}" Style="{StaticResource Ticket.PillText}" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+
+                                    <VerticalStackLayout Grid.Row="1" Spacing="2">
+                                        <Label Text="{x:Static res:AppResources.Dashboard_EmptyWhere}" Style="{StaticResource Ticket.City}" SemanticProperties.HeadingLevel="Level2" />
+                                        <Label Text="{x:Static res:AppResources.Dashboard_EmptyTitle}" Style="{StaticResource Ticket.Sub}" />
+                                    </VerticalStackLayout>
+
+                                    <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="0">
+                                            <Label Text="{x:Static res:AppResources.Ticket_Departure}" Style="{StaticResource Ticket.Caption}" />
+                                            <Label Text="--" Style="{StaticResource Ticket.Day}" />
+                                        </VerticalStackLayout>
+                                        <!-- Dashed route with the plane above it: the trip that isn't planned yet. -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Plane}" Rotation="45"
+                                                   TextColor="{StaticResource White}" HorizontalOptions="Center" />
+                                            <Grid IsClippedToBounds="True" HeightRequest="2">
+                                                <Line X1="0" Y1="1" X2="3000" Y2="1" Stroke="{StaticResource White}" Opacity="0.6"
+                                                      StrokeThickness="1.5" StrokeDashArray="3,3" />
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="2" Spacing="0">
+                                            <Label Text="{x:Static res:AppResources.Ticket_Return}" Style="{StaticResource Ticket.Caption}" HorizontalTextAlignment="End" />
+                                            <Label Text="--" Style="{StaticResource Ticket.Day}" HorizontalTextAlignment="End" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Grid>
+
+                                <!-- Tear line, as on the featured ticket. -->
+                                <Grid Grid.Row="1">
+                                    <Grid IsClippedToBounds="True" Margin="24,0" HeightRequest="2" VerticalOptions="Center">
+                                        <Line X1="0" Y1="1" X2="3000" Y2="1" Stroke="{DynamicResource tp-border-strong}"
+                                              StrokeThickness="1.5" StrokeDashArray="3,3" />
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="Start" Margin="-12,0,0,0" />
+                                    <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="End" Margin="0,0,-12,0" />
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Row="2" Padding="20,0,20,18" Spacing="14">
+                                    <Label Text="{x:Static res:AppResources.Dashboard_EmptyBody}" Style="{StaticResource Text.Body2}" />
+                                    <Button Text="{x:Static res:AppResources.Dashboard_CreateTrip}" Command="{Binding GoToAddTripCommand}"
+                                            Style="{StaticResource Btn.Primary}" HorizontalOptions="Fill" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="{x:Static res:AppResources.Dashboard_FeaturesTitle}" Style="{StaticResource Text.Overline}" />
+                            <Border Style="{StaticResource Card}" Padding="16,4">
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
+                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.CalendarDays}" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeaturePlan}" Style="{StaticResource Text.Title}" />
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeaturePlanBody}" Style="{StaticResource Text.Caption}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}" />
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
+                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Wallet}" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeatureBudget}" Style="{StaticResource Text.Title}" />
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeatureBudgetBody}" Style="{StaticResource Text.Caption}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}" />
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
+                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Users}" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeatureShare}" Style="{StaticResource Text.Title}" />
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeatureShareBody}" Style="{StaticResource Text.Caption}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <BoxView Style="{StaticResource Divider}" />
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
+                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Compass}" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeatureAi}" Style="{StaticResource Text.Title}" />
+                                            <Label Text="{x:Static res:AppResources.Dashboard_FeatureAiBody}" Style="{StaticResource Text.Caption}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </VerticalStackLayout>
                             </Border>
-                            <VerticalStackLayout Spacing="6">
-                                <Label Text="{x:Static res:AppResources.Dashboard_EmptyTitle}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
-                                <Label Text="{x:Static res:AppResources.Dashboard_EmptyBody}" Style="{StaticResource EmptyStateTextLabel}" />
-                            </VerticalStackLayout>
-                            <Button Text="{x:Static res:AppResources.Dashboard_CreateTrip}" Command="{Binding GoToAddTripCommand}"
-                                    Style="{StaticResource Btn.Primary}" HorizontalOptions="Fill" />
                         </VerticalStackLayout>
-                    </Border>
+                    </VerticalStackLayout>
 
                     <!-- ════════ KPIs ════════ -->
                     <VerticalStackLayout IsVisible="{Binding HasAnyTrips}" Spacing="12">

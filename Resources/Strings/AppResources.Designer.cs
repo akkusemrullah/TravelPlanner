@@ -1168,6 +1168,105 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Sana özel rota önerisi al.
+        /// </summary>
+        public static string Dashboard_FeatureAiBody {
+            get {
+                return ResourceManager.GetString("Dashboard_FeatureAiBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yapay zekâ planı.
+        /// </summary>
+        public static string Dashboard_FeatureAi {
+            get {
+                return ResourceManager.GetString("Dashboard_FeatureAi", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arkadaşlarını seyahate davet et.
+        /// </summary>
+        public static string Dashboard_FeatureShareBody {
+            get {
+                return ResourceManager.GetString("Dashboard_FeatureShareBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birlikte planla.
+        /// </summary>
+        public static string Dashboard_FeatureShare {
+            get {
+                return ResourceManager.GetString("Dashboard_FeatureShare", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Harcamaları kaydet, hesabı böl.
+        /// </summary>
+        public static string Dashboard_FeatureBudgetBody {
+            get {
+                return ResourceManager.GetString("Dashboard_FeatureBudgetBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bütçe takibi.
+        /// </summary>
+        public static string Dashboard_FeatureBudget {
+            get {
+                return ResourceManager.GetString("Dashboard_FeatureBudget", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yerleri ve etkinlikleri sırala.
+        /// </summary>
+        public static string Dashboard_FeaturePlanBody {
+            get {
+                return ResourceManager.GetString("Dashboard_FeaturePlanBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gün gün plan.
+        /// </summary>
+        public static string Dashboard_FeaturePlan {
+            get {
+                return ResourceManager.GetString("Dashboard_FeaturePlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Neler yapabilirsin.
+        /// </summary>
+        public static string Dashboard_FeaturesTitle {
+            get {
+                return ResourceManager.GetString("Dashboard_FeaturesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nereye?.
+        /// </summary>
+        public static string Dashboard_EmptyWhere {
+            get {
+                return ResourceManager.GetString("Dashboard_EmptyWhere", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to İlk seyahat.
+        /// </summary>
+        public static string Dashboard_EmptyBadge {
+            get {
+                return ResourceManager.GetString("Dashboard_EmptyBadge", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Detaylar.
         /// </summary>
         public static string Dashboard_Details {
@@ -1177,7 +1276,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to İlk planını oluştur, tarihleri ve bütçeyi ekle; gerisini biz hatırlatırız..
+        ///   Looks up a localized string similar to Rotanı, bütçeni ve planını tek yerde topla..
         /// </summary>
         public static string Dashboard_EmptyBody {
             get {
@@ -1186,7 +1285,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Henüz seyahat planın yok..
+        ///   Looks up a localized string similar to Henüz seyahatin yok.
         /// </summary>
         public static string Dashboard_EmptyTitle {
             get {

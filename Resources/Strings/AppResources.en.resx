@@ -162,13 +162,46 @@
     <value>Budget</value>
   </data>
   <data name="Dashboard_EmptyTitle" xml:space="preserve">
-    <value>You don't have any trip plans yet.</value>
+    <value>No trips yet</value>
   </data>
   <data name="Dashboard_EmptyBody" xml:space="preserve">
-    <value>Create your first plan, add dates and a budget; we'll remind you of the rest.</value>
+    <value>Keep your route, budget and plan in one place.</value>
   </data>
   <data name="Dashboard_CreateTrip" xml:space="preserve">
     <value>Create new trip</value>
+  </data>
+  <data name="Dashboard_EmptyBadge" xml:space="preserve">
+    <value>First trip</value>
+  </data>
+  <data name="Dashboard_EmptyWhere" xml:space="preserve">
+    <value>Where to?</value>
+  </data>
+  <data name="Dashboard_FeaturesTitle" xml:space="preserve">
+    <value>What you can do</value>
+  </data>
+  <data name="Dashboard_FeaturePlan" xml:space="preserve">
+    <value>Day-by-day plan</value>
+  </data>
+  <data name="Dashboard_FeaturePlanBody" xml:space="preserve">
+    <value>Order places and activities</value>
+  </data>
+  <data name="Dashboard_FeatureBudget" xml:space="preserve">
+    <value>Budget tracking</value>
+  </data>
+  <data name="Dashboard_FeatureBudgetBody" xml:space="preserve">
+    <value>Log spending, split the bill</value>
+  </data>
+  <data name="Dashboard_FeatureShare" xml:space="preserve">
+    <value>Plan together</value>
+  </data>
+  <data name="Dashboard_FeatureShareBody" xml:space="preserve">
+    <value>Invite friends to your trip</value>
+  </data>
+  <data name="Dashboard_FeatureAi" xml:space="preserve">
+    <value>AI plan</value>
+  </data>
+  <data name="Dashboard_FeatureAiBody" xml:space="preserve">
+    <value>Get a route made for you</value>
   </data>
   <data name="Dashboard_TotalTrips" xml:space="preserve">
     <value>Total trips</value>
