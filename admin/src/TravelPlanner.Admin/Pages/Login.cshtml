@@ -1,0 +1,19 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Giriş";
+}
+<form method="post" class="card narrow">
+    <h1>Yönetim girişi</h1>
+    @if (Model.Error is not null)
+    {
+        <p class="alert error">@Model.Error</p>
+    }
+    <label>E-posta <input asp-for="Email" type="email" autocomplete="username" autofocus /></label>
+    <span asp-validation-for="Email" class="field-error"></span>
+    <label>Şifre <input asp-for="Password" autocomplete="current-password" /></label>
+    <span asp-validation-for="Password" class="field-error"></span>
+    <input type="hidden" asp-for="ReturnUrl" />
+    <button type="submit">Giriş yap</button>
+    <p class="muted">Uygulamadaki hesabının e-posta ve şifresi. Yalnızca yetkili adresler girebilir.</p>
+</form>

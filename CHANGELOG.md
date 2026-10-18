@@ -5,6 +5,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 ## [Yayınlanmadı / Unreleased] – 1.0.0
 
 ### Eklendi
+- Yönetim paneli (`admin/`, web): Keşfet planlarını yönetme, kullanıcı arama, hesaba özel günlük AI hakkı (migration 25).
 - Keşfet sekmesi: admin'in hazırladığı örnek seyahatler; arama, filtre, sonsuz kaydırma, detay, "Ekle" ve "Düzenle ve ekle" ile kendi seyahatlerine bağımsız kopya (TP-33, migration 23, içerik: `docs/EXPLORE_CONTENT.md`).
 - Paylaşılan seyahat içeren yedek geri yüklenirken atla / kopya olarak yükle / vazgeç seçimi (TP-10).
 - Para birimi değişimi sunucuda tek işlemde (`convert_trip_currency`), masrafta tutarın para birimi (TP-11, migration 19).

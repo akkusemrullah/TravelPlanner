@@ -6,6 +6,9 @@ kendi seyahatlerine bağımsız bir kopya düşer: planı sonradan değiştirmek
 
 Şema ve fonksiyonlar: `supabase/migrations/20261018000023_explore_catalog.sql` (aynı içerik `all_in_one.sql`'de).
 
+**Kolay yol:** yönetim paneli ([admin/README.md](../admin/README.md)) aşağıdaki işlerin hepsini form ve düğmelerle yapar
+(plan ekleme/düzenleme, JSON yapıştırma, yayınlama/arşivleme, görsel yükleme). SQL Editor yolu yine çalışır.
+
 ## 1. Plan ekleme veya güncelleme
 
 ```sql

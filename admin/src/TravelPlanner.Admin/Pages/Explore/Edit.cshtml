@@ -1,0 +1,155 @@
+@page
+@model TravelPlanner.Admin.Pages.Explore.EditModel
+@{
+    ViewData["Title"] = Model.IsNew ? "Yeni plan" : Model.Form.Title;
+    var f = Model.Form;
+    var tagNames = new Dictionary<string, string>
+    {
+        ["culture"] = "Kültür", ["nature"] = "Doğa", ["sea"] = "Deniz", ["food"] = "Yemek",
+        ["family"] = "Aile", ["romantic"] = "Romantik", ["adventure"] = "Macera",
+    };
+    var monthNames = System.Globalization.CultureInfo.GetCultureInfo("tr-TR").DateTimeFormat.AbbreviatedMonthNames;
+}
+<div class="page-head">
+    <h1>@(Model.IsNew ? "Yeni plan" : f.Title)</h1>
+    @if (!Model.IsNew)
+    {
+        <a class="button secondary" asp-page="Json" asp-route-slug="@f.Slug">JSON</a>
+    }
+</div>
+@if (Model.Error is not null)
+{
+    <p class="alert error">@Model.Error</p>
+}
+<div asp-validation-summary="ModelOnly" class="alert error"></div>
+
+<form method="post" enctype="multipart/form-data" class="form">
+    <input type="hidden" asp-for="IsNew" />
+
+    <fieldset>
+        <legend>Temel</legend>
+        <div class="grid">
+            <label>Başlık <input asp-for="Form.Title" /></label>
+            <label>Slug
+                @if (Model.IsNew)
+                {
+                    <input asp-for="Form.Slug" placeholder="istanbul-3-gun" />
+                }
+                else
+                {
+                    <input asp-for="Form.Slug" readonly />
+                }
+            </label>
+            <label>Şehir <input asp-for="Form.City" /></label>
+            <label>Ülke <input asp-for="Form.Country" /></label>
+            <label>Gün <input asp-for="Form.DurationDays" type="number" min="1" max="90" /></label>
+            <label>Bütçe
+                <select asp-for="Form.BudgetLevel">
+                    <option value="1">₺</option>
+                    <option value="2">₺₺</option>
+                    <option value="3">₺₺₺</option>
+                </select>
+            </label>
+            <label>Tahmini bütçe <input asp-for="Form.EstBudget" type="number" min="0" step="0.01" /></label>
+            <label>Para birimi <input asp-for="Form.CurrencyCode" maxlength="3" /></label>
+        </div>
+        <span asp-validation-for="Form.Title" class="field-error"></span>
+        <span asp-validation-for="Form.Slug" class="field-error"></span>
+        <span asp-validation-for="Form.City" class="field-error"></span>
+        <span asp-validation-for="Form.Country" class="field-error"></span>
+        <span asp-validation-for="Form.DurationDays" class="field-error"></span>
+        <span asp-validation-for="Form.CurrencyCode" class="field-error"></span>
+        <label>Özet <textarea asp-for="Form.Summary" rows="2" maxlength="500"></textarea></label>
+        <label>Açıklama <textarea asp-for="Form.Description" rows="4" maxlength="2000"></textarea></label>
+        <label>İpuçları (her satıra bir tane) <textarea asp-for="Form.Tips" rows="3"></textarea></label>
+        <span asp-validation-for="Form.Tips" class="field-error"></span>
+    </fieldset>
+
+    <fieldset>
+        <legend>Stil ve mevsim</legend>
+        <div class="checks">
+            @foreach (var tag in ExploreForm.AllTags)
+            {
+                <label class="check"><input type="checkbox" name="Form.Tags" value="@tag" checked="@f.Tags.Contains(tag)" /> @tagNames[tag]</label>
+            }
+        </div>
+        <div class="checks">
+            @for (var m = 1; m <= 12; m++)
+            {
+                <label class="check"><input type="checkbox" name="Form.Months" value="@m" checked="@f.Months.Contains(m)" /> @monthNames[m - 1]</label>
+            }
+        </div>
+        <p class="muted small">Ay seçilmezse her mevsim uygun.</p>
+    </fieldset>
+
+    <fieldset>
+        <legend>Görseller</legend>
+        <div class="grid">
+            <label>Kapak (covers/... veya https://) <input asp-for="Form.CoverPath" /></label>
+            <label>Kapak yükle (WebP/JPEG, ≤ 1 MB) <input asp-for="Cover" type="file" accept="image/webp,image/jpeg" /></label>
+            <label>Liste resmi (thumbs/... veya https://) <input asp-for="Form.ThumbPath" /></label>
+            <label>Liste resmi yükle (≤ 80 KB önerilir) <input asp-for="Thumb" type="file" accept="image/webp,image/jpeg" /></label>
+        </div>
+        <span asp-validation-for="Form.CoverPath" class="field-error"></span>
+        <span asp-validation-for="Form.ThumbPath" class="field-error"></span>
+        <span asp-validation-for="Cover" class="field-error"></span>
+        <span asp-validation-for="Thumb" class="field-error"></span>
+        <div class="previews">
+            @foreach (var url in new[] { Model.Supabase.ImageUrl(f.CoverPath), Model.Supabase.ImageUrl(f.ThumbPath) })
+            {
+                if (url is not null)
+                {
+                    <img src="@url" alt="" />
+                }
+            }
+        </div>
+        <label>Görsel kaynağı <input asp-for="Form.ImageCredit" maxlength="200" /></label>
+    </fieldset>
+
+    <fieldset>
+        <legend>Yayın</legend>
+        <div class="grid">
+            <label>Durum
+                <select asp-for="Form.Status">
+                    @foreach (var s in ExploreForm.AllStatuses)
+                    {
+                        <option value="@s">@J.StatusText(s)</option>
+                    }
+                </select>
+            </label>
+            <label>Sıra (küçük önce) <input asp-for="Form.SortRank" type="number" min="0" /></label>
+            <label>Yayın başı <input asp-for="Form.PublishFrom" type="date" /></label>
+            <label>Yayın sonu <input asp-for="Form.PublishUntil" type="date" /></label>
+            <label>Dil
+                <select asp-for="Form.Lang">
+                    <option value="tr">Türkçe</option>
+                    <option value="en">English</option>
+                </select>
+            </label>
+            <label class="check"><input asp-for="Form.IsFeatured" /> Öne çıkan</label>
+        </div>
+        <span asp-validation-for="Form.PublishUntil" class="field-error"></span>
+    </fieldset>
+
+    <fieldset>
+        <legend>Yerler, gün planı, yapılacaklar (JSON)</legend>
+        <textarea asp-for="Form.PlanJson" rows="18" class="code" spellcheck="false"></textarea>
+        <span asp-validation-for="Form.PlanJson" class="field-error"></span>
+        <details class="muted small">
+            <summary>Biçim</summary>
+            <pre>{
+  "places": [{ "key": "ayasofya", "name": "Ayasofya", "lat": 41.0086, "lon": 28.9802 }],
+  "days": [{ "day": 1, "activities": [
+    { "start": "09:00", "end": "11:00", "title": "Ayasofya", "place": "ayasofya", "note": "Erken git." }
+  ] }],
+  "todos": [{ "title": "Müze Kart al" }, { "title": "Rahat ayakkabı", "kind": "packing" }]
+}</pre>
+            Kaydedince yerler, gün planı ve yapılacaklar bütünüyle değişir.
+        </details>
+    </fieldset>
+
+    <p class="actions">
+        <button type="submit">Kaydet</button>
+        <a class="button secondary" asp-page="Index">Vazgeç</a>
+    </p>
+</form>

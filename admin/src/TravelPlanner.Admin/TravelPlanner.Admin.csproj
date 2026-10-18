@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    TravelPlanner admin panel: Keşfet content and per-account AI limits.
+    Server-side only: the browser never sees the Supabase service key (see ../../README.md).
+    Run (in this folder):  dotnet run
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>TravelPlanner.Admin</RootNamespace>
+    <UserSecretsId>travelplanner-admin-7c1e2f4a</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TravelPlanner.Admin.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -16,6 +16,7 @@ create table if not exists auth.users (
     created_at timestamptz default now()
 );
 alter table auth.users add column if not exists created_at timestamptz default now();
+alter table auth.users add column if not exists last_sign_in_at timestamptz;
 create table if not exists auth.sessions (
     id uuid primary key default gen_random_uuid(),
     user_id uuid not null references auth.users (id) on delete cascade
@@ -49,4 +50,4 @@ alter table storage.objects add column if not exists created_at timestamptz defa
 alter table storage.objects enable row level security;
 grant usage on schema storage to authenticated;
 grant select, insert, update, delete on storage.objects to authenticated;
-grant usage on schema public to anon, authenticated;
+grant usage on schema public to anon, authenticated, service_role;

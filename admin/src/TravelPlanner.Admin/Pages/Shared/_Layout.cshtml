@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>@ViewData["Title"] · TravelPlanner Yönetim</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <header class="top">
+            <a class="brand" asp-page="/Index">TravelPlanner</a>
+            <nav>
+                <a asp-page="/Index">Genel</a>
+                <a asp-page="/Explore/Index">Keşfet</a>
+                <a asp-page="/Users/Index">Kullanıcılar</a>
+            </nav>
+            <form method="post" asp-page="/Logout" class="logout">
+                <button type="submit" class="link">Çıkış</button>
+            </form>
+        </header>
+    }
+    <main>
+        @if (TempData["Message"] is string message)
+        {
+            <p class="alert ok">@message</p>
+        }
+        @RenderBody()
+    </main>
+</body>
+</html>

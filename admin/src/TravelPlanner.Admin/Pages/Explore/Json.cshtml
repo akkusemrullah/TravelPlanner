@@ -1,0 +1,18 @@
+@page
+@model TravelPlanner.Admin.Pages.Explore.JsonModel
+@{
+    ViewData["Title"] = "JSON";
+}
+<h1>Plan JSON</h1>
+<p class="muted">Aynı slug varsa plan güncellenir, yoksa eklenir. Biçim: docs/EXPLORE_CONTENT.md.</p>
+@if (Model.Error is not null)
+{
+    <p class="alert error">@Model.Error</p>
+}
+<form method="post" class="form">
+    <textarea asp-for="Json" rows="30" class="code" spellcheck="false"></textarea>
+    <p class="actions">
+        <button type="submit">Kaydet</button>
+        <a class="button secondary" asp-page="Index">Vazgeç</a>
+    </p>
+</form>
