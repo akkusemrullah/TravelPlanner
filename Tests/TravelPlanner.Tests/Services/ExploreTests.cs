@@ -157,6 +157,27 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public void ImageUrl_KeepsHttpsUrls()
+        {
+            const string url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Roma.jpg/600px-Roma.jpg";
+            Assert.Equal(url, ExploreImages.Url(url));
+            Assert.Null(ExploreImages.Url("http://example.com/a.jpg"));
+            Assert.Null(ExploreImages.Url("https://"));
+        }
+
+        [Fact]
+        public void RemoteImageCache_OneFilePerUrl()
+        {
+            RemoteImageCache.CacheDirectory = () => Path.Combine(Path.GetTempPath(), "tp-remote-images");
+            var a = RemoteImageCache.CachePath(new Uri("https://upload.wikimedia.org/a/500px-A.jpg"));
+            var b = RemoteImageCache.CachePath(new Uri("https://upload.wikimedia.org/a/1280px-A.jpg"));
+
+            Assert.Equal(a, RemoteImageCache.CachePath(new Uri("https://upload.wikimedia.org/a/500px-A.jpg")));
+            Assert.NotEqual(a, b);
+            Assert.StartsWith(Path.Combine(Path.GetTempPath(), "tp-remote-images"), a);
+        }
+
+        [Fact]
         public void AddRange_RaisesOneEvent()
         {
             var list = new RangeObservableCollection<int>(new[] { 1 });
