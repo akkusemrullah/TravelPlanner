@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             x:Class="TravelPlanner.Views.PreferencesPage"
+             x:DataType="vm:SettingsViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <!-- Profil → Tercihler: name, currency, reminder time, theme and language, with a sticky Save bar.
+         The theme applies as soon as it is picked; everything else on Save. -->
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!-- ════════ App bar ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+            <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+            </Border>
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Profile_Preferences}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+        </Grid>
+        <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
+
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="16,20,16,24" Spacing="16">
+
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="{x:Static res:AppResources.Settings_NameLabel}" Style="{StaticResource Text.Field}" />
+                        <Border Style="{StaticResource Input}">
+                            <Entry Text="{Binding UserName}" Placeholder="{x:Static res:AppResources.Settings_NamePlaceholder}" MaxLength="40" Keyboard="{x:Static helpers:AppKeyboards.Words}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource Card.List}">
+                    <VerticalStackLayout Spacing="0">
+                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
+                        <VerticalStackLayout Spacing="10" Padding="16,14">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Coins}" TextColor="{DynamicResource tp-accent-text}" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{x:Static res:AppResources.Settings_CurrencyLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Border Style="{StaticResource Input}">
+                                <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" Title="{x:Static res:AppResources.Settings_CurrencyLabel}" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
+                        <VerticalStackLayout Spacing="10" Padding="16,14">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Bell}" TextColor="{DynamicResource tp-accent-text}" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{x:Static res:AppResources.Settings_ReminderLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
+                                    <Label Text="{x:Static res:AppResources.Settings_ReminderHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Border Style="{StaticResource Input}">
+                                <Picker ItemsSource="{Binding ReminderHours}" SelectedItem="{Binding SelectedReminderHour}" Title="{x:Static res:AppResources.Settings_ReminderLabel}" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
+                        <VerticalStackLayout Spacing="10" Padding="16,14">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.SunMoon}" TextColor="{DynamicResource tp-accent-text}" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{x:Static res:AppResources.Settings_ThemeLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Border Style="{StaticResource Input}">
+                                <Picker ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" Title="{x:Static res:AppResources.Settings_ThemeLabel}" />
+                            </Border>
+                        </VerticalStackLayout>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
+                        <VerticalStackLayout Spacing="10" Padding="16,14">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Language}" TextColor="{DynamicResource tp-accent-text}" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{x:Static res:AppResources.Settings_LanguageLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
+                                    <Label Text="{x:Static res:AppResources.Settings_LanguageHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Border Style="{StaticResource Input}">
+                                <Picker ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" Title="{x:Static res:AppResources.Settings_LanguageLabel}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ════════ Sticky save bar ════════ -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12,16,12">
+                <Border IsVisible="{Binding ShowLanguageRestartHint}" Style="{StaticResource Banner.Warning}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
+                        <Label Grid.Column="1" Text="{x:Static res:AppResources.Settings_LanguageHint}" FontSize="13" TextColor="{DynamicResource tp-warning}" />
+                    </Grid>
+                </Border>
+                <Border IsVisible="{Binding ShowSavedHint}" Style="{StaticResource Banner.Info}" BackgroundColor="{DynamicResource tp-success-soft}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CheckCircle}" TextColor="{DynamicResource tp-success}" />
+                        <Label Grid.Column="1" Text="{x:Static res:AppResources.Settings_Saved}" FontSize="13" TextColor="{DynamicResource tp-success}" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+                <Button Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

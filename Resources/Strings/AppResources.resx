@@ -3126,4 +3126,22 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Explore_AddError" xml:space="preserve">
     <value>Seyahat eklenemedi.</value>
   </data>
+  <data name="Profile_TrashCountFormat" xml:space="preserve">
+    <value>{0} öğe geri alınabilir</value>
+  </data>
+  <data name="Backup_ExportAction" xml:space="preserve">
+    <value>Yedek al</value>
+  </data>
+  <data name="Profile_BackupHint" xml:space="preserve">
+    <value>Yedek al ya da geri yükle</value>
+  </data>
+  <data name="Profile_LegalHint" xml:space="preserve">
+    <value>Gizlilik, KVKK, koşullar</value>
+  </data>
+  <data name="Profile_SignOutHint" xml:space="preserve">
+    <value>Bu cihazda oturumu kapat</value>
+  </data>
+  <data name="Profile_DeleteHint" xml:space="preserve">
+    <value>Hesap ve bulut verileri silinir</value>
+  </data>
 </root>

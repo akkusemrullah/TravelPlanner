@@ -28,6 +28,7 @@ namespace TravelPlanner.ViewModels
         private readonly ISyncService _sync;
         private readonly ISharingService? _sharing;
         private readonly IConsentService? _consent;
+        private readonly ITrashService? _trash;
 
         /// <summary>"Sürüm 1.0.0 (12)" - TP-507.</summary>
         public string VersionText { get; }
@@ -113,9 +114,11 @@ namespace TravelPlanner.ViewModels
             ISyncService sync,
             IDialogService dialogs,
             ISharingService? sharing = null,
-            IConsentService? consent = null)
+            IConsentService? consent = null,
+            ITrashService? trash = null)
             : base(dialogs)
         {
+            _trash = trash;
             _consent = consent;
             _account = account;
             _sync = sync;
@@ -133,6 +136,93 @@ namespace TravelPlanner.ViewModels
         }
 
         private bool _loadingSettings;
+
+        // ================= Profile hub =================
+
+        /// <summary>Items in the trash - shown as a count on the Profile's "Çöp kutusu" row so it gets noticed.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasTrash))]
+        [NotifyPropertyChangedFor(nameof(TrashSubtitle))]
+        private int trashCount;
+
+        public bool HasTrash => TrashCount > 0;
+
+        /// <summary>"3 öğe geri alınabilir", or the general hint while the trash is empty.</summary>
+        public string TrashSubtitle => TrashCount > 0
+            ? string.Format(AppResources.Profile_TrashCountFormat, TrashCount)
+            : AppResources.Trash_Hint;
+
+        /// <summary>One line under the Profile's "Tercihler" row: "TRY · Sistem · Türkçe".</summary>
+        public string PreferencesSummary => string.Join(" · ", new[]
+        {
+            SelectedCurrency?.Value, SelectedTheme?.Display, SelectedLanguage?.Display,
+        }.Where(part => !string.IsNullOrEmpty(part)));
+
+        partial void OnSelectedCurrencyChanged(SettingsOption<string>? value) => OnPropertyChanged(nameof(PreferencesSummary));
+
+        partial void OnSelectedLanguageChanged(SettingsOption<string>? value) => OnPropertyChanged(nameof(PreferencesSummary));
+
+        /// <summary>
+        /// Profile tab: re-reads the saved settings (the Tercihler page may have changed the name or currency) and
+        /// counts the trash. Called whenever the tab appears.
+        /// </summary>
+        public async Task RefreshAsync()
+        {
+            LoadFromSettings();
+            if (_trash is null)
+                return;
+            try
+            {
+                TrashCount = (await _trash.GetEntriesAsync()).Count;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Settings] Trash count failed: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private Task OpenPreferencesAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Preferences));
+
+        /// <summary>"Yedekleme" row: a short sheet with "Yedek al" / "Yedekten geri yükle".</summary>
+        [RelayCommand]
+        private async Task OpenBackupAsync()
+        {
+            var choice = await Dialogs.ChooseAsync(AppResources.Backup_Title,
+                new[] { AppResources.Backup_ExportAction, AppResources.Backup_ImportTitle },
+                AppResources.Common_Cancel);
+            if (choice == AppResources.Backup_ExportAction)
+                await ExportBackupAsync();
+            else if (choice == AppResources.Backup_ImportTitle)
+                await ImportBackupAsync();
+        }
+
+        /// <summary>What the one "Yasal ve gizlilik" row offers: label and document key (null = withdraw consent).</summary>
+        internal static IReadOnlyList<(string Label, string? Key)> LegalChoices() => new (string, string?)[]
+        {
+            (AppResources.Privacy_Title, LegalDocuments.PrivacyKey),
+            (AppResources.Kvkk_Title, LegalDocuments.KvkkKey),
+            (AppResources.Terms_Title, LegalDocuments.TermsKey),
+            (AppResources.Consent_DocTitle, LegalDocuments.ConsentKey),
+            (AppResources.Licenses_Title, LegalDocuments.LicensesKey),
+            (AppResources.Consent_Revoke, null),
+        };
+
+        [RelayCommand]
+        private async Task OpenLegalAsync()
+        {
+            var choices = LegalChoices();
+            var labels = choices.Select(c => c.Label).ToList();
+            var picked = await Dialogs.ChooseAsync(AppResources.Profile_Legal, labels, AppResources.Common_Cancel);
+            var index = picked is null ? -1 : labels.IndexOf(picked);
+            if (index < 0)
+                return;
+
+            if (choices[index].Key is { } key)
+                await OpenDocumentAsync(key);
+            else
+                await RevokeConsentAsync();
+        }
 
         private void LoadFromSettings()
         {
@@ -158,6 +248,7 @@ namespace TravelPlanner.ViewModels
         // the chosen dark theme away (and re-applying it during the tab switch could crash on Android).
         partial void OnSelectedThemeChanged(SettingsOption<AppThemeOption>? value)
         {
+            OnPropertyChanged(nameof(PreferencesSummary));
             if (_loadingSettings || value is null)
                 return;
 
