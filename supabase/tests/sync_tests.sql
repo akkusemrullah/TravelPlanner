@@ -1381,6 +1381,29 @@ do $$ begin
 exception when sqlstate '22023' then raise notice 'ok - admin: limit at most 100';
 end $$;
 
+-- migration 26: the device count no longer cancels what the admin gave
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('cd', 32)) ->> 'limit')::int >= 1, true, 'admin 26: quota status notes the device');
+reset role;
+select test.eq((select count(*) from private.ai_user_devices where user_id = :'ali' and device = repeat('cd', 32)), 1::bigint, 'admin 26: device remembered');
+insert into private.ai_device_usage (device, day, count) values (repeat('cd', 32), current_date, 50)
+on conflict (device, day) do update set count = 50;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('cd', 32)) ->> 'remaining')::int, 0, 'admin 26: a full phone blocks the default limit');
+reset role;
+set role service_role;
+select public.admin_set_ai_limit(:'ali', 10);
+select test.eq((public.admin_user(:'ali') ->> 'ai_device_used_today')::int, 50, 'admin 26: the panel sees the phone count');
+reset role;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('cd', 32)) ->> 'remaining')::int, 10, 'admin 26: an own limit ignores the phone count');
+reset role;
+set role service_role;
+select public.admin_set_ai_limit(:'ali', null);
+select public.admin_reset_ai_today(:'ali');
+reset role;
+select test.eq((select count from private.ai_device_usage where device = repeat('cd', 32) and day = current_date), 0, 'admin 26: reset clears every device of the account');
 select set_config('request.jwt.claim.sub', :'ali', false);
 set role authenticated;
 do $$ begin
