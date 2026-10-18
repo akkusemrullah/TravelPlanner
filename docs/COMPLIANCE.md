@@ -1,0 +1,50 @@
+# Uyum ve Regülasyon / Compliance – Travel Planner
+
+Son güncelleme: 18 Ekim 2026. Bu belge hukuki görüş değildir; mağazaya çıkmadan önce bir hukukçuya kontrol ettirilmesi önerilir. Kaynak: kod ve [PRIVACY](PRIVACY.md), [KVKK](KVKK.md), [TERMS](TERMS.md), [ACCOUNT_DELETION](ACCOUNT_DELETION.md), [legal/](legal/) metinleri.
+
+## 1. Kapsam ve roller
+- **Veri sorumlusu:** Emrullah AKKUŞ (EAKSOFT), Erciş / Van – `Helpers/AppConstants.cs`.
+- **Veri işleyenler (hizmet sağlayıcılar):** Supabase Inc. (Frankfurt, AB – barındırma, kimlik, depolama), OpenAI (ABD – yapay zekâ, isteğe bağlı), Google (giriş, isteğe bağlı), Cloudflare (ABD – bot koruması), e-posta gönderim sağlayıcısı (Supabase Auth).
+- **Mevzuat:** 6698 sayılı KVKK ve ikincil düzenlemeler; AB kullanıcıları için GDPR; 6502 sayılı Tüketicinin Korunması Hakkında Kanun; Google Play Geliştirici Programı Politikaları (Kullanıcı Verileri, Hesap Silme, AI-Generated Content); Apple App Store Review Guidelines 5.1.
+
+## 2. Kişisel veri envanteri (özet)
+
+| Veri kategorisi | Örnek | Amaç | Hukuki sebep (KVKK md. 5) | Saklama |
+| --- | --- | --- | --- | --- |
+| Kimlik / iletişim | Ad, e-posta, hesap uid'i, profil foto bağlantısı | Hesap, giriş, paylaşım | (c) sözleşmenin ifası | Hesap açık olduğu sürece |
+| Kimlik doğrulama | Şifre özeti, oturum anahtarları, doğrulama kodları | Güvenli giriş | (c) | Oturum / kod süresi |
+| Seyahat ve içerik | Seyahat, plan, yerler, notlar, yapılacaklar | Temel işlev, eşitleme, paylaşım | (c) | Hesap süresi; silinen kayıt 30 gün çöpte |
+| Finansal (kullanıcı girdisi) | Harcama, bütçe, bölüşüm | Bütçe takibi | (c) | Aynı |
+| Belgeler ve fotoğraflar | Bilet, pasaport fotoğrafı | Belge saklama | (c) | Aynı; dosyalar en geç 31 gün içinde temizlenir |
+| Yapay zekâ isteği | Destinasyon, tarih, tercihler, not, yer adları | Plan önerisi | Yurt dışı aktarım için açık rıza ([ACIK_RIZA](legal/ACIK_RIZA.md)) | Sunucuda saklanmaz (OpenAI kendi politikasına göre) |
+| Cihaz özeti | Tuzlu SHA-256 | AI kotası, kötüye kullanımı önleme | (f) meşru menfaat | Günlük sayaç |
+| İşlem güvenliği | IP, istek kayıtları | Güvenlik, bot koruması | (ç) hukuki yükümlülük, (f) | Kısa süreli sunucu kayıtları |
+
+Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı belge olarak pasaport/vize yükleyebilir → güvenli depolama, yalnızca seyahat üyeleri erişir.
+
+## 3. Yükümlülükler ve durum
+
+| Yükümlülük | Nasıl karşılanıyor | Durum |
+| --- | --- | --- |
+| Aydınlatma (KVKK md. 10) | Uygulama içi *Yasal ve gizlilik*, `docs/KVKK.md`, web sitesi | ✅ |
+| <a id="açık-rıza"></a>Açık rıza (yurt dışı aktarım, isteğe bağlı özellikler) | Metin: [legal/ACIK_RIZA.md](legal/ACIK_RIZA.md) | ⚠️ Uygulamada yapay zekâ ilk kullanımında ve Google ile girişte onay kutusu/ekranı **henüz yok** – eklenmesi önerilir |
+| Yurt dışına aktarım (md. 9) | Sağlayıcı sözleşmeleri (DPA/SCC) + gerektiğinde açık rıza | ⚠️ Supabase ve OpenAI DPA'larının imzalanması, gerekiyorsa Kurul'a bildirim veri sorumlusunun görevi |
+| İlgili kişi başvuruları (md. 11, 13) | E-posta, web `kvkk-basvuru`, uygulama içi silme/dışa aktarma; 30 gün | ✅ |
+| Veri güvenliği (md. 12) | [SECURITY.md](../SECURITY.md): RLS, TLS, kota, doğrulama | ✅ |
+| İhlal bildirimi | 72 saat içinde Kurul'a ve ilgililere (SECURITY.md §5) | Süreç tanımlı |
+| VERBİS kaydı | Gerçek kişi veri sorumlusu, yıllık çalışan < 50 ve mali bilanço < 100 milyon TL ise ve ana faaliyet özel nitelikli veri işleme değilse muafiyet olabilir | ⚠️ Kontrol edilmeli |
+| Silme / anonimleştirme | Çöp 30 gün, gece temizliği, hesap silme, çıkışta yerel silme | ✅ |
+| Çocuklar | 13 yaş altı hesap açamaz (TERMS §2); çocuklara yönelik değil | ✅ (18 yaş altı için veli onayı hukukçuyla değerlendirilmeli) |
+| Google Play hesap silme | Uygulama içi + web sayfası (`ACCOUNT_DELETION`) | ✅ |
+| Google Play veri güvenliği | [store/DATA_SAFETY.md](store/DATA_SAFETY.md) | ✅ |
+| Google Play AI içerik politikası | *Bildir* bağlantısı, [AI_DISCLAIMER](legal/AI_DISCLAIMER.md) | ✅ |
+| Tüketici mevzuatı | Ücretli içerik yok ([REFUND_POLICY](legal/REFUND_POLICY.md)) | ✅ |
+| Açık kaynak lisans yükümlülükleri | [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md), uygulama içi lisans sayfası, atıflar haritada | ✅ |
+| Çerezler (web sitesi) | `cerez-politikasi.html`; uygulamada çerez yok | ✅ |
+
+## 4. Açık noktalar (veri sorumlusunun yapması gerekenler)
+1. Destek/veri sorumlusu e-postasını tekleştir: uygulama `emrullahakkus@gmail.com`, web sitesi `emrullahakkus9@gmail.com` kullanıyor.
+2. Yapay zekâ ilk kullanımı ve Google ile giriş için uygulama içi açık rıza adımı.
+3. Supabase ve OpenAI veri işleme sözleşmeleri (DPA), OpenAI'de veri saklama ayarları.
+4. VERBİS muafiyet kontrolü.
+5. Yasal metinlerin hukukçu tarafından gözden geçirilmesi.

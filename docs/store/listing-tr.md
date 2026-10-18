@@ -58,3 +58,9 @@ Seyahatini tek bir yerden planla. Travel Planner; gün gün planını, bütçeni
 **Kategori:** Seyahat ve Yerel · **İçerik derecelendirmesi:** Herkes · **Hedef kitle:** 13 yaş ve üzeri
 **Anahtar kelimeler (App Store, 100):** seyahat,tatil,plan,bütçe,harcama,bavul,rota,harita,gezi,yapay zeka
 **Gizlilik politikası:** `docs/PRIVACY.md` yayın adresi · **Hesap silme:** `docs/ACCOUNT_DELETION.md` yayın adresi · **Destek e-postası:** emrullahakkus@gmail.com
+
+## ASO anahtar kelimeleri (Google Play açıklamasında doğal geçmeli; App Store alanı yukarıda, 100 karakter)
+- **Birincil:** seyahat planlayıcı, tatil planı, gezi planı, seyahat bütçesi, harcama takibi
+- **İkincil:** bavul listesi, yol arkadaşıyla harcama bölüşme, seyahat belgeleri, hava durumu seyahat, gezi haritası, yapay zekâ gezi planı
+- **Uzun kuyruk:** reklamsız seyahat uygulaması, çevrimdışı seyahat planı, arkadaşlarla tatil planlama, döviz çevirili harcama, gün gün gezi programı
+- **Kaçınılacaklar:** marka adları (rakip uygulamalar), "ücretsiz uçak bileti" gibi uygulamanın sunmadığı özellikler (mağaza politikası)

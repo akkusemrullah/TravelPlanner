@@ -86,24 +86,7 @@ Depo → *Settings → Pages* → *Deploy from a branch* → `main` / `/docs`. B
 
 ## Play Console *Veri güvenliği* formu
 
-Uygulama hesap olmadan da çalışır; aşağıdakiler yalnızca (isteğe bağlı) hesapla toplanır. Yapay zekâ (OpenAI) ve barındırma (Supabase) hizmet sağlayıcısı olarak bizim adımıza işlediği, seyahat üyeleriyle paylaşımı da kullanıcı başlattığı için Play'in tanımına göre **"paylaşılan" değil, yalnızca "toplanan"** veridir.
-
-| Veri türü (Play) | Toplanıyor | Zorunlu / isteğe bağlı | Amaç |
-| --- | --- | --- | --- |
-| Kişisel bilgiler → Ad | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi |
-| Kişisel bilgiler → E-posta adresi | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi |
-| Kişisel bilgiler → Kullanıcı kimlikleri | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi |
-| Finansal bilgiler → Diğer finansal bilgiler (girilen harcama kayıtları) | Evet | İsteğe bağlı | Uygulama işlevselliği |
-| Fotoğraflar ve videolar → Fotoğraflar | Evet | İsteğe bağlı | Uygulama işlevselliği |
-| Dosyalar ve belgeler | Evet | İsteğe bağlı | Uygulama işlevselliği |
-| Uygulama etkinliği → Kullanıcının oluşturduğu diğer içerik (seyahat, plan, notlar, yapay zekâ cevapları) | Evet | İsteğe bağlı | Uygulama işlevselliği |
-| Cihaz veya diğer kimlikler (yapay zekâ kotası için SHA-256 özet) | Evet | İsteğe bağlı (yapay zekâ) | Dolandırıcılığı önleme, güvenlik ve uyumluluk |
-| Konum | **Hayır** (cihaz konumu alınmaz; yerler kullanıcı tarafından seçilir) | – | – |
-
-- Veriler aktarım sırasında şifreleniyor: **Evet** (HTTPS/TLS).
-- Kullanıcılar verilerinin silinmesini isteyebilir: **Evet** – uygulama içinde *Profil → Hesabımı sil*, çöp kutusunda *Kalıcı olarak sil*, ayrıca `ACCOUNT_DELETION` sayfası.
-- Reklam: **Yok**. Hedef kitle: **13 yaş ve üzeri** (çocuklara yönelik değil).
-- Yapay zekâ ile üretilen içerik: kullanıcılar uygunsuz öneriyi plan ekranındaki **Bildir** bağlantısıyla bildirebilir (Google Play AI-Generated Content politikası).
+Form cevapları ve App Store gizlilik etiketleri: [store/DATA_SAFETY.md](store/DATA_SAFETY.md).
 
 ## KVKK notları
 

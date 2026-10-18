@@ -1,0 +1,23 @@
+Copyright (c) 2026 Emrullah AKKUŞ (EAKSOFT). All rights reserved.
+
+Travel Planner - proprietary software license
+
+This repository and everything in it (source code, database migrations, Edge Functions, texts, graphics and
+other assets) are the property of Emrullah AKKUŞ, trading as EAKSOFT ("the Owner"), unless a file or folder
+states otherwise.
+
+No license is granted to use, copy, modify, merge, publish, distribute, sublicense or sell this software or any
+part of it, in source or binary form, without the Owner's prior written permission. Viewing the source code
+(for example on GitHub) does not grant any of these rights.
+
+The compiled app may be installed and used by end users as distributed by the Owner (Google Play, App Store or
+the Owner's website), subject to the Terms of Use (docs/TERMS.md).
+
+Third-party components included in or used by this software are licensed under their own terms; see
+THIRD_PARTY_NOTICES.md. Nothing in this license limits the rights granted by those licenses.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT, TO THE EXTENT PERMITTED
+BY APPLICABLE LAW.
+
+Contact: emrullahakkus@gmail.com
