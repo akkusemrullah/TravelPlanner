@@ -199,16 +199,14 @@ namespace TravelPlanner.Helpers
     }
 
     /// <summary>
-    /// TP-33: an image URL (Keşfet cover / thumbnail) as an image source kept in the on-device cache for 7 days, so
+    /// TP-33: an image URL (Keşfet cover / thumbnail) as an image source kept in the on-device cache for 7 days (RemoteImageCache), so
     /// scrolling back and reopening the tab never downloads the same picture again. Null / empty → no image.
     /// </summary>
     public class CachedImageConverter : IValueConverter
     {
-        public static readonly TimeSpan CacheValidity = TimeSpan.FromDays(7);
-
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
             value is string url && Uri.TryCreate(url, UriKind.Absolute, out var uri)
-                ? new UriImageSource { Uri = uri, CachingEnabled = true, CacheValidity = CacheValidity }
+                ? ImageSource.FromStream(async ct => (await RemoteImageCache.OpenAsync(uri, ct))!)
                 : null;
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
