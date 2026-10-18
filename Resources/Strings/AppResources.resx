@@ -1398,10 +1398,10 @@
     <value>(kopya)</value>
   </data>
   <data name="Backup_SharedTripsFormat" xml:space="preserve">
-    <value>Bu yedekte paylaşılan {0} seyahat var: {1}. Olduğu gibi geri yüklenirse diğer üyelerin sonraki değişiklikleri ezilir ve sildikleri kayıtlar geri gelir. Bu seyahatler için ne yapılsın?</value>
+    <value>Yedekte {0} paylaşılan seyahat var</value>
   </data>
   <data name="Backup_SharedSkip" xml:space="preserve">
-    <value>Atla, buluttaki hali kalsın (önerilen)</value>
+    <value>Atla (önerilen)</value>
   </data>
   <data name="Backup_SharedCopy" xml:space="preserve">
     <value>Kopya olarak yükle</value>
@@ -1545,7 +1545,7 @@ Bu politikayı uygulama değiştikçe güncelleyebiliriz. Önemli değişiklikle
     <value>Bir seyahat en fazla {0} gün olabilir.</value>
   </data>
   <data name="TripForm_OutsideTitleFormat" xml:space="preserve">
-    <value>{0} etkinlik yeni tarihlerin dışında kalıyor. Ne yapılsın?</value>
+    <value>{0} etkinlik tarih dışında kaldı</value>
   </data>
   <data name="TripForm_OutsideMove" xml:space="preserve">
     <value>En yakın seyahat gününe taşı</value>
@@ -1650,7 +1650,7 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
     <value>Hesabı silmek için internet bağlantısı gerekiyor. Hiçbir şey silinmedi; bağlantı gelince tekrar dene.</value>
   </data>
   <data name="Account_DeleteSharedTripFormat" xml:space="preserve">
-    <value>"{0}" seyahatini {1} kişiyle paylaşıyorsun. Hesabın silinince bu seyahat, masrafları ve belgeleri onlar için de silinir. Ne yapılsın?</value>
+    <value>"{0}" {1} kişiyle paylaşılıyor</value>
   </data>
   <data name="Account_TransferOwnership" xml:space="preserve">
     <value>Sahipliği devret</value>
@@ -1659,7 +1659,7 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
     <value>Herkes için sil</value>
   </data>
   <data name="Account_ChooseNewOwnerFormat" xml:space="preserve">
-    <value>"{0}" seyahatinin yeni sahibi kim olsun?</value>
+    <value>"{0}" kime devredilsin?</value>
   </data>
   <data name="Account_DeleteError" xml:space="preserve">
     <value>Hesap silinemedi. Lütfen daha sonra tekrar dene.</value>
@@ -1691,17 +1691,14 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
   <data name="Account_SignOutTitle" xml:space="preserve">
     <value>Çıkış yapılsın mı?</value>
   </data>
-  <data name="Account_SignOutMessage" xml:space="preserve">
-    <value>"Çıkış yap" seçersen hesabının verileri bu cihazda kalır ve tekrar giriş yaptığında hızla açılır. Ödünç veya ortak bir telefondaysan verilerini bu cihazdan da silebilirsin; buluttaki verilerin silinmez. Çıkıştan sonra misafir verileri gösterilir.</value>
-  </data>
   <data name="Account_SignOutAndDelete" xml:space="preserve">
-    <value>Çıkış yap ve bu cihazdaki verilerimi sil</value>
+    <value>Çıkış yap ve bu cihazdan sil</value>
   </data>
   <data name="Account_SignOutPendingFormat" xml:space="preserve">
-    <value>Dikkat: {0} değişiklik henüz buluta gönderilmedi.</value>
+    <value>{0} değişiklik henüz gönderilmedi</value>
   </data>
   <data name="Account_SignOutLoseFormat" xml:space="preserve">
-    <value>{0} değişiklik henüz buluta gönderilmedi. Bu cihazdaki verilerin silinirse bu değişiklikler kaybolur. Devam edilsin mi?</value>
+    <value>Gönderilmemiş {0} değişiklik kaybolacak. Silinsin mi?</value>
   </data>
   <data name="Account_MoveGuestTitle" xml:space="preserve">
     <value>Seyahatler hesabına taşınsın mı?</value>

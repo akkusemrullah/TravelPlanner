@@ -5414,15 +5414,6 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hesabının verileri bu cihazda kalır; tekrar giriş yaptığında geri gelir. Çıkıştan sonra misafir verileri gösterilir..
-        /// </summary>
-        public static string Account_SignOutMessage {
-            get {
-                return ResourceManager.GetString("Account_SignOutMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string for Account_SignOutAndDelete.
         /// </summary>
         public static string Account_SignOutAndDelete {
