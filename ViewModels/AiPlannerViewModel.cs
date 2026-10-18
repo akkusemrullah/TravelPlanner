@@ -142,13 +142,16 @@ namespace TravelPlanner.ViewModels
         private readonly IPlaceService _places;
         private readonly IAccountService _account;
         private readonly IConnectivity _connectivity;
+        private readonly IConsentService? _consent;
         private Trip? _trip;
         private AiTripPlan? _plan;
 
         public AiPlannerViewModel(IAiPlannerService planner, ITripService trips, IPlaceService places,
-                                  IAccountService account, IConnectivity connectivity, IDialogService dialogs)
+                                  IAccountService account, IConnectivity connectivity, IDialogService dialogs,
+                                  IConsentService? consent = null)
             : base(dialogs)
         {
+            _consent = consent;
             _planner = planner;
             _trips = trips;
             _places = places;
@@ -360,6 +363,10 @@ namespace TravelPlanner.ViewModels
 
             IsOnline = _connectivity.NetworkAccess == NetworkAccess.Internet;
             if (!CanGenerate) return;
+
+            // TP-25: the answers go to OpenAI (USA) - explicit consent first (KVKK md. 9)
+            if (_consent is not null && !await _consent.EnsureAsync(ConsentKind.AiPlanning))
+                return;
 
             ErrorText = null;
             var existing = (await _places.GetByTripIdAsync(_trip.Id)).Select(p => p.Name).ToList();

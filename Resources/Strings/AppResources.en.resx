@@ -2587,6 +2587,66 @@ In the app, tap Profile → Join with a code and enter it. The code works until 
   <data name="Licenses_Title" xml:space="preserve">
     <value>Open-source licences</value>
   </data>
+  <data name="Consent_AiTitle" xml:space="preserve">
+    <value>Consent for AI planning</value>
+  </data>
+  <data name="Consent_AiMessage" xml:space="preserve">
+    <value>To create a plan, the following is sent to OpenAI (USA): the destination city and country, the date and number of days, the interests, pace, budget and companions you chose, your note and the names of places saved in the trip. Your name, e-mail, expenses and documents are not sent.
+
+Do you give explicit consent to this transfer (KVKK art. 9)? You can withdraw it in Profile → Legal and privacy; full text: Explicit Consent.</value>
+  </data>
+  <data name="Consent_GoogleTitle" xml:space="preserve">
+    <value>Consent for Google sign-in</value>
+  </data>
+  <data name="Consent_GoogleMessage" xml:space="preserve">
+    <value>With Google sign-in the sign-in happens on Google's page and Google gives us your name, e-mail address and profile photo URL; Google's servers outside Türkiye may be used.
+
+Do you give explicit consent to this processing and transfer (KVKK art. 9)? If not, you can create an account with e-mail and password. Full text: Profile → Legal and privacy → Explicit Consent.</value>
+  </data>
+  <data name="Consent_Accept" xml:space="preserve">
+    <value>I agree</value>
+  </data>
+  <data name="Consent_Decline" xml:space="preserve">
+    <value>Not now</value>
+  </data>
+  <data name="Consent_Revoke" xml:space="preserve">
+    <value>Withdraw my consent</value>
+  </data>
+  <data name="Consent_RevokeMessage" xml:space="preserve">
+    <value>Your explicit consent for AI planning and Google sign-in is withdrawn; you'll be asked again when you want to use these features. To ask about data transferred earlier, write to our support address.</value>
+  </data>
+  <data name="Consent_RevokeAccept" xml:space="preserve">
+    <value>Withdraw</value>
+  </data>
+  <data name="Consent_Revoked" xml:space="preserve">
+    <value>Your consent has been withdrawn.</value>
+  </data>
+  <data name="Consent_NoneGiven" xml:space="preserve">
+    <value>No explicit consent has been given on this device.</value>
+  </data>
+  <data name="Consent_DocTitle" xml:space="preserve">
+    <value>Explicit Consent</value>
+  </data>
+  <data name="Consent_DocBody" xml:space="preserve">
+    <value>You can use Travel Planner without an account and without the features below. Explicit consent is asked only for two optional features that send data outside Türkiye, the first time you use them. Not consenting doesn't stop you from using the rest of the app.
+
+## Data controller
+{controller} ({publisher}), {address} · {email}
+
+## 1. AI trip planning (OpenAI, USA)
+When you tap "Create plan", the following goes through the plan function on our server to OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and companions you chose, your note (if any) and the names of places saved in the trip. Your name, e-mail, expenses, documents and photos are not sent. Please don't write information that identifies you or others in the note.
+Purpose: creating the plan suggestion you asked for. Legal basis: explicit consent under KVKK art. 9.
+
+## 2. Sign in with Google
+If you choose "Sign in with Google", the sign-in happens on Google's page and Google gives us your name, e-mail address and profile photo URL; Google's servers outside Türkiye may be used.
+Purpose: letting you sign in with your Google identity. Legal basis: explicit consent under KVKK art. 9.
+
+## 3. Withdrawing consent
+• Withdraw your consent at any time in Profile → Legal and privacy → "Withdraw my consent"; the features ask again next time.
+• To ask about data transferred earlier, write to {email}.
+• If you no longer want Google sign-in, create an e-mail/password account and delete the current one in Profile → Delete my account.
+• Withdrawal doesn't affect the lawfulness of processing before it. All your rights are described in the KVKK notice.</value>
+  </data>
   <data name="Auth_LegalText1" xml:space="preserve">
     <value>By continuing you accept the </value>
   </data>

@@ -2587,6 +2587,66 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
   <data name="Licenses_Title" xml:space="preserve">
     <value>Açık kaynak lisansları</value>
   </data>
+  <data name="Consent_AiTitle" xml:space="preserve">
+    <value>Yapay zekâ için açık rıza</value>
+  </data>
+  <data name="Consent_AiMessage" xml:space="preserve">
+    <value>Plan oluşturmak için şu bilgiler OpenAI'ye (ABD) aktarılır: gidilecek şehir ve ülke, tarih ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe, kiminle gittiğin, yazdığın not ve seyahatte kayıtlı yer adları. Adın, e-postan, harcamaların ve belgelerin gönderilmez.
+
+Bu aktarıma KVKK md. 9 kapsamında açık rıza veriyor musun? Rızanı Profil → Yasal ve gizlilik bölümünden geri alabilirsin; tam metin: Açık Rıza Metni.</value>
+  </data>
+  <data name="Consent_GoogleTitle" xml:space="preserve">
+    <value>Google ile giriş için açık rıza</value>
+  </data>
+  <data name="Consent_GoogleMessage" xml:space="preserve">
+    <value>Google ile girişte işlem Google'ın sayfasında yapılır ve Google bize adını, e-posta adresini ve profil fotoğrafının bağlantısını iletir; Google'ın yurt dışındaki sunucuları kullanılabilir.
+
+Bu işleme ve aktarıma KVKK md. 9 kapsamında açık rıza veriyor musun? İstemezsen e-posta ve şifreyle de hesap açabilirsin. Tam metin: Profil → Yasal ve gizlilik → Açık Rıza Metni.</value>
+  </data>
+  <data name="Consent_Accept" xml:space="preserve">
+    <value>Onaylıyorum</value>
+  </data>
+  <data name="Consent_Decline" xml:space="preserve">
+    <value>Vazgeç</value>
+  </data>
+  <data name="Consent_Revoke" xml:space="preserve">
+    <value>Açık rızamı geri al</value>
+  </data>
+  <data name="Consent_RevokeMessage" xml:space="preserve">
+    <value>Yapay zekâ ile planlama ve Google ile giriş için verdiğin açık rıza geri alınır; bu özellikleri tekrar kullanmak istediğinde yeniden sorulur. Daha önce aktarılan veriler hakkında bilgi için destek adresimize yazabilirsin.</value>
+  </data>
+  <data name="Consent_RevokeAccept" xml:space="preserve">
+    <value>Geri al</value>
+  </data>
+  <data name="Consent_Revoked" xml:space="preserve">
+    <value>Açık rızan geri alındı.</value>
+  </data>
+  <data name="Consent_NoneGiven" xml:space="preserve">
+    <value>Bu cihazda verilmiş bir açık rıza yok.</value>
+  </data>
+  <data name="Consent_DocTitle" xml:space="preserve">
+    <value>Açık Rıza Metni</value>
+  </data>
+  <data name="Consent_DocBody" xml:space="preserve">
+    <value>Travel Planner'ı hesap açmadan ve aşağıdaki özellikleri kullanmadan da kullanabilirsin. Açık rıza yalnızca, verilerinin Türkiye dışına aktarılmasını gerektiren iki isteğe bağlı özellik için, özelliği ilk kullandığında istenir. Rıza vermemen uygulamanın diğer özelliklerini kullanmana engel değildir.
+
+## Veri sorumlusu
+{controller} ({publisher}), {address} · {email}
+
+## 1. Yapay zekâ ile planlama (OpenAI, ABD)
+"Planı oluştur"a dokunduğunda sunucumuzdaki plan fonksiyonu üzerinden OpenAI'ye (ABD) şu bilgiler gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın not ve seyahatte kayıtlı yer adları. Adın, e-postan, harcamaların, belgelerin ve fotoğrafların gönderilmez. Not alanına kendini veya başkalarını tanımlayan bilgi yazmamanı öneririz.
+Amaç: istediğin plan önerisini üretmek. Hukuki sebep: KVKK md. 9 kapsamında açık rıza.
+
+## 2. Google ile giriş
+"Google ile giriş yap"ı seçersen giriş Google'ın sayfasında yapılır ve Google bize adını, e-posta adresini ve profil fotoğrafının bağlantısını iletir; Google'ın yurt dışındaki sunucuları kullanılabilir.
+Amaç: Google kimliğinle giriş yapabilmen. Hukuki sebep: KVKK md. 9 kapsamında açık rıza.
+
+## 3. Rızanı geri alma
+• Profil → Yasal ve gizlilik → "Açık rızamı geri al" ile rızanı istediğin zaman geri alabilirsin; özellikler bir sonraki kullanımda yeniden sorar.
+• Daha önce aktarılanlar hakkında bilgi için {email} adresine yazabilirsin.
+• Google ile girişi kullanmak istemiyorsan e-posta ve şifreyle yeni bir hesap açabilir, mevcut hesabını Profil → Hesabımı sil ile silebilirsin.
+• Geri alma, geri almadan önceki işlemlerin hukuka uygunluğunu etkilemez. Haklarının tamamı KVKK Aydınlatma Metni'nde anlatılır.</value>
+  </data>
   <data name="Auth_LegalText1" xml:space="preserve">
     <value>Devam ederek </value>
   </data>

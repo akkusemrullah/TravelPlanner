@@ -14,6 +14,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 - Silinen hesap ve eklerin dosyalarının Storage'dan temizlenmesi (TP-7, migrations 16–17; Edge Function `purge-files`).
 - Reddedilen yerel değişikliğin cihazda geri alınması (TP-6); ek dosya yolu doğrulaması (TP-5, migration 15); davet sertleştirmesi (TP-4, migration 14); kota ve hız sınırları (TP-3, migration 13).
 - Yasal ve teknik belgeler: açık rıza metni, yapay zekâ feragatnamesi, iade politikası, LICENSE, SECURITY, ARCHITECTURE, veri sözlüğü, veri güvenliği beyanı, üçüncü taraf lisansları (TP-25).
+- Yapay zekâ ile planlama ve Google ile giriş öncesi açık rıza onayı, uygulama içi Açık Rıza Metni ve rızayı geri alma (TP-25).
 
 ### Değişti
 - Yeni şifreler en az 8 karakter + harf ve rakam (TP-15).

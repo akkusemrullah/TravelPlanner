@@ -7526,6 +7526,123 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string for Consent_AiTitle.
+        /// </summary>
+        public static string Consent_AiTitle {
+            get {
+                return ResourceManager.GetString("Consent_AiTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_AiMessage.
+        /// </summary>
+        public static string Consent_AiMessage {
+            get {
+                return ResourceManager.GetString("Consent_AiMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_GoogleTitle.
+        /// </summary>
+        public static string Consent_GoogleTitle {
+            get {
+                return ResourceManager.GetString("Consent_GoogleTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_GoogleMessage.
+        /// </summary>
+        public static string Consent_GoogleMessage {
+            get {
+                return ResourceManager.GetString("Consent_GoogleMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_Accept.
+        /// </summary>
+        public static string Consent_Accept {
+            get {
+                return ResourceManager.GetString("Consent_Accept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_Decline.
+        /// </summary>
+        public static string Consent_Decline {
+            get {
+                return ResourceManager.GetString("Consent_Decline", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_Revoke.
+        /// </summary>
+        public static string Consent_Revoke {
+            get {
+                return ResourceManager.GetString("Consent_Revoke", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_RevokeMessage.
+        /// </summary>
+        public static string Consent_RevokeMessage {
+            get {
+                return ResourceManager.GetString("Consent_RevokeMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_RevokeAccept.
+        /// </summary>
+        public static string Consent_RevokeAccept {
+            get {
+                return ResourceManager.GetString("Consent_RevokeAccept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_Revoked.
+        /// </summary>
+        public static string Consent_Revoked {
+            get {
+                return ResourceManager.GetString("Consent_Revoked", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_NoneGiven.
+        /// </summary>
+        public static string Consent_NoneGiven {
+            get {
+                return ResourceManager.GetString("Consent_NoneGiven", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_DocTitle.
+        /// </summary>
+        public static string Consent_DocTitle {
+            get {
+                return ResourceManager.GetString("Consent_DocTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string for Consent_DocBody.
+        /// </summary>
+        public static string Consent_DocBody {
+            get {
+                return ResourceManager.GetString("Consent_DocBody", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Devam ederek .
         /// </summary>
         public static string Auth_LegalText1 {

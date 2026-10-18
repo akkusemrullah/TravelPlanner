@@ -58,7 +58,7 @@ Yönlendirme Shell ile (`AppShell.xaml.cs`, `Routes`). Bağımlılıklar `MauiPr
 ## 5. Yapay zekâ orkestrasyonu
 
 ```
-AiPlannerViewModel ─▶ AiPlannerService ─(JWT, deviceId = tuzlu SHA-256)─▶ Edge Function plan-trip
+AiPlannerViewModel (ilk kullanımda açık rıza: ConsentService) ─▶ AiPlannerService ─(JWT, deviceId = tuzlu SHA-256)─▶ Edge Function plan-trip
    plan-trip: 1) JWT ve gövde (≤16 KB) kontrolü  2) ai_plan_quota RPC (hesap/cihaz/yeni hesap/global kota)
               3) destinasyon merkezi + gerçek yemek mekânları (OpenStreetMap)  4) OpenAI (JSON şeması, AI_MODEL, token bütçesi)
               5) yerleri haritada doğrula, bulunamayanları modelden yeniden iste veya at  6) temizlenmiş plan

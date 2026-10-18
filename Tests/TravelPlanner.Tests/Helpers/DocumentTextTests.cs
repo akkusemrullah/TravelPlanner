@@ -46,6 +46,7 @@ namespace TravelPlanner.Tests
         [InlineData(LegalDocumentKind.Kvkk)]
         [InlineData(LegalDocumentKind.Terms)]
         [InlineData(LegalDocumentKind.Licenses)]
+        [InlineData(LegalDocumentKind.Consent)]
         public void EveryLegalDocument_HasSections_AndNoUnfilledPlaceholders(LegalDocumentKind kind)
         {
             var body = LegalDocuments.Body(kind);

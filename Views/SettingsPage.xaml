@@ -292,6 +292,31 @@
                             <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                         </Grid>
                         <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <!-- TP-25: explicit consent text and withdrawing it -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Consent_DocTitle}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="consent" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CheckSquare}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Consent_DocTitle}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
+                              SemanticProperties.Description="{x:Static res:AppResources.Consent_Revoke}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RevokeConsentCommand}" />
+                            </Grid.GestureRecognizers>
+                            <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Shield}" />
+                            </Border>
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Consent_Revoke}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                        </Grid>
+                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="56"
                               SemanticProperties.Description="{x:Static res:AppResources.Licenses_Title}">
                             <Grid.GestureRecognizers>
