@@ -27,7 +27,7 @@ namespace TravelPlanner.Models
         /// <summary>Travel styles, see <see cref="ExploreTags"/>.</summary>
         public List<string> Tags { get; set; } = new();
 
-        /// <summary>"thumbs/&lt;slug&gt;.webp" in the explore-images bucket, or null.</summary>
+        /// <summary>"thumbs/&lt;slug&gt;.webp" in the explore-images bucket, an https URL, or null.</summary>
         public string? ThumbPath { get; set; }
 
         public bool IsFeatured { get; set; }
@@ -169,9 +169,16 @@ namespace TravelPlanner.Models
     {
         public const string Bucket = "explore-images";
 
+        /// <summary>A bucket path ("covers/x.webp") becomes the bucket's public URL; an https URL is used as is.</summary>
         public static string? Url(string? path)
         {
             if (string.IsNullOrWhiteSpace(path))
+                return null;
+            if (path.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                return Uri.TryCreate(path.Trim(), UriKind.Absolute, out var uri) && uri.Scheme == Uri.UriSchemeHttps
+                    ? uri.AbsoluteUri
+                    : null;
+            if (path.Contains("://", StringComparison.Ordinal))
                 return null;
             var segments = path.Trim().Split('/', StringSplitOptions.RemoveEmptyEntries);
             if (segments.Length == 0 || segments.Any(s => s is "." or ".."))

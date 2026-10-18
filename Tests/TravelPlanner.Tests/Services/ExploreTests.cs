@@ -157,6 +157,15 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public void ImageUrl_KeepsHttpsUrls()
+        {
+            const string url = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Roma.jpg/600px-Roma.jpg";
+            Assert.Equal(url, ExploreImages.Url(url));
+            Assert.Null(ExploreImages.Url("http://example.com/a.jpg"));
+            Assert.Null(ExploreImages.Url("https://"));
+        }
+
+        [Fact]
         public void AddRange_RaisesOneEvent()
         {
             var list = new RangeObservableCollection<int>(new[] { 1 });

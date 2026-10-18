@@ -33,7 +33,7 @@ select private.explore_upsert($json${ ... aşağıdaki biçimde JSON ... }$json$
 | `tags` | | `culture`, `nature`, `sea`, `food`, `family`, `romantic`, `adventure` (en fazla 10) |
 | `months` | | Uygun aylar 1–12; boş = her mevsim |
 | `tips` | | İpuçları (en fazla 10) |
-| `cover_path`, `thumb_path` | | `covers/<slug>.webp`, `thumbs/<slug>.webp` |
+| `cover_path`, `thumb_path` | | `covers/<slug>.webp`, `thumbs/<slug>.webp` veya tam `https://` görsel adresi (ör. Wikimedia Commons, migration 24) |
 | `image_credit` | | Görsel kaynağı/lisansı, ≤ 200 (detayda küçük yazıyla görünür) |
 | `lang` | | `tr` (varsayılan) veya `en` |
 | `sort_rank` | | "Önerilen" sırası, küçük olan önce (varsayılan 1000) |
@@ -100,6 +100,8 @@ Silme yerine arşivle: kullanıcıların kopyaları zaten bağımsızdır, arşi
 - `covers/<slug>.webp`: detay kapağı, ~1200 px genişlik.
 - `thumbs/<slug>.webp`: liste küçük resmi, ~600 px genişlik, WebP, **≤ 80 KB** (liste akıcı kalsın).
 - Kova dosya sınırı 1 MB, yalnızca WebP/JPEG.
+- Kovaya yüklemek yerine `cover_path` / `thumb_path` alanına doğrudan `https://` adresi de yazılabilir (ör. Wikimedia Commons
+  küçük resim adresi, kapak ~1200 px, liste ~600 px). Dış adres kalkarsa görsel boş görünür; ara sıra kontrol et.
 - Yalnızca kendi çekimimiz veya ticari kullanıma uygun lisanslı görseller; kaynağı `image_credit`'e yaz.
 
 ## 4. Düzenli güncelleme
