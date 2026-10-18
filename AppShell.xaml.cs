@@ -16,7 +16,7 @@ namespace TravelPlanner
                 return;
             s_routesRegistered = true;
 
-            // Dashboard, TripList and Settings are the TabBar's ShellContents (AppShell.xaml) and get their
+            // Dashboard, TripList, Explore and Settings are the TabBar's ShellContents (AppShell.xaml) and get their
             // routes there - registering them again here would throw "duplicate route". Everything pushed on
             // top of a tab is registered below.
             Routing.RegisterRoute(Routes.TripDetail, typeof(TripDetailPage));
@@ -39,6 +39,7 @@ namespace TravelPlanner
             Routing.RegisterRoute(Routes.Trash, typeof(TrashPage));     // G6
             Routing.RegisterRoute(Routes.AiPlanner, typeof(AiPlannerPage)); // AI trip planner
             Routing.RegisterRoute(Routes.HelpCenter, typeof(HelpCenterPage)); // help centre
+            Routing.RegisterRoute(Routes.ExploreDetail, typeof(ExploreDetailPage)); // TP-33: a Keşfet sample trip
         }
     }
 }

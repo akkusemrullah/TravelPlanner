@@ -236,6 +236,111 @@ namespace TravelPlanner.Services
             return copy;
         }
 
+        public async Task<Trip> CreateFromTemplateAsync(ExploreTripDetail template, ExploreAddOptions options)
+        {
+            ArgumentNullException.ThrowIfNull(template);
+            ArgumentNullException.ThrowIfNull(options);
+
+            var days = Math.Clamp(template.DurationDays, 1, Helpers.AppConstants.MaxTripDays);
+            var start = options.StartDate.Date;
+            var name = string.IsNullOrWhiteSpace(options.Name) ? template.Title : options.Name.Trim();
+            var trip = new Trip
+            {
+                Name = name,
+                Country = template.Country ?? string.Empty,
+                City = template.City ?? string.Empty,
+                StartDate = start,
+                EndDate = start.AddDays(days - 1),
+                PlannedBudgetMinor = options.PlannedBudgetMinor,
+                Description = string.IsNullOrWhiteSpace(template.Summary) ? null : template.Summary.Trim(),
+                CurrencyCode = Helpers.MoneyFormatter.Normalize(options.CurrencyCode),
+            };
+            Validate(trip);
+
+            static bool Wanted(IReadOnlyCollection<Guid>? ids, Guid id) => ids is null || ids.Contains(id);
+
+            var db = await _databaseService.Connection;
+            await db.RunInTransactionAsync(conn =>
+            {
+                if (conn.Table<Trip>().Count() >= Helpers.AppConstants.MaxTrips)
+                    throw new TripLimitException();
+
+                conn.InsertTracked(trip);
+
+                // Places first: the day plan points at them (template id -> new local id).
+                var placeIds = new Dictionary<Guid, int>();
+                foreach (var source in template.Places
+                             .Where(p => Wanted(options.PlaceIds, p.Id) && !string.IsNullOrWhiteSpace(p.Name) &&
+                                         PlaceService.IsValidCoordinate(p.Latitude, p.Longitude))
+                             .Take(Helpers.AppConstants.MaxItemsPerTrip))
+                {
+                    var place = Helpers.InputLimits.EnforceTextLimits(new Place
+                    {
+                        TripId = trip.Id,
+                        Name = source.Name.Trim(),
+                        Description = string.IsNullOrWhiteSpace(source.Description) ? null : source.Description.Trim(),
+                        Latitude = source.Latitude,
+                        Longitude = source.Longitude,
+                    });
+                    conn.InsertTracked(place);
+                    placeIds[source.Id] = place.Id;
+                }
+
+                // Day N of the sample = start date + (N - 1); days past the trip's end are left out.
+                var sortOrders = new Dictionary<int, int>();
+                foreach (var source in template.Activities
+                             .Where(a => Wanted(options.ActivityIds, a.Id) && !string.IsNullOrWhiteSpace(a.Title) &&
+                                         a.DayIndex >= 1 && a.DayIndex <= days)
+                             .Take(Helpers.AppConstants.MaxItemsPerTrip))
+                {
+                    var startTime = AiPlannerService.ParseTime(source.StartTime);
+                    var endTime = startTime is null ? null : AiPlannerService.ParseTime(source.EndTime);
+                    if (endTime <= startTime)
+                        endTime = null;
+
+                    var order = sortOrders.GetValueOrDefault(source.DayIndex);
+                    sortOrders[source.DayIndex] = order + 1;
+                    conn.InsertTracked(Helpers.InputLimits.EnforceTextLimits(new TripActivity
+                    {
+                        TripId = trip.Id,
+                        Date = start.AddDays(source.DayIndex - 1),
+                        StartTime = startTime,
+                        EndTime = endTime,
+                        Title = source.Title.Trim(),
+                        Note = string.IsNullOrWhiteSpace(source.Note) ? null : source.Note.Trim(),
+                        PlaceId = source.PlaceId is Guid placeId && placeIds.TryGetValue(placeId, out var localId) ? localId : null,
+                        SortOrder = order,
+                    }));
+                }
+
+                // To-dos and packing items both become to-dos; CreatedDate keeps the sample's order.
+                var created = DateTime.Now;
+                var index = 0;
+                foreach (var source in template.Todos
+                             .Where(t => Wanted(options.TodoIds, t.Id) && !string.IsNullOrWhiteSpace(t.Title))
+                             .Take(Helpers.AppConstants.MaxItemsPerTrip))
+                {
+                    conn.InsertTracked(Helpers.InputLimits.EnforceTextLimits(new TodoItem
+                    {
+                        TripId = trip.Id,
+                        Title = source.Title.Trim(),
+                        CreatedDate = created.AddSeconds(index++),
+                    }));
+                }
+            });
+
+            try
+            {
+                await _notificationService.ScheduleTripNotificationsAsync(trip);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TripService] Scheduling reminders failed for trip {trip.Id}: {ex}");
+            }
+
+            return trip;
+        }
+
         // ---- Budget calculations ----
 
         public Task<decimal> GetTotalExpensesAsync(int tripId) =>
@@ -255,6 +360,14 @@ namespace TravelPlanner.Services
             if (trip is null) return 0;
 
             return await _expenseService.GetBudgetUsagePercentageAsync(tripId, trip.PlannedBudget);
+        }
+    }
+
+    /// <summary>TP-33: the device already has <see cref="Helpers.AppConstants.MaxTrips"/> trips - no new one is created.</summary>
+    public sealed class TripLimitException : Exception
+    {
+        public TripLimitException() : base("Trip limit reached.")
+        {
         }
     }
 }

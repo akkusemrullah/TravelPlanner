@@ -35,6 +35,9 @@ Bitmemiş görevler varsa yolculuktan 3 gün önce bir hazırlık hatırlatması
 **Hava durumu nasıl hesaplanıyor?**  
 Önümüzdeki 16 gün için gerçek tahmin gösterilir. Daha ileri tarihler için aynı günlerin son 3 yıldaki ortalaması kullanılır ve bu açıkça belirtilir.
 
+**Keşfet sekmesi nedir?**  
+Hazır seyahat planlarını gösterir. Bir plana dokunup gün gün planı, yerleri ve yapılacakları inceleyebilirsin. "Ekle" planın tamamını, "Düzenle ve ekle" yalnızca işaretli bıraktıklarını başlangıç tarihine göre kendi seyahatlerine ekler. Eklenen seyahat senindir; plan sonradan değişse de etkilenmez. Hesap gerekmez; liste için internet gerekir, son görülen kartlar çevrimdışı da görünür.
+
 ### Yapay zekâ ile planlama
 
 **Yapay zekâ planlayıcısı nasıl çalışır?**  
@@ -140,6 +143,9 @@ If to-dos are still open, a preparation reminder 3 days before departure; during
 
 **How is the weather calculated?**  
 For the next 16 days you see the real forecast. Further ahead, the average of the same days over the last 3 years is used, and this is shown clearly.
+
+**What is the Explore tab?**  
+It shows ready-made trip plans. Tap one to see its day plan, places and to-dos. "Add" copies the whole plan, "Edit and add" only what you leave ticked, starting on the date you pick. The new trip is yours and doesn't change when the plan is updated. No account is needed; the list needs internet, and the last cards you saw also show offline.
 
 ### Planning with AI
 

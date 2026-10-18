@@ -197,4 +197,21 @@ namespace TravelPlanner.Helpers
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
             value is not true;
     }
+
+    /// <summary>
+    /// TP-33: an image URL (Keşfet cover / thumbnail) as an image source kept in the on-device cache for 7 days, so
+    /// scrolling back and reopening the tab never downloads the same picture again. Null / empty → no image.
+    /// </summary>
+    public class CachedImageConverter : IValueConverter
+    {
+        public static readonly TimeSpan CacheValidity = TimeSpan.FromDays(7);
+
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            value is string url && Uri.TryCreate(url, UriKind.Absolute, out var uri)
+                ? new UriImageSource { Uri = uri, CachingEnabled = true, CacheValidity = CacheValidity }
+                : null;
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
 }

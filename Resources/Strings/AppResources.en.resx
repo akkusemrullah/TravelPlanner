@@ -2857,6 +2857,9 @@ If to-dos are still open, a preparation reminder 3 days before departure; during
 ? How is the weather calculated?
 For the next 16 days you see the real forecast. Further ahead, the average of the same days over the last 3 years is used, and this is shown clearly.
 
+? What is the Explore tab?
+It shows ready-made trip plans. Tap one to see its day plan, places and to-dos. "Add" copies the whole plan, "Edit and add" only what you leave ticked, starting on the date you pick. The new trip is yours and doesn't change when the plan is updated. No account is needed; the list needs internet, and the last cards you saw also show offline.
+
 ## Planning with AI
 ? How does the AI planner work?
 Tap "Plan with AI" on the trip page and answer 4 questions (interests, pace, budget, companions). Review the day-by-day plan, places and to-dos it prepares, then pick what you want and add it to your trip. You need an account and an internet connection.
@@ -2926,5 +2929,200 @@ For access, correction, deletion and other requests, write to {email} from your 
   </data>
   <data name="Captcha_Cancel" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="Nav_Explore" xml:space="preserve">
+    <value>Explore</value>
+  </data>
+  <data name="Explore_Title" xml:space="preserve">
+    <value>Explore</value>
+  </data>
+  <data name="Explore_Heading" xml:space="preserve">
+    <value>Ready plans</value>
+  </data>
+  <data name="Explore_SearchPlaceholder" xml:space="preserve">
+    <value>Search city, country or style</value>
+  </data>
+  <data name="Explore_Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="Explore_DaysFormat" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="Explore_New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Explore_NoResults" xml:space="preserve">
+    <value>No results</value>
+  </data>
+  <data name="Explore_ClearFilters" xml:space="preserve">
+    <value>Clear filters</value>
+  </data>
+  <data name="Explore_Empty" xml:space="preserve">
+    <value>No ready plans yet</value>
+  </data>
+  <data name="Explore_LoadError" xml:space="preserve">
+    <value>Couldn't load</value>
+  </data>
+  <data name="Explore_Retry" xml:space="preserve">
+    <value>Try again</value>
+  </data>
+  <data name="Explore_OfflineBanner" xml:space="preserve">
+    <value>You're offline, showing saved cards.</value>
+  </data>
+  <data name="Explore_OfflineEmpty" xml:space="preserve">
+    <value>No internet. Try again when you're online.</value>
+  </data>
+  <data name="Explore_FilterPlace" xml:space="preserve">
+    <value>Country or city</value>
+  </data>
+  <data name="Explore_FilterPlaceHint" xml:space="preserve">
+    <value>e.g. Italy, Rome</value>
+  </data>
+  <data name="Explore_FilterDuration" xml:space="preserve">
+    <value>Length</value>
+  </data>
+  <data name="Explore_Duration_Short" xml:space="preserve">
+    <value>1-3 days</value>
+  </data>
+  <data name="Explore_Duration_Mid" xml:space="preserve">
+    <value>4-7 days</value>
+  </data>
+  <data name="Explore_Duration_Long" xml:space="preserve">
+    <value>8+ days</value>
+  </data>
+  <data name="Explore_FilterBudget" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="Explore_FilterStyle" xml:space="preserve">
+    <value>Style</value>
+  </data>
+  <data name="Explore_FilterMonth" xml:space="preserve">
+    <value>Month</value>
+  </data>
+  <data name="Explore_Sort" xml:space="preserve">
+    <value>Sort</value>
+  </data>
+  <data name="Explore_Sort_Recommended" xml:space="preserve">
+    <value>Recommended</value>
+  </data>
+  <data name="Explore_Sort_Newest" xml:space="preserve">
+    <value>Newest</value>
+  </data>
+  <data name="Explore_Sort_Shortest" xml:space="preserve">
+    <value>Shortest</value>
+  </data>
+  <data name="Explore_Apply" xml:space="preserve">
+    <value>Apply</value>
+  </data>
+  <data name="Explore_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="Explore_Tag_Culture" xml:space="preserve">
+    <value>Culture</value>
+  </data>
+  <data name="Explore_Tag_Nature" xml:space="preserve">
+    <value>Nature</value>
+  </data>
+  <data name="Explore_Tag_Sea" xml:space="preserve">
+    <value>Sea</value>
+  </data>
+  <data name="Explore_Tag_Food" xml:space="preserve">
+    <value>Food</value>
+  </data>
+  <data name="Explore_Tag_Family" xml:space="preserve">
+    <value>Family</value>
+  </data>
+  <data name="Explore_Tag_Romantic" xml:space="preserve">
+    <value>Romantic</value>
+  </data>
+  <data name="Explore_Tag_Adventure" xml:space="preserve">
+    <value>Adventure</value>
+  </data>
+  <data name="Explore_Add" xml:space="preserve">
+    <value>Add</value>
+  </data>
+  <data name="Explore_EditAndAdd" xml:space="preserve">
+    <value>Edit and add</value>
+  </data>
+  <data name="Explore_Continue" xml:space="preserve">
+    <value>Continue</value>
+  </data>
+  <data name="Explore_EditHint" xml:space="preserve">
+    <value>Untick what you don't want to add.</value>
+  </data>
+  <data name="Explore_SectionDays" xml:space="preserve">
+    <value>Day by day</value>
+  </data>
+  <data name="Explore_SectionPlaces" xml:space="preserve">
+    <value>Places</value>
+  </data>
+  <data name="Explore_SectionTodos" xml:space="preserve">
+    <value>To-dos</value>
+  </data>
+  <data name="Explore_SectionPacking" xml:space="preserve">
+    <value>Packing</value>
+  </data>
+  <data name="Explore_SectionTips" xml:space="preserve">
+    <value>Tips</value>
+  </data>
+  <data name="Explore_DayFormat" xml:space="preserve">
+    <value>Day {0}</value>
+  </data>
+  <data name="Explore_EstBudgetFormat" xml:space="preserve">
+    <value>Estimated budget: {0}</value>
+  </data>
+  <data name="Explore_MonthsAll" xml:space="preserve">
+    <value>Good all year</value>
+  </data>
+  <data name="Explore_MonthsFormat" xml:space="preserve">
+    <value>Best in: {0}</value>
+  </data>
+  <data name="Explore_Disclaimer" xml:space="preserve">
+    <value>Details may change, check before you go.</value>
+  </data>
+  <data name="Explore_ImageCreditFormat" xml:space="preserve">
+    <value>Image: {0}</value>
+  </data>
+  <data name="Explore_ShowMap" xml:space="preserve">
+    <value>Show on map</value>
+  </data>
+  <data name="Explore_Gone" xml:space="preserve">
+    <value>This plan is no longer available.</value>
+  </data>
+  <data name="Explore_SheetTitle" xml:space="preserve">
+    <value>Add to your trips</value>
+  </data>
+  <data name="Explore_TripName" xml:space="preserve">
+    <value>Trip name</value>
+  </data>
+  <data name="Explore_StartDate" xml:space="preserve">
+    <value>Start date</value>
+  </data>
+  <data name="Explore_Currency" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="Explore_Budget" xml:space="preserve">
+    <value>Budget (optional)</value>
+  </data>
+  <data name="Explore_Adding" xml:space="preserve">
+    <value>Adding…</value>
+  </data>
+  <data name="Explore_Added" xml:space="preserve">
+    <value>Added to your trips</value>
+  </data>
+  <data name="Explore_AgainTitle" xml:space="preserve">
+    <value>Already added</value>
+  </data>
+  <data name="Explore_AgainMessage" xml:space="preserve">
+    <value>You added this trip before. Add it again?</value>
+  </data>
+  <data name="Explore_TripLimit" xml:space="preserve">
+    <value>You've reached the trip limit.</value>
+  </data>
+  <data name="Explore_BudgetInvalid" xml:space="preserve">
+    <value>The budget isn't valid.</value>
+  </data>
+  <data name="Explore_AddError" xml:space="preserve">
+    <value>The trip couldn't be added.</value>
   </data>
 </root>

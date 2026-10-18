@@ -11,6 +11,7 @@ Kod ile belge çelişirse doğru olan koddur; belge güncellenmelidir.
 | [CLOUD_SYNC_PLAN.md](CLOUD_SYNC_PLAN.md) | Bulut senkron tasarımı (G1–G7) |
 | [DESIGN.md](DESIGN.md), [brand/](brand/) | Görsel dil, renkler, logo |
 | [supabase/README.md](../supabase/README.md) | Sunucu kurulumu, migration'lar, kotalar, Edge Functions |
+| [EXPLORE_CONTENT.md](EXPLORE_CONTENT.md) | Keşfet içeriği: JSON biçimi, yayınlama, görseller, güncelleme ritmi |
 | [RELEASE.md](RELEASE.md), [ci/ci.yml](ci/ci.yml) | Sürümleme, imzalama, CI, yayın kontrol listesi |
 | [.env.example](../.env.example) | Gizli anahtarların adları ve nerede durdukları |
 

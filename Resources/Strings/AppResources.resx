@@ -2858,6 +2858,9 @@ Bitmemiş görevler varsa yolculuktan 3 gün önce bir hazırlık hatırlatması
 ? Hava durumu nasıl hesaplanıyor?
 Önümüzdeki 16 gün için gerçek tahmin gösterilir. Daha ileri tarihler için aynı günlerin son 3 yıldaki ortalaması kullanılır ve bu açıkça belirtilir.
 
+? Keşfet sekmesi nedir?
+Hazır seyahat planlarını gösterir. Bir plana dokunup gün gün planı, yerleri ve yapılacakları inceleyebilirsin. "Ekle" planın tamamını, "Düzenle ve ekle" yalnızca işaretli bıraktıklarını başlangıç tarihine göre kendi seyahatlerine ekler. Eklenen seyahat senindir; plan sonradan değişse de etkilenmez. Hesap gerekmez; liste için internet gerekir, son görülen kartlar çevrimdışı da görünür.
+
 ## Yapay zekâ ile planlama
 ? Yapay zekâ planlayıcısı nasıl çalışır?
 Seyahat detayında "Yapay zekâ ile planla"ya dokun, 4 soruyu (ilgi alanları, tempo, bütçe, kiminle) cevapla. Hazırlanan gün gün planı, gezilecek yerleri ve görevleri incele; istediklerini seçip plana ekle. Bu özellik için giriş yapman ve internet bağlantısı gerekir.
@@ -2927,5 +2930,200 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="Captcha_Cancel" xml:space="preserve">
     <value>Vazgeç</value>
+  </data>
+  <data name="Nav_Explore" xml:space="preserve">
+    <value>Keşfet</value>
+  </data>
+  <data name="Explore_Title" xml:space="preserve">
+    <value>Keşfet</value>
+  </data>
+  <data name="Explore_Heading" xml:space="preserve">
+    <value>Hazır planlar</value>
+  </data>
+  <data name="Explore_SearchPlaceholder" xml:space="preserve">
+    <value>Şehir, ülke veya tarz ara</value>
+  </data>
+  <data name="Explore_Filters" xml:space="preserve">
+    <value>Filtreler</value>
+  </data>
+  <data name="Explore_DaysFormat" xml:space="preserve">
+    <value>{0} gün</value>
+  </data>
+  <data name="Explore_New" xml:space="preserve">
+    <value>Yeni</value>
+  </data>
+  <data name="Explore_NoResults" xml:space="preserve">
+    <value>Sonuç yok</value>
+  </data>
+  <data name="Explore_ClearFilters" xml:space="preserve">
+    <value>Filtreleri temizle</value>
+  </data>
+  <data name="Explore_Empty" xml:space="preserve">
+    <value>Henüz hazır plan yok</value>
+  </data>
+  <data name="Explore_LoadError" xml:space="preserve">
+    <value>Yüklenemedi</value>
+  </data>
+  <data name="Explore_Retry" xml:space="preserve">
+    <value>Tekrar dene</value>
+  </data>
+  <data name="Explore_OfflineBanner" xml:space="preserve">
+    <value>Çevrimdışısın, kayıtlı kartlar gösteriliyor.</value>
+  </data>
+  <data name="Explore_OfflineEmpty" xml:space="preserve">
+    <value>İnternet yok. Bağlanınca tekrar dene.</value>
+  </data>
+  <data name="Explore_FilterPlace" xml:space="preserve">
+    <value>Ülke veya şehir</value>
+  </data>
+  <data name="Explore_FilterPlaceHint" xml:space="preserve">
+    <value>Örn. Türkiye, Roma</value>
+  </data>
+  <data name="Explore_FilterDuration" xml:space="preserve">
+    <value>Süre</value>
+  </data>
+  <data name="Explore_Duration_Short" xml:space="preserve">
+    <value>1-3 gün</value>
+  </data>
+  <data name="Explore_Duration_Mid" xml:space="preserve">
+    <value>4-7 gün</value>
+  </data>
+  <data name="Explore_Duration_Long" xml:space="preserve">
+    <value>8+ gün</value>
+  </data>
+  <data name="Explore_FilterBudget" xml:space="preserve">
+    <value>Bütçe</value>
+  </data>
+  <data name="Explore_FilterStyle" xml:space="preserve">
+    <value>Tarz</value>
+  </data>
+  <data name="Explore_FilterMonth" xml:space="preserve">
+    <value>Ay</value>
+  </data>
+  <data name="Explore_Sort" xml:space="preserve">
+    <value>Sıralama</value>
+  </data>
+  <data name="Explore_Sort_Recommended" xml:space="preserve">
+    <value>Önerilen</value>
+  </data>
+  <data name="Explore_Sort_Newest" xml:space="preserve">
+    <value>En yeni</value>
+  </data>
+  <data name="Explore_Sort_Shortest" xml:space="preserve">
+    <value>En kısa</value>
+  </data>
+  <data name="Explore_Apply" xml:space="preserve">
+    <value>Uygula</value>
+  </data>
+  <data name="Explore_Clear" xml:space="preserve">
+    <value>Temizle</value>
+  </data>
+  <data name="Explore_Tag_Culture" xml:space="preserve">
+    <value>Kültür</value>
+  </data>
+  <data name="Explore_Tag_Nature" xml:space="preserve">
+    <value>Doğa</value>
+  </data>
+  <data name="Explore_Tag_Sea" xml:space="preserve">
+    <value>Deniz</value>
+  </data>
+  <data name="Explore_Tag_Food" xml:space="preserve">
+    <value>Gastronomi</value>
+  </data>
+  <data name="Explore_Tag_Family" xml:space="preserve">
+    <value>Aile</value>
+  </data>
+  <data name="Explore_Tag_Romantic" xml:space="preserve">
+    <value>Romantik</value>
+  </data>
+  <data name="Explore_Tag_Adventure" xml:space="preserve">
+    <value>Macera</value>
+  </data>
+  <data name="Explore_Add" xml:space="preserve">
+    <value>Ekle</value>
+  </data>
+  <data name="Explore_EditAndAdd" xml:space="preserve">
+    <value>Düzenle ve ekle</value>
+  </data>
+  <data name="Explore_Continue" xml:space="preserve">
+    <value>Devam</value>
+  </data>
+  <data name="Explore_EditHint" xml:space="preserve">
+    <value>Eklemek istemediklerinin işaretini kaldır.</value>
+  </data>
+  <data name="Explore_SectionDays" xml:space="preserve">
+    <value>Gün gün plan</value>
+  </data>
+  <data name="Explore_SectionPlaces" xml:space="preserve">
+    <value>Yerler</value>
+  </data>
+  <data name="Explore_SectionTodos" xml:space="preserve">
+    <value>Yapılacaklar</value>
+  </data>
+  <data name="Explore_SectionPacking" xml:space="preserve">
+    <value>Bavul</value>
+  </data>
+  <data name="Explore_SectionTips" xml:space="preserve">
+    <value>İpuçları</value>
+  </data>
+  <data name="Explore_DayFormat" xml:space="preserve">
+    <value>Gün {0}</value>
+  </data>
+  <data name="Explore_EstBudgetFormat" xml:space="preserve">
+    <value>Tahmini bütçe: {0}</value>
+  </data>
+  <data name="Explore_MonthsAll" xml:space="preserve">
+    <value>Her mevsim uygun</value>
+  </data>
+  <data name="Explore_MonthsFormat" xml:space="preserve">
+    <value>En uygun: {0}</value>
+  </data>
+  <data name="Explore_Disclaimer" xml:space="preserve">
+    <value>Bilgiler değişebilir, gitmeden kontrol et.</value>
+  </data>
+  <data name="Explore_ImageCreditFormat" xml:space="preserve">
+    <value>Görsel: {0}</value>
+  </data>
+  <data name="Explore_ShowMap" xml:space="preserve">
+    <value>Haritada gör</value>
+  </data>
+  <data name="Explore_Gone" xml:space="preserve">
+    <value>Bu plan artık yok.</value>
+  </data>
+  <data name="Explore_SheetTitle" xml:space="preserve">
+    <value>Seyahatlerine ekle</value>
+  </data>
+  <data name="Explore_TripName" xml:space="preserve">
+    <value>Seyahat adı</value>
+  </data>
+  <data name="Explore_StartDate" xml:space="preserve">
+    <value>Başlangıç</value>
+  </data>
+  <data name="Explore_Currency" xml:space="preserve">
+    <value>Para birimi</value>
+  </data>
+  <data name="Explore_Budget" xml:space="preserve">
+    <value>Bütçe (isteğe bağlı)</value>
+  </data>
+  <data name="Explore_Adding" xml:space="preserve">
+    <value>Ekleniyor…</value>
+  </data>
+  <data name="Explore_Added" xml:space="preserve">
+    <value>Seyahatlerine eklendi</value>
+  </data>
+  <data name="Explore_AgainTitle" xml:space="preserve">
+    <value>Zaten ekledin</value>
+  </data>
+  <data name="Explore_AgainMessage" xml:space="preserve">
+    <value>Bu seyahati daha önce ekledin. Yine de ekle?</value>
+  </data>
+  <data name="Explore_TripLimit" xml:space="preserve">
+    <value>Seyahat sınırına ulaştın.</value>
+  </data>
+  <data name="Explore_BudgetInvalid" xml:space="preserve">
+    <value>Bütçe geçersiz.</value>
+  </data>
+  <data name="Explore_AddError" xml:space="preserve">
+    <value>Seyahat eklenemedi.</value>
   </data>
 </root>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
+             x:Class="TravelPlanner.Views.ExplorePage"
+             x:DataType="vm:ExploreViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <!-- Tab root (Keşfet, TP-33): the admin's sample trips as an endless list of fixed-height cards. -->
+    <ContentPage.Resources>
+        <!-- One chip of the filter sheet; ToggleChoiceCommand knows which groups are single / multi choice. -->
+        <DataTemplate x:Key="FilterChip" x:DataType="vm:ExploreChoice">
+            <Border Style="{StaticResource Chip}" Margin="0,0,8,8" SemanticProperties.Description="{Binding Label}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-primary}" />
+                        <Setter Property="Stroke" Value="{DynamicResource tp-primary}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreViewModel}}, Path=ToggleChoiceCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Border.GestureRecognizers>
+                <Label Text="{Binding Label}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource tp-on-primary}" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+        </DataTemplate>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- ════════ Header ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource PageHeader}">
+            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
+                <Label Text="{x:Static res:AppResources.Nav_Explore}" Style="{StaticResource Text.Overline}" />
+                <Label Text="{x:Static res:AppResources.Explore_Heading}" Style="{StaticResource Text.H1}" SemanticProperties.HeadingLevel="Level1" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- ════════ Search + filter button (with the number of active filters) ════════ -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10" Padding="16,0,16,14" BackgroundColor="{DynamicResource tp-surface}">
+            <Border Grid.Column="0" Style="{StaticResource Input}" Padding="2,0">
+                <SearchBar Text="{Binding SearchText}" MaxLength="100" Placeholder="{x:Static res:AppResources.Explore_SearchPlaceholder}"
+                           SemanticProperties.Description="{x:Static res:AppResources.Explore_SearchPlaceholder}" />
+            </Border>
+            <Grid Grid.Column="1" VerticalOptions="Center">
+                <Border Style="{StaticResource IconButton.Outlined}" SemanticProperties.Description="{x:Static res:AppResources.Explore_Filters}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenFilterCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Sliders}" />
+                </Border>
+                <Border IsVisible="{Binding HasActiveFilters}" BackgroundColor="{DynamicResource tp-accent}" StrokeThickness="0"
+                        StrokeShape="RoundRectangle 9" HeightRequest="18" MinimumWidthRequest="18" Padding="5,0"
+                        HorizontalOptions="End" VerticalOptions="Start" Margin="0,-4,-4,0" InputTransparent="True">
+                    <Label Text="{Binding ActiveFilterText}" FontFamily="InterSemiBold" FontSize="11" TextColor="{DynamicResource tp-on-accent}"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+            </Grid>
+        </Grid>
+        <BoxView Grid.Row="2" Style="{StaticResource Divider}" />
+
+        <!-- ════════ List ════════ -->
+        <Grid Grid.Row="3">
+            <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+                <CollectionView x:Name="CardsView" ItemsSource="{Binding Items}" SelectionMode="None"
+                                ItemSizingStrategy="MeasureFirstItem"
+                                RemainingItemsThreshold="5" RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.Header>
+                        <VerticalStackLayout Padding="16,16,16,0">
+                            <Border IsVisible="{Binding ShowOfflineBanner}" Style="{StaticResource Banner.Warning}" Margin="0,0,0,8">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
+                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Explore_OfflineBanner}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+                    <CollectionView.Footer>
+                        <Grid Padding="0,8,0,24" MinimumHeightRequest="40">
+                            <controls:LoadingDots IsVisible="{Binding IsLoadingMore}" DotSize="6" DotColor="{DynamicResource tp-primary}" HorizontalOptions="Center" />
+                        </Grid>
+                    </CollectionView.Footer>
+                    <CollectionView.ItemTemplate>
+                        <!-- Fixed height, one grid, no nested layouts: cheap to bind while scrolling fast. -->
+                        <DataTemplate x:DataType="models:ExploreTripCard">
+                            <Border Style="{StaticResource Card.Compact}" Margin="16,0" Padding="10" HeightRequest="112"
+                                    SemanticProperties.Description="{Binding Title}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreViewModel}}, Path=OpenTripCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="92,*,Auto" RowDefinitions="Auto,Auto,*,Auto" ColumnSpacing="12" RowSpacing="2">
+                                    <Border Grid.RowSpan="4" StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="{DynamicResource tp-surface-alt}"
+                                            WidthRequest="92" HeightRequest="92">
+                                        <Grid>
+                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Compass}" TextColor="{DynamicResource tp-text-3}" />
+                                            <Image Source="{Binding ThumbUrl, Converter={StaticResource CachedImageConverter}}" Aspect="AspectFill" />
+                                        </Grid>
+                                    </Border>
+                                    <Label Grid.Column="1" Grid.Row="0" Text="{Binding Title}" Style="{StaticResource Text.Title}" MaxLines="1" LineBreakMode="TailTruncation" />
+                                    <Border Grid.Column="2" Grid.Row="0" IsVisible="{Binding IsNew}" Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-accent-soft}">
+                                        <Label Text="{x:Static res:AppResources.Explore_New}" Style="{StaticResource Tag.Text}" TextColor="{DynamicResource tp-accent-text}" />
+                                    </Border>
+                                    <Label Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Text="{Binding Location}" Style="{StaticResource Text.Body2}" MaxLines="1" LineBreakMode="TailTruncation" />
+                                    <Label Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding TagText}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation" VerticalOptions="Start" />
+                                    <Label Grid.Column="1" Grid.Row="3" Text="{Binding DurationText}" Style="{StaticResource Text.Caption}" FontFamily="InterSemiBold" TextColor="{DynamicResource tp-text-2}" />
+                                    <Label Grid.Column="2" Grid.Row="3" Text="{Binding BudgetText}" Style="{StaticResource Text.Value}" FontSize="13" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </RefreshView>
+
+            <!-- First load: skeleton cards -->
+            <VerticalStackLayout IsVisible="{Binding ShowSkeleton}" Padding="16,16,16,0" Spacing="8" BindableLayout.ItemsSource="{Binding SkeletonCards}"
+                                 BackgroundColor="{DynamicResource tp-bg}" InputTransparent="True">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="x:Int32">
+                        <Border Style="{StaticResource Card.Compact}" Padding="10" HeightRequest="112">
+                            <Grid ColumnDefinitions="92,*" RowDefinitions="Auto,Auto,*" ColumnSpacing="12" RowSpacing="8">
+                                <BoxView Grid.RowSpan="3" CornerRadius="10" Color="{DynamicResource tp-surface-sunken}" />
+                                <BoxView Grid.Column="1" HeightRequest="14" CornerRadius="4" Color="{DynamicResource tp-surface-sunken}" Margin="0,4,40,0" />
+                                <BoxView Grid.Column="1" Grid.Row="1" HeightRequest="12" CornerRadius="4" Color="{DynamicResource tp-surface-sunken}" Margin="0,0,90,0" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <!-- Search / filters match nothing -->
+            <VerticalStackLayout IsVisible="{Binding HasNoResults}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
+                <Border Style="{StaticResource EmptyIcon}">
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-2}" />
+                </Border>
+                <Label Text="{x:Static res:AppResources.Explore_NoResults}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
+                <Button Text="{x:Static res:AppResources.Explore_ClearFilters}" Command="{Binding ClearAllCommand}"
+                        Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Nothing published yet -->
+            <VerticalStackLayout IsVisible="{Binding IsEmptyCatalog}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
+                <Border Style="{StaticResource EmptyIcon}">
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Compass}" TextColor="{DynamicResource tp-text-2}" />
+                </Border>
+                <Label Text="{x:Static res:AppResources.Explore_Empty}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <!-- Failed (no cached cards) -->
+            <VerticalStackLayout IsVisible="{Binding HasError}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
+                <Border Style="{StaticResource EmptyIcon}">
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-text-2}" />
+                </Border>
+                <Label Text="{x:Static res:AppResources.Explore_LoadError}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
+                <Button Text="{x:Static res:AppResources.Explore_Retry}" Command="{Binding RetryCommand}" Style="{StaticResource Btn.Primary}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+
+            <!-- Offline (no cached cards) -->
+            <VerticalStackLayout IsVisible="{Binding IsOfflineEmpty}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
+                <Border Style="{StaticResource EmptyIcon}">
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-text-2}" />
+                </Border>
+                <Label Text="{x:Static res:AppResources.Explore_OfflineEmpty}" Style="{StaticResource EmptyStateTextLabel}" />
+                <Button Text="{x:Static res:AppResources.Explore_Retry}" Command="{Binding RetryCommand}" Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- ════════ Filter sheet (over everything) ════════ -->
+        <Grid Grid.Row="0" Grid.RowSpan="4" IsVisible="{Binding IsFilterOpen}" RowDefinitions="*,Auto">
+            <BoxView Grid.RowSpan="2" Color="{DynamicResource tp-overlay}" Opacity="0.45">
+                <BoxView.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CloseFilterCommand}" />
+                </BoxView.GestureRecognizers>
+            </BoxView>
+            <Border Grid.Row="1" BackgroundColor="{DynamicResource tp-surface}" StrokeThickness="0" StrokeShape="RoundRectangle 20,20,0,0"
+                    Padding="0" MaximumHeightRequest="620">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="20,16,12,4">
+                        <Label Text="{x:Static res:AppResources.Explore_Filters}" Style="{StaticResource Text.H3}" VerticalOptions="Center" />
+                        <Border Grid.Column="1" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Common_Cancel}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CloseFilterCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" />
+                        </Border>
+                    </Grid>
+                    <ScrollView Grid.Row="1">
+                        <VerticalStackLayout Padding="20,8,20,8" Spacing="16">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Explore_FilterPlace}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <Entry Text="{Binding FilterPlace}" MaxLength="100" Placeholder="{x:Static res:AppResources.Explore_FilterPlaceHint}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Explore_FilterDuration}" Style="{StaticResource Text.Field}" />
+                                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding DurationChoices}" BindableLayout.ItemTemplate="{StaticResource FilterChip}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Explore_FilterBudget}" Style="{StaticResource Text.Field}" />
+                                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding BudgetChoices}" BindableLayout.ItemTemplate="{StaticResource FilterChip}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Explore_FilterStyle}" Style="{StaticResource Text.Field}" />
+                                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding StyleChoices}" BindableLayout.ItemTemplate="{StaticResource FilterChip}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Explore_FilterMonth}" Style="{StaticResource Text.Field}" />
+                                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding MonthChoices}" BindableLayout.ItemTemplate="{StaticResource FilterChip}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Explore_Sort}" Style="{StaticResource Text.Field}" />
+                                <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding SortChoices}" BindableLayout.ItemTemplate="{StaticResource FilterChip}" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                    <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="10" Padding="20,10,20,16">
+                        <Button Grid.Column="0" Text="{x:Static res:AppResources.Explore_Clear}" Command="{Binding ClearFilterCommand}" Style="{StaticResource Btn.Secondary}" />
+                        <Button Grid.Column="1" Text="{x:Static res:AppResources.Explore_Apply}" Command="{Binding ApplyFilterCommand}" Style="{StaticResource Btn.Primary}" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>
