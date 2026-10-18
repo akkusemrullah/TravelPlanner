@@ -128,6 +128,7 @@ namespace TravelPlanner
             services.AddSingleton<ITripAccessService, TripAccessService>();
             services.AddSingleton<ISharingService, SharingService>();
             services.AddSingleton<ITripCurrencyService, TripCurrencyService>();          // TP-11
+            services.AddSingleton<IConsentService, ConsentService>();                    // TP-25: açık rıza
             services.AddSingleton<IMemberJoinWatcher, MemberJoinWatcher>();   // TP-4: "someone joined your trip"
             // AI trip planner: Supabase Edge Function "plan-trip" (the OpenAI key stays on the server).
             services.AddSingleton<IDeviceIdentity, DeviceIdentity>();

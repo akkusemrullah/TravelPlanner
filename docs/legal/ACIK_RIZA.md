@@ -2,7 +2,7 @@
 
 Son güncelleme: 18 Ekim 2026 · Last updated: 18 October 2026
 
-> Bu metin, [KVKK Aydınlatma Metni](../KVKK.md)'nin 5. bölümünde "uygun güvencelerin mümkün olmadığı hâllerde açık rızana dayanılır" denen işlemler içindir. Veri sorumlusu bilgileri `Helpers/AppConstants.cs` içindedir. Yayınlamadan önce bir hukukçuya kontrol ettirilmesi önerilir; uygulamada bu rızanın alındığı ekran için bkz. [COMPLIANCE.md](../COMPLIANCE.md#açık-rıza).
+> Bu metin, [KVKK Aydınlatma Metni](../KVKK.md)'nin 5. bölümünde "uygun güvencelerin mümkün olmadığı hâllerde açık rızana dayanılır" denen işlemler içindir. Veri sorumlusu bilgileri `Helpers/AppConstants.cs` içindedir. Yayınlamadan önce bir hukukçuya kontrol ettirilmesi önerilir; Uygulama bu rızayı özellik ilk kullanıldığında sorar (`Services/ConsentService.cs`); uygulama içi metin `Consent_DocBody` (resx) bu dosyayla aynıdır, rıza *Profil → Yasal ve gizlilik → Açık rızamı geri al* ile geri alınır.
 
 ## Türkçe
 

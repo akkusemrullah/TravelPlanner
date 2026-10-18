@@ -27,7 +27,7 @@ Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı b
 | Yükümlülük | Nasıl karşılanıyor | Durum |
 | --- | --- | --- |
 | Aydınlatma (KVKK md. 10) | Uygulama içi *Yasal ve gizlilik*, `docs/KVKK.md`, web sitesi | ✅ |
-| <a id="açık-rıza"></a>Açık rıza (yurt dışı aktarım, isteğe bağlı özellikler) | Metin: [legal/ACIK_RIZA.md](legal/ACIK_RIZA.md) | ⚠️ Uygulamada yapay zekâ ilk kullanımında ve Google ile girişte onay kutusu/ekranı **henüz yok** – eklenmesi önerilir |
+| <a id="açık-rıza"></a>Açık rıza (yurt dışı aktarım, isteğe bağlı özellikler) | Metin: [legal/ACIK_RIZA.md](legal/ACIK_RIZA.md) | ✅ Uygulama, yapay zekâ ile planlamayı ve Google ile girişi ilk kullanımda açık rıza sorusuyla başlatır (`ConsentService`, cihazda sürüm ile saklanır); metin *Profil → Yasal ve gizlilik → Açık Rıza Metni*, geri alma aynı yerde *Açık rızamı geri al* |
 | Yurt dışına aktarım (md. 9) | Sağlayıcı sözleşmeleri (DPA/SCC) + gerektiğinde açık rıza | ⚠️ Supabase ve OpenAI DPA'larının imzalanması, gerekiyorsa Kurul'a bildirim veri sorumlusunun görevi |
 | İlgili kişi başvuruları (md. 11, 13) | E-posta, web `kvkk-basvuru`, uygulama içi silme/dışa aktarma; 30 gün | ✅ |
 | Veri güvenliği (md. 12) | [SECURITY.md](../SECURITY.md): RLS, TLS, kota, doğrulama | ✅ |
@@ -43,8 +43,6 @@ Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı b
 | Çerezler (web sitesi) | `cerez-politikasi.html`; uygulamada çerez yok | ✅ |
 
 ## 4. Açık noktalar (veri sorumlusunun yapması gerekenler)
-1. Destek/veri sorumlusu e-postasını tekleştir: uygulama `emrullahakkus@gmail.com`, web sitesi `emrullahakkus9@gmail.com` kullanıyor.
-2. Yapay zekâ ilk kullanımı ve Google ile giriş için uygulama içi açık rıza adımı.
-3. Supabase ve OpenAI veri işleme sözleşmeleri (DPA), OpenAI'de veri saklama ayarları.
-4. VERBİS muafiyet kontrolü.
-5. Yasal metinlerin hukukçu tarafından gözden geçirilmesi.
+1. Supabase ve OpenAI veri işleme sözleşmeleri (DPA), OpenAI'de veri saklama ayarları.
+2. VERBİS muafiyet kontrolü.
+3. Yasal metinlerin hukukçu tarafından gözden geçirilmesi.

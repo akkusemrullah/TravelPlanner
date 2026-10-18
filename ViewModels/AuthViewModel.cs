@@ -35,10 +35,13 @@ namespace TravelPlanner.ViewModels
         private readonly IAuthService _auth;
         private readonly IAccountService _account;
         private readonly IConnectivity _connectivity;
+        private readonly IConsentService? _consent;
 
-        public AuthViewModel(IAuthService auth, IAccountService account, IConnectivity connectivity, IDialogService dialogs)
+        public AuthViewModel(IAuthService auth, IAccountService account, IConnectivity connectivity, IDialogService dialogs,
+                             IConsentService? consent = null)
             : base(dialogs)
         {
+            _consent = consent;
             _auth = auth;
             _account = account;
             _connectivity = connectivity;
@@ -194,6 +197,10 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task SignInWithGoogleAsync() => RunAuthAsync(async () =>
         {
+            // TP-25: Google processes the sign-in abroad - explicit consent first (KVKK md. 9)
+            if (_consent is not null && !await _consent.EnsureAsync(ConsentKind.GoogleSignIn))
+                return;
+
             await _auth.SignInWithGoogleAsync();
             await FinishSignInAsync();
         });

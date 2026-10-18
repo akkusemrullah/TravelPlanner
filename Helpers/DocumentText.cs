@@ -144,6 +144,8 @@ namespace TravelPlanner.Helpers
         Kvkk,
         Terms,
         Licenses,
+        /// <summary>TP-25: Açık Rıza Metni (AI planning, Google sign-in).</summary>
+        Consent,
     }
 
     public static class LegalDocuments
@@ -153,6 +155,7 @@ namespace TravelPlanner.Helpers
         public const string KvkkKey = "kvkk";
         public const string TermsKey = "terms";
         public const string LicensesKey = "licenses";
+        public const string ConsentKey = "consent";
 
         /// <summary>The document a query value names; anything unknown shows the privacy policy.</summary>
         public static LegalDocumentKind FromKey(string? key) => key?.Trim().ToLowerInvariant() switch
@@ -160,6 +163,7 @@ namespace TravelPlanner.Helpers
             KvkkKey => LegalDocumentKind.Kvkk,
             TermsKey => LegalDocumentKind.Terms,
             LicensesKey => LegalDocumentKind.Licenses,
+            ConsentKey => LegalDocumentKind.Consent,
             _ => LegalDocumentKind.Privacy,
         };
 
@@ -168,6 +172,7 @@ namespace TravelPlanner.Helpers
             LegalDocumentKind.Kvkk => KvkkKey,
             LegalDocumentKind.Terms => TermsKey,
             LegalDocumentKind.Licenses => LicensesKey,
+            LegalDocumentKind.Consent => ConsentKey,
             _ => PrivacyKey,
         };
 
@@ -176,6 +181,7 @@ namespace TravelPlanner.Helpers
             LegalDocumentKind.Kvkk => AppResources.Kvkk_Title,
             LegalDocumentKind.Terms => AppResources.Terms_Title,
             LegalDocumentKind.Licenses => AppResources.Licenses_Title,
+            LegalDocumentKind.Consent => AppResources.Consent_DocTitle,
             _ => AppResources.Privacy_Title,
         };
 
@@ -185,6 +191,7 @@ namespace TravelPlanner.Helpers
             LegalDocumentKind.Kvkk => AppResources.Kvkk_Body,
             LegalDocumentKind.Terms => AppResources.Terms_Body,
             LegalDocumentKind.Licenses => AppResources.Licenses_Body,
+            LegalDocumentKind.Consent => AppResources.Consent_DocBody,
             _ => AppResources.Privacy_Body,
         });
 

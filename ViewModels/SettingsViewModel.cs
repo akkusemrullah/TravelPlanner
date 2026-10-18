@@ -27,6 +27,7 @@ namespace TravelPlanner.ViewModels
         private readonly IAccountService _account;
         private readonly ISyncService _sync;
         private readonly ISharingService? _sharing;
+        private readonly IConsentService? _consent;
 
         /// <summary>"Sürüm 1.0.0 (12)" - TP-507.</summary>
         public string VersionText { get; }
@@ -111,9 +112,11 @@ namespace TravelPlanner.ViewModels
             IAccountService account,
             ISyncService sync,
             IDialogService dialogs,
-            ISharingService? sharing = null)
+            ISharingService? sharing = null,
+            IConsentService? consent = null)
             : base(dialogs)
         {
+            _consent = consent;
             _account = account;
             _sync = sync;
             _sharing = sharing;
@@ -497,6 +500,27 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task OpenDocumentAsync(string? key) => RunSafeAsync(() =>
             Shell.Current.GoToAsync($"{Routes.Privacy}?doc={LegalDocuments.Key(LegalDocuments.FromKey(key))}"));
+
+        /// <summary>
+        /// TP-25: withdraws the explicit consents (AI planning, Google sign-in). The features ask again before their
+        /// next use; what was transferred earlier stays lawful (and is answered by e-mail on request).
+        /// </summary>
+        [RelayCommand]
+        private Task RevokeConsentAsync() => RunSafeAsync(async () =>
+        {
+            if (_consent is null || !_consent.HasAnyConsent)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Consent_Revoke, AppResources.Consent_NoneGiven);
+                return;
+            }
+
+            if (!await Dialogs.ConfirmAsync(AppResources.Consent_Revoke, AppResources.Consent_RevokeMessage,
+                                            AppResources.Consent_RevokeAccept, AppResources.Common_Cancel))
+                return;
+
+            _consent.RevokeAll();
+            await Dialogs.ShowMessageAsync(AppResources.Consent_Revoke, AppResources.Consent_Revoked);
+        });
 
         [RelayCommand]
         private Task OpenHelpCenterAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.HelpCenter));
