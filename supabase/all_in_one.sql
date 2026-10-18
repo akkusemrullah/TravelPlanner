@@ -2888,6 +2888,7 @@ $$;
 revoke all on function public.pull_changes(bigint) from public, anon;
 grant execute on function public.pull_changes(bigint) to authenticated;
 
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261018000019_trip_currency.sql
 -- =====================================================================================================
 -- TravelPlanner - TP-11 / 19: changing a shared trip's currency keeps every expense's amount and currency in step.
 --
@@ -3117,6 +3118,7 @@ create trigger trips_guard_currency
     before update on public.trips
     for each row execute function private.guard_trip_currency();
 
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261018000020_ownership_transfer.sql
 -- =====================================================================================================
 -- TravelPlanner - TP-12 / 20: closing an account no longer silently deletes the trips other people share.
 --
@@ -3206,6 +3208,7 @@ $$;
 revoke all on function public.transfer_trip_ownership(uuid, uuid) from public, anon;
 grant execute on function public.transfer_trip_ownership(uuid, uuid) to authenticated;
 
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261018000021_error_details.sql
 -- =====================================================================================================
 -- TravelPlanner - TP-14 / 21: less detail for clients - database errors and other people's account status.
 --
@@ -3338,6 +3341,7 @@ $$;
 revoke all on function public.account_status(uuid) from public, anon;
 grant execute on function public.account_status(uuid) to authenticated;
 
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261018000022_signup_protection.sql
 -- =====================================================================================================
 -- TravelPlanner - TP-15 / 22: no accounts with throw-away e-mail addresses.
 --
