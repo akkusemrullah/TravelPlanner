@@ -25,6 +25,13 @@ namespace TravelPlanner.Services
         /// </summary>
         Task<Trip?> DuplicateAsync(int tripId, string newName);
 
+        /// <summary>
+        /// TP-33: creates the user's own trip from a Keşfet sample (one transaction, every row queued for sync): day N of
+        /// the sample lands on start date + (N - 1); only the ids in <see cref="ExploreAddOptions"/> are copied (null =
+        /// all). The copy is independent of the sample. Throws <see cref="TripLimitException"/> at the trip limit.
+        /// </summary>
+        Task<Trip> CreateFromTemplateAsync(ExploreTripDetail template, ExploreAddOptions options);
+
         Task<decimal> GetTotalExpensesAsync(int tripId);
         Task<decimal> GetRemainingBudgetAsync(int tripId);
         Task<double> GetBudgetUsagePercentageAsync(int tripId);

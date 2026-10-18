@@ -127,7 +127,20 @@ Genel terimlerin karşılıkları: **Itinerary** (gezi planı) = `Trip` + günle
 | `trip_invites` | Davet kodları (tek kullanımlık, 48 saat) |
 | `private.*` | Kotalar (`sync_usage`, AI sayaçları), dosya temizlik kuyruğu, para birimi değişim günlüğü, engelli e-posta alan adları |
 
+## Keşfet kataloğu (yalnızca sunucuda, senkron dışı, salt okunur – TP-33, migration 23)
+
+| Tablo | Amaç | Önemli alanlar |
+| --- | --- | --- |
+| `explore_trips` | Admin'in örnek seyahati | `slug` (benzersiz), `title` ≤ 100, `summary` ≤ 500, `description` ≤ 2000, `country`/`city` ≤ 100, `duration_days` 1–90, `budget_level` 1–3, `est_budget_minor` + `currency_code`, `tags` (culture, nature, sea, food, family, romantic, adventure), `months` 1–12, `tips`, `cover_path`/`thumb_path`, `image_credit`, `lang`, `sort_rank`, `is_featured`, `status` (draft/published/archived), `publish_from`/`publish_until`, `published_at`, `content_version`, `search_text` (Türkçe katlanmış arama metni, trigram index) |
+| `explore_trip_places` | Planın yerleri | `name` ≤ 150, `description` ≤ 500, `latitude`/`longitude`, `sort_order` |
+| `explore_trip_activities` | Gün planı | `day_index` 1–90 (1 = ilk gün), `start_time`/`end_time`, `title` ≤ 150, `note` ≤ 500, `place_id` |
+| `explore_trip_todos` | Yapılacaklar ve bavul | `title` ≤ 150, `kind` (todo/packing) |
+
+Uygulamada saklanmaz; eklenen plan normal `Trip`/`Place`/`TripActivity`/`TodoItem` satırlarına kopyalanır (bağımsız kopya).
+Cihazda yalnızca filtresiz ilk sayfa (önbellek klasörü), filtre seçimleri ve "daha önce eklendi" listesi (Preferences) tutulur.
+
 ## API'ye özel veri yapıları (saklanmaz)
+- `ExploreTripCard`, `ExploreTripDetail` – Keşfet listesi ve plan detayı (`explore_list`, `explore_detail`).
 - `AiTripPlan` – `plan-trip` cevabı: günler → etkinlikler, yerler (doğrulanmış koordinatla), yapılacaklar, ipuçları.
 - `WeatherInfo`, `DailyForecast` – Open-Meteo cevapları (önbellekli).
 - `CitySuggestion`, `PlaceSuggestion` – şehir/yer arama sonuçları.

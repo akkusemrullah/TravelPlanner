@@ -1209,6 +1209,127 @@ exception when insufficient_privilege then raise notice 'ok - TP-15: the hook is
 end $$;
 reset role;
 
+-- ------------------------------------------------------------------------------- TP-33: Keşfet catalog (migration 23)
+grant usage on schema test to anon;
+grant execute on function test.eq(anyelement, anyelement, text) to anon;
+
+select private.explore_upsert($json${
+    "slug": "istanbul-3-gun", "title": "İstanbul 3 gün", "country": "Türkiye", "city": "İstanbul",
+    "duration_days": 3, "budget_level": 2, "tags": ["culture", "food"], "months": [4, 5, 9, 10],
+    "sort_rank": 10, "status": "published",
+    "places": [{"key": "ayasofya", "name": "Ayasofya", "lat": 41.0086, "lon": 28.9802}],
+    "days": [{"day": 1, "activities": [{"start": "09:00", "end": "11:00", "title": "Ayasofya", "place": "ayasofya"}]},
+             {"day": 2, "activities": [{"title": "Boğaz turu"}]}],
+    "todos": [{"title": "Müze kart al"}, {"title": "Rahat ayakkabı", "kind": "packing"}]
+}$json$::jsonb);
+select private.explore_upsert('{"slug": "roma-4-gun", "title": "Roma 4 gün", "country": "İtalya", "city": "Roma",
+    "duration_days": 4, "budget_level": 3, "tags": ["culture"], "sort_rank": 20, "status": "published"}'::jsonb);
+select private.explore_upsert('{"slug": "ege-5-gun", "title": "Ege kıyıları", "country": "Türkiye", "city": "İzmir",
+    "duration_days": 5, "budget_level": 1, "tags": ["sea"], "sort_rank": 30, "status": "published"}'::jsonb);
+select private.explore_upsert('{"slug": "taslak", "title": "Taslak", "country": "Türkiye", "city": "Van",
+    "duration_days": 2, "sort_rank": 1}'::jsonb);
+select private.explore_upsert('{"slug": "kayak", "title": "Kayak", "country": "Türkiye", "city": "Erzurum",
+    "duration_days": 2, "sort_rank": 2, "status": "published", "publish_until": "2000-01-01T00:00:00Z"}'::jsonb);
+
+select set_config('request.jwt.claim.sub', '', false);
+set role anon;
+select test.eq(jsonb_array_length(public.explore_list() -> 'items'), 3, 'TP-33: anon sees only the 3 published, in-window trips');
+select test.eq((select count(*) from public.explore_trips), 3::bigint, 'TP-33: RLS hides drafts and expired trips from direct reads too');
+select test.eq(public.explore_list() -> 'items' -> 0 ->> 'slug', 'istanbul-3-gun', 'TP-33: recommended = admin order');
+select test.eq(public.explore_list(p_sort => 'shortest') -> 'items' -> 0 ->> 'slug', 'istanbul-3-gun', 'TP-33: shortest first');
+select test.eq(jsonb_array_length(public.explore_list(p_query => 'İSTANBUL') -> 'items'), 1, 'TP-33: search ignores case and Turkish letters (İSTANBUL)');
+select test.eq(jsonb_array_length(public.explore_list(p_query => 'istanbul') -> 'items'), 1, 'TP-33: search (istanbul)');
+select test.eq(jsonb_array_length(public.explore_list(p_query => 'ege kiyi') -> 'items'), 1, 'TP-33: every word must match (ege kiyi)');
+select test.eq(jsonb_array_length(public.explore_list(p_query => '%') -> 'items'), 0, 'TP-33: % is matched literally');
+select test.eq(jsonb_array_length(public.explore_list(p_country => 'turkiye') -> 'items'), 2, 'TP-33: country filter (folded)');
+select test.eq(jsonb_array_length(public.explore_list(p_min_days => 4, p_max_days => 7) -> 'items'), 2, 'TP-33: day range filter');
+select test.eq(jsonb_array_length(public.explore_list(p_budget_levels => array[1, 3]) -> 'items'), 2, 'TP-33: budget filter');
+select test.eq(jsonb_array_length(public.explore_list(p_tags => array['sea', 'food']) -> 'items'), 2, 'TP-33: any of the styles');
+select test.eq(jsonb_array_length(public.explore_list(p_month => 7) -> 'items'), 2, 'TP-33: month filter (no months = all year)');
+
+-- keyset pages: 1 + 1 + 1, no repeats, the last page has no cursor
+create temp table explore_pages (slug text);
+do $$
+declare v_page jsonb; v_cursor text; v_pages int := 0;
+begin
+    loop
+        v_page := public.explore_list(p_cursor => v_cursor, p_limit => 1);
+        insert into explore_pages select x ->> 'slug' from jsonb_array_elements(v_page -> 'items') x;
+        v_cursor := v_page ->> 'next_cursor';
+        v_pages := v_pages + 1;
+        exit when v_cursor is null or v_pages > 10;
+    end loop;
+    perform test.eq(v_pages, 3, 'TP-33: 3 pages of 1, then no cursor');
+end $$;
+select test.eq((select count(distinct slug) from explore_pages), 3::bigint, 'TP-33: every card once');
+do $$ declare v_cursor text;
+begin
+    v_cursor := public.explore_list(p_sort => 'newest', p_limit => 2) ->> 'next_cursor';
+    perform test.eq(jsonb_array_length(public.explore_list(p_sort => 'newest', p_cursor => v_cursor, p_limit => 2) -> 'items'), 1, 'TP-33: newest, second page');
+end $$;
+
+do $$ begin
+    perform public.explore_list(p_limit => 31);
+    raise exception 'FAILED: more than 30 cards per page';
+exception when sqlstate '22023' then raise notice 'ok - TP-33: at most 30 per page';
+end $$;
+do $$ begin
+    perform public.explore_list(p_query => repeat('a', 101));
+    raise exception 'FAILED: a 101-character query';
+exception when sqlstate '22023' then raise notice 'ok - TP-33: query at most 100 characters';
+end $$;
+do $$ begin
+    perform public.explore_list(p_tags => array['casino']);
+    raise exception 'FAILED: an unknown tag';
+exception when sqlstate '22023' then raise notice 'ok - TP-33: unknown filter refused';
+end $$;
+do $$ begin
+    perform public.explore_list(p_cursor => 'not json');
+    raise exception 'FAILED: a broken cursor';
+exception when sqlstate '22023' then raise notice 'ok - TP-33: broken cursor refused';
+end $$;
+do $$ begin
+    insert into public.explore_trips (slug, title, country, city, duration_days) values ('x', 'x', 'x', 'x', 1);
+    raise exception 'FAILED: anon wrote into the catalog';
+exception when insufficient_privilege then raise notice 'ok - TP-33: the catalog is read-only for clients';
+end $$;
+do $$ begin
+    perform private.explore_upsert('{"slug": "x"}'::jsonb);
+    raise exception 'FAILED: anon called the admin function';
+exception when insufficient_privilege then raise notice 'ok - TP-33: admin functions are not for clients';
+end $$;
+reset role;
+
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq(jsonb_array_length(public.explore_detail((select id from public.explore_trips where slug = 'istanbul-3-gun')) -> 'activities'), 2,
+               'TP-33: detail has the day plan');
+select test.eq(public.explore_detail((select id from public.explore_trips where slug = 'istanbul-3-gun')) -> 'activities' -> 0 ->> 'start_time', '09:00',
+               'TP-33: times as HH:mm');
+do $$ begin
+    update public.explore_trips set title = 'x';
+    raise exception 'FAILED: a signed-in user changed the catalog';
+exception when insufficient_privilege then raise notice 'ok - TP-33: signed-in users cannot write either';
+end $$;
+reset role;
+select test.eq(public.explore_detail((select id from public.explore_trips where slug = 'taslak')), null::jsonb, 'TP-33: no detail for a draft');
+
+-- updating a sample bumps its version and replaces its plan; archiving hides it
+select private.explore_upsert('{"slug": "roma-4-gun", "title": "Roma 4 gün", "country": "İtalya", "city": "Roma",
+    "duration_days": 4, "days": [{"day": 1, "activities": [{"title": "Kolezyum"}]}]}'::jsonb);
+select test.eq((select content_version from public.explore_trips where slug = 'roma-4-gun'), 2, 'TP-33: update bumps content_version');
+select test.eq((select status from public.explore_trips where slug = 'roma-4-gun'), 'published', 'TP-33: update keeps the status');
+select private.explore_set_status('roma-4-gun', 'archived');
+set role anon;
+select test.eq(jsonb_array_length(public.explore_list() -> 'items'), 2, 'TP-33: an archived trip disappears');
+reset role;
+do $$ begin
+    perform private.explore_upsert('{"slug": "bozuk", "title": "Bozuk", "country": "x", "city": "x", "duration_days": 2,
+        "days": [{"day": 3, "activities": [{"title": "x"}]}]}'::jsonb);
+    raise exception 'FAILED: a day outside the trip';
+exception when sqlstate '22023' then raise notice 'ok - TP-33: days must fit the trip';
+end $$;
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'

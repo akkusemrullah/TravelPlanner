@@ -16,6 +16,7 @@ namespace TravelPlanner.ViewModels
     /// city/country (also free, via Open-Meteo's geocoding API) so the map isn't blank.
     /// </summary>
     [QueryProperty(nameof(TripId), "TripId")]
+    [QueryProperty(nameof(Preview), "Preview")]
     public partial class MapViewModel : ViewModelBase
     {
         private readonly IPlaceService _placeService;
@@ -29,6 +30,17 @@ namespace TravelPlanner.ViewModels
 
         [ObservableProperty]
         private int tripId;
+
+        /// <summary>
+        /// TP-33: shows a Keşfet sample's places (<see cref="MapPreview"/>) instead of a saved trip's - read-only, no
+        /// routes, no "add a place here".
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(IsTripMap))]
+        private bool preview;
+
+        /// <summary>A saved trip's map (visited legend and tags), not a preview.</summary>
+        public bool IsTripMap => !Preview;
 
         [ObservableProperty]
         private Trip? trip;
@@ -83,6 +95,20 @@ namespace TravelPlanner.ViewModels
         private Task LoadPlacesAsync() => RunLoadAsync(async () =>
         {
             IsOffline = _connectivity.NetworkAccess != NetworkAccess.Internet;
+
+            if (Preview)
+            {
+                var pins = MapPreview.Places.Where(p => PlaceService.IsValidCoordinate(p.Latitude, p.Longitude)).ToList();
+                Pins.ReplaceAll(pins);
+                RouteDays.Clear();
+                HasRoutes = false;
+                if (pins.Count > 0)
+                {
+                    CenterLatitude = pins[0].Latitude;
+                    CenterLongitude = pins[0].Longitude;
+                }
+                return;
+            }
 
             if (TripId == 0) return;
 
@@ -211,6 +237,8 @@ namespace TravelPlanner.ViewModels
         /// <summary>TP-505: long-press on the map → new place form with those coordinates.</summary>
         public Task AddPlaceAtAsync(double latitude, double longitude)
         {
+            if (Preview || TripId == 0)
+                return Task.CompletedTask;
             var lat = latitude.ToString("0.######", CultureInfo.InvariantCulture);
             var lon = longitude.ToString("0.######", CultureInfo.InvariantCulture);
             return Shell.Current.GoToAsync($"{Routes.PlaceForm}?TripId={TripId}&Lat={lat}&Lon={lon}");

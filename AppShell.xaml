@@ -8,7 +8,7 @@
     Shell.NavBarIsVisible="False"
     Title="TravelPlanner">
 
-    <!-- Bottom tab bar: the three top-level destinations. Every other page is pushed on top of a tab
+    <!-- Bottom tab bar: the four top-level destinations. Every other page is pushed on top of a tab
          (routes registered in AppShell.xaml.cs) and hides the tab bar itself. Icons come from the Lucide
          icon font; the Shell tints them with TabBarForegroundColor / TabBarUnselectedColor (Styles.xaml). -->
     <TabBar>
@@ -27,6 +27,16 @@
             Route="TripList">
             <ShellContent.Icon>
                 <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Trips}" Size="22" />
+            </ShellContent.Icon>
+        </ShellContent>
+
+        <!-- TP-33: the admin's sample trips -->
+        <ShellContent
+            Title="{x:Static res:AppResources.Nav_Explore}"
+            ContentTemplate="{DataTemplate views:ExplorePage}"
+            Route="Explore">
+            <ShellContent.Icon>
+                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Compass}" Size="22" />
             </ShellContent.Icon>
         </ShellContent>
 

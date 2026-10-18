@@ -133,6 +133,9 @@ namespace TravelPlanner
             // AI trip planner: Supabase Edge Function "plan-trip" (the OpenAI key stays on the server).
             services.AddSingleton<IDeviceIdentity, DeviceIdentity>();
             services.AddSingleton<IAiPlannerService, AiPlannerService>();
+            // TP-33: Keşfet - the admin's sample trip catalog (read-only RPCs, first page kept in the cache folder).
+            services.AddSingleton<IExploreService>(sp => new ExploreService(
+                sp.GetRequiredService<ISupabaseClient>(), sp.GetRequiredService<IResponseCache>(), FileSystem.CacheDirectory));
             services.AddSingleton<IAccountService>(sp => new AccountService(
                 sp.GetRequiredService<IAuthService>(),
                 sp.GetRequiredService<IDatabaseService>(),
@@ -185,6 +188,8 @@ namespace TravelPlanner
             services.AddTransient<AiPlannerViewModel>(); // AI trip planner
             services.AddTransient<LegalDocumentViewModel>(); // privacy / KVKK / terms / licences
             services.AddTransient<HelpCenterViewModel>();    // help centre (FAQ, contact)
+            services.AddTransient<ExploreViewModel>();       // TP-33
+            services.AddTransient<ExploreDetailViewModel>(); // TP-33
         }
 
         // Pages navigated to via Shell routes also need to be DI-registered so their
@@ -214,6 +219,8 @@ namespace TravelPlanner
             services.AddTransient<TrashPage>();         // G6
             services.AddTransient<AiPlannerPage>();     // AI trip planner
             services.AddTransient<HelpCenterPage>();    // help centre
+            services.AddTransient<ExplorePage>();       // TP-33
+            services.AddTransient<ExploreDetailPage>(); // TP-33
         }
 
         private static void ConfigureApiClient(HttpClient client)

@@ -67,6 +67,16 @@ AiPlannerViewModel (ilk kullanımda açık rıza: ConsentService) ─▶ AiPlann
 ```
 Kişisel veriler (ad, e-posta, harcama, belge) gönderilmez. Varsayılan model `gpt-5-mini` (bkz. supabase/README).
 
+## 5a. Keşfet kataloğu (TP-33)
+
+Admin'in hazırladığı örnek seyahatler senkronun dışındadır: ayrı, salt okunur tablolar (`explore_*`, migration 23) ve iki RPC.
+`ExploreService` bunları yalnızca publishable key ile çağırır (misafir de görür): `explore_list` 20'şer kart döner (keyset
+cursor, OFFSET yok), `explore_detail` planın tamamını tek JSON'da. İlk sayfa `ResponseCache`'te 6 saat, filtresiz ilk sayfa
+ayrıca önbellek klasöründe tutulur (sekme anında açılır, çevrimdışı da kart gösterir). `ExploreViewModel` sonsuz kaydırmayı
+yönetir (aynı anda tek "daha fazla" isteği, id ile tekilleştirme, `RangeObservableCollection.AddRange` ile tek olay, yeni arama
+eski isteği iptal eder). Kullanıcı planı eklediğinde `TripService.CreateFromTemplateAsync` tek transaction'da bağımsız bir kopya
+oluşturur (gün N = başlangıç + N − 1, her satır `InsertTracked` ile outbox'a). İçerik yönetimi: [docs/EXPLORE_CONTENT.md](docs/EXPLORE_CONTENT.md).
+
 ## 6. Güvenlik özeti
 RLS + yalnızca RPC ile yazma, değer ve kota sınırları, Turnstile ve kayıt koruması, banlı/silinmiş hesabın anında reddi, kısa hata kodları. Ayrıntılar: [SECURITY.md](SECURITY.md).
 
@@ -76,4 +86,4 @@ RLS + yalnızca RPC ile yazma, değer ve kota sınırları, Turnstile ve kayıt 
 - Sunucu: `supabase/migrations/*` (ve birleşik `all_in_one.sql`), yerel SQL testleri `supabase/tests/`, fonksiyon testleri `node --test supabase/functions/*/*.test.ts`.
 
 ## English summary
-.NET MAUI app with MVVM (Views → ViewModels → Services, DI in `MauiProgram.cs`), offline-first SQLite storage per account, and a Supabase backend (Postgres with RLS, RPC-only writes, Storage, Edge Functions). Every synced write goes through `ChangeTracker` into an outbox; `SyncService` pushes changed fields to `apply_changes` in batches of 50 and pulls with `pull_changes`. AI planning runs in the `plan-trip` Edge Function (quota → OpenStreetMap venues → OpenAI with a JSON schema → map verification); the OpenAI key never reaches the app.
+.NET MAUI app with MVVM (Views → ViewModels → Services, DI in `MauiProgram.cs`), offline-first SQLite storage per account, and a Supabase backend (Postgres with RLS, RPC-only writes, Storage, Edge Functions). Every synced write goes through `ChangeTracker` into an outbox; `SyncService` pushes changed fields to `apply_changes` in batches of 50 and pulls with `pull_changes`. AI planning runs in the `plan-trip` Edge Function (quota → OpenStreetMap venues → OpenAI with a JSON schema → map verification); the OpenAI key never reaches the app. The Explore tab (TP-33) reads a separate, read-only catalog of admin-made sample trips (`explore_list` keyset pages, `explore_detail`) with the publishable key; adding one creates an independent copy through `TripService.CreateFromTemplateAsync`.

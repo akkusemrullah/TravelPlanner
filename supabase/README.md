@@ -42,6 +42,8 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…20_ownership_transfer.sql` | TP-12: `get_owned_shared_trips` (sahibi olunan, başka üyesi olan seyahatler ve üye sayısı), `transfer_trip_ownership` (sahip → editör, seçilen üye → sahip); devredilen seyahat hesap silinince silinmez |
 | `migrations/…21_error_details.sql` | TP-14: `apply_changes` reddedilen değişiklikte veritabanı mesajı yerine kısa kod döner (`duplicate`, `missing_parent`, `out_of_range` …), ayrıntı sunucu loguna yazılır; `account_status` anon'a kapalı, yalnızca kendi hesabını sorar |
 | `migrations/…22_signup_protection.sql` | TP-15: tek kullanımlık e-posta alan adlarıyla hesap açılamaz (`hook_before_user_created`, liste `private.blocked_email_domains`). **Çalıştırdıktan sonra** Dashboard'da: Auth → Hooks → Before User Created'ı bu fonksiyona bağla; Email → Confirm email açık, şifre en az 8 + harf ve rakam; Attack Protection → CAPTCHA (Turnstile) açık |
+| `migrations/…23_explore_catalog.sql` | TP-33: Keşfet kataloğu (`explore_trips` + yerler, gün planı, yapılacaklar), senkron dışında ve salt okunur; herkes yalnızca yayında ve yayın aralığındaki planları okur (RLS). `explore_list` (keyset sayfalama, Türkçe duyarsız arama, filtre, sıralama, sayfa ≤ 30), `explore_detail`; içerik `private.explore_upsert(jsonb)` / `private.explore_set_status` ile (bkz. [docs/EXPLORE_CONTENT.md](../docs/EXPLORE_CONTENT.md)); herkese açık `explore-images` kovası. `unaccent` ve `pg_trgm` eklentilerini açar |
+| `explore_samples.sql` | TP-33: üç taslak Keşfet planı (isteğe bağlı içerik, `all_in_one.sql`'de yok) |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
 ## Kurallar özeti

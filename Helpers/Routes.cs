@@ -24,5 +24,7 @@ namespace TravelPlanner.Helpers
         public const string Trash = "Trash";                     // G6
         public const string AiPlanner = "AiPlanner";             // AI trip planner
         public const string HelpCenter = "HelpCenter";           // help centre (FAQ, contact)
+        public const string Explore = "Explore";                 // TP-33: Keşfet tab
+        public const string ExploreDetail = "ExploreDetail";     // TP-33: one sample trip
     }
 }

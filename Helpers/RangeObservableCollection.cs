@@ -37,6 +37,26 @@ namespace TravelPlanner.Helpers
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
+        /// <summary>
+        /// Appends items with ONE Add event (TP-33: the next page of an endless list; one event per row made the list
+        /// re-layout 20 times while the user was scrolling). Nothing is raised when <paramref name="items"/> is empty.
+        /// </summary>
+        public void AddRange(IEnumerable<T> items)
+        {
+            CheckReentrancy();
+            var list = items as IList<T> ?? items.ToList();
+            if (list.Count == 0)
+                return;
+
+            var start = Items.Count;
+            foreach (var item in list)
+                Items.Add(item);
+
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(Count)));
+            OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, (System.Collections.IList)list.ToList(), start));
+        }
+
         private bool SameItems(IList<T> list)
         {
             if (list.Count != Items.Count)

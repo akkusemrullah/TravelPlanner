@@ -104,6 +104,13 @@ namespace TravelPlanner.Helpers
         /// <summary>Upper bound on the day tabs built for one trip - same as <see cref="MaxTripDays"/>.</summary>
         public const int MaxItineraryDays = MaxTripDays;
 
+        // ---- Row limits (same as the server's, supabase migration 13) ----
+        /// <summary>Trips an account may own; a sample trip from Keşfet isn't added past it (TP-33).</summary>
+        public const int MaxTrips = 200;
+
+        /// <summary>Places / activities per trip.</summary>
+        public const int MaxItemsPerTrip = 500;
+
         // ---------- Contact / data controller (legal texts, help centre) ----------
         // Shown in the privacy policy, the KVKK notice, the terms of use and the help centre ({email}, {controller} …
         // in those texts - see Helpers/DocumentText). Change them here only.
