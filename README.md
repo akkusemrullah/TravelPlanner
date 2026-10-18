@@ -144,3 +144,4 @@ Tests/        Birim test projesi
 - `docs/PRIVACY.md`, `docs/KVKK.md`, `docs/TERMS.md`: gizlilik politikası, KVKK aydınlatma metni ve kullanım koşulları (uygulamada *Profil → Yasal ve gizlilik*; GitHub Pages ile yayınlanır, bkz. `docs/RELEASE.md`).
 - `docs/ACCOUNT_DELETION.md`: Google Play'in hesap/veri silme bağlantısı için sayfa. `docs/HELP.md`: yardım merkezinin web kopyası.
 - `docs/store/`: mağaza metinleri (TR/EN), 512 px ikon, öne çıkan görsel.
+- Tüm belgelerin dizini: `docs/README.md` (mimari `ARCHITECTURE.md`, veri sözlüğü `docs/DATA_MODEL.md`, güvenlik `SECURITY.md`, lisans `LICENSE` ve `THIRD_PARTY_NOTICES.md`, uyum `docs/COMPLIANCE.md`, açık rıza / yapay zekâ feragatnamesi / iade politikası `docs/legal/`, veri güvenliği beyanı ve sürüm notları `docs/store/`).

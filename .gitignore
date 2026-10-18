@@ -77,3 +77,4 @@ supabase/.temp/
 .env
 .env.*
 **/functions/.env
+!.env.example
