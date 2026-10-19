@@ -3126,6 +3126,21 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Explore_AddError" xml:space="preserve">
     <value>Seyahat eklenemedi.</value>
   </data>
+  <data name="Dashboard_VisitedCities" xml:space="preserve">
+    <value>Gezilen Şehir</value>
+  </data>
+  <data name="Sharing_ErrorInviteTripDeleted" xml:space="preserve">
+    <value>Bu seyahat silinmiş, kod artık geçersiz.</value>
+  </data>
+  <data name="Sharing_ErrorInviteClosed" xml:space="preserve">
+    <value>Bu kodun süresi dolmuş. Sahibinden yeni kod iste.</value>
+  </data>
+  <data name="Sync_SharedTripRemovedFormat" xml:space="preserve">
+    <value>“{0}” seyahati silindi ya da artık erişimin yok.</value>
+  </data>
+  <data name="Sync_SharedTripsRemovedFormat" xml:space="preserve">
+    <value>{0} paylaşılan seyahat silindi ya da artık erişimin yok.</value>
+  </data>
   <data name="Profile_TrashCountFormat" xml:space="preserve">
     <value>{0} öğe geri alınabilir</value>
   </data>

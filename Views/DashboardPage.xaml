@@ -264,9 +264,9 @@
                     <!-- ════════ KPIs ════════ -->
                     <VerticalStackLayout IsVisible="{Binding HasAnyTrips}" Spacing="12">
                         <Label Text="{x:Static res:AppResources.Dashboard_Overview}" Style="{StaticResource Text.Overline}" />
-                        <!-- Two count tiles side by side, the money total on its own full-width row: amounts and
-                             labels like "Toplam Harcama" never have to squeeze into a third of the screen. -->
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                        <!-- Three count tiles side by side (short numbers), the money total on its own full-width row:
+                             amounts and labels like "Toplam Harcama" never have to squeeze into a third of the screen. -->
+                        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
                             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card.Compact}">
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
                                     <Label Grid.Row="0" Grid.Column="0" Text="{Binding TotalTripsCount}" Style="{StaticResource Text.Metric}" />
@@ -283,7 +283,15 @@
                                            Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
                                 </Grid>
                             </Border>
-                            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Card.Compact}">
+                            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource Card.Compact}">
+                                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
+                                    <Label Grid.Row="0" Grid.Column="0" Text="{Binding VisitedCitiesCount}" Style="{StaticResource Text.Metric}" />
+                                    <Label Grid.Row="0" Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Landmark}" VerticalOptions="Start" />
+                                    <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Text="{x:Static res:AppResources.Dashboard_VisitedCities}"
+                                           Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                                </Grid>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Style="{StaticResource Card.Compact}">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                                     <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
                                         <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Wallet}" TextColor="{DynamicResource tp-success}" />

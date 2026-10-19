@@ -763,7 +763,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to "{0}" seyahatinde bütçe aşıldı (%{1})..
+        ///   Looks up a localized string similar to “{0}” seyahatinde bütçe aşıldı (%{1})..
         /// </summary>
         public static string BudgetAlert_ExceededBody {
             get {
@@ -781,7 +781,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to "{0}" seyahatinde bütçenin %{1}'i harcandı..
+        ///   Looks up a localized string similar to “{0}” seyahatinde bütçenin %{1}'i harcandı..
         /// </summary>
         public static string BudgetAlert_WarningBody {
             get {
@@ -1389,6 +1389,51 @@ namespace TravelPlanner.Resources.Strings {
         public static string Dashboard_TotalTrips {
             get {
                 return ResourceManager.GetString("Dashboard_TotalTrips", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gezilen Şehir.
+        /// </summary>
+        public static string Dashboard_VisitedCities {
+            get {
+                return ResourceManager.GetString("Dashboard_VisitedCities", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bu seyahat silinmiş, kod artık geçersiz..
+        /// </summary>
+        public static string Sharing_ErrorInviteTripDeleted {
+            get {
+                return ResourceManager.GetString("Sharing_ErrorInviteTripDeleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bu kodun süresi dolmuş. Sahibinden yeni kod iste..
+        /// </summary>
+        public static string Sharing_ErrorInviteClosed {
+            get {
+                return ResourceManager.GetString("Sharing_ErrorInviteClosed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to “{0}” seyahati silindi ya da artık erişimin yok..
+        /// </summary>
+        public static string Sync_SharedTripRemovedFormat {
+            get {
+                return ResourceManager.GetString("Sync_SharedTripRemovedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} paylaşılan seyahat silindi ya da artık erişimin yok..
+        /// </summary>
+        public static string Sync_SharedTripsRemovedFormat {
+            get {
+                return ResourceManager.GetString("Sync_SharedTripsRemovedFormat", resourceCulture);
             }
         }
         
@@ -3785,7 +3830,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to "{0}" seyahati silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin..
+        ///   Looks up a localized string similar to “{0}” seyahati silinecek. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin..
         /// </summary>
         public static string TripDelete_Message {
             get {
@@ -3794,7 +3839,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to "{0}" seyahati silinecek. Birlikte silinecekler: {1}. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin..
+        ///   Looks up a localized string similar to “{0}” seyahati silinecek. Birlikte silinecekler: {1}. Yanlışlıkla silersen 30 gün boyunca Profil → Çöp kutusu'ndan geri alabilirsin..
         /// </summary>
         public static string TripDelete_MessageWithRelated {
             get {
@@ -6519,7 +6564,7 @@ namespace TravelPlanner.Resources.Strings {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to "{0}" seyahatine katıldın. Eşitleme tamamlanınca Seyahatler listesinde görünecek..
+        ///   Looks up a localized string similar to “{0}” seyahatine katıldın. Eşitleme tamamlanınca Seyahatler listesinde görünecek..
         /// </summary>
         public static string Join_PendingFormat {
             get {

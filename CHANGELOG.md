@@ -5,6 +5,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 ## [Yayınlanmadı / Unreleased] – 1.0.0
 
 ### Eklendi
+- Ana sayfada gezilen şehir sayısı. Silinen seyahatin davet kodları iptal edilir, ölü kodda net mesaj gösterilir ve yanlış deneme sayılmaz; paylaşılan seyahat telefondan kalkınca üyeye bildirilir (migration 28).
 - Yönetim paneli için sunucu fonksiyonları (migration 25, panel ayrı private depo `TravelPlanner.Admin`): Keşfet yönetimi, kullanıcı ve seyahat görüntüleme, hesaba özel günlük AI hakkı.
 - Keşfet sekmesi: admin'in hazırladığı örnek seyahatler; arama, filtre, sonsuz kaydırma, detay, "Ekle" ve "Düzenle ve ekle" ile kendi seyahatlerine bağımsız kopya (TP-33, migration 23, içerik: `docs/EXPLORE_CONTENT.md`).
 - Paylaşılan seyahat içeren yedek geri yüklenirken atla / kopya olarak yükle / vazgeç seçimi (TP-10).

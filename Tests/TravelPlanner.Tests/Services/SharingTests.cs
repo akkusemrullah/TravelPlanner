@@ -348,6 +348,29 @@ namespace TravelPlanner.Tests
             Assert.Equal(SharingErrorKind.InvalidInvite, tooShort.Kind);
         }
 
+        [Theory]
+        [InlineData("trip_deleted", SharingErrorKind.InviteTripDeleted)]
+        [InlineData("expired", SharingErrorKind.InviteClosed)]
+        [InlineData("used_up", SharingErrorKind.InviteClosed)]
+        [InlineData("revoked", SharingErrorKind.InviteClosed)]
+        [InlineData("something_new", SharingErrorKind.InvalidInvite)]
+        public async Task Deleted28_ARealCodeThatNoLongerWorks_SaysWhy(string reason, SharingErrorKind expected)
+        {
+            _client.Handler = (_, _) => $$"""[ { "trip_id": null, "role": null, "trip_name": null, "reason": "{{reason}}" } ]""";
+
+            var error = await Assert.ThrowsAsync<SharingException>(() => Create().AcceptInviteAsync("ABCD2345"));
+
+            Assert.Equal(expected, error.Kind);
+            _sync.Verify(s => s.SyncNowAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public void Deleted28_TheTextsAreShort()
+        {
+            Assert.Equal("Bu seyahat silinmiş, kod artık geçersiz.", SharingTexts.ErrorFor(SharingErrorKind.InviteTripDeleted));
+            Assert.Equal("Bu kodun süresi dolmuş. Sahibinden yeni kod iste.", SharingTexts.ErrorFor(SharingErrorKind.InviteClosed));
+        }
+
         [Fact]
         public async Task TP4_AWrongCode_ComesBackEmpty_AndTooManyTriesAreReported()
         {
