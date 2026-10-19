@@ -301,6 +301,72 @@ namespace TravelPlanner.Tests
                          SyncRejectionMessage.Format(Assert.Single(told)));
         }
 
+        // ------------------------------------------------------------------ 28: a shared trip that vanishes is announced
+
+        private static string SharedTripDeletedPull(string role) => new JsonObject
+        {
+            ["cursor"] = 70,
+            ["memberships"] = new JsonArray(new JsonObject { ["trip_id"] = SharedTripId, ["role"] = role, ["change_seq"] = 5 }),
+            ["trips"] = new JsonArray(new JsonObject
+            {
+                ["id"] = SharedTripId, ["name"] = "Paris", ["country"] = "Fransa", ["city"] = "Paris", ["start_date"] = "2026-09-01",
+                ["end_date"] = "2026-09-03", ["planned_budget_minor"] = 0, ["currency_code"] = "EUR", ["version"] = 2, ["change_seq"] = 20,
+                ["deleted_at"] = "2026-09-10T10:00:00Z",
+            }),
+        }.ToJsonString();
+
+        [Fact]
+        public async Task Deleted28_ASharedTripDeletedByItsOwner_IsRemoved_AndTheMemberIsTold()
+        {
+            await SharedTripAsEditorAsync();
+            var told = new List<IReadOnlyList<string>>();
+            _sync.SharedTripsRemoved += (_, names) => told.Add(names);
+            _client.Handler = (_, _) => SharedTripDeletedPull("editor");
+
+            await _sync.SyncNowAsync();
+
+            Assert.Empty(await _trips.GetAllAsync());
+            Assert.Equal(new[] { "Paris" }, Assert.Single(told));
+            Assert.Equal("“Paris” seyahati silindi ya da artık erişimin yok.", SyncRejectionMessage.FormatLostTrips(told[0]));
+        }
+
+        [Fact]
+        public async Task Deleted28_ASharedTripGoneWithItsOwnersAccount_IsRemoved_AndTheMemberIsTold()
+        {
+            _client.Handler = (_, _) => SharedTripPull("viewer");
+            await _sync.SyncNowAsync();
+            var told = new List<IReadOnlyList<string>>();
+            _sync.SharedTripsRemoved += (_, names) => told.Add(names);
+            _client.Handler = (_, _) => FakeSupabaseClient.EmptyPull(80); // no membership any more, no trip row
+
+            await _sync.SyncNowAsync();
+
+            Assert.Empty(await _trips.GetAllAsync());
+            Assert.Equal(new[] { "Paris" }, Assert.Single(told));
+        }
+
+        [Fact]
+        public async Task Deleted28_TheOwnersOwnDeletedTrip_IsNotAnnounced()
+        {
+            _client.Handler = (_, _) => SharedTripPull("owner");
+            await _sync.SyncNowAsync();
+            var told = new List<IReadOnlyList<string>>();
+            _sync.SharedTripsRemoved += (_, names) => told.Add(names);
+            _client.Handler = (_, _) => SharedTripDeletedPull("owner"); // deleted on another of the owner's devices
+
+            await _sync.SyncNowAsync();
+
+            Assert.Empty(await _trips.GetAllAsync());
+            Assert.Empty(told);
+        }
+
+        [Fact]
+        public void Deleted28_SeveralLostTrips_AreCounted()
+        {
+            Assert.Equal("3 paylaşılan seyahat silindi ya da artık erişimin yok.",
+                         SyncRejectionMessage.FormatLostTrips(new[] { "Paris", "Roma", "Bari" }));
+        }
+
         [Fact]
         public async Task ForbiddenNewRows_AreRemovedFromThisDevice_WithTheirChildrenAndFiles()
         {

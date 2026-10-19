@@ -38,8 +38,12 @@ namespace TravelPlanner.Services
         NotSignedIn,
         /// <summary>The trip hasn't reached the cloud yet (can't sync right now).</summary>
         NotUploaded,
-        /// <summary>The code is wrong, expired, used up or revoked.</summary>
+        /// <summary>The code is wrong (or the server didn't say why it no longer works).</summary>
         InvalidInvite,
+        /// <summary>28: the code was real, but its trip has been deleted.</summary>
+        InviteTripDeleted,
+        /// <summary>28: the code was real, but it expired, was used up or was revoked.</summary>
+        InviteClosed,
         /// <summary>TP-4: too many wrong codes - the account has to wait (an hour) before trying again.</summary>
         TooManyAttempts,
         /// <summary>Not allowed (not the owner / not a member any more).</summary>
@@ -155,10 +159,11 @@ namespace TravelPlanner.Services
             if (normalized.Length != CodeLength)
                 throw new SharingException(SharingErrorKind.InvalidInvite);
 
-            // TP-4: a wrong / expired / used-up code comes back as no rows (the server counts the wrong try).
+            // TP-4: a wrong code comes back as no rows (the server counts the wrong try). 28: a real code that no longer
+            // works comes back as a row without trip_id, with the reason.
             var rows = await CallAsync("accept_invite", new JsonObject { ["p_code"] = normalized }, inviteCall: true);
             var row = FirstRow(rows) ?? throw new SharingException(SharingErrorKind.InvalidInvite);
-            var tripSyncId = SyncFieldMapper.GetString(row, "trip_id") ?? throw new SharingException(SharingErrorKind.InvalidInvite);
+            var tripSyncId = SyncFieldMapper.GetString(row, "trip_id") ?? throw new SharingException(ClosedInviteKind(SyncFieldMapper.GetString(row, "reason")));
 
             // Bring the trip (and everything in it) onto this device right away.
             await _sync.SyncNowAsync();
@@ -279,9 +284,13 @@ namespace TravelPlanner.Services
 
         public async Task LeaveTripAsync(int tripId)
         {
-            await CallAsync("leave_trip", new JsonObject { ["p_trip_id"] = await TripSyncIdAsync(tripId) });
+            var tripSyncId = await TripSyncIdAsync(tripId);
+            await CallAsync("leave_trip", new JsonObject { ["p_trip_id"] = tripSyncId });
 
-            // The next pull no longer lists the trip, so it is removed from this device.
+            // The next pull no longer lists the trip, so it is removed from this device - without the "shared trip
+            // removed" notice (28), since the user left on purpose.
+            var db = await _database.Connection;
+            await db.ExecuteAsync("DELETE FROM TripMembership WHERE TripSyncId = ?", tripSyncId);
             await _sync.SyncNowAsync();
         }
 
@@ -361,6 +370,14 @@ namespace TravelPlanner.Services
                 throw new SharingException(MapError(ex, inviteCall), ex.Message, ex);
             }
         }
+
+        /// <summary>28: accept_invite's reason for a real code that no longer works.</summary>
+        internal static SharingErrorKind ClosedInviteKind(string? reason) => reason switch
+        {
+            "trip_deleted" => SharingErrorKind.InviteTripDeleted,
+            "revoked" or "expired" or "used_up" => SharingErrorKind.InviteClosed,
+            _ => SharingErrorKind.InvalidInvite,
+        };
 
         internal static SharingErrorKind MapError(SyncException ex, bool inviteCall) => ex.Kind switch
         {

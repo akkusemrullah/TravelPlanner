@@ -3125,4 +3125,19 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Explore_AddError" xml:space="preserve">
     <value>The trip couldn't be added.</value>
   </data>
+  <data name="Dashboard_VisitedCities" xml:space="preserve">
+    <value>Cities visited</value>
+  </data>
+  <data name="Sharing_ErrorInviteTripDeleted" xml:space="preserve">
+    <value>This trip was deleted, so the code no longer works.</value>
+  </data>
+  <data name="Sharing_ErrorInviteClosed" xml:space="preserve">
+    <value>This code has expired. Ask the owner for a new one.</value>
+  </data>
+  <data name="Sync_SharedTripRemovedFormat" xml:space="preserve">
+    <value>“{0}” was deleted, or you no longer have access to it.</value>
+  </data>
+  <data name="Sync_SharedTripsRemovedFormat" xml:space="preserve">
+    <value>{0} shared trips were deleted, or you no longer have access to them.</value>
+  </data>
 </root>

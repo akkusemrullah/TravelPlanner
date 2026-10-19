@@ -43,6 +43,15 @@ namespace TravelPlanner.Services.Sync
             /// <summary>Attachment files (relative paths) whose rows were removed.</summary>
             public List<string> FilesToDelete { get; } = new();
 
+            /// <summary>
+            /// Names of trips shared with the user (editor/viewer) that this pull removed: the owner deleted them, closed
+            /// their account, or took the user off the trip. The user is told, so they don't just vanish.
+            /// </summary>
+            public List<string> LostSharedTrips { get; } = new();
+
+            /// <summary>Role per trip SyncId before this pull (only set by <see cref="Apply"/>).</summary>
+            internal Dictionary<string, string> PreviousRoles { get; } = new(StringComparer.Ordinal);
+
             public long? Cursor { get; set; }
         }
 
@@ -57,6 +66,8 @@ namespace TravelPlanner.Services.Sync
             if (response.TryGetProperty("memberships", out var memberships) && memberships.ValueKind == JsonValueKind.Array)
             {
                 memberTrips = new HashSet<string>(StringComparer.Ordinal);
+                foreach (var previous in conn.Table<TripMembership>().ToList())
+                    outcome.PreviousRoles[previous.TripSyncId] = previous.Role;
                 conn.Execute("DELETE FROM TripMembership");
                 foreach (var membership in memberships.EnumerateArray())
                 {
@@ -120,6 +131,7 @@ namespace TravelPlanner.Services.Sync
             var changedTrips = outcome.ChangedTripIds.ToArray();
             var removedTrips = outcome.RemovedTripIds.ToArray();
             var files = outcome.FilesToDelete.Count;
+            var lost = outcome.LostSharedTrips.Count;
             try
             {
                 ApplyRow(conn, info, row, outcome);
@@ -138,6 +150,7 @@ namespace TravelPlanner.Services.Sync
                 outcome.RemovedTripIds.Clear();
                 outcome.RemovedTripIds.UnionWith(removedTrips);
                 outcome.FilesToDelete.RemoveRange(files, outcome.FilesToDelete.Count - files);
+                outcome.LostSharedTrips.RemoveRange(lost, outcome.LostSharedTrips.Count - lost);
 
                 Reject(info, row, $"{ex.GetType().Name}: {ex.Message}", outcome);
             }
@@ -299,6 +312,10 @@ namespace TravelPlanner.Services.Sync
 
             outcome.RemovedTripIds.Add(tripId);
             outcome.ChangedTripIds.Remove(tripId);
+
+            if (outcome.PreviousRoles.TryGetValue(trip.SyncId, out var role) &&
+                TripRoles.Parse(role) is TripRole.Editor or TripRole.Viewer)
+                outcome.LostSharedTrips.Add(trip.Name);
         }
     }
 }

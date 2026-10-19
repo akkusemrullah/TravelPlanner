@@ -59,6 +59,12 @@ namespace TravelPlanner.Services.Sync
         /// </summary>
         event EventHandler<int>? QuotaExceeded;
 
+        /// <summary>
+        /// 28: trips shared with the user were removed from this device by a pull (the owner deleted them, closed their
+        /// account, or took the user off the trip); the argument is their names.
+        /// </summary>
+        event EventHandler<IReadOnlyList<string>>? SharedTripsRemoved;
+
         /// <summary>Starts the triggers (timer, connectivity, local changes). Call once the app shell is up.</summary>
         void Start();
 

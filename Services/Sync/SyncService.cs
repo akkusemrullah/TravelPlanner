@@ -102,6 +102,8 @@ namespace TravelPlanner.Services.Sync
 
         public event EventHandler<int>? QuotaExceeded;
 
+        public event EventHandler<IReadOnlyList<string>>? SharedTripsRemoved;
+
         // ------------------------------------------------------------------ triggers
 
         public void Start()
@@ -686,6 +688,9 @@ namespace TravelPlanner.Services.Sync
 
             if (outcome.Changed > 0)
                 RemoteChangesApplied?.Invoke(this, EventArgs.Empty);
+
+            if (outcome.LostSharedTrips.Count > 0)
+                SharedTripsRemoved?.Invoke(this, outcome.LostSharedTrips.ToList());
 
             return outcome.Changed;
         }

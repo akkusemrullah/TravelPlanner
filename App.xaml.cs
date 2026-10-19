@@ -83,6 +83,11 @@ namespace TravelPlanner
                 dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
                     string.Format(TravelPlanner.Resources.Strings.AppResources.Sync_QuotaExceededFormat, count)).FireAndForget());
 
+            // 28: a shared trip vanished from this device (deleted by its owner, or the user was taken off it): say so.
+            _sync.SharedTripsRemoved += (_, names) => MainThread.BeginInvokeOnMainThread(() =>
+                dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
+                    SyncRejectionMessage.FormatLostTrips(names)).FireAndForget());
+
             // TP-4: tell the owner when someone joins one of their trips (asked after a sync, at most every 2 minutes).
             _sync.StatusChanged += (_, _) =>
             {

@@ -13,6 +13,8 @@ namespace TravelPlanner.ViewModels
             SharingErrorKind.NotSignedIn => AppResources.Sharing_ErrorNotSignedIn,
             SharingErrorKind.NotUploaded => AppResources.Sharing_ErrorNotUploaded,
             SharingErrorKind.InvalidInvite => AppResources.Sharing_ErrorInvalidInvite,
+            SharingErrorKind.InviteTripDeleted => AppResources.Sharing_ErrorInviteTripDeleted,
+            SharingErrorKind.InviteClosed => AppResources.Sharing_ErrorInviteClosed,
             SharingErrorKind.TooManyAttempts => AppResources.Sharing_ErrorTooManyAttempts,
             SharingErrorKind.Forbidden => AppResources.Sharing_ErrorForbidden,
             _ => AppResources.Sharing_ErrorUnknown,

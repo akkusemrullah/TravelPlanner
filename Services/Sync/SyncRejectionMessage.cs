@@ -26,6 +26,13 @@ namespace TravelPlanner.Services.Sync
             _ => AppResources.Sync_RejectedOtherFormat,
         };
 
+        /// <summary>
+        /// 28: "“Roma” seyahati silindi ya da artık erişimin yok." - or, for several, how many.
+        /// </summary>
+        public static string FormatLostTrips(IReadOnlyCollection<string> tripNames) => tripNames.Count == 1
+            ? string.Format(AppResources.Sync_SharedTripRemovedFormat, Helpers.InputLimits.Truncate(tripNames.First().Trim(), 60))
+            : string.Format(AppResources.Sync_SharedTripsRemovedFormat, tripNames.Count);
+
         /// <summary>“Taksi”, “Müze” - or "2 kayıt" when none of them has a name (e.g. expense shares).</summary>
         private static string Records(List<RejectedChange> group)
         {

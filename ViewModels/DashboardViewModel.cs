@@ -76,6 +76,9 @@ namespace TravelPlanner.ViewModels
         private int visitedCountriesCount;
 
         [ObservableProperty]
+        private int visitedCitiesCount;
+
+        [ObservableProperty]
         private string totalExpensesFormatted = MoneyFormatter.Format(0m, 0);
 
         public ObservableCollection<TripSummaryItem> RecentTrips { get; } = new RangeObservableCollection<TripSummaryItem>();
@@ -123,6 +126,7 @@ namespace TravelPlanner.ViewModels
                 .Select(t => t.Country.Trim())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .Count();
+            VisitedCitiesCount = CountVisitedCities(trips, DateTime.Today);
 
             // TP-207: one SUM query (grouped by trip currency since TP-403) instead of one query per trip.
             var totalsByCurrency = await _expenseService.GetTotalExpensesByCurrencyAsync();
@@ -150,6 +154,16 @@ namespace TravelPlanner.ViewModels
         /// with the free Frankfurter rate. If a rate is unavailable (offline, never fetched), the totals are shown
         /// side by side instead ("₺12.500 + €340") rather than adding up amounts of different currencies.
         /// </summary>
+        /// <summary>
+        /// "Gezilen şehir" - like the countries: cities of trips that are over. The same city name in two countries
+        /// (Paris, France / Paris, Texas) counts twice; case and spaces don't matter.
+        /// </summary>
+        internal static int CountVisitedCities(IEnumerable<Trip> trips, DateTime today) => trips
+            .Where(t => t.EndDate.Date < today.Date && !string.IsNullOrWhiteSpace(t.City))
+            .Select(t => (t.Country ?? string.Empty).Trim().ToUpperInvariant() + "|" + t.City.Trim().ToUpperInvariant())
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
         private async Task<string> FormatCombinedTotalAsync(Dictionary<string, decimal> totals)
         {
             var target = MoneyFormatter.CurrencyCode;

@@ -141,7 +141,7 @@ select test.eq((select role from public.accept_invite((select code from viewer_i
 reset role;
 select set_config('request.jwt.claim.sub', :'deniz', false);
 set role authenticated;
-select test.eq((select count(*) from public.accept_invite((select code from viewer_invite))), 0::bigint, 'a single-use invite works once (a used code returns no rows)');
+select test.eq((select reason from public.accept_invite((select code from viewer_invite)) where trip_id is null), 'used_up', 'a single-use invite works once (a used code answers ''used_up'', migration 28)');
 select test.eq((select count(*) from public.trip_members where trip_id = :'trip' and user_id = :'deniz'), 0::bigint, 'and Deniz did not join');
 
 -- ------------------------------------------------------------------------------- the viewer
@@ -220,7 +220,7 @@ select test.eq((select count(*) from private.invite_attempts where user_id = :'c
 -- Deniz guesses: 10 wrong codes in an hour, then 429 for an hour - even for a good code
 select set_config('request.jwt.claim.sub', :'deniz', false);
 set role authenticated;
-select count(*) from generate_series(2, 8) n cross join lateral public.accept_invite('ZZZZZZZ' || n);  -- 1 above + 7 wrong
+select count(*) from generate_series(1, 8) n cross join lateral public.accept_invite('ZZZZZZZ' || n);  -- 8 wrong (the used code above is not a guess, migration 28)
 select test.eq((select count(*) from public.accept_invite('ZZZZZZZZ')), 0::bigint, 'TP-4: a wrong code returns no rows (9th)');
 select test.eq((select count(*) from public.accept_invite('ZZZZZZZY')), 0::bigint, 'TP-4: the 10th wrong code still answers');
 do $$ begin
@@ -1457,6 +1457,47 @@ exception when insufficient_privilege then raise notice 'ok - admin: functions a
 end $$;
 reset role;
 
+-- ------------------------------------------------------------------------------- 28: invites of a deleted trip
+\set t28    'cccccccc-0000-0000-0000-000000000028'
+\set t29    'cccccccc-0000-0000-0000-000000000029'
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t28', 'full', true, 'fields',
+        jsonb_build_object('name', 'Sevilla', 'start_date', '2026-11-01', 'end_date', '2026-11-03')),
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t29', 'full', true, 'fields',
+        jsonb_build_object('name', 'Bari', 'start_date', '2026-12-01', 'end_date', '2026-12-03'))))), 'applied', '28: Ali''s trips Sevilla and Bari');
+create temp table sevilla_invite as select code from public.create_invite(:'t28', 'viewer', 48, 10);
+create temp table bari_invite as select code from public.create_invite(:'t29', 'viewer', 48, 10);
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'delete', 'id', :'t28')))), 'deleted', '28: Ali moves Sevilla to the trash');
+reset role;
+select test.eq((select revoked_at is not null from public.trip_invites where code = (select code from sevilla_invite)), true,
+               '28: the trash revokes Sevilla''s open invite');
+create temp table deniz_failures as select coalesce(sum(failures), 0) as n from private.invite_attempts where user_id = :'deniz';
+
+select set_config('request.jwt.claim.sub', :'deniz', false);
+set role authenticated;
+select test.eq((select reason from public.accept_invite((select code from sevilla_invite)) where trip_id is null), 'trip_deleted',
+               '28: a code of a trip in the trash answers trip_deleted');
+
+-- Ali restores Sevilla: the old code stays dead
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t28', 'full', true, 'fields',
+        jsonb_build_object('name', 'Sevilla', 'start_date', '2026-11-01', 'end_date', '2026-11-03'))))), 'applied', '28: Ali restores Sevilla');
+reset role;
+select set_config('request.jwt.claim.sub', :'deniz', false);
+set role authenticated;
+select test.eq((select reason from public.accept_invite((select code from sevilla_invite)) where trip_id is null), 'revoked',
+               '28: after the restore the old code is still revoked');
+select test.eq((select count(*) from public.trip_members where trip_id = :'t28' and user_id = :'deniz'), 0::bigint, '28: and Deniz did not join');
+reset role;
+select test.eq((select coalesce(sum(failures), 0) from private.invite_attempts where user_id = :'deniz'), (select n from deniz_failures),
+               '28: a dead but real code is not counted as a wrong guess');
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'
@@ -1518,6 +1559,17 @@ select test.eq((select count(*) from private.file_cleanup_queue where path like 
                'TP-7: delete_account queues all files of his trip (attachment, other name, fresh upload)');
 select test.eq((select count(*) from private.file_cleanup_queue where path not like 'trips/' || :'t8' || '/%'), 0::bigint,
                'TP-7: and nothing of other trips (his upload elsewhere stays)');
+
+-- 28: Bari went with Ali's account; its code, still within its 48 hours, says so
+select test.eq((select count(*) from private.closed_invites where code = (select code from bari_invite)), 1::bigint,
+               '28: the code of a trip deleted for good is remembered');
+select set_config('request.jwt.claim.sub', :'deniz', false);
+set role authenticated;
+select test.eq((select reason from public.accept_invite((select code from bari_invite)) where trip_id is null), 'trip_deleted',
+               '28: a code of a trip deleted with its owner''s account answers trip_deleted');
+reset role;
+select test.eq((select coalesce(sum(failures), 0) from private.invite_attempts where user_id = :'deniz'), (select n from deniz_failures),
+               '28: ... and is not counted as a wrong guess');
 set role service_role;
 select test.eq(cardinality(public.file_cleanup_claim(10)), 3, 'TP-7: purge-files gets them the same night');
 reset role;
