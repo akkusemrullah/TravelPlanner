@@ -70,6 +70,7 @@ namespace TravelPlanner
             services.AddSingleton<ISettingsService, SettingsService>();
             services.AddSingleton<IThemeService, ThemeService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IDateRangePicker, DateRangePicker>();
             // Fully qualified on purpose: Plugin.LocalNotification (imported above for UseLocalNotification)
             // has its own INotificationService, so the bare name is ambiguous in this file.
             services.AddSingleton<Services.INotificationService, NotificationService>();

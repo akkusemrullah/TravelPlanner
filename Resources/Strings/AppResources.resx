@@ -320,6 +320,12 @@
   <data name="TripForm_EndLabel" xml:space="preserve">
     <value>Bitiş</value>
   </data>
+  <data name="TripForm_DatesLabel" xml:space="preserve">
+    <value>Tarihler</value>
+  </data>
+  <data name="TripForm_DatesTitle" xml:space="preserve">
+    <value>Seyahat tarihleri</value>
+  </data>
   <data name="TripForm_BudgetLabel" xml:space="preserve">
     <value>Planlanan bütçe</value>
   </data>

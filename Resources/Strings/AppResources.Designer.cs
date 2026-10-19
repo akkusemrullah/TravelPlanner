@@ -4172,6 +4172,24 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tarihler.
+        /// </summary>
+        public static string TripForm_DatesLabel {
+            get {
+                return ResourceManager.GetString("TripForm_DatesLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahat tarihleri.
+        /// </summary>
+        public static string TripForm_DatesTitle {
+            get {
+                return ResourceManager.GetString("TripForm_DatesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Başlangıç.
         /// </summary>
         public static string TripForm_StartLabel {
