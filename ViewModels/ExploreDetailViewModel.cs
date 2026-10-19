@@ -112,7 +112,7 @@ namespace TravelPlanner.ViewModels
 
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasTrip), nameof(CoverUrl), nameof(HasCover), nameof(Title), nameof(Location),
-                                  nameof(DurationText), nameof(BudgetLevelText), nameof(EstBudgetText), nameof(HasEstBudget),
+                                  nameof(DurationText),
                                   nameof(TagText), nameof(HasTags), nameof(MonthsText), nameof(Description), nameof(HasDescription),
                                   nameof(ImageCreditText), nameof(HasImageCredit), nameof(HasPlaces))]
         private ExploreTripDetail? trip;
@@ -163,15 +163,6 @@ namespace TravelPlanner.ViewModels
         public string Title => Trip?.Title ?? string.Empty;
         public string Location => Trip?.Location ?? string.Empty;
         public string DurationText => Trip?.DurationText ?? string.Empty;
-        public string BudgetLevelText => Trip?.BudgetText ?? string.Empty;
-
-        /// <summary>"Tahmini bütçe: ₺15.000".</summary>
-        public string EstBudgetText => Trip?.EstBudgetMinor is long minor
-            ? string.Format(CultureInfo.CurrentCulture, AppResources.Explore_EstBudgetFormat,
-                MoneyFormatter.FormatIn(MoneyConverter.FromMinor(minor), Trip.CurrencyCode, 0))
-            : string.Empty;
-
-        public bool HasEstBudget => EstBudgetText.Length > 0;
         public string TagText => Trip is null ? string.Empty : string.Join(" · ", Trip.Tags.Select(ExploreTags.Label).Where(l => l.Length > 0));
         public bool HasTags => TagText.Length > 0;
 
@@ -339,8 +330,6 @@ namespace TravelPlanner.ViewModels
             if (string.IsNullOrWhiteSpace(TripName))
                 TripName = InputLimits.Truncate(Trip.Title, 100)!;
             SelectedCurrency ??= Currencies.FirstOrDefault(c => c.Value == MoneyFormatter.Normalize(_settings.CurrencyCode)) ?? Currencies[0];
-            if (BudgetText.Length == 0 && Trip.EstBudgetMinor is long minor && MoneyFormatter.Normalize(Trip.CurrencyCode) == SelectedCurrency.Value)
-                BudgetText = MoneyConverter.FromMinor(minor).ToString("0.##", CultureInfo.CurrentCulture);
             IsAddSheetOpen = true;
         }
 
