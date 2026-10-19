@@ -76,7 +76,6 @@ namespace TravelPlanner.Tests
             var card = Assert.Single(page.Items);
             Assert.Equal("İstanbul 3 gün", card.Title);
             Assert.Equal(3, card.DurationDays);
-            Assert.Equal("₺₺", card.BudgetText);
             Assert.Equal(2, card.TagLabels.Count); // at most 2 on a card
             Assert.Equal("İstanbul, Türkiye", card.Location);
             Assert.EndsWith("/storage/v1/object/public/explore-images/thumbs/istanbul-3-gun.webp", card.ThumbUrl);
@@ -377,7 +376,6 @@ namespace TravelPlanner.Tests
             vm.ToggleChoiceCommand.Execute(vm.DurationChoices[1]);           // 4-7
             vm.ToggleChoiceCommand.Execute(vm.StyleChoices[0]);              // culture
             vm.ToggleChoiceCommand.Execute(vm.StyleChoices[2]);              // sea
-            vm.ToggleChoiceCommand.Execute(vm.BudgetChoices[0]);             // ₺
             vm.ToggleChoiceCommand.Execute(vm.SortChoices[2]);               // shortest
             vm.FilterPlace = "Türkiye";
             await vm.ApplyFilterCommand.ExecuteAsync(null);
@@ -387,7 +385,7 @@ namespace TravelPlanner.Tests
             Assert.Equal(7, applied.MaxDays);
             Assert.Equal(new[] { "culture", "sea" }, applied.Tags);
             Assert.Equal(ExploreSort.Shortest, applied.Sort);
-            Assert.Equal(4, vm.ActiveFilterCount);
+            Assert.Equal(3, vm.ActiveFilterCount); // place, duration, styles
             Assert.False(vm.IsFilterOpen);
 
             // remembered on the device
@@ -607,11 +605,11 @@ namespace TravelPlanner.Tests
             vm.StartAddCommand.Execute(null);
             Assert.True(vm.IsAddSheetOpen);
             Assert.Equal("İstanbul 3 gün", vm.TripName);
-            Assert.Equal("15000", vm.BudgetText); // the estimate, in the same currency
+            Assert.Equal("", vm.BudgetText); // Keşfet plans carry no budget; the user sets one
             await vm.ConfirmAddCommand.ExecuteAsync(null);
 
             _trips.Verify(t => t.CreateFromTemplateAsync(detail, It.Is<ExploreAddOptions>(o =>
-                o.ActivityIds == null && o.PlaceIds == null && o.TodoIds == null && o.PlannedBudgetMinor == 1500000)), Times.Once);
+                o.ActivityIds == null && o.PlaceIds == null && o.TodoIds == null && o.PlannedBudgetMinor == 0)), Times.Once);
             Assert.False(vm.IsAddSheetOpen);
             Assert.True(vm.WasAddedBefore(detail.Id));
         }

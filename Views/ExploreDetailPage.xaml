@@ -93,11 +93,7 @@
                             <Border Style="{StaticResource Tag}">
                                 <Label Text="{Binding DurationText}" Style="{StaticResource Tag.Text}" />
                             </Border>
-                            <Border Style="{StaticResource Tag}">
-                                <Label Text="{Binding BudgetLevelText}" Style="{StaticResource Tag.Text}" />
-                            </Border>
                         </HorizontalStackLayout>
-                        <Label Text="{Binding EstBudgetText}" IsVisible="{Binding HasEstBudget}" Style="{StaticResource Text.Caption}" />
                         <Label Text="{Binding TagText}" IsVisible="{Binding HasTags}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
                         <Label Text="{Binding MonthsText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
                         <Label Text="{Binding Description}" IsVisible="{Binding HasDescription}" Style="{StaticResource Text.Body}" FontSize="14"

@@ -11,7 +11,7 @@ using TravelPlanner.Services.Sync;
 
 namespace TravelPlanner.ViewModels
 {
-    /// <summary>One chip of the Keşfet filter sheet ("4-7 gün", "₺₺", "Doğa", "Tem", "En yeni"…).</summary>
+    /// <summary>One chip of the Keşfet filter sheet ("4-7 gün", "Doğa", "Tem", "En yeni"…).</summary>
     public partial class ExploreChoice : ObservableObject
     {
         public ExploreChoice(string group, string key, string label)
@@ -38,7 +38,6 @@ namespace TravelPlanner.ViewModels
     public partial class ExploreViewModel : ViewModelBase
     {
         public const string GroupDuration = "duration";
-        public const string GroupBudget = "budget";
         public const string GroupStyle = "style";
         public const string GroupMonth = "month";
         public const string GroupSort = "sort";
@@ -69,8 +68,6 @@ namespace TravelPlanner.ViewModels
                 new ExploreChoice(GroupDuration, "4-7", AppResources.Explore_Duration_Mid),
                 new ExploreChoice(GroupDuration, "8-90", AppResources.Explore_Duration_Long),
             });
-            BudgetChoices = new ObservableCollection<ExploreChoice>(
-                new[] { 1, 2, 3 }.Select(b => new ExploreChoice(GroupBudget, b.ToString(CultureInfo.InvariantCulture), new string('₺', b))));
             StyleChoices = new ObservableCollection<ExploreChoice>(
                 ExploreTags.All.Select(t => new ExploreChoice(GroupStyle, t, ExploreTags.Label(t))));
             MonthChoices = new ObservableCollection<ExploreChoice>(Enumerable.Range(1, 12).Select(m => new ExploreChoice(
@@ -89,7 +86,6 @@ namespace TravelPlanner.ViewModels
         public RangeObservableCollection<ExploreTripCard> Items { get; } = new();
 
         public ObservableCollection<ExploreChoice> DurationChoices { get; }
-        public ObservableCollection<ExploreChoice> BudgetChoices { get; }
         public ObservableCollection<ExploreChoice> StyleChoices { get; }
         public ObservableCollection<ExploreChoice> MonthChoices { get; }
         public ObservableCollection<ExploreChoice> SortChoices { get; }
@@ -355,8 +351,6 @@ namespace TravelPlanner.ViewModels
             var duration = Filter.MinDays is null && Filter.MaxDays is null ? null : $"{Filter.MinDays ?? 1}-{Filter.MaxDays ?? 90}";
             foreach (var choice in DurationChoices)
                 choice.IsSelected = choice.Key == duration;
-            foreach (var choice in BudgetChoices)
-                choice.IsSelected = Filter.BudgetLevels.Contains(int.Parse(choice.Key, CultureInfo.InvariantCulture));
             foreach (var choice in StyleChoices)
                 choice.IsSelected = Filter.Tags.Contains(choice.Key);
             foreach (var choice in MonthChoices)
@@ -377,7 +371,6 @@ namespace TravelPlanner.ViewModels
 
             switch (choice.Group)
             {
-                case GroupBudget:
                 case GroupStyle:
                     choice.IsSelected = !choice.IsSelected;
                     break;
@@ -415,7 +408,6 @@ namespace TravelPlanner.ViewModels
                 Place = place.Length == 0 ? null : InputLimits.Truncate(place, 100),
                 MinDays = minDays,
                 MaxDays = maxDays,
-                BudgetLevels = BudgetChoices.Where(c => c.IsSelected).Select(c => int.Parse(c.Key, CultureInfo.InvariantCulture)).ToList(),
                 Tags = StyleChoices.Where(c => c.IsSelected).Select(c => c.Key).ToList(),
                 Month = month is null ? null : int.Parse(month.Key, CultureInfo.InvariantCulture),
                 Sort = SortChoices.FirstOrDefault(c => c.IsSelected)?.Key ?? ExploreSort.Recommended,
@@ -479,7 +471,6 @@ namespace TravelPlanner.ViewModels
                     Place = string.IsNullOrWhiteSpace(stored.Place) ? null : InputLimits.Truncate(stored.Place.Trim(), 100),
                     MinDays = stored.MinDays is >= 1 and <= 90 ? stored.MinDays : null,
                     MaxDays = stored.MaxDays is >= 1 and <= 90 ? stored.MaxDays : null,
-                    BudgetLevels = (stored.BudgetLevels ?? new()).Where(b => b is >= 1 and <= 3).Distinct().ToList(),
                     Tags = (stored.Tags ?? new()).Where(ExploreTags.All.Contains).Distinct().ToList(),
                     Month = stored.Month is >= 1 and <= 12 ? stored.Month : null,
                     Sort = sort,

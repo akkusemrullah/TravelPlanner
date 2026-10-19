@@ -52,10 +52,6 @@ namespace TravelPlanner.Models
         [JsonIgnore]
         public string DurationText => string.Format(CultureInfo.CurrentCulture, AppResources.Explore_DaysFormat, DurationDays);
 
-        /// <summary>₺ / ₺₺ / ₺₺₺.</summary>
-        [JsonIgnore]
-        public string BudgetText => new('₺', Math.Clamp(BudgetLevel, 1, 3));
-
         /// <summary>The first two travel styles, as labels.</summary>
         [JsonIgnore]
         public IReadOnlyList<string> TagLabels => Tags.Select(ExploreTags.Label).Where(l => l.Length > 0).Take(2).ToList();
