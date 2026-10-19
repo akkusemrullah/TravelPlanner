@@ -487,6 +487,39 @@
         <Setter Property="Stroke" Value="Transparent" />
     </Style>
 
+    <!-- Tinted 36x36 tiles for menu rows: every row gets its own colour, so rows that look alike (Çöp kutusu vs.
+         Yedekleme …) are told apart at a glance. Tint the icon inside with the matching tp-* colour. -->
+    <Style x:Key="IconTile.Tint" TargetType="Border" BasedOn="{StaticResource IconTile}">
+        <Setter Property="WidthRequest" Value="36" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+    </Style>
+    <Style x:Key="IconTile.Info" TargetType="Border" BasedOn="{StaticResource IconTile.Tint}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-info-soft}" />
+    </Style>
+    <Style x:Key="IconTile.Success" TargetType="Border" BasedOn="{StaticResource IconTile.Tint}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
+    </Style>
+    <Style x:Key="IconTile.Warning" TargetType="Border" BasedOn="{StaticResource IconTile.Tint}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-warning-soft}" />
+    </Style>
+    <Style x:Key="IconTile.Danger" TargetType="Border" BasedOn="{StaticResource IconTile.Tint}">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-danger-soft}" />
+    </Style>
+
+    <!-- Small count pill at the end of a menu row ("3"). -->
+    <Style x:Key="CountPill" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{DynamicResource tp-danger}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Padding" Value="7,1" />
+        <Setter Property="MinimumWidthRequest" Value="20" />
+        <Setter Property="HeightRequest" Value="20" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
     <!-- 40x40 tappable icon container (app-bar actions). Put a TapGestureRecognizer + SemanticProperties.Description on it. -->
     <Style x:Key="IconButton" TargetType="Border">
         <Setter Property="BackgroundColor" Value="Transparent" />

@@ -13,6 +13,7 @@ namespace TravelPlanner.Helpers
         public const string Weather = "Weather";
         public const string Map = "Map";
         public const string Settings = "Settings";
+        public const string Preferences = "Preferences";         // Profil → Tercihler
         public const string Itinerary = "Itinerary";             // TP-401
         public const string ActivityForm = "ActivityForm";       // TP-401
         public const string ExpenseAnalysis = "ExpenseAnalysis"; // TP-404

@@ -217,6 +217,7 @@ namespace TravelPlanner
             services.AddTransient<AuthPage>();          // G3
             services.AddTransient<MembersPage>();       // G6
             services.AddTransient<TrashPage>();         // G6
+            services.AddTransient<PreferencesPage>();   // Profil → Tercihler
             services.AddTransient<AiPlannerPage>();     // AI trip planner
             services.AddTransient<HelpCenterPage>();    // help centre
             services.AddTransient<ExplorePage>();       // TP-33

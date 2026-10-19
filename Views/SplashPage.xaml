@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-    Animated start screen shown before the Shell: the logo drops in and keeps hopping - the app's one loading
-    animation (Controls/LoadingLogo, the same as on every loading page and the AI planner) - while the
-    TravelPlanner wordmark and tagline slide in; then everything fades out and App swaps in the AppShell.
+    Launch splash shown before the Shell (~3 s): a faint globe appears, a paper plane flies a dashed route across it
+    and lands in the logo pin, which pops in with a ring on the ground; then the TravelPlanner wordmark and tagline
+    slide in, and everything fades out and App swaps in the AppShell. The scene is Controls/SplashRouteView; the
+    app's loading animation (Controls/LoadingLogo, AI planner and loading pages) is not used here.
     Background = the native splash colour (#1E3A8A, see TravelPlanner.csproj MauiSplashScreen), so the hand-over
     from the OS splash is seamless. Colours = docs/brand/logo-mark-white.svg (white pin, royal-blue plane).
 -->
@@ -16,16 +17,19 @@
 
     <Grid x:Name="Root" RowDefinitions="*,Auto,*,Auto" Padding="24,0,24,36">
 
-        <VerticalStackLayout Grid.Row="1" Spacing="22" HorizontalOptions="Center"
+        <VerticalStackLayout Grid.Row="1" Spacing="10" HorizontalOptions="Center"
                              SemanticProperties.Description="TravelPlanner">
 
-            <!-- Logo: white pin with the royal-blue paper plane, hopping (= the loading animation). -->
-            <controls:LoadingLogo x:Name="Logo" Size="112" HorizontalOptions="Center"
-                                  PinColor="White" PlaneColor="{StaticResource BrandRoyal}" ShadowColor="White"
-                                  Opacity="0" TranslationY="-70" />
+            <!-- Map scene + the logo pin sitting where the route ends. -->
+            <Grid x:Name="Stage" HorizontalOptions="Center">
+                <controls:SplashRouteView x:Name="Scene" />
+                <controls:LogoMark x:Name="Pin" HorizontalOptions="Start" VerticalOptions="Start"
+                                   PinColor="White" PlaneColor="{StaticResource BrandRoyal}"
+                                   Opacity="0" Scale="0.4" />
+            </Grid>
 
             <!-- Wordmark: "Travel" bold + "Planner" regular, all white on royal blue (docs/brand/README.md). -->
-            <Label x:Name="Wordmark" HorizontalOptions="Center" Opacity="0" TranslationX="28"
+            <Label x:Name="Wordmark" HorizontalOptions="Center" Opacity="0" TranslationY="14"
                    FontSize="34" CharacterSpacing="-0.5">
                 <Label.FormattedText>
                     <FormattedString>

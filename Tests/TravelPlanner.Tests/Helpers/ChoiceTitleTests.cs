@@ -19,6 +19,8 @@ namespace TravelPlanner.Tests
         [InlineData("Account_SignOutPendingFormat", "120")]
         [InlineData("Account_SignOutTitle")]
         [InlineData("TripForm_OutsideTitleFormat", "12")]
+        [InlineData("Backup_Title")]
+        [InlineData("Profile_Legal")]
         public void ChoiceTitles_AreShort_InBothLanguages(string key, params string[] args)
         {
             foreach (var culture in new[] { "tr", "en" })

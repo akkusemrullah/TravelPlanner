@@ -154,6 +154,98 @@ namespace TravelPlanner.Tests
             Assert.False(vm.IsDeletingAccount);
         }
 
+        // ---- Profile hub: trash count, preferences summary, backup and legal sheets ----
+
+        private readonly Mock<ITrashService> _trash = new();
+        private readonly Mock<IConsentService> _consent = new();
+
+        private SettingsViewModel CreateHubViewModel(SettingsService settings) =>
+            new(settings, _theme.Object, _trips.Object, _notifications.Object, _backup.Object, _share.Object, _filePicker.Object, AppInfo(),
+                _account.Object, _sync.Object, _dialogs.Object, consent: _consent.Object, trash: _trash.Object);
+
+        private static TrashEntry Deleted(string id) => new(id, "expense", "Taksi", null, DateTime.UtcNow, null, 1);
+
+        [Fact]
+        public async Task Profile_TrashRow_ShowsHowManyItemsCanBeRestored()
+        {
+            _trash.Setup(t => t.GetEntriesAsync(null)).ReturnsAsync(new List<TrashEntry> { Deleted("a"), Deleted("b"), Deleted("c") });
+            var vm = CreateHubViewModel(new SettingsService(_preferences));
+
+            await vm.RefreshAsync();
+
+            Assert.Equal(3, vm.TrashCount);
+            Assert.True(vm.HasTrash);
+            Assert.Contains("3", vm.TrashSubtitle);
+        }
+
+        [Fact]
+        public async Task Profile_TrashRow_EmptyTrash_ShowsTheHint()
+        {
+            _trash.Setup(t => t.GetEntriesAsync(null)).ReturnsAsync(new List<TrashEntry>());
+            var vm = CreateHubViewModel(new SettingsService(_preferences));
+
+            await vm.RefreshAsync();
+
+            Assert.False(vm.HasTrash);
+            Assert.Equal(TravelPlanner.Resources.Strings.AppResources.Trash_Hint, vm.TrashSubtitle);
+        }
+
+        [Fact]
+        public async Task Profile_Refresh_PicksUpWhatTheTercihlerPageSaved()
+        {
+            var settings = new SettingsService(_preferences);
+            var vm = CreateHubViewModel(settings);
+
+            settings.UserName = "Emrullah Akkuş";
+            settings.CurrencyCode = "EUR";
+            await vm.RefreshAsync();
+
+            Assert.Equal("EA", vm.Initials);
+            Assert.StartsWith("EUR · ", vm.PreferencesSummary);
+        }
+
+        [Fact]
+        public async Task Profile_BackupRow_CreatesABackup()
+        {
+            _dialogs.Setup(d => d.ChooseAsync(TravelPlanner.Resources.Strings.AppResources.Backup_Title, It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .ReturnsAsync(TravelPlanner.Resources.Strings.AppResources.Backup_ExportAction);
+            _backup.Setup(b => b.ExportAsync()).ReturnsAsync(Path.Combine(Path.GetTempPath(), "tp-backup.zip"));
+
+            await CreateHubViewModel(new SettingsService(_preferences)).OpenBackupCommand.ExecuteAsync(null);
+
+            _backup.Verify(b => b.ExportAsync(), Times.Once);
+        }
+
+        [Fact]
+        public async Task Profile_BackupRow_Cancelled_DoesNothing()
+        {
+            _dialogs.Setup(d => d.ChooseAsync(It.IsAny<string>(), It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>())).ReturnsAsync((string?)null);
+
+            await CreateHubViewModel(new SettingsService(_preferences)).OpenBackupCommand.ExecuteAsync(null);
+
+            _backup.Verify(b => b.ExportAsync(), Times.Never);
+            _filePicker.Verify(f => f.PickAsync(It.IsAny<PickOptions>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task Profile_LegalRow_OffersEveryDocument_AndWithdrawingConsent()
+        {
+            IReadOnlyList<string>? offered = null;
+            _dialogs.Setup(d => d.ChooseAsync(TravelPlanner.Resources.Strings.AppResources.Profile_Legal, It.IsAny<IReadOnlyList<string>>(), It.IsAny<string?>()))
+                    .Callback<string, IReadOnlyList<string>, string?>((_, options, _) => offered = options)
+                    .ReturnsAsync(TravelPlanner.Resources.Strings.AppResources.Consent_Revoke);
+            _dialogs.Setup(d => d.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+            _consent.SetupGet(c => c.HasAnyConsent).Returns(true);
+
+            await CreateHubViewModel(new SettingsService(_preferences)).OpenLegalCommand.ExecuteAsync(null);
+
+            Assert.NotNull(offered);
+            Assert.Contains(TravelPlanner.Resources.Strings.AppResources.Privacy_Title, offered!);
+            Assert.Contains(TravelPlanner.Resources.Strings.AppResources.Kvkk_Title, offered!);
+            Assert.Equal(6, offered!.Count);
+            _consent.Verify(c => c.RevokeAll(), Times.Once);
+        }
+
         // ---- TP-16: signing out can delete the account's data from the device ----
 
         private void ChooseOnSignOut(string? choice) =>

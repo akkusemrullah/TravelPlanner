@@ -37,6 +37,7 @@ namespace TravelPlanner
             Routing.RegisterRoute(Routes.Auth, typeof(AuthPage));   // G3
             Routing.RegisterRoute(Routes.Members, typeof(MembersPage)); // G6
             Routing.RegisterRoute(Routes.Trash, typeof(TrashPage));     // G6
+            Routing.RegisterRoute(Routes.Preferences, typeof(PreferencesPage)); // Profil → Tercihler
             Routing.RegisterRoute(Routes.AiPlanner, typeof(AiPlannerPage)); // AI trip planner
             Routing.RegisterRoute(Routes.HelpCenter, typeof(HelpCenterPage)); // help centre
             Routing.RegisterRoute(Routes.ExploreDetail, typeof(ExploreDetailPage)); // TP-33: a Keşfet sample trip

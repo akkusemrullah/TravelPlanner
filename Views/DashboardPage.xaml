@@ -128,9 +128,17 @@
                         <!-- Actions. -->
                         <Grid Grid.Row="3" Padding="20,0,20,18" ColumnDefinitions="*,*,*" ColumnSpacing="8">
                             <Button Grid.Column="0" Text="{x:Static res:AppResources.Dashboard_WeatherShort}" Command="{Binding OpenFeaturedWeatherCommand}"
-                                    Style="{StaticResource Btn.Secondary.Sm}" />
+                                    Style="{StaticResource Btn.Secondary.Sm}" ContentLayout="Left,6">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Weather}" Size="15" Color="{DynamicResource tp-accent-text}" />
+                                </Button.ImageSource>
+                            </Button>
                             <Button Grid.Column="1" Text="{x:Static res:AppResources.Section_Map}" Command="{Binding OpenFeaturedMapCommand}"
-                                    Style="{StaticResource Btn.Secondary.Sm}" />
+                                    Style="{StaticResource Btn.Secondary.Sm}" ContentLayout="Left,6">
+                                <Button.ImageSource>
+                                    <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Map}" Size="15" Color="{DynamicResource tp-info}" />
+                                </Button.ImageSource>
+                            </Button>
                             <Button Grid.Column="2" Text="{x:Static res:AppResources.Dashboard_Details}" Command="{Binding OpenFeaturedDetailsCommand}"
                                     Style="{StaticResource Btn.Primary.Sm}" />
                         </Grid>
@@ -210,8 +218,8 @@
                             <Border Style="{StaticResource Card}" Padding="16,4">
                                 <VerticalStackLayout Spacing="0">
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.CalendarDays}" />
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
+                                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CalendarDays}" TextColor="{DynamicResource tp-accent-text}" />
                                         </Border>
                                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                             <Label Text="{x:Static res:AppResources.Dashboard_FeaturePlan}" Style="{StaticResource Text.Title}" />
@@ -220,8 +228,8 @@
                                     </Grid>
                                     <BoxView Style="{StaticResource Divider}" />
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Wallet}" />
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
+                                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Wallet}" TextColor="{DynamicResource tp-success}" />
                                         </Border>
                                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                             <Label Text="{x:Static res:AppResources.Dashboard_FeatureBudget}" Style="{StaticResource Text.Title}" />
@@ -230,8 +238,8 @@
                                     </Grid>
                                     <BoxView Style="{StaticResource Divider}" />
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Users}" />
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile.Info}">
+                                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" TextColor="{DynamicResource tp-info}" />
                                         </Border>
                                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                             <Label Text="{x:Static res:AppResources.Dashboard_FeatureShare}" Style="{StaticResource Text.Title}" />
@@ -240,8 +248,8 @@
                                     </Grid>
                                     <BoxView Style="{StaticResource Divider}" />
                                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,12">
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Compass}" />
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
+                                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Compass}" TextColor="{DynamicResource tp-warning}" />
                                         </Border>
                                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                             <Label Text="{x:Static res:AppResources.Dashboard_FeatureAi}" Style="{StaticResource Text.Title}" />
@@ -277,8 +285,8 @@
                             </Border>
                             <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Card.Compact}">
                                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                                        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Wallet}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Wallet}" TextColor="{DynamicResource tp-success}" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{x:Static res:AppResources.Dashboard_TotalExpenses}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />

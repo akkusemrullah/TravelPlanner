@@ -1,7 +1,9 @@
+using TravelPlanner.Helpers;
 using TravelPlanner.ViewModels;
 
 namespace TravelPlanner.Views;
 
+/// <summary>Profile tab: a short hub (account card + menu rows). The settings themselves are on <see cref="PreferencesPage"/>.</summary>
 public partial class SettingsPage : ContentPage
 {
     private readonly SettingsViewModel _viewModel;
@@ -16,6 +18,8 @@ public partial class SettingsPage : ContentPage
     {
         base.OnAppearing();
         _viewModel.AttachSyncStatus(true);
+        // Back from Tercihler (new name/currency) or the trash (new count).
+        _viewModel.RefreshAsync().FireAndForget();
     }
 
     protected override void OnDisappearing()
