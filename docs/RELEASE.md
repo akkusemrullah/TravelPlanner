@@ -45,8 +45,18 @@ CI keystore'u yalnızca `main` derlemesinde geçici klasöre açar ve iş bitinc
 
 ### 4. Yerelde imzalı paket (gerekirse)
 
+**İmzalı APK (Windows, en kolayı):** keystore proje kökündeyse (`travelplanner.keystore`)
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build-signed-apk.ps1
+```
+
+Betik şifreleri gizli sorar, önce şifreyi ve alias'ı doğrular, eski Release çıktısını siler (yoksa MSBuild eski, debug imzalı APK'yı kopyalayabilir) ve `publish\com.eaksoft.travelplanner-Signed.apk` üretir. Keystore başka yerdeyse: `-KeyStore C:\yol\travelplanner.keystore`.
+
+**Elle (Play Store için `.aab`, csproj varsayılanı; APK için `-p:AndroidPackageFormat=apk` ekleyin):**
+
 ```bash
-dotnet publish TravelPlanner.csproj -c Release -f net9.0-android -p:TargetFrameworks=net9.0-android \
+dotnet publish TravelPlanner.csproj -c Release -f net10.0-android \
   -p:AndroidKeyStore=true -p:AndroidSigningKeyStore=/güvenli/yol/travelplanner.keystore \
   -p:AndroidSigningKeyAlias=travelplanner \
   -p:AndroidSigningStorePass=env:ANDROID_KEYSTORE_PASSWORD -p:AndroidSigningKeyPass=env:ANDROID_KEY_PASSWORD
