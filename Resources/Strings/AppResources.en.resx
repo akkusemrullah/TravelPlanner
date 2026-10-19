@@ -3140,4 +3140,22 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Sync_SharedTripsRemovedFormat" xml:space="preserve">
     <value>{0} shared trips were deleted, or you no longer have access to them.</value>
   </data>
+  <data name="Profile_TrashCountFormat" xml:space="preserve">
+    <value>{0} items can be restored</value>
+  </data>
+  <data name="Backup_ExportAction" xml:space="preserve">
+    <value>Create backup</value>
+  </data>
+  <data name="Profile_BackupHint" xml:space="preserve">
+    <value>Back up or restore your data</value>
+  </data>
+  <data name="Profile_LegalHint" xml:space="preserve">
+    <value>Privacy, KVKK, terms</value>
+  </data>
+  <data name="Profile_SignOutHint" xml:space="preserve">
+    <value>Sign out on this device</value>
+  </data>
+  <data name="Profile_DeleteHint" xml:space="preserve">
+    <value>Removes your account and cloud data</value>
+  </data>
 </root>

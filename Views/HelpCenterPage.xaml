@@ -127,8 +127,8 @@
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="privacy" />
                                 </Grid.GestureRecognizers>
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Lock}" />
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Lock}" TextColor="{DynamicResource tp-accent-text}" />
                                 </Border>
                                 <Label Grid.Column="1" Text="{x:Static res:AppResources.Privacy_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                 <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -139,8 +139,8 @@
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="kvkk" />
                                 </Grid.GestureRecognizers>
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Shield}" />
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Info}">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Shield}" TextColor="{DynamicResource tp-info}" />
                                 </Border>
                                 <Label Grid.Column="1" Text="{x:Static res:AppResources.Kvkk_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                 <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -151,8 +151,8 @@
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="terms" />
                                 </Grid.GestureRecognizers>
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Scale}" />
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Scale}" TextColor="{DynamicResource tp-warning}" />
                                 </Border>
                                 <Label Grid.Column="1" Text="{x:Static res:AppResources.Terms_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                 <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />

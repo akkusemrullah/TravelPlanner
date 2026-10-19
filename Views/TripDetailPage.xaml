@@ -264,8 +264,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToItineraryCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CalendarDays}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CalendarDays}" TextColor="{DynamicResource tp-accent-text}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Itinerary}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -276,8 +276,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToTasksCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Checklist}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Checklist}" TextColor="{DynamicResource tp-success}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -288,8 +288,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToPlacesCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-warning}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Places}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -300,8 +300,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToMapCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Map}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Info}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Map}" TextColor="{DynamicResource tp-info}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Map}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -312,8 +312,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToWeatherCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Weather}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Weather}" TextColor="{DynamicResource tp-accent-text}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Weather}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -332,8 +332,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToExpensesCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Receipt}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Receipt}" TextColor="{DynamicResource tp-success}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Expenses}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -344,8 +344,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToAnalysisCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.PieChart}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.PieChart}" TextColor="{DynamicResource tp-accent-text}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Analysis}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -356,8 +356,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToSplitCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Info}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" TextColor="{DynamicResource tp-info}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Split}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
@@ -376,8 +376,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToMembersCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Info}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Users}" TextColor="{DynamicResource tp-info}" />
                                     </Border>
                                     <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                         <Label Text="{x:Static res:AppResources.Members_Title}" Style="{StaticResource Text.Body}" />
@@ -400,8 +400,8 @@
                                     <Grid.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding GoToAttachmentsCommand}" />
                                     </Grid.GestureRecognizers>
-                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Sm}">
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Attachment}" />
+                                    <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
+                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Attachment}" TextColor="{DynamicResource tp-warning}" />
                                     </Border>
                                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Attachments}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />

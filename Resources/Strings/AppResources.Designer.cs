@@ -8487,5 +8487,59 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Explore_AddError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} öğe geri alınabilir.
+        /// </summary>
+        public static string Profile_TrashCountFormat {
+            get {
+                return ResourceManager.GetString("Profile_TrashCountFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yedek al.
+        /// </summary>
+        public static string Backup_ExportAction {
+            get {
+                return ResourceManager.GetString("Backup_ExportAction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yedek al ya da geri yükle.
+        /// </summary>
+        public static string Profile_BackupHint {
+            get {
+                return ResourceManager.GetString("Profile_BackupHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gizlilik, KVKK, koşullar.
+        /// </summary>
+        public static string Profile_LegalHint {
+            get {
+                return ResourceManager.GetString("Profile_LegalHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bu cihazda oturumu kapat.
+        /// </summary>
+        public static string Profile_SignOutHint {
+            get {
+                return ResourceManager.GetString("Profile_SignOutHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hesap ve bulut verileri silinir.
+        /// </summary>
+        public static string Profile_DeleteHint {
+            get {
+                return ResourceManager.GetString("Profile_DeleteHint", resourceCulture);
+            }
+        }
     }
 }
