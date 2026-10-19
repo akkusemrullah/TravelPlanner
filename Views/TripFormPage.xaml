@@ -69,7 +69,22 @@
                             </Border>
                         </VerticalStackLayout>
 
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <!-- One calendar for both dates, like booking apps (Android). -->
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding UsesRangePicker}">
+                            <Label Text="{x:Static res:AppResources.TripForm_DatesLabel}" Style="{StaticResource Text.Field}" />
+                            <Border Style="{StaticResource Input}" SemanticProperties.Description="{x:Static res:AppResources.TripForm_DatesTitle}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding PickDatesCommand}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" MinimumHeightRequest="40">
+                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Calendar}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" Text="{Binding DateRangeText}" FontSize="15" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" />
+                                    <Label Grid.Column="2" Text="{Binding DayCountText}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding UsesTwoDatePickers}">
                             <VerticalStackLayout Grid.Column="0" Spacing="6">
                                 <Label Text="{x:Static res:AppResources.TripForm_StartLabel}" Style="{StaticResource Text.Field}" />
                                 <Border Style="{StaticResource Input}">

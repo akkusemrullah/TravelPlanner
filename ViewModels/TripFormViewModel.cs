@@ -19,6 +19,7 @@ namespace TravelPlanner.ViewModels
         private readonly IConnectivity _connectivity;
         private readonly IActivityService? _activityService;
         private readonly ITripCurrencyService? _tripCurrency;
+        private readonly IDateRangePicker? _dateRangePicker;
 
         /// <summary>True while typing without internet - shows a hint that suggestions can't load (TP-306).</summary>
         [ObservableProperty]
@@ -45,10 +46,30 @@ namespace TravelPlanner.ViewModels
         private string city = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DateRangeText), nameof(DayCountText))]
         private DateTime startDate = DateTime.Today;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DateRangeText), nameof(DayCountText))]
         private DateTime endDate = DateTime.Today.AddDays(1);
+
+        /// <summary>True when one calendar picks both dates (Android); otherwise the form shows two date pickers.</summary>
+        public bool UsesRangePicker => _dateRangePicker?.IsSupported == true;
+
+        public bool UsesTwoDatePickers => !UsesRangePicker;
+
+        /// <summary>The single dates field: "20 Eki – 27 Eki 2026", with both years when the trip crosses one.</summary>
+        public string DateRangeText
+        {
+            get
+            {
+                var culture = System.Globalization.CultureInfo.CurrentCulture;
+                var startFormat = StartDate.Year == EndDate.Year ? "d MMM" : "d MMM yyyy";
+                return $"{StartDate.ToString(startFormat, culture)} – {EndDate.ToString("d MMM yyyy", culture)}";
+            }
+        }
+
+        public string DayCountText => string.Format(AppResources.Explore_DaysFormat, (EndDate.Date - StartDate.Date).Days + 1);
 
         /// <summary>
         /// Latest end date the End DatePicker offers: start + <see cref="AppConstants.MaxTripDays"/> - 1. Day-based
@@ -96,7 +117,8 @@ namespace TravelPlanner.ViewModels
             IConnectivity connectivity,
             IDialogService dialogs,
             IActivityService? activityService = null,
-            ITripCurrencyService? tripCurrency = null)
+            ITripCurrencyService? tripCurrency = null,
+            IDateRangePicker? dateRangePicker = null)
             : base(dialogs)
         {
             _tripService = tripService;
@@ -107,6 +129,7 @@ namespace TravelPlanner.ViewModels
             _connectivity = connectivity;
             _activityService = activityService;
             _tripCurrency = tripCurrency;
+            _dateRangePicker = dateRangePicker;
 
             SelectedCurrency = FindCurrency(settings.CurrencyCode);
         }
@@ -173,6 +196,24 @@ namespace TravelPlanner.ViewModels
         }
 
         partial void OnEndDateChanged(DateTime value) => ClearValidationIfFixed();
+
+        /// <summary>Opens the range calendar; the first tap is the start, the second the end.</summary>
+        [RelayCommand]
+        private async Task PickDatesAsync()
+        {
+            if (_dateRangePicker is null) return;
+
+            var picked = await _dateRangePicker.PickAsync(StartDate, EndDate, AppResources.TripForm_DatesTitle);
+            if (picked is not { } range) return;
+
+            // Start first: OnStartDateChanged keeps the old end within bounds, then the picked end replaces it.
+            StartDate = range.Start.Date;
+            EndDate = range.End.Date < StartDate ? StartDate : range.End.Date;
+
+            // The calendar can't cap the length, so say so right away instead of on Save.
+            if ((EndDate - StartDate).Days + 1 > AppConstants.MaxTripDays)
+                ValidationMessage = string.Format(AppResources.TripForm_TooLongFormat, AppConstants.MaxTripDays);
+        }
 
         /// <summary>Trip.Name/City/Country column limit ([MaxLength(100)]); the Entries also carry MaxLength.</summary>
         internal const int NameMaxLength = 100;
