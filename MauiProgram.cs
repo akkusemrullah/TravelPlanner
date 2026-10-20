@@ -95,6 +95,10 @@ namespace TravelPlanner
             services.AddSingleton<IAttachmentService>(sp =>                  // TP-501 (+ G5 download from the cloud)
                 new AttachmentService(sp.GetRequiredService<IDatabaseService>(), FileSystem.AppDataDirectory,
                                       sp.GetRequiredService<ISupabaseClient>()));
+            services.AddSingleton<ICoverImageProcessor, CoverImageProcessor>();
+            services.AddSingleton<ITripCoverService>(sp => new TripCoverService(  // trip cover photo + list thumbnail
+                sp.GetRequiredService<IDatabaseService>(), sp.GetRequiredService<IAttachmentService>(),
+                sp.GetRequiredService<ICoverImageProcessor>(), sp.GetRequiredService<ISupabaseClient>()));
             services.AddSingleton<ISplitService, SplitService>();             // TP-504
             services.AddSingleton<ITrashService>(sp => new TrashService(      // G1 - 30-day trash (+ "Kalıcı olarak sil":
                 sp.GetRequiredService<IDatabaseService>(),                    //   cloud copies of deleted files go too)

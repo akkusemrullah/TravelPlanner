@@ -8586,5 +8586,50 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("A11y_CloseNotice", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kapak fotoğrafı.
+        /// </summary>
+        public static string TripForm_CoverLabel {
+            get {
+                return ResourceManager.GetString("TripForm_CoverLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fotoğraf ekle.
+        /// </summary>
+        public static string TripForm_CoverAdd {
+            get {
+                return ResourceManager.GetString("TripForm_CoverAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Değiştir.
+        /// </summary>
+        public static string TripForm_CoverChange {
+            get {
+                return ResourceManager.GetString("TripForm_CoverChange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kaldır.
+        /// </summary>
+        public static string TripForm_CoverRemove {
+            get {
+                return ResourceManager.GetString("TripForm_CoverRemove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fotoğraf açılamadı..
+        /// </summary>
+        public static string TripForm_CoverError {
+            get {
+                return ResourceManager.GetString("TripForm_CoverError", resourceCulture);
+            }
+        }
     }
 }

@@ -87,5 +87,9 @@ namespace TravelPlanner.Models
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        /// <summary>For the few UI-only properties that change while a row is shown (e.g. a trip's cover thumbnail).</summary>
+        protected void OnPropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

@@ -32,6 +32,7 @@ namespace TravelPlanner.Services.Sync
         private static readonly Dictionary<Type, HashSet<string>> DeviceOnly = new()
         {
             [typeof(TripAttachment)] = new(StringComparer.Ordinal) { nameof(TripAttachment.RelativePath) },
+            [typeof(Trip)] = new(StringComparer.Ordinal) { nameof(Trip.PendingCoverId) },
         };
 
         /// <summary>Properties whose server column isn't simply their snake_case name.</summary>

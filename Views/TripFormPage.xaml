@@ -27,6 +27,39 @@
         <ScrollView Grid.Row="2">
             <VerticalStackLayout Padding="16,20,16,24" Spacing="24">
 
+                <!-- ════════ Cover photo (16:9, cropped by TripCoverService) ════════ -->
+                <Border Style="{StaticResource Card}" IsVisible="{Binding CanEditCover}" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid HeightRequest="180" BackgroundColor="{DynamicResource tp-surface-alt}">
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PickCoverCommand}" />
+                            </Grid.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding HasCover, Converter={StaticResource InvertBoolConverter}}">
+                                <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Image}" TextColor="{DynamicResource tp-text-3}" HorizontalOptions="Center" />
+                                <Label Text="{x:Static res:AppResources.TripForm_CoverAdd}" Style="{StaticResource Text.Body2}" HorizontalOptions="Center" />
+                            </VerticalStackLayout>
+                            <Image Source="{Binding CoverPreview}" Aspect="AspectFill" IsVisible="{Binding HasCover}" />
+                            <ActivityIndicator IsRunning="{Binding IsCoverBusy}" IsVisible="{Binding IsCoverBusy}" Color="{DynamicResource tp-primary}"
+                                               HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Grid>
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Padding="16,10">
+                            <Label Grid.Column="0" Text="{x:Static res:AppResources.TripForm_CoverLabel}" Style="{StaticResource Text.Field}" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="{x:Static res:AppResources.TripForm_CoverRemove}" Command="{Binding RemoveCoverCommand}"
+                                    Style="{StaticResource Btn.Ghost.Sm}" IsVisible="{Binding HasCover}" />
+                            <Button Grid.Column="2" Command="{Binding PickCoverCommand}" Style="{StaticResource Btn.Secondary.Sm}" IsEnabled="{Binding IsCoverBusy, Converter={StaticResource InvertBoolConverter}}">
+                                <Button.Triggers>
+                                    <DataTrigger TargetType="Button" Binding="{Binding HasCover}" Value="True">
+                                        <Setter Property="Text" Value="{x:Static res:AppResources.TripForm_CoverChange}" />
+                                    </DataTrigger>
+                                    <DataTrigger TargetType="Button" Binding="{Binding HasCover}" Value="False">
+                                        <Setter Property="Text" Value="{x:Static res:AppResources.TripForm_CoverAdd}" />
+                                    </DataTrigger>
+                                </Button.Triggers>
+                            </Button>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
                 <!-- ════════ Trip ════════ -->
                 <Border Style="{StaticResource Card}">
                     <VerticalStackLayout Spacing="16">

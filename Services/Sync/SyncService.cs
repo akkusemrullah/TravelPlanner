@@ -52,6 +52,7 @@ namespace TravelPlanner.Services.Sync
         private readonly IDatabaseService _database;
         private readonly ISupabaseClient _client;
         private readonly IAttachmentService _attachments;
+        private readonly ITripCoverService? _covers;
         private readonly INotificationService _notifications;
         private readonly IConnectivity _connectivity;
         private readonly SemaphoreSlim _gate = new(1, 1);
@@ -74,8 +75,10 @@ namespace TravelPlanner.Services.Sync
             ISupabaseClient client,
             IAttachmentService attachments,
             INotificationService notifications,
-            IConnectivity connectivity)
+            IConnectivity connectivity,
+            ITripCoverService? covers = null)
         {
+            _covers = covers;
             _auth = auth;
             _account = account;
             _database = database;
@@ -248,7 +251,8 @@ namespace TravelPlanner.Services.Sync
 
                 var push = await PushAsync(db, token);
                 var files = await UploadFilesAsync(db, token);
-                var uploaded = files.Uploaded;
+                // trip covers picked on this device: the files first, then the trip's cover_path (second push below)
+                var uploaded = files.Uploaded + (_covers is null ? 0 : await _covers.UploadPendingAsync(token));
                 if (uploaded > 0)
                     push = push.Add(await PushAsync(db, token));
 

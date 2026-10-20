@@ -1700,4 +1700,63 @@ end $$;
 select test.eq(public.app_config() ? 'ai_model', false, '31: the app config does not carry the model');
 reset role;
 
+-- ------------------------------------------------------------------------------- 32: trip cover photo
+\set t32    'cccccccc-0000-0000-0000-000000000032'
+\set c1     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa1'
+\set c2     'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa2'
+\set elif   '00000000-0000-0000-0000-00000000a888'
+insert into auth.users (id, email, raw_user_meta_data) values (:'elif', 'elif@example.com', '{}');
+delete from private.file_cleanup_queue;
+select set_config('request.jwt.claims', '', false);
+select set_config('request.jwt.claim.sub', :'elif', false);
+set role authenticated;
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t32', 'full', true, 'fields',
+        jsonb_build_object('name', 'Lizbon', 'start_date', '2026-11-01', 'end_date', '2026-11-03',
+                           'cover_path', 'trips/' || :'t32' || '/cover-' || :'c1' || '.jpg'))))), 'applied', '32: a trip with its cover');
+select test.eq(test.reason(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t32', 'fields',
+        jsonb_build_object('cover_path', 'trips/11111111-1111-1111-1111-111111111111/cover-' || :'c2' || '.jpg'))))), 'invalid',
+    '32: a cover in another trip''s folder is refused');
+select test.eq(test.reason(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t32', 'fields',
+        jsonb_build_object('cover_path', 'trips/' || :'t32' || '/x.apk'))))), 'invalid', '32: only cover-<id>.jpg');
+-- the files as the app uploads them (two days old, so the sweep may look at them)
+insert into storage.objects (bucket_id, name, created_at) values
+    ('trip-files', 'trips/' || :'t32' || '/cover-' || :'c1' || '.jpg', now() - interval '2 days'),
+    ('trip-files', 'trips/' || :'t32' || '/cover-' || :'c1' || '-thumb.jpg', now() - interval '2 days'),
+    ('trip-files', 'trips/' || :'t32' || '/cover-' || :'c2' || '.jpg', now() - interval '2 days'),
+    ('trip-files', 'trips/' || :'t32' || '/cover-' || :'c2' || '-thumb.jpg', now() - interval '2 days');
+reset role;
+select private.queue_orphan_files();
+select test.eq((select array_agg(path order by path) from private.file_cleanup_queue),
+               array['trips/' || :'t32' || '/cover-' || :'c2' || '-thumb.jpg', 'trips/' || :'t32' || '/cover-' || :'c2' || '.jpg'],
+               '32: the sweep takes an upload that never became the cover, never the current one');
+delete from private.file_cleanup_queue;
+
+-- a new photo: the old cover and its thumbnail are queued
+set role authenticated;
+select test.eq(test.status(public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t32', 'fields',
+        jsonb_build_object('cover_path', 'trips/' || :'t32' || '/cover-' || :'c2' || '.jpg'))))), 'applied', '32: the cover changes');
+reset role;
+select test.eq((select array_agg(path order by path) from private.file_cleanup_queue),
+               array['trips/' || :'t32' || '/cover-' || :'c1' || '-thumb.jpg', 'trips/' || :'t32' || '/cover-' || :'c1' || '.jpg'],
+               '32: the old cover and its thumbnail are queued');
+-- the photo removed
+set role authenticated;
+select public.apply_changes(jsonb_build_array(
+    jsonb_build_object('entity', 'Trip', 'op', 'upsert', 'id', :'t32', 'fields', jsonb_build_object('cover_path', null))));
+reset role;
+select test.eq((select count(*) from private.file_cleanup_queue where path like '%' || :'c2' || '%'), 2::bigint, '32: removing the photo queues it');
+-- ... and put back (another device's edit arrives later): the claim keeps it
+update public.trips set cover_path = 'trips/' || :'t32' || '/cover-' || :'c2' || '.jpg' where id = :'t32';
+set role service_role;
+select test.eq(public.file_cleanup_claim(10),
+               array['trips/' || :'t32' || '/cover-' || :'c1' || '-thumb.jpg', 'trips/' || :'t32' || '/cover-' || :'c1' || '.jpg'],
+               '32: a file that is the cover again is not deleted');
+reset role;
+delete from private.file_cleanup_queue;
+delete from storage.objects where name like 'trips/' || :'t32' || '/%';
+
 \echo ALL SYNC TESTS PASSED
