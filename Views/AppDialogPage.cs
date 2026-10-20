@@ -126,7 +126,7 @@ namespace TravelPlanner.Views
                 stack.Add(heading);
             }
 
-            var page = new AppDialogPage(new ScrollView { Content = stack }, isSheet: true);
+            var page = new AppDialogPage(stack, isSheet: true); // no ScrollView: it would stretch the sheet to the whole screen
 
             var list = new VerticalStackLayout { Spacing = 0, Margin = new Thickness(12, 0) };
             for (var i = 0; i < options.Count; i++)
