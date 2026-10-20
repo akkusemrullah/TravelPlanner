@@ -916,6 +916,8 @@ select test.eq((public.ai_plan_quota('666666666666666666666666666666666666666666
 reset role;
 select test.eq((select count from private.ai_global_usage where day = current_date), private.ai_global_daily_limit(),
                'ai global: refused calls are not counted');
+-- (the ceiling is full now; later checks need the day empty again - since migration 29 the status reads it too)
+update private.ai_global_usage set count = 0 where day = current_date;
 
 -- Banning: RPCs refuse at once, sessions are gone (state checked with private.account_state; TP-14: account_status is only for the account itself).
 select test.eq(private.account_state(:'can'), 'active', 'account_status: active');
@@ -1091,8 +1093,9 @@ update public.trips set deleted_at = now() - interval '31 days' where id = :'t7'
 select private.purge_deleted_rows();
 select test.eq((select count(*) from public.attachments where trip_id = :'t7'), 0::bigint, 'G7: purged trip takes its attachments');
 select test.eq((select array_agg(path order by path) from private.file_cleanup_queue),
-               array['trips/' || :'t7' || '/' || :'fb' || '.png', 'trips/' || :'t7' || '/' || :'fc' || '.jpg'],
-               'G7: and their files are queued (the unrecorded upload is an orphan now)');
+               array['trips/' || :'t7' || '/' || :'fb' || '.png', 'trips/' || :'t7' || '/' || :'fc' || '.jpg',
+                     'trips/' || :'t7' || '/notlar.txt'],
+               'G7: and their files are queued (the unrecorded upload is an orphan now; TP-7: so is the rest of the folder)');
 delete from private.file_cleanup_queue;
 delete from storage.objects where name like 'trips/' || :'t7' || '/%';
 
@@ -1457,6 +1460,10 @@ exception when insufficient_privilege then raise notice 'ok - admin: functions a
 end $$;
 reset role;
 
+-- The admin tests above deleted Deniz's account: from here on "Deniz" is a new account.
+insert into auth.users (id, email, raw_user_meta_data) values ('00000000-0000-0000-0000-00000000a777', 'deniz2@example.com', '{}');
+\set deniz  '00000000-0000-0000-0000-00000000a777'
+
 -- ------------------------------------------------------------------------------- 28: invites of a deleted trip
 \set t28    'cccccccc-0000-0000-0000-000000000028'
 \set t29    'cccccccc-0000-0000-0000-000000000029'
@@ -1659,5 +1666,38 @@ select test.eq(cardinality(public.file_cleanup_claim(10)), 3, 'TP-7: purge-files
 reset role;
 delete from private.file_cleanup_queue;
 delete from storage.objects where name like 'trips/' || :'t8' || '/%' or name like 'trips/' || :'gone' || '/%';
+
+-- ------------------------------------------------------------------------------- 31: AI model from the panel
+set role service_role;
+select test.eq(public.ai_model_settings(), '{"model": null, "reasoning": null}'::jsonb, '31: no model set = the secrets decide');
+select public.admin_set_settings('{"ai_model": "  GPT-5-Nano ", "ai_reasoning": "Minimal"}');
+select test.eq(public.ai_model_settings(), '{"model": "gpt-5-nano", "reasoning": "minimal"}'::jsonb, '31: model and reasoning saved, lower-cased');
+select test.eq(public.admin_settings() ->> 'ai_model', 'gpt-5-nano', '31: the panel reads the model');
+select public.admin_set_settings('{"ai_daily_limit": 5}');
+select test.eq(public.ai_model_settings() ->> 'model', 'gpt-5-nano', '31: other changes keep the model');
+reset role;
+do $$ begin
+    perform public.admin_set_settings('{"ai_model": "gpt 5; drop table"}');
+    raise exception 'FAILED: a model name with spaces';
+exception when check_violation then raise notice 'ok - 31: model names are plain ids';
+end $$;
+do $$ begin
+    perform public.admin_set_settings('{"ai_reasoning": "max"}');
+    raise exception 'FAILED: an unknown reasoning effort';
+exception when check_violation then raise notice 'ok - 31: reasoning is minimal, low, medium or high';
+end $$;
+set role service_role;
+select public.admin_set_settings('{"ai_model": "", "ai_reasoning": ""}');
+select test.eq(public.ai_model_settings(), '{"model": null, "reasoning": null}'::jsonb, '31: empty goes back to the secrets');
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+set role authenticated;
+do $$ begin
+    perform public.ai_model_settings();
+    raise exception 'FAILED: a signed-in user read the model settings';
+exception when insufficient_privilege then raise notice 'ok - 31: only plan-trip (service role) reads the model';
+end $$;
+select test.eq(public.app_config() ? 'ai_model', false, '31: the app config does not carry the model');
+reset role;
 
 \echo ALL SYNC TESTS PASSED

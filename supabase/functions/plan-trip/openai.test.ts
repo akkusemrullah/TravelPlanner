@@ -2,7 +2,7 @@
 // SEC-02: which failures are billed (no refund) and the request-body guard.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { AiCallError, askOpenAi, BodyTooLarge, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
+import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, isReasoningModel, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
 import { MAX_DAYS, MAX_PLAN_TOKENS, planTokenBudget } from "./planner.ts";
 
 const opts = { apiKey: "k", model: "m", messages: [], name: "trip_plan", schema: {}, maxTokens: 1000, timeoutMs: 1000, effort: "low" };
@@ -90,4 +90,34 @@ test("only a JWT-shaped bearer token gets past the door", () => {
   assert.equal(looksLikeBearerJwt("Bearer "), false);
   assert.equal(looksLikeBearerJwt("Bearer sb_publishable_abc"), false);
   assert.equal(looksLikeBearerJwt("Bearer a.b.c" + "d".repeat(9000)), false);
+});
+
+// migration 31: the model is chosen in the admin panel
+test("the panel's model comes before the secrets", () => {
+  assert.deepEqual(chooseModel({ model: "GPT-5", reasoning: "medium" }, { model: "gpt-5-nano", reasoning: "low" }),
+    { model: "gpt-5", effort: "medium" });
+});
+
+test("an empty panel leaves it to the secrets, then to gpt-5-mini", () => {
+  assert.deepEqual(chooseModel({ model: null, reasoning: null }, { model: "gpt-5-nano" }), { model: "gpt-5-nano", effort: "minimal" });
+  assert.deepEqual(chooseModel(null, {}), { model: "gpt-5-mini", effort: "low" });
+  assert.deepEqual(chooseModel({ model: "  " }, { reasoning: "high" }), { model: "gpt-5-mini", effort: "high" });
+});
+
+test("an unknown reasoning effort falls back to the automatic one", () => {
+  assert.equal(chooseModel({ model: "gpt-5-nano", reasoning: "max" }, {}).effort, "minimal");
+});
+
+test("reasoning_effort is sent only to models that take it", async () => {
+  const sent: Record<string, unknown>[] = [];
+  const capture = (async (_url: string, init?: RequestInit) => {
+    sent.push(JSON.parse(String(init?.body)));
+    return new Response(JSON.stringify({ choices: [{ finish_reason: "stop", message: { content: "{}" } }] }));
+  }) as typeof fetch;
+  await askOpenAi(capture, { ...opts, model: "gpt-5-mini" }, quiet);
+  await askOpenAi(capture, { ...opts, model: "gpt-4.1-mini" }, quiet);
+  assert.equal(sent[0].reasoning_effort, "low");
+  assert.equal("reasoning_effort" in sent[1], false);
+  assert.equal(isReasoningModel("o4-mini"), true);
+  assert.equal(isReasoningModel("gpt-4o"), false);
 });

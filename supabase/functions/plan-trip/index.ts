@@ -13,9 +13,11 @@
 // SEC-02: the plan is given back (public.ai_plan_refund, migrations 10/12; at most 2 a day per account) ONLY when
 // OpenAI gave no answer at all (network error, HTTP error). An answer that was cut off, empty, not JSON or an
 // empty plan - and our own timeout - is billed by OpenAI, so it costs the user the plan too.
-// Optional secrets: AI_MODEL (default gpt-5-mini - nano made plans that repeated places and mixed far-apart areas),
-// AI_REASONING (minimal | low | medium; default low, minimal for nano models) and AI_MAX_TOKENS (upper bound of
-// max_completion_tokens for the plan, default 16000 - see planTokenBudget in planner.ts).
+// The model and its reasoning effort are chosen in the admin panel (Ayarlar, migration 31: public.ai_model_settings,
+// read with the service role key). Left empty there, the optional secrets AI_MODEL (default gpt-5-mini - nano made
+// plans that repeated places and mixed far-apart areas) and AI_REASONING (minimal | low | medium | high; default low,
+// minimal for nano models) decide. AI_MAX_TOKENS: upper bound of max_completion_tokens for the plan, default 16000 -
+// see planTokenBudget in planner.ts.
 //
 // Every place of the plan is checked on the map (OpenStreetMap, see places.ts): meals are planned at real venues
 // found around the destination, places that can't be found are replaced (once more by the model) or dropped,
@@ -25,7 +27,7 @@ import {
   buildMessages, buildReplacementMessages, MAX_BODY_BYTES, MAX_PLAN_TOKENS, parseRequest, PLAN_SCHEMA, planTokenBudget,
   REPLACEMENT_SCHEMA, RequestError, sanitizePlan, sanitizeReplacements,
 } from "./planner.ts";
-import { AiCallError, askOpenAi, BodyTooLarge, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
+import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
 import { findCenter, foodVenues, type Point, type Venue, verifyPlan } from "./places.ts";
 
 function json(status: number, body: unknown): Response {
@@ -60,6 +62,32 @@ async function useQuota(authorization: string, apikey: string, deviceId: string)
   if (text.includes("not signed in")) return { ok: false, response: fail(401, "not_signed_in") };
   console.error("quota check failed", res.status, text);
   return { ok: false, response: fail(502, "quota_check_failed") };
+}
+
+/**
+ * The panel's model choice (migration 31). Null when it can't be read (no service key, migration not run, network):
+ * then the secrets decide, so a settings problem never stops the planner.
+ */
+async function panelModel(): Promise<{ model?: unknown; reasoning?: unknown } | null> {
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!key) return null;
+  try {
+    const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/rpc/ai_model_settings`, {
+      method: "POST",
+      headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: "{}",
+      signal: AbortSignal.timeout(5_000),
+    });
+    if (!res.ok) {
+      console.warn("model settings not read", res.status, (await res.text()).slice(0, 200));
+      return null;
+    }
+    const body = await res.json();
+    return body && typeof body === "object" ? body : null;
+  } catch (e) {
+    console.warn("model settings not read", String(e));
+    return null;
+  }
 }
 
 /** Gives back the plan of a request OpenAI never answered (public.ai_plan_refund). Never throws. */
@@ -107,9 +135,14 @@ Deno.serve(async (req) => {
   }
 
   const { request, truncatedDays } = parsed;
-  const model = Deno.env.get("AI_MODEL") ?? "gpt-5-mini";
+  // the quota first: a request without plans left (or without a valid session) costs the map services nothing.
+  // The panel's model choice is read at the same time.
+  const [quota, panel] = await Promise.all([useQuota(authorization, apikey, request.deviceId), panelModel()]);
+  if (!quota.ok) return quota.response;
+
   // the plan needs some thinking (grouping sights by area, one visit per place); the replacement question doesn't
-  const planEffort = Deno.env.get("AI_REASONING") ?? (model.includes("nano") ? "minimal" : "low");
+  const { model, effort: planEffort } = chooseModel(panel, { model: Deno.env.get("AI_MODEL"), reasoning: Deno.env.get("AI_REASONING") });
+  console.log(`model ${model}, reasoning ${planEffort}${panel?.model ? " (panel)" : ""}`);
 
   const planTokens = planTokenBudget(request.days, request.pace, planEffort, Number(Deno.env.get("AI_MAX_TOKENS") ?? MAX_PLAN_TOKENS));
 
@@ -117,10 +150,6 @@ Deno.serve(async (req) => {
   const started = Date.now();
   const ask = (messages: unknown, name: string, schema: unknown, maxTokens: number, timeoutMs: number, effort: string) =>
     askOpenAi(fetch, { apiKey: openAiKey, model, messages, name, schema, maxTokens, timeoutMs, effort });
-
-  // the quota first: a request without plans left (or without a valid session) costs the map services nothing
-  const quota = await useQuota(authorization, apikey, request.deviceId);
-  if (!quota.ok) return quota.response;
 
   // the AI failed. The plan goes back to the quota only when OpenAI never answered (nothing was billed); an answer
   // that came back unusable was paid for, so it counts - otherwise one could loop "cut off" answers for free.
