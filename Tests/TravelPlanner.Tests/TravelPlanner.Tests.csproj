@@ -25,9 +25,9 @@
     <Compile Include="..\..\Models\**\*.cs" Link="App\Models\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\Helpers\**\*.cs" Link="App\Helpers\%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="..\..\ViewModels\**\*.cs" Link="App\ViewModels\%(RecursiveDir)%(Filename)%(Extension)" />
-    <!-- NotificationService needs Plugin.LocalNotification (platform build); ThemeService needs the XAML theme dictionaries;
+    <!-- NotificationService needs Plugin.LocalNotification (platform build); ThemeService needs the XAML theme dictionaries; DialogService shows Views/AppDialogPage;
          Services/Pdf (PDFsharp renderer) reads app-package fonts and is exercised on device, not in unit tests. -->
-    <Compile Include="..\..\Services\**\*.cs" Exclude="..\..\Services\NotificationService.cs;..\..\Services\ThemeService.cs;..\..\Services\Pdf\**" Link="App\Services\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\..\Services\**\*.cs" Exclude="..\..\Services\NotificationService.cs;..\..\Services\ThemeService.cs;..\..\Services\DialogService.cs;..\..\Services\Pdf\**" Link="App\Services\%(RecursiveDir)%(Filename)%(Extension)" />
 
     <!-- Localized strings: the generated class + the neutral (Turkish) .resx under the same manifest name as in the app.
          Tests pin the culture to tr-TR (see TestCulture.cs), so the English satellite is not needed here. -->
