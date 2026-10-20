@@ -47,6 +47,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…26_admin_ai_devices.sql` | Panelden verilen AI hakkı gerçekten işler: hesaba özel hakkı olan hesap cihaz sayacına takılmaz (aynı telefondaki diğer hesaplar cihazı doldurmuş olsa da); hesabın kullandığı cihazlar hatırlanır (`private.ai_user_devices`), "bugünü sıfırla" hepsinin bugünkü sayacını sıfırlar; panel cihaz sayacını da görür |
 | `migrations/…27_admin_accounts.sql` | Panelden hesap işlemleri: banla (gün sayısıyla ya da süresiz, tüm cihazlardan çıkış), ban kaldır, tüm cihazlardan çıkış yaptır, hesabı sil (uygulamadaki "hesabımı sil" ile aynı yol: `delete_account`); Keşfet planını kalıcı silme. Yalnızca `service_role` |
 | `migrations/…28_deleted_trip_invites.sql` | Silinen seyahatin davet kodları: çöpe atılan seyahatin açık kodları iptal edilir (geri alınsa da eski kod çalışmaz); hesapla birlikte silinen seyahatin kodu süresi dolana dek hatırlanır. `accept_invite` artık çalışmayan gerçek bir kod için `reason` döner (`trip_deleted`, `revoked`, `expired`, `used_up`) ve bunu yanlış deneme saymaz |
+| `migrations/…29_app_settings.sql` | Panelden yönetilen uygulama ayarları (`private.app_settings`, tek satır): AI bakım modu ve mesajı, AI limitleri (kişi başı günlük 5, yeni hesap 2, toplam günlük 200, günlük iade 2; `private.ai_*_limit()` artık bu satırı okur), ana sayfa duyurusu, en düşük uygulama sürümü, yeni kullanıcı varsayılanları (para birimi, hatırlatma saati). Uygulama `app_config()` ile okur (anon da); panel `admin_settings` / `admin_set_settings` (yalnızca `service_role`). AI durdurulunca `ai_plan_quota` HTTP 503 döner, `plan-trip` bunu `ai_paused` yapar |
 | `explore_samples.sql` | TP-33: üç taslak Keşfet planı (isteğe bağlı içerik, `all_in_one.sql`'de yok) |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
@@ -164,14 +165,14 @@ Kurulum (bir kez):
 Uygulama planı doğrudan OpenAI'ye değil, Supabase'deki `plan-trip` fonksiyonuna sorar; OpenAI anahtarı yalnızca
 Supabase'de durur.
 
-**Kota ve maliyet sınırları** (değiştirmek için ilgili fonksiyonu düzenleyip dosyayı yeniden çalıştır):
+**Kota ve maliyet sınırları** (ilk dördü yönetim panelinden, Ayarlar sayfasında değişir; migration 29. AI'ı bakım için durdurmak da oradan):
 
 | Sınır | Varsayılan | Nerede |
 | --- | --- | --- |
-| Hesap başına günlük plan (aynı sayı cihaz başına da) | 5 | `private.ai_daily_limit()` (migration 9) |
-| Yeni hesap, ilk 24 saat | 2 | `private.ai_new_account_limit()` (migration 12) |
-| Tüm kullanıcılar için günlük toplam plan (aşılınca herkes 429) | 200 | `private.ai_global_daily_limit()` (migration 12) |
-| Hesap başına günlük iade | 2 | `private.ai_daily_refund_limit()` (migration 12) |
+| Hesap başına günlük plan (aynı sayı cihaz başına da) | 5 | Panel → Ayarlar (`private.ai_daily_limit()`) |
+| Yeni hesap, ilk 24 saat | 2 | Panel → Ayarlar (`private.ai_new_account_limit()`) |
+| Tüm kullanıcılar için günlük toplam plan (aşılınca herkes 429) | 200 | Panel → Ayarlar (`private.ai_global_daily_limit()`) |
+| Hesap başına günlük iade | 2 | Panel → Ayarlar (`private.ai_daily_refund_limit()`) |
 | Plan cevabı için en çok çıktı token'ı | 16 000 (gezi uzunluğuna göre daha az) | `AI_MAX_TOKENS` secret'ı, `planTokenBudget` (planner.ts) |
 
 İade yalnızca OpenAI hiç cevap vermediğinde yapılır (ağ hatası, HTTP hata kodu). Cevap geldiyse — kesilmiş,

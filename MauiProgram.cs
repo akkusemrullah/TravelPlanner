@@ -134,6 +134,9 @@ namespace TravelPlanner
             // AI trip planner: Supabase Edge Function "plan-trip" (the OpenAI key stays on the server).
             services.AddSingleton<IDeviceIdentity, DeviceIdentity>();
             services.AddSingleton<IAiPlannerService, AiPlannerService>();
+            // Admin panel settings (migration 29): AI maintenance, home page notice, lowest version, defaults.
+            services.AddSingleton<IAppConfigService>(sp => new AppConfigService(
+                sp.GetRequiredService<ISupabaseClient>(), sp.GetRequiredService<IPreferences>(), sp.GetRequiredService<ISettingsService>()));
             // TP-33: Keşfet - the admin's sample trip catalog (read-only RPCs, first page kept in the cache folder).
             services.AddSingleton<IExploreService>(sp => new ExploreService(
                 sp.GetRequiredService<ISupabaseClient>(), sp.GetRequiredService<IResponseCache>(), FileSystem.CacheDirectory));

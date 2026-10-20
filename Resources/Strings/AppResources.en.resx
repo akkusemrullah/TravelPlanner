@@ -3164,4 +3164,13 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Profile_DeleteHint" xml:space="preserve">
     <value>Removes your account and cloud data</value>
   </data>
+  <data name="AiPlan_Paused" xml:space="preserve">
+    <value>Planning with AI is paused for maintenance. Try again later.</value>
+  </data>
+  <data name="Dashboard_UpdateNotice" xml:space="preserve">
+    <value>A new version is out. Tap to update.</value>
+  </data>
+  <data name="A11y_CloseNotice" xml:space="preserve">
+    <value>Close the notice</value>
+  </data>
 </root>

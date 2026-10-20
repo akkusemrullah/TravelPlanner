@@ -39,5 +39,11 @@ namespace TravelPlanner.Services
 
         /// <summary>See <see cref="AppLanguages"/>.</summary>
         string Language { get; set; }
+
+        /// <summary>
+        /// Defaults from the admin panel (migration 29) for <see cref="CurrencyCode"/> and <see cref="ReminderHour"/>,
+        /// used until the user picks their own.
+        /// </summary>
+        void UseDefaults(string currencyCode, int reminderHour);
     }
 }

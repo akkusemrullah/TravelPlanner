@@ -134,7 +134,8 @@ namespace TravelPlanner.Models
     /// <param name="TruncatedDays">The trip is longer than the planner's limit: only its first days were planned.</param>
     public sealed record AiPlanResult(AiTripPlan Plan, int Remaining, bool TruncatedDays);
 
-    public sealed record AiQuota(int Remaining, int Limit);
+    /// <param name="Paused">AI planning is in maintenance (admin panel); <paramref name="Message"/> is the admin's note, if any.</param>
+    public sealed record AiQuota(int Remaining, int Limit, bool Paused = false, string? Message = null);
 
     /// <summary>What went into the trip after "Plana ekle".</summary>
     /// <param name="UnlocatedPlaces">Ticked places that couldn't be found on the map and were left out (no wrong pins).</param>
@@ -148,6 +149,7 @@ namespace TravelPlanner.Models
         QuotaExceeded,
         InvalidRequest,
         NotConfigured,
+        Paused,
         Failed
     }
 

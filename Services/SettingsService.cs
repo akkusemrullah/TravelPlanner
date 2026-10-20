@@ -13,6 +13,8 @@ namespace TravelPlanner.Services
         private const string ReminderHourKey = "settings.reminder_hour";
         private const string ThemeKey = "settings.theme";
         private const string LanguageKey = "settings.language";
+        internal const string DefaultCurrencyKey = "remote.default_currency";
+        internal const string DefaultReminderHourKey = "remote.default_reminder_hour";
 
         private readonly IPreferences _preferences;
         private string _userNameKey = GuestUserNameKey;
@@ -58,7 +60,7 @@ namespace TravelPlanner.Services
         {
             get
             {
-                var code = _preferences.Get(CurrencyKey, MoneyFormatter.DefaultCurrencyCode);
+                var code = _preferences.Get(CurrencyKey, _preferences.Get(DefaultCurrencyKey, MoneyFormatter.DefaultCurrencyCode));
                 return MoneyFormatter.SupportedCurrencies.Contains(code) ? code : MoneyFormatter.DefaultCurrencyCode;
             }
             set
@@ -71,8 +73,15 @@ namespace TravelPlanner.Services
 
         public int ReminderHour
         {
-            get => Math.Clamp(_preferences.Get(ReminderHourKey, DefaultReminderHour), 0, 23);
+            get => Math.Clamp(_preferences.Get(ReminderHourKey, _preferences.Get(DefaultReminderHourKey, DefaultReminderHour)), 0, 23);
             set => _preferences.Set(ReminderHourKey, Math.Clamp(value, 0, 23));
+        }
+
+        public void UseDefaults(string currencyCode, int reminderHour)
+        {
+            _preferences.Set(DefaultCurrencyKey, MoneyFormatter.SupportedCurrencies.Contains(currencyCode) ? currencyCode : MoneyFormatter.DefaultCurrencyCode);
+            _preferences.Set(DefaultReminderHourKey, Math.Clamp(reminderHour, 0, 23));
+            MoneyFormatter.CurrencyCode = CurrencyCode;
         }
 
         public AppThemeOption Theme

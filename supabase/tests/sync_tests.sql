@@ -1498,6 +1498,68 @@ reset role;
 select test.eq((select coalesce(sum(failures), 0) from private.invite_attempts where user_id = :'deniz'), (select n from deniz_failures),
                '28: a dead but real code is not counted as a wrong guess');
 
+-- ------------------------------------------------------------------------------- app settings (migration 29)
+select test.eq(private.ai_daily_limit(), 5, '29: default daily limit');
+select test.eq(private.ai_global_daily_limit(), 200, '29: default global limit');
+set role service_role;
+select test.eq((public.admin_settings() ->> 'ai_new_account_limit')::int, 2, '29: panel reads the settings');
+select public.admin_set_settings('{"ai_daily_limit": 7, "ai_global_daily_limit": 300, "announcement": "  Merhaba  ", "updated_by": "admin@example.com"}');
+select test.eq((public.admin_settings() ->> 'ai_daily_refund_limit')::int, 2, '29: keys not given stay');
+select test.eq(public.admin_settings() ->> 'updated_by', 'admin@example.com', '29: who changed it');
+do $$
+begin
+    perform public.admin_set_settings('{"ai_daily_limit": 101}');
+    raise exception 'FAILED: 29: a daily limit over 100 was accepted';
+exception when check_violation then raise notice 'ok - 29: limits are checked';
+end $$;
+do $$
+begin
+    perform public.admin_set_settings('{"default_currency": "JPY"}');
+    raise exception 'FAILED: 29: an unknown currency was accepted';
+exception when check_violation then raise notice 'ok - 29: currency is checked';
+end $$;
+reset role;
+select test.eq(private.ai_daily_limit(), 7, '29: the quota reads the new daily limit');
+select test.eq(private.ai_global_daily_limit(), 300, '29: and the new global limit');
+set role anon;
+do $$ begin perform public.app_config(); end $$;  -- guests read it too
+reset role;
+select test.eq(public.app_config() ->> 'announcement', 'Merhaba', '29: the app reads the trimmed notice');
+select test.eq(public.app_config() ? 'ai_daily_limit', false, '29: the app does not see the limits');
+set role authenticated;
+do $$
+begin
+    perform public.admin_settings();
+    raise exception 'FAILED: 29: a user read the admin settings';
+exception when insufficient_privilege then raise notice 'ok - 29: admin settings are service_role only';
+end $$;
+reset role;
+
+-- AI paused: the status says so, a plan is refused with PT503 and nothing is counted
+set role service_role;
+select public.admin_set_settings('{"ai_enabled": false, "ai_paused_message": "Bakımdayız"}');
+reset role;
+select set_config('request.jwt.claim.sub', :'ali', false);
+create temp table ai29 as select coalesce((select count from private.ai_usage where user_id = :'ali' and day = current_date), 0) as n;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('cd', 32)) ->> 'paused')::boolean, true, '29: status says paused');
+select test.eq(public.ai_plan_quota_status(repeat('cd', 32)) ->> 'message', 'Bakımdayız', '29: with the message');
+select test.eq((public.ai_plan_quota_status(repeat('cd', 32)) ->> 'remaining')::int, 0, '29: nothing left while paused');
+do $$
+begin
+    perform public.ai_plan_quota(repeat('cd', 32));
+    raise exception 'FAILED: 29: a plan was given while paused';
+exception when sqlstate 'PT503' then raise notice 'ok - 29: paused gives PT503';
+end $$;
+reset role;
+select test.eq(coalesce((select count from private.ai_usage where user_id = :'ali' and day = current_date), 0), (select n from ai29),
+               '29: a refused plan is not counted');
+set role service_role;
+select public.admin_set_settings('{"ai_enabled": true, "ai_paused_message": "", "ai_daily_limit": 5, "ai_global_daily_limit": 200, "announcement": ""}');
+reset role;
+select test.eq(public.app_config() ->> 'ai_paused_message', null, '29: an empty text clears it');
+select test.eq((public.app_config() ->> 'ai_enabled')::boolean, true, '29: AI back on');
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'

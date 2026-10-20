@@ -8559,5 +8559,32 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Profile_DeleteHint", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yapay zekâ planlama şu an bakımda. Daha sonra tekrar dene..
+        /// </summary>
+        public static string AiPlan_Paused {
+            get {
+                return ResourceManager.GetString("AiPlan_Paused", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yeni sürüm var. Güncellemek için dokun..
+        /// </summary>
+        public static string Dashboard_UpdateNotice {
+            get {
+                return ResourceManager.GetString("Dashboard_UpdateNotice", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duyuruyu kapat.
+        /// </summary>
+        public static string A11y_CloseNotice {
+            get {
+                return ResourceManager.GetString("A11y_CloseNotice", resourceCulture);
+            }
+        }
     }
 }

@@ -33,6 +33,24 @@
 
                 <VerticalStackLayout Padding="16,20,16,28" Spacing="24">
 
+                    <!-- ════════ Notice from the admin panel, or "a new version is out" (tap opens the store) ════════ -->
+                    <Border IsVisible="{Binding HasNotice}" Style="{StaticResource Banner.Info}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenNoticeCommand}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-info}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding NoticeText}" FontSize="13" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap" VerticalOptions="Center" />
+                            <Label Grid.Column="2" IsVisible="{Binding CanCloseNotice}" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Close}"
+                                   TextColor="{DynamicResource tp-text-3}" VerticalOptions="Start" Padding="8,0,0,8"
+                                   SemanticProperties.Description="{x:Static res:AppResources.A11y_CloseNotice}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CloseNoticeCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </Border>
+
                     <!-- ════════ Featured trip (boarding-pass ticket, see Card.Ticket in Styles.xaml) ════════ -->
                     <Border IsVisible="{Binding HasFeaturedTrip}" Style="{StaticResource Card.Ticket}">
                         <Border.GestureRecognizers>
