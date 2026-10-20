@@ -18,7 +18,7 @@ namespace TravelPlanner.Services
         private static byte[] Crop(Stream photo, int width, int height, float quality)
         {
 #if ANDROID || IOS || MACCATALYST
-            IImage? image;
+            Microsoft.Maui.Graphics.IImage? image;
             try
             {
                 image = PlatformImage.FromStream(photo);
