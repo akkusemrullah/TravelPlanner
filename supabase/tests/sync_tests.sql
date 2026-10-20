@@ -1560,6 +1560,28 @@ reset role;
 select test.eq(public.app_config() ->> 'ai_paused_message', null, '29: an empty text clears it');
 select test.eq((public.app_config() ->> 'ai_enabled')::boolean, true, '29: AI back on');
 
+-- ------------------------------------------------------------------------------- forced sign-out (migration 30)
+select set_config('request.jwt.claim.sub', :'deniz', false);
+select set_config('request.jwt.claims', json_build_object('sub', :'deniz', 'iat', extract(epoch from now() - interval '10 minutes')::bigint)::text, false);
+set role authenticated;
+select test.eq(public.account_status(:'deniz'), 'active', '30: before the sign-out');
+reset role;
+set role service_role;
+select public.admin_sign_out_user(:'deniz');
+reset role;
+select test.eq((select count(*) from private.forced_sign_outs where user_id = :'deniz'), 1::bigint, '30: the sign-out is remembered');
+set role authenticated;
+select test.eq(public.account_status(:'deniz'), 'signed_out', '30: an older token is told to sign out');
+reset role;
+select set_config('request.jwt.claims', json_build_object('sub', :'deniz', 'iat', extract(epoch from now() + interval '1 second')::bigint)::text, false);
+set role authenticated;
+select test.eq(public.account_status(:'deniz'), 'active', '30: signing in again works');
+reset role;
+select set_config('request.jwt.claims', '', false);
+set role authenticated;
+select test.eq(public.account_status(:'deniz'), 'active', '30: a token without iat is not refused');
+reset role;
+
 -- ------------------------------------------------------------------------------- TP-7: account files (migration 17)
 \set t8     'bbbbbbbb-0000-0000-0000-000000000008'
 \set f8     'bbbbbbbb-0000-0000-0000-0000000000a8'

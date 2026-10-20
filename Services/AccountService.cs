@@ -218,6 +218,8 @@ namespace TravelPlanner.Services
             {
                 "deleted" => AccountEndReason.Deleted,
                 "banned" => AccountEndReason.Banned,
+                // migration 30: signed out on every device from the admin panel; this token is older than that
+                "signed_out" => AccountEndReason.SessionExpired,
                 _ => AccountEndReason.None,
             };
 

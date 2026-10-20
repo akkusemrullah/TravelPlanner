@@ -557,6 +557,19 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task CheckAccount_SignedOutFromThePanel_SignsOutAtOnce()
+        {
+            var userDirectory = await SignInWithTripsAsync();
+            AccountStatusIs("signed_out"); // migration 30: this token is older than "Tüm cihazlardan çıkış"
+
+            Assert.Equal(AccountEndReason.SessionExpired, await _account.CheckAccountAsync());
+
+            Assert.False(_account.IsSignedIn);
+            Assert.True(Directory.Exists(userDirectory)); // the account is fine: signing in again brings it back
+            _auth.Verify(a => a.GetAccessTokenAsync(It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
         public async Task CheckAccount_RevokedSession_SignsOut()
         {
             await SignInWithTripsAsync();
