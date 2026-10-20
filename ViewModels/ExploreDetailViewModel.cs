@@ -111,7 +111,7 @@ namespace TravelPlanner.ViewModels
         private string id = string.Empty;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(HasTrip), nameof(CoverUrl), nameof(HasCover), nameof(Title), nameof(Location),
+        [NotifyPropertyChangedFor(nameof(HasTrip), nameof(CoverUrl), nameof(ThumbUrl), nameof(HasCover), nameof(Title), nameof(Location),
                                   nameof(DurationText),
                                   nameof(TagText), nameof(HasTags), nameof(MonthsText), nameof(Description), nameof(HasDescription),
                                   nameof(ImageCreditText), nameof(HasImageCredit), nameof(HasPlaces))]
@@ -159,6 +159,7 @@ namespace TravelPlanner.ViewModels
         public bool IsViewing => !IsEditing;
         public bool HasTrip => Trip is not null;
         public string? CoverUrl => Trip?.CoverUrl;
+        public string? ThumbUrl => Trip?.ThumbUrl;
         public bool HasCover => CoverUrl is not null;
         public string Title => Trip?.Title ?? string.Empty;
         public string Location => Trip?.Location ?? string.Empty;
