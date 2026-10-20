@@ -3188,4 +3188,13 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="TripForm_CoverError" xml:space="preserve">
     <value>The photo could not be opened.</value>
   </data>
+  <data name="TripForm_CropTitle" xml:space="preserve">
+    <value>Crop cover</value>
+  </data>
+  <data name="TripForm_CropHint" xml:space="preserve">
+    <value>Drag, pinch to zoom.</value>
+  </data>
+  <data name="TripForm_CropUse" xml:space="preserve">
+    <value>Use</value>
+  </data>
 </root>

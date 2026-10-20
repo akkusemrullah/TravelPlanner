@@ -21,6 +21,7 @@ namespace TravelPlanner.ViewModels
         private readonly ITripCurrencyService? _tripCurrency;
         private readonly IDateRangePicker? _dateRangePicker;
         private readonly ITripCoverService? _covers;
+        private readonly ICoverCropper? _cropper;
         private readonly IMediaPicker? _mediaPicker;
 
         /// <summary>A photo picked in this form, cropped and waiting for Kaydet (TripCoverService.PrepareAsync).</summary>
@@ -141,11 +142,13 @@ namespace TravelPlanner.ViewModels
             ITripCurrencyService? tripCurrency = null,
             IDateRangePicker? dateRangePicker = null,
             ITripCoverService? covers = null,
-            IMediaPicker? mediaPicker = null)
+            IMediaPicker? mediaPicker = null,
+            ICoverCropper? cropper = null)
             : base(dialogs)
         {
             _covers = covers;
             _mediaPicker = mediaPicker;
+            _cropper = cropper;
             _tripService = tripService;
             _geocodingService = geocodingService;
             _expenseService = expenseService;
@@ -475,7 +478,7 @@ namespace TravelPlanner.ViewModels
                 CoverPreview = file;
         }
 
-        /// <summary>Galeriden / Fotoğraf çek, then the photo is cropped to the cover's shape.</summary>
+        /// <summary>Galeriden / Fotoğraf çek, then the user crops a photo of another shape to the cover's 16:9 (Kapağı kırp).</summary>
         [RelayCommand]
         private async Task PickCoverAsync()
         {
@@ -522,10 +525,24 @@ namespace TravelPlanner.ViewModels
                 return;
 
             IsCoverBusy = true;
+            PickedPhoto? picked = null;
             try
             {
-                await using var stream = await file.OpenReadAsync();
-                var coverId = await _covers.PrepareAsync(stream);
+                CropRegion? region = null;
+                await using (var stream = await file.OpenReadAsync())
+                    picked = await _covers.OpenAsync(stream);
+                // a photo of another shape: the user chooses the 16:9 part (the middle one without the crop screen)
+                if (_cropper is not null && !CoverCropMath.IsCoverShaped(picked.Width, picked.Height))
+                {
+                    IsCoverBusy = false;
+                    region = await _cropper.ChooseAsync(picked);
+                    if (region is null)
+                        return;
+                    IsCoverBusy = true;
+                }
+
+                await using var source = File.OpenRead(picked.File);
+                var coverId = await _covers.PrepareAsync(source, region);
                 if (_stagedCoverId is { } previous)
                     _covers.DiscardStaged(previous);
                 _stagedCoverId = coverId;
@@ -539,6 +556,8 @@ namespace TravelPlanner.ViewModels
             }
             finally
             {
+                if (picked is not null)
+                    _covers.DiscardPicked(picked);
                 IsCoverBusy = false;
             }
         }

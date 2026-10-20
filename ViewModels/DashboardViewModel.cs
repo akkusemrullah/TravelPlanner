@@ -24,6 +24,7 @@ namespace TravelPlanner.ViewModels
         private readonly IAppConfigService? _appConfig;
         private readonly IAppInfo? _appInfo;
         private readonly IPreferences? _preferences;
+        private readonly ITripCoverService? _covers;
 
         internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
 
@@ -102,7 +103,8 @@ namespace TravelPlanner.ViewModels
         public ObservableCollection<TripSummaryItem> RecentTrips { get; } = new RangeObservableCollection<TripSummaryItem>();
 
         public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs,
-                                  IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null)
+                                  IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null,
+                                  ITripCoverService? covers = null)
             : base(dialogs)
         {
             _tripService = tripService;
@@ -112,6 +114,7 @@ namespace TravelPlanner.ViewModels
             _appConfig = appConfig;
             _appInfo = appInfo;
             _preferences = preferences;
+            _covers = covers;
 
             RefreshHeader();
         }
@@ -168,12 +171,14 @@ namespace TravelPlanner.ViewModels
             if (_featuredTrip is not null)
                 ApplyFeaturedTrip(_featuredTrip);
 
-            RecentTrips.ReplaceAll(trips
+            var recent = trips
                 .OrderBy(t => t.IsOngoing ? 0 : t.IsUpcoming ? 1 : 2)
                 .ThenBy(t => t.IsOngoing || t.IsUpcoming ? t.StartDate : DateTime.MaxValue)
                 .ThenByDescending(t => t.StartDate)
                 .Take(5)
-                .Select(trip => new TripSummaryItem(trip)));
+                .ToList();
+            _covers?.ShowThumbnails(recent); // cover thumbnails, as on the trip list
+            RecentTrips.ReplaceAll(recent.Select(trip => new TripSummaryItem(trip)));
         }, AppResources.Dashboard_LoadError);
 
         /// <summary>

@@ -5,7 +5,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 ## [Yayınlanmadı / Unreleased] – 1.0.0
 
 ### Eklendi
-- Seyahat kapak fotoğrafı (migration 32): formdan ekle / değiştir / kaldır; 16:9 kırpılır (1280x720 JPEG), listede 256x256 küçük resmi, detayda kapağı görünür. Dosyalar cihazda ve `trip-files` kovasında; diğer cihazlar indirir, eski kapaklar gece temizlenir.
+- Seyahat kapak fotoğrafı (migration 32): formdan ekle / değiştir / kaldır; 16:9 olmayan fotoğrafta kırpma penceresi açılır (sürükle, iki parmakla yakınlaştır; 1280x720 JPEG), Seyahatler listesinde ve ana sayfada 256x256 küçük resmi, detayda kapağı görünür. Dosyalar cihazda ve `trip-files` kovasında; diğer cihazlar indirir, eski kapaklar gece temizlenir.
 - AI modeli ve düşünme seviyesi yönetim panelinden seçilir (migration 31); `plan-trip` boşsa `AI_MODEL` / `AI_REASONING` secret'larını kullanır.
 - Yönetim panelinden uygulama ayarları (migration 29): AI planlamayı bakıma alma (uygulama mesajı gösterir, `plan-trip` 503 `ai_paused` döner), AI limitleri artık SQL sabiti değil panelden değişir, ana sayfa duyurusu, eski sürüme "Yeni sürüm var" uyarısı, yeni kullanıcıların varsayılan para birimi ve hatırlatma saati.
 - Ana sayfada gezilen şehir sayısı. Silinen seyahatin davet kodları iptal edilir, ölü kodda net mesaj gösterilir ve yanlış deneme sayılmaz; paylaşılan seyahat telefondan kalkınca üyeye bildirilir (migration 28).

@@ -8631,5 +8631,32 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("TripForm_CoverError", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kapağı kırp.
+        /// </summary>
+        public static string TripForm_CropTitle {
+            get {
+                return ResourceManager.GetString("TripForm_CropTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sürükle, iki parmakla yakınlaştır..
+        /// </summary>
+        public static string TripForm_CropHint {
+            get {
+                return ResourceManager.GetString("TripForm_CropHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kullan.
+        /// </summary>
+        public static string TripForm_CropUse {
+            get {
+                return ResourceManager.GetString("TripForm_CropUse", resourceCulture);
+            }
+        }
     }
 }

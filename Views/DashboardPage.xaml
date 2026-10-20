@@ -349,8 +349,12 @@
                                                 CommandParameter="{Binding .}" />
                                         </Border.GestureRecognizers>
                                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                            <Border Grid.Column="0" Style="{StaticResource IconTile}" VerticalOptions="Start">
-                                                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Briefcase}" />
+                                            <Border Grid.Column="0" Style="{StaticResource IconTile}" WidthRequest="56" HeightRequest="56" VerticalOptions="Start">
+                                                <Grid>
+                                                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Briefcase}" />
+                                                    <!-- the cover's thumbnail over the icon, as on the trip list -->
+                                                    <Image Source="{Binding Trip.CoverThumbFile}" Aspect="AspectFill" IsVisible="{Binding Trip.HasCoverThumb}" />
+                                                </Grid>
                                             </Border>
                                             <VerticalStackLayout Grid.Column="1" Spacing="4">
                                                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
