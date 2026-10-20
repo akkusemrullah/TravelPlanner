@@ -12,6 +12,7 @@ namespace TravelPlanner.ViewModels
     {
         public TripSummaryItem(Trip trip)
         {
+            Trip = trip;
             Id = trip.Id;
             Name = trip.Name;
             Place = string.IsNullOrWhiteSpace(trip.Country) ? trip.City : $"{trip.City}, {trip.Country}";
@@ -21,6 +22,8 @@ namespace TravelPlanner.ViewModels
             Tag = trip.StatusTag; // single source of truth: Trip.Status / Trip.StatusTag
         }
 
+        /// <summary>The trip itself: its cover thumbnail (<see cref="Trip.CoverThumbFile"/>) arrives after the row is shown.</summary>
+        public Trip Trip { get; }
         public int Id { get; }
         public string Name { get; }
         public string Place { get; }

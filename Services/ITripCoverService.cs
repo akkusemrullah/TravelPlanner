@@ -10,10 +10,20 @@ namespace TravelPlanner.Services
     public interface ITripCoverService
     {
         /// <summary>
-        /// Crops and shrinks a picked photo and keeps the cover and its thumbnail in a staging folder; returns the
-        /// new cover's id. Nothing is linked to a trip yet (<see cref="SetAsync"/>), so a form can still be cancelled.
+        /// Keeps a picked photo in the staging folder so it can be shown for cropping, and reads its size. Throws
+        /// <see cref="InvalidDataException"/> when it isn't a picture the device can read.
         /// </summary>
-        Task<string> PrepareAsync(Stream photo, CancellationToken cancellationToken = default);
+        Task<PickedPhoto> OpenAsync(Stream photo, CancellationToken cancellationToken = default);
+
+        /// <summary>Forgets a photo from <see cref="OpenAsync"/>.</summary>
+        void DiscardPicked(PickedPhoto photo);
+
+        /// <summary>
+        /// Crops (the user's <paramref name="region"/>, or the middle when null) and shrinks a picked photo and keeps the
+        /// cover and its thumbnail in a staging folder; returns the new cover's id. Nothing is linked to a trip yet
+        /// (<see cref="SetAsync"/>), so a form can still be cancelled.
+        /// </summary>
+        Task<string> PrepareAsync(Stream photo, CropRegion? region = null, CancellationToken cancellationToken = default);
 
         /// <summary>A staged cover's file (for the form's preview), or null.</summary>
         string? StagedFile(string coverId);
@@ -43,10 +53,32 @@ namespace TravelPlanner.Services
     /// <summary>Crops and shrinks a photo (platform image code; replaced in tests).</summary>
     public interface ICoverImageProcessor
     {
+        /// <summary>The photo's size in pixels. Throws <see cref="InvalidDataException"/> when it isn't a picture the device can read.</summary>
+        Task<(int Width, int Height)> MeasureAsync(Stream photo);
+
         /// <summary>
-        /// The photo center-cropped to <paramref name="width"/> x <paramref name="height"/> as JPEG. Throws
-        /// <see cref="InvalidDataException"/> when it isn't a picture the device can read.
+        /// <paramref name="region"/> of the photo (the middle part of the right shape when null) scaled to
+        /// <paramref name="width"/> x <paramref name="height"/> as JPEG. Throws <see cref="InvalidDataException"/> when it
+        /// isn't a picture the device can read.
         /// </summary>
-        Task<byte[]> CropAsync(Stream photo, int width, int height, float quality);
+        Task<byte[]> CropAsync(Stream photo, CropRegion? region, int width, int height, float quality);
+    }
+
+    /// <summary>The cover crop screen: the user moves and zooms the photo under a 16:9 frame (replaced in tests).</summary>
+    public interface ICoverCropper
+    {
+        /// <summary>The part of the photo the user chose, or null when they cancelled.</summary>
+        Task<CropRegion?> ChooseAsync(PickedPhoto photo);
+    }
+
+    /// <summary>A picked photo kept for cropping: its file and size in pixels.</summary>
+    public sealed record PickedPhoto(string File, int Width, int Height);
+
+    /// <summary>A part of a photo, as fractions (0..1) of its width and height.</summary>
+    public readonly record struct CropRegion(double X, double Y, double Width, double Height)
+    {
+        /// <summary>Inside the photo and not empty.</summary>
+        public bool IsValid =>
+            Width > 0 && Height > 0 && X >= -1e-6 && Y >= -1e-6 && X + Width <= 1 + 1e-6 && Y + Height <= 1 + 1e-6;
     }
 }

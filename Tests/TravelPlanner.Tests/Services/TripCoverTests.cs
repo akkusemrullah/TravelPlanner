@@ -20,6 +20,8 @@ namespace TravelPlanner.Tests
         private readonly Mock<IAccountService> _account = new();
         private readonly Mock<ICoverImageProcessor> _processor = new();
         private readonly List<(int Width, int Height)> _crops = new();
+        private readonly List<CropRegion?> _regions = new();
+        private (int Width, int Height) _photoSize = (4000, 3000);
         private AttachmentService _attachments = null!;
         private TripService _trips = null!;
         private TripCoverService _covers = null!;
@@ -30,10 +32,12 @@ namespace TravelPlanner.Tests
         {
             _auth.SetupGet(a => a.IsSignedIn).Returns(true);
             // the "cropped" picture: its size as bytes, so the test can tell the cover from the thumbnail
-            _processor.Setup(p => p.CropAsync(It.IsAny<Stream>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<float>()))
-                .Returns((Stream _, int w, int h, float _) =>
+            _processor.Setup(p => p.MeasureAsync(It.IsAny<Stream>())).Returns(() => Task.FromResult(_photoSize));
+            _processor.Setup(p => p.CropAsync(It.IsAny<Stream>(), It.IsAny<CropRegion?>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<float>()))
+                .Returns((Stream _, CropRegion? region, int w, int h, float _) =>
                 {
                     _crops.Add((w, h));
+                    _regions.Add(region);
                     return Task.FromResult(System.Text.Encoding.ASCII.GetBytes($"{w}x{h}"));
                 });
             _attachments = new AttachmentService(_db.Service, _root, _client);
@@ -80,6 +84,42 @@ namespace TravelPlanner.Tests
             Assert.Equal("1280x720", File.ReadAllText(_covers.StagedFile(id)!));
             _covers.DiscardStaged(id);
             Assert.Null(_covers.StagedFile(id));
+        }
+
+        [Fact]
+        public async Task Prepare_CropsTheChosenPart_AndTheThumbnailFromTheCover()
+        {
+            var region = new CropRegion(0.1, 0.2, 0.5, 0.5);
+            await _covers.PrepareAsync(new MemoryStream(new byte[] { 1, 2, 3 }), region);
+
+            Assert.Equal(new CropRegion?[] { region, null }, _regions);
+        }
+
+        [Fact]
+        public async Task Prepare_RefusesARegionOutsideThePhoto() =>
+            await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+                _covers.PrepareAsync(new MemoryStream(new byte[] { 1 }), new CropRegion(0.6, 0, 0.5, 0.5)));
+
+        [Fact]
+        public async Task Open_KeepsThePhotoForTheCropScreen_UntilDiscarded()
+        {
+            _photoSize = (1200, 1600);
+            var picked = await _covers.OpenAsync(new MemoryStream(new byte[] { 7, 8, 9 }));
+
+            Assert.Equal((1200, 1600), (picked.Width, picked.Height));
+            Assert.Equal(new byte[] { 7, 8, 9 }, await File.ReadAllBytesAsync(picked.File));
+            _covers.DiscardPicked(picked);
+            Assert.False(File.Exists(picked.File));
+        }
+
+        [Fact]
+        public void DiscardPicked_TouchesOnlyItsOwnFiles()
+        {
+            var other = Path.Combine(_root, "keep.img");
+            Directory.CreateDirectory(_root);
+            File.WriteAllBytes(other, new byte[] { 1 });
+            _covers.DiscardPicked(new PickedPhoto(other, 1, 1));
+            Assert.True(File.Exists(other));
         }
 
         [Fact]

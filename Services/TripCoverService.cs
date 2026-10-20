@@ -102,7 +102,46 @@ namespace TravelPlanner.Services
 
         // ------------------------------------------------------------------ picking
 
-        public async Task<string> PrepareAsync(Stream photo, CancellationToken cancellationToken = default)
+        public async Task<PickedPhoto> OpenAsync(Stream photo, CancellationToken cancellationToken = default)
+        {
+            var source = await ReadPhotoAsync(photo, cancellationToken);
+            var (width, height) = await _processor.MeasureAsync(source);
+            if (width < 1 || height < 1)
+                throw new InvalidDataException("Not a picture this device can read.");
+
+            Directory.CreateDirectory(StagingFolder);
+            DeleteOldStaged();
+            var file = Path.Combine(StagingFolder, $"picked-{Guid.NewGuid():N}.img");
+            await File.WriteAllBytesAsync(file, source.ToArray(), cancellationToken);
+            return new PickedPhoto(file, width, height);
+        }
+
+        public void DiscardPicked(PickedPhoto photo)
+        {
+            if (string.Equals(Path.GetDirectoryName(Path.GetFullPath(photo.File)), Path.GetFullPath(StagingFolder), StringComparison.Ordinal)
+                && Path.GetFileName(photo.File).StartsWith("picked-", StringComparison.Ordinal))
+                TryDelete(photo.File);
+        }
+
+        public async Task<string> PrepareAsync(Stream photo, CropRegion? region = null, CancellationToken cancellationToken = default)
+        {
+            if (region is { IsValid: false })
+                throw new ArgumentOutOfRangeException(nameof(region), region, "The crop region must be inside the photo.");
+
+            var source = await ReadPhotoAsync(photo, cancellationToken);
+            var cover = await _processor.CropAsync(source, region, CoverWidth, CoverHeight, CoverQuality);
+            // the thumbnail from the cover: a much smaller picture to decode, and the same part of the photo
+            var thumb = await _processor.CropAsync(new MemoryStream(cover), null, ThumbSize, ThumbSize, ThumbQuality);
+
+            var id = Guid.NewGuid().ToString("N");
+            Directory.CreateDirectory(StagingFolder);
+            DeleteOldStaged();
+            await File.WriteAllBytesAsync(StagedPath(id, thumbnail: false), cover, cancellationToken);
+            await File.WriteAllBytesAsync(StagedPath(id, thumbnail: true), thumb, cancellationToken);
+            return id;
+        }
+
+        private static async Task<MemoryStream> ReadPhotoAsync(Stream photo, CancellationToken cancellationToken)
         {
             var source = new MemoryStream();
             var buffer = new byte[81920];
@@ -115,18 +154,8 @@ namespace TravelPlanner.Services
             }
             if (source.Length == 0)
                 throw new InvalidDataException("The photo is empty.");
-
             source.Position = 0;
-            var cover = await _processor.CropAsync(source, CoverWidth, CoverHeight, CoverQuality);
-            // the thumbnail from the cover: a much smaller picture to decode, and the same part of the photo
-            var thumb = await _processor.CropAsync(new MemoryStream(cover), ThumbSize, ThumbSize, ThumbQuality);
-
-            var id = Guid.NewGuid().ToString("N");
-            Directory.CreateDirectory(StagingFolder);
-            DeleteOldStaged();
-            await File.WriteAllBytesAsync(StagedPath(id, thumbnail: false), cover, cancellationToken);
-            await File.WriteAllBytesAsync(StagedPath(id, thumbnail: true), thumb, cancellationToken);
-            return id;
+            return source;
         }
 
         public string? StagedFile(string coverId)
@@ -386,7 +415,8 @@ namespace TravelPlanner.Services
         {
             try
             {
-                foreach (var file in Directory.EnumerateFiles(StagingFolder, "cover-*.jpg"))
+                foreach (var file in Directory.EnumerateFiles(StagingFolder, "cover-*.jpg")
+                                              .Concat(Directory.EnumerateFiles(StagingFolder, "picked-*.img")))
                 {
                     if (UtcNow() - File.GetLastWriteTimeUtc(file) > TimeSpan.FromDays(1))
                         TryDelete(file);
