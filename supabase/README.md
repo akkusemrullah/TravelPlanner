@@ -49,6 +49,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…28_deleted_trip_invites.sql` | Silinen seyahatin davet kodları: çöpe atılan seyahatin açık kodları iptal edilir (geri alınsa da eski kod çalışmaz); hesapla birlikte silinen seyahatin kodu süresi dolana dek hatırlanır. `accept_invite` artık çalışmayan gerçek bir kod için `reason` döner (`trip_deleted`, `revoked`, `expired`, `used_up`) ve bunu yanlış deneme saymaz |
 | `migrations/…29_app_settings.sql` | Panelden yönetilen uygulama ayarları (`private.app_settings`, tek satır): AI bakım modu ve mesajı, AI limitleri (kişi başı günlük 5, yeni hesap 2, toplam günlük 200, günlük iade 2; `private.ai_*_limit()` artık bu satırı okur), ana sayfa duyurusu, en düşük uygulama sürümü, yeni kullanıcı varsayılanları (para birimi, hatırlatma saati). Uygulama `app_config()` ile okur (anon da); panel `admin_settings` / `admin_set_settings` (yalnızca `service_role`). AI durdurulunca `ai_plan_quota` HTTP 503 döner, `plan-trip` bunu `ai_paused` yapar |
 | `migrations/…30_forced_sign_out.sql` | Panelden "tüm cihazlardan çıkış" (ve ban) hemen işler: çıkış zamanı `private.forced_sign_outs`'ta tutulur, `account_status` bundan önce verilmiş token için `signed_out` döner, uygulama açılışta / öne gelince çıkış yapar (önceden telefondaki token 1 saate kadar çalışıyordu) |
+| `migrations/…31_ai_model_setting.sql` | AI modeli ve düşünme seviyesi panelden seçilir (`app_settings.ai_model` / `ai_reasoning`); `plan-trip` bunu `ai_model_settings()` ile (yalnızca `service_role`) okur. Boş bırakılırsa `AI_MODEL` / `AI_REASONING` secret'ları, o da yoksa `gpt-5-mini` |
 | `explore_samples.sql` | TP-33: üç taslak Keşfet planı (isteğe bağlı içerik, `all_in_one.sql`'de yok) |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 
@@ -191,6 +192,10 @@ yeni hesap kotası ve global tavandır. Fonksiyon her OpenAI çağrısının ger
 1. SQL: `all_in_one.sql`'i (veya yalnızca migration 9, 10 ve 12'yi) SQL Editor'da çalıştır.
 2. Anahtar: Dashboard → **Edge Functions → Secrets** → `OPENAI_API_KEY` = OpenAI anahtarın
    (isteğe bağlı `AI_MODEL`, varsayılan `gpt-5-mini`; `AI_REASONING`; `AI_MAX_TOKENS`, varsayılan 16000).
+   **Model artık panelden seçilir** (Ayarlar → AI planlama → Model, migration 31): panelde seçilen model ve düşünme
+   seviyesi secret'lardan önce gelir, boş bırakılırsa aşağıdaki secret kuralı geçerlidir. Fonksiyon her planda
+   kullandığı modeli `model … reasoning …` satırıyla loglar. gpt-4.1 / gpt-4o gibi düşünmeyen modellere
+   `reasoning_effort` gönderilmez.
    `AI_MODEL` tanımlı değilse kod `gpt-5-mini` kullanır (`functions/plan-trip/index.ts`): `gpt-5-nano` daha ucuzdur ama
    aynı yerleri tekrarlayan ve birbirinden uzak bölgeleri karıştıran planlar üretti. Maliyeti nano'ya göre hesapladıysan
    `AI_MODEL` secret'ını bilinçli olarak ayarla (ör. `gpt-5-nano`; nano'da `AI_REASONING` varsayılanı `minimal`, diğerlerinde `low`).

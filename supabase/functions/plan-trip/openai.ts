@@ -41,7 +41,8 @@ export async function askOpenAi(fetchFn: FetchFn, o: AskOptions, log: (line: str
         model: o.model,
         messages: o.messages,
         response_format: { type: "json_schema", json_schema: { name: o.name, strict: true, schema: o.schema } },
-        reasoning_effort: o.effort,
+        // older chat models (gpt-4.1, gpt-4o) refuse the parameter
+        ...(isReasoningModel(o.model) ? { reasoning_effort: o.effort } : {}),
         max_completion_tokens: o.maxTokens,
       }),
       signal: AbortSignal.timeout(o.timeoutMs),
@@ -78,6 +79,29 @@ export async function askOpenAi(fetchFn: FetchFn, o: AskOptions, log: (line: str
   } catch {
     throw new AiCallError("answer is not JSON", true);
   }
+}
+
+export const DEFAULT_MODEL = "gpt-5-mini";
+export const REASONING_EFFORTS = ["minimal", "low", "medium", "high"];
+
+/** gpt-5 family and the o-series think before answering and take reasoning_effort; the others don't. */
+export function isReasoningModel(model: string): boolean {
+  return /^(gpt-5|o\d)/.test(model);
+}
+
+/**
+ * The model and reasoning effort of a plan. The admin panel's choice (public.ai_model_settings, migration 31) comes
+ * first, then the secrets AI_MODEL / AI_REASONING, then gpt-5-mini with "minimal" for nano models and "low" otherwise.
+ */
+export function chooseModel(
+  panel: { model?: unknown; reasoning?: unknown } | null,
+  env: { model?: string; reasoning?: string },
+): { model: string; effort: string } {
+  const text = (v: unknown) => typeof v === "string" && v.trim() ? v.trim().toLowerCase() : undefined;
+  const model = text(panel?.model) ?? text(env.model) ?? DEFAULT_MODEL;
+  const asked = text(panel?.reasoning) ?? text(env.reasoning);
+  const effort = asked && REASONING_EFFORTS.includes(asked) ? asked : model.includes("nano") ? "minimal" : "low";
+  return { model, effort };
 }
 
 export class BodyTooLarge extends Error {}

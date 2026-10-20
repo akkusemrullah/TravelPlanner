@@ -55,3 +55,5 @@ alter table storage.objects enable row level security;
 grant usage on schema storage to authenticated;
 grant select, insert, update, delete on storage.objects to authenticated;
 grant usage on schema public to anon, authenticated, service_role;
+-- like Supabase: the service role may read and write every table made in public (the panel reads them directly)
+alter default privileges in schema public grant all on tables to service_role;
