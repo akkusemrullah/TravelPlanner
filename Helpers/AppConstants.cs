@@ -78,7 +78,9 @@ namespace TravelPlanner.Helpers
         public const string PhotonReverseBaseUrl = "https://photon.komoot.io/reverse";
 
         /// <summary>User-Agent sent to the free web APIs above (they ask clients to identify themselves).</summary>
-        public const string HttpUserAgent = "TravelPlanner/1.0";
+        // Wikimedia (Keşfet pictures) and OpenStreetMap services throttle or refuse clients that don't say who they are and
+        // how to reach them: name/version (contact).
+        public const string HttpUserAgent = "TravelPlanner/1.0 (https://emrullahakkus.com.tr/travelplanner/; emrullahakkus@gmail.com)";
 
         // ---------- Notifications ----------
         // Which reminders a trip gets, and when: Services/TripReminderPlanner.

@@ -1,3 +1,4 @@
+using System.Net;
 using System.Collections.Specialized;
 using System.Text.Json.Nodes;
 using Moq;
@@ -174,6 +175,91 @@ namespace TravelPlanner.Tests
             Assert.Equal(a, RemoteImageCache.CachePath(new Uri("https://upload.wikimedia.org/a/500px-A.jpg")));
             Assert.NotEqual(a, b);
             Assert.StartsWith(Path.Combine(Path.GetTempPath(), "tp-remote-images"), a);
+        }
+
+        /// <summary>Answers image requests the way the test says, counting them.</summary>
+        private sealed class ImageHost : HttpMessageHandler
+        {
+            public int Calls;
+            public Func<int, HttpResponseMessage> Answer { get; set; } = _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(new byte[] { 1, 2, 3 }) };
+            public TaskCompletionSource? Hold { get; set; }
+
+            protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+            {
+                var n = Interlocked.Increment(ref Calls);
+                if (Hold is { } hold)
+                    await hold.Task;
+                return Answer(n);
+            }
+        }
+
+        private static ImageHost UseImageHost()
+        {
+            var host = new ImageHost();
+            RemoteImageCache.Reset();
+            RemoteImageCache.Http = new HttpClient(host);
+            RemoteImageCache.RetryDelay = TimeSpan.Zero;
+            var dir = Path.Combine(Path.GetTempPath(), "tp-remote-images-" + Guid.NewGuid().ToString("N"));
+            RemoteImageCache.CacheDirectory = () => dir;
+            return host;
+        }
+
+        [Fact]
+        public async Task RemoteImageCache_OneDownloadForCellsAskingTogether()
+        {
+            var host = UseImageHost();
+            host.Hold = new TaskCompletionSource();
+            var uri = new Uri("https://upload.wikimedia.org/a/500px-A.jpg");
+
+            var first = RemoteImageCache.GetFileAsync(uri);
+            var second = RemoteImageCache.GetFileAsync(uri);
+            host.Hold.SetResult();
+            var paths = await Task.WhenAll(first, second);
+
+            Assert.Equal(1, host.Calls);
+            Assert.Equal(paths[0], paths[1]);
+            Assert.Equal(new byte[] { 1, 2, 3 }, await File.ReadAllBytesAsync(paths[0]!));
+            // on disk now: no request at all
+            Assert.Equal(paths[0], RemoteImageCache.CachedFile(uri));
+            Assert.Equal(paths[0], await RemoteImageCache.GetFileAsync(uri));
+            Assert.Equal(1, host.Calls);
+        }
+
+        [Fact]
+        public async Task RemoteImageCache_RetriesOnceThenRestsAWhile()
+        {
+            var host = UseImageHost();
+            host.Answer = _ => new HttpResponseMessage(HttpStatusCode.TooManyRequests);
+            var uri = new Uri("https://upload.wikimedia.org/a/500px-B.jpg");
+
+            Assert.Null(await RemoteImageCache.GetFileAsync(uri));
+            Assert.Equal(2, host.Calls);
+            // scrolling past it again doesn't ask the host again right away
+            Assert.Null(await RemoteImageCache.GetFileAsync(uri));
+            Assert.Equal(2, host.Calls);
+        }
+
+        [Fact]
+        public async Task RemoteImageCache_SecondTryCanSucceed()
+        {
+            var host = UseImageHost();
+            host.Answer = n => n == 1
+                ? new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                : new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(new byte[] { 9 }) };
+
+            Assert.NotNull(await RemoteImageCache.GetFileAsync(new Uri("https://upload.wikimedia.org/a/500px-C.jpg")));
+            Assert.Equal(2, host.Calls);
+        }
+
+        [Fact]
+        public async Task RemoteImageCache_EmptyAnswerIsNotSaved()
+        {
+            var host = UseImageHost();
+            host.Answer = _ => new HttpResponseMessage(HttpStatusCode.OK) { Content = new ByteArrayContent(Array.Empty<byte>()) };
+            var uri = new Uri("https://upload.wikimedia.org/a/500px-D.jpg");
+
+            Assert.Null(await RemoteImageCache.GetFileAsync(uri));
+            Assert.Null(RemoteImageCache.CachedFile(uri));
         }
 
         [Fact]

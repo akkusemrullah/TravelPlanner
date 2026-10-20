@@ -262,6 +262,7 @@ namespace TravelPlanner.ViewModels
             _ids.Clear();
             var cards = page.Items.Where(c => _ids.Add(c.Id)).ToList();
             Items.ReplaceAll(cards);
+            RemoteImageCache.Prefetch(cards.Select(c => c.ThumbUrl));
             _nextCursor = page.NextCursor;
             HasMore = _nextCursor is not null;
             NotifyListState();
@@ -282,7 +283,9 @@ namespace TravelPlanner.ViewModels
                 if (cts.IsCancellationRequested || !ReferenceEquals(cts, _listCts) || cursor != _nextCursor)
                     return;
 
-                Items.AddRange(page.Items.Where(c => _ids.Add(c.Id)).ToList());
+                var more = page.Items.Where(c => _ids.Add(c.Id)).ToList();
+                Items.AddRange(more);
+                RemoteImageCache.Prefetch(more.Select(c => c.ThumbUrl));
                 _nextCursor = page.NextCursor;
                 HasMore = _nextCursor is not null;
             }
