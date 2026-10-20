@@ -3165,4 +3165,13 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Profile_DeleteHint" xml:space="preserve">
     <value>Hesap ve bulut verileri silinir</value>
   </data>
+  <data name="AiPlan_Paused" xml:space="preserve">
+    <value>Yapay zekâ planlama şu an bakımda. Daha sonra tekrar dene.</value>
+  </data>
+  <data name="Dashboard_UpdateNotice" xml:space="preserve">
+    <value>Yeni sürüm var. Güncellemek için dokun.</value>
+  </data>
+  <data name="A11y_CloseNotice" xml:space="preserve">
+    <value>Duyuruyu kapat</value>
+  </data>
 </root>

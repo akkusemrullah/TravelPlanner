@@ -137,6 +137,8 @@ namespace TravelPlanner.Tests
         [InlineData(SyncErrorKind.Server, 502, "ai_not_configured", AiPlanErrorKind.NotConfigured)]
         [InlineData(SyncErrorKind.Rejected, 404, null, AiPlanErrorKind.NotConfigured)]
         [InlineData(SyncErrorKind.Server, 502, "ai_failed", AiPlanErrorKind.Failed)]
+        [InlineData(SyncErrorKind.Server, 503, "ai_paused", AiPlanErrorKind.Paused)]
+        [InlineData(SyncErrorKind.Server, 503, null, AiPlanErrorKind.Paused)]
         public async Task CreatePlan_ErrorsAreExplained(SyncErrorKind kind, int? status, string? code, AiPlanErrorKind expected)
         {
             _cloud.Handler = (_, _) => throw new SyncException(kind, "x", status: status, serverCode: code);
@@ -155,6 +157,16 @@ namespace TravelPlanner.Tests
 
             _cloud.Handler = (_, _) => throw new SyncException(SyncErrorKind.Network, "offline");
             Assert.Null(await _service.GetQuotaAsync());
+        }
+
+        [Fact]
+        public async Task Quota_SaysWhenAiIsPaused()
+        {
+            _cloud.Handler = (_, _) => """{"limit":5,"remaining":0,"paused":true,"message":" Bakımdayız "}""";
+            Assert.Equal(new AiQuota(0, 5, true, "Bakımdayız"), await _service.GetQuotaAsync());
+
+            _cloud.Handler = (_, _) => """{"limit":5,"remaining":0,"paused":true,"message":null}""";
+            Assert.Equal(new AiQuota(0, 5, true), await _service.GetQuotaAsync());
         }
 
         private static AiPlanPlace Colosseum() => new()
@@ -342,6 +354,33 @@ namespace TravelPlanner.Tests
             };
             await vm.LoadCommand.ExecuteAsync(null);
             return vm;
+        }
+
+        [Fact]
+        public async Task PausedAi_ShowsTheMessage_AndCannotGenerate()
+        {
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5, true, "Bakımdayız"));
+            var vm = await LoadAsync();
+            Assert.False(vm.CanGenerate);
+            Assert.Equal("Bakımdayız", vm.QuotaText);
+
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5, true));
+            vm = await LoadAsync();
+            Assert.Equal(AppResources.AiPlan_Paused, vm.QuotaText);
+        }
+
+        [Fact]
+        public async Task PausedWhileAsking_SaysSoOnce()
+        {
+            var vm = await LoadAsync();
+            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new AiPlanException(AiPlanErrorKind.Paused));
+
+            await vm.GenerateCommand.ExecuteAsync(null);
+
+            Assert.Null(vm.ErrorText);
+            Assert.Equal(AppResources.AiPlan_Paused, vm.QuotaText);
+            Assert.False(vm.CanGenerate);
         }
 
         private static AiTripPlan SamplePlan() => new()

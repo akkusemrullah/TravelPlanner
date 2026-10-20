@@ -5,6 +5,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 ## [Yayınlanmadı / Unreleased] – 1.0.0
 
 ### Eklendi
+- Yönetim panelinden uygulama ayarları (migration 29): AI planlamayı bakıma alma (uygulama mesajı gösterir, `plan-trip` 503 `ai_paused` döner), AI limitleri artık SQL sabiti değil panelden değişir, ana sayfa duyurusu, eski sürüme "Yeni sürüm var" uyarısı, yeni kullanıcıların varsayılan para birimi ve hatırlatma saati.
 - Ana sayfada gezilen şehir sayısı. Silinen seyahatin davet kodları iptal edilir, ölü kodda net mesaj gösterilir ve yanlış deneme sayılmaz; paylaşılan seyahat telefondan kalkınca üyeye bildirilir (migration 28).
 - Yönetim paneli için sunucu fonksiyonları (migration 25, panel ayrı private depo `TravelPlanner.Admin`): Keşfet yönetimi, kullanıcı ve seyahat görüntüleme, hesaba özel günlük AI hakkı.
 - Keşfet sekmesi: admin'in hazırladığı örnek seyahatler; arama, filtre, sonsuz kaydırma, detay, "Ekle" ve "Düzenle ve ekle" ile kendi seyahatlerine bağımsız kopya (TP-33, migration 23, içerik: `docs/EXPLORE_CONTENT.md`).

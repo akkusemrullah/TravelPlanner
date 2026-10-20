@@ -302,6 +302,13 @@ namespace TravelPlanner.ViewModels
         {
             if (quota is null)
                 return;
+            if (quota.Paused)
+            {
+                // maintenance (admin panel): nothing can be asked for; the admin's note when there is one
+                Remaining = 0;
+                QuotaText = quota.Message ?? AppResources.AiPlan_Paused;
+                return;
+            }
             Remaining = quota.Remaining;
             QuotaText = quota.Remaining > 0
                 ? string.Format(AppResources.AiPlan_QuotaFormat, quota.Remaining, quota.Limit)
@@ -381,9 +388,11 @@ namespace TravelPlanner.ViewModels
             }
             catch (AiPlanException ex)
             {
-                ErrorText = MessageFor(ex.Kind);
+                ErrorText = ex.Kind == AiPlanErrorKind.Paused ? null : MessageFor(ex.Kind); // paused: the quota line says it
                 if (ex.Kind == AiPlanErrorKind.QuotaExceeded)
                     ShowQuota(new AiQuota(0, 0));
+                else if (ex.Kind == AiPlanErrorKind.Paused)
+                    ShowQuota(new AiQuota(0, 0, Paused: true));
                 return;
             }
             finally
@@ -445,6 +454,7 @@ namespace TravelPlanner.ViewModels
             AiPlanErrorKind.AccountDisabled => AppResources.AiPlan_ErrorDisabled,
             AiPlanErrorKind.QuotaExceeded => AppResources.AiPlan_QuotaNone,
             AiPlanErrorKind.NotConfigured => AppResources.AiPlan_ErrorNotConfigured,
+            AiPlanErrorKind.Paused => AppResources.AiPlan_Paused,
             _ => AppResources.AiPlan_ErrorFailed,
         };
 

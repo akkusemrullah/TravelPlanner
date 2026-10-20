@@ -4,6 +4,7 @@
 //   body: { deviceId, language, destination, startDate, days, interests[], pace, budget, companions, notes, existingPlaces[] }
 //   200 → { plan: TripPlan, remaining: number, truncatedDays: boolean }
 //   400 invalid_request · 401 not_signed_in · 403 account_disabled · 413 body_too_large · 429 quota_exceeded
+//   503 ai_paused (AI is in maintenance, set in the admin panel)
 //   502 ai_failed
 //
 // The OpenAI key lives only here, as the secret OPENAI_API_KEY. The user's own token pays for one plan of the
@@ -52,6 +53,8 @@ async function useQuota(authorization: string, apikey: string, deviceId: string)
 
   const text = await res.text();
   if (res.status === 429) return { ok: false, response: fail(429, "quota_exceeded") };
+  // AI paused from the admin panel (migration 29)
+  if (res.status === 503) return { ok: false, response: fail(503, "ai_paused") };
   if (res.status === 401) return { ok: false, response: fail(401, "not_signed_in") };
   if (text.includes("account disabled")) return { ok: false, response: fail(403, "account_disabled") };
   if (text.includes("not signed in")) return { ok: false, response: fail(401, "not_signed_in") };

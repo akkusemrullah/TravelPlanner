@@ -21,6 +21,14 @@ namespace TravelPlanner.ViewModels
         private readonly IExpenseService _expenseService;
         private readonly ISettingsService _settings;
         private readonly IExchangeRateService _exchangeRates;
+        private readonly IAppConfigService? _appConfig;
+        private readonly IAppInfo? _appInfo;
+        private readonly IPreferences? _preferences;
+
+        internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
+
+        /// <summary>The notice asks to update the app (tapping it opens the store; it can't be closed).</summary>
+        private bool _isUpdateNotice;
 
         // The Trip backing the featured card - kept alongside the display-only properties below so the
         // Hava/Harita/Detaylar commands have an Id to navigate with without re-deriving "which trip".
@@ -81,15 +89,29 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private string totalExpensesFormatted = MoneyFormatter.Format(0m, 0);
 
+        /// <summary>The admin panel's notice (or "a new version is out") at the top of the page.</summary>
+        [ObservableProperty]
+        private string noticeText = string.Empty;
+
+        [ObservableProperty]
+        private bool hasNotice;
+
+        [ObservableProperty]
+        private bool canCloseNotice;
+
         public ObservableCollection<TripSummaryItem> RecentTrips { get; } = new RangeObservableCollection<TripSummaryItem>();
 
-        public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs)
+        public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs,
+                                  IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null)
             : base(dialogs)
         {
             _tripService = tripService;
             _expenseService = expenseService;
             _settings = settings;
             _exchangeRates = exchangeRates;
+            _appConfig = appConfig;
+            _appInfo = appInfo;
+            _preferences = preferences;
 
             RefreshHeader();
         }
@@ -113,6 +135,11 @@ namespace TravelPlanner.ViewModels
         private Task LoadAsync() => RunLoadAsync(async () =>
         {
             RefreshHeader();
+            if (_appConfig is not null)
+            {
+                ShowNotice(_appConfig.Current);
+                RefreshNoticeAsync().FireAndForget();
+            }
 
             var trips = await _tripService.GetAllAsync();
             TotalTripsCount = trips.Count;
@@ -213,6 +240,34 @@ namespace TravelPlanner.ViewModels
                 FeaturedDaysValue = string.Format(AppResources.Common_DaysFormat, (trip.StartDate.Date - DateTime.Today).Days);
             }
         }
+
+        private async Task RefreshNoticeAsync() => ShowNotice(await _appConfig!.RefreshAsync());
+
+        internal void ShowNotice(AppConfig config)
+        {
+            _isUpdateNotice = config.NeedsUpdate(_appInfo?.VersionString);
+            var text = _isUpdateNotice ? AppResources.Dashboard_UpdateNotice : config.Announcement;
+            if (!_isUpdateNotice && text is not null && _preferences?.Get(DismissedNoticeKey, string.Empty) == text)
+                text = null; // closed once: stays closed until the admin writes another notice
+            NoticeText = text ?? string.Empty;
+            HasNotice = text is not null;
+            CanCloseNotice = HasNotice && !_isUpdateNotice;
+        }
+
+        [RelayCommand]
+        private void CloseNotice()
+        {
+            if (!CanCloseNotice) return;
+            _preferences?.Set(DismissedNoticeKey, NoticeText);
+            HasNotice = false;
+        }
+
+        [RelayCommand]
+        private Task OpenNoticeAsync() => RunSafeAsync(async () =>
+        {
+            if (!_isUpdateNotice || _appInfo is null) return;
+            await Launcher.Default.TryOpenAsync(new Uri($"https://play.google.com/store/apps/details?id={_appInfo.PackageName}"));
+        });
 
         [RelayCommand]
         private async Task GoToAddTripAsync() => await Shell.Current.GoToAsync(Routes.TripForm);

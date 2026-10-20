@@ -63,7 +63,10 @@ namespace TravelPlanner.Services
                 var result = await _cloud.RpcAsync("ai_plan_quota_status", new JsonObject { ["p_device"] = _device.Hash }, cancellationToken);
                 if (result.ValueKind != JsonValueKind.Object)
                     return null;
-                return new AiQuota(result.GetProperty("remaining").GetInt32(), result.GetProperty("limit").GetInt32());
+                var paused = result.TryGetProperty("paused", out var p) && p.ValueKind == JsonValueKind.True;
+                var message = result.TryGetProperty("message", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString() : null;
+                return new AiQuota(result.GetProperty("remaining").GetInt32(), result.GetProperty("limit").GetInt32(), paused,
+                    string.IsNullOrWhiteSpace(message) ? null : message.Trim());
             }
             catch (Exception ex) when (ex is SyncException or KeyNotFoundException or InvalidOperationException or FormatException)
             {
@@ -126,8 +129,10 @@ namespace TravelPlanner.Services
                 "not_signed_in" => AiPlanErrorKind.NotSignedIn,
                 "invalid_request" => AiPlanErrorKind.InvalidRequest,
                 "ai_not_configured" => AiPlanErrorKind.NotConfigured,
+                "ai_paused" => AiPlanErrorKind.Paused,
                 _ => ex.Status switch
                 {
+                    503 => AiPlanErrorKind.Paused,
                     429 => AiPlanErrorKind.QuotaExceeded,
                     403 => AiPlanErrorKind.AccountDisabled,
                     404 => AiPlanErrorKind.NotConfigured, // the function isn't deployed
