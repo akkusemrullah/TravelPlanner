@@ -3173,4 +3173,19 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="A11y_CloseNotice" xml:space="preserve">
     <value>Close the notice</value>
   </data>
+  <data name="TripForm_CoverLabel" xml:space="preserve">
+    <value>Cover photo</value>
+  </data>
+  <data name="TripForm_CoverAdd" xml:space="preserve">
+    <value>Add photo</value>
+  </data>
+  <data name="TripForm_CoverChange" xml:space="preserve">
+    <value>Change</value>
+  </data>
+  <data name="TripForm_CoverRemove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="TripForm_CoverError" xml:space="preserve">
+    <value>The photo could not be opened.</value>
+  </data>
 </root>

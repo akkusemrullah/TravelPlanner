@@ -48,6 +48,12 @@
                         </Grid>
                     </Border>
 
+                    <!-- ════════ Cover photo (TripCoverService) ════════ -->
+                    <Border IsVisible="{Binding HasCoverFile}" StrokeThickness="0" StrokeShape="RoundRectangle 16" HeightRequest="190"
+                            BackgroundColor="{DynamicResource tp-surface-alt}">
+                        <Image Source="{Binding CoverFile}" Aspect="AspectFill" />
+                    </Border>
+
                     <!-- ════════ Summary (boarding-pass ticket, see Card.Ticket in Styles.xaml) ════════ -->
                     <Border Style="{StaticResource Card.Ticket}" IsVisible="{Binding Ticket, Converter={StaticResource ObjectNotNullConverter}}">
                         <Grid>

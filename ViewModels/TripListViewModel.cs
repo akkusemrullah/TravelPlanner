@@ -13,6 +13,7 @@ namespace TravelPlanner.ViewModels
         private readonly ITripService _tripService;
         private readonly IExchangeRateService _exchangeRates;
         private readonly IConnectivity? _connectivity;
+        private readonly ITripCoverService? _covers;
 
         /// <summary>Every trip from the database - the source the search/filter/sort projects from (TP-406).</summary>
         private List<Trip> _allTrips = new();
@@ -69,9 +70,11 @@ namespace TravelPlanner.ViewModels
         };
 
         /// <param name="connectivity">G6: a shared trip is deleted only online (optional so older call sites keep working).</param>
-        public TripListViewModel(ITripService tripService, IExchangeRateService exchangeRates, IDialogService dialogs, IConnectivity? connectivity = null)
+        public TripListViewModel(ITripService tripService, IExchangeRateService exchangeRates, IDialogService dialogs, IConnectivity? connectivity = null,
+            ITripCoverService? covers = null)
             : base(dialogs)
         {
+            _covers = covers;
             _tripService = tripService;
             _exchangeRates = exchangeRates;
             _connectivity = connectivity;
@@ -110,6 +113,8 @@ namespace TravelPlanner.ViewModels
             _allTrips = await _tripService.GetAllAsync();
             _loaded = true;
             ApplyFilters();
+            // cover thumbnails: those on the phone at once, the others as they download
+            _covers?.ShowThumbnails(_allTrips);
         }, AppResources.TripList_LoadError);
 
         private void ApplyFilters()

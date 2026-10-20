@@ -20,6 +20,27 @@ namespace TravelPlanner.ViewModels
         private readonly IActivityService? _activityService;
         private readonly ITripCurrencyService? _tripCurrency;
         private readonly IDateRangePicker? _dateRangePicker;
+        private readonly ITripCoverService? _covers;
+        private readonly IMediaPicker? _mediaPicker;
+
+        /// <summary>A photo picked in this form, cropped and waiting for Kaydet (TripCoverService.PrepareAsync).</summary>
+        private string? _stagedCoverId;
+
+        /// <summary>Kaldır was tapped: the trip's cover goes on Kaydet.</summary>
+        private bool _removeCover;
+
+        /// <summary>The cover shown in the form: the picked photo, else the trip's (a file on the phone); null = none.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasCover))]
+        private string? coverPreview;
+
+        [ObservableProperty]
+        private bool isCoverBusy;
+
+        public bool HasCover => CoverPreview is not null;
+
+        /// <summary>Covers need the image code of Android / iOS and a picker.</summary>
+        public bool CanEditCover => _covers is not null && _mediaPicker is not null;
 
         /// <summary>True while typing without internet - shows a hint that suggestions can't load (TP-306).</summary>
         [ObservableProperty]
@@ -118,9 +139,13 @@ namespace TravelPlanner.ViewModels
             IDialogService dialogs,
             IActivityService? activityService = null,
             ITripCurrencyService? tripCurrency = null,
-            IDateRangePicker? dateRangePicker = null)
+            IDateRangePicker? dateRangePicker = null,
+            ITripCoverService? covers = null,
+            IMediaPicker? mediaPicker = null)
             : base(dialogs)
         {
+            _covers = covers;
+            _mediaPicker = mediaPicker;
             _tripService = tripService;
             _geocodingService = geocodingService;
             _expenseService = expenseService;
@@ -176,6 +201,8 @@ namespace TravelPlanner.ViewModels
             Description = _existingTrip.Description;
             SelectedCurrency = FindCurrency(_existingTrip.EffectiveCurrencyCode);
             PageTitle = AppResources.TripForm_TitleEdit;
+            if (_covers is not null && _covers.HasCover(_existingTrip))
+                LoadCoverPreviewAsync(_existingTrip).FireAndForget();
 
             _isApplyingCitySelection = false;
         }
@@ -397,6 +424,13 @@ namespace TravelPlanner.ViewModels
             }
 
             var trip = _existingTrip ?? new Trip();
+            if (_existingTrip is not null && await _tripService.GetByIdAsync(_existingTrip.Id) is { } stored)
+            {
+                // the cover may have changed since the form opened (uploaded by the sync, or by another device):
+                // the form's old copy must not put it back
+                trip.CoverPath = stored.CoverPath;
+                trip.PendingCoverId = stored.PendingCoverId;
+            }
             trip.Name = Name.Trim();
             trip.Country = Country.Trim();
             trip.City = City.Trim();
@@ -408,6 +442,19 @@ namespace TravelPlanner.ViewModels
 
             await _tripService.SaveAsync(trip);
 
+            if (_covers is not null && trip.Id > 0)
+            {
+                if (_stagedCoverId is { } coverId)
+                {
+                    await _covers.SetAsync(trip, coverId);
+                    _stagedCoverId = null;
+                }
+                else if (_removeCover)
+                {
+                    await _covers.RemoveAsync(trip);
+                }
+            }
+
             // Day plan follows the new dates (shifted with the trip and/or the user's choice for leftovers).
             if (realignment is { HasChanges: true } && _activityService is not null)
                 await _activityService.ApplyRealignmentAsync(realignment);
@@ -418,6 +465,96 @@ namespace TravelPlanner.ViewModels
 
             await Shell.Current.GoToAsync("..");
         }, AppResources.TripForm_SaveError);
+
+        // ================= Cover photo =================
+
+        private async Task LoadCoverPreviewAsync(Trip trip)
+        {
+            var file = await _covers!.GetFileAsync(trip, thumbnail: false);
+            if (_stagedCoverId is null && !_removeCover)
+                CoverPreview = file;
+        }
+
+        /// <summary>Galeriden / Fotoğraf çek, then the photo is cropped to the cover's shape.</summary>
+        [RelayCommand]
+        private async Task PickCoverAsync()
+        {
+            if (_covers is null || _mediaPicker is null || IsCoverBusy)
+                return;
+
+            var options = new List<string> { AppResources.Attachments_PickPhoto };
+            if (_mediaPicker.IsCaptureSupported)
+                options.Add(AppResources.Attachments_TakePhoto);
+            var choice = options.Count == 1
+                ? options[0]
+                : await Dialogs.ChooseAsync(AppResources.TripForm_CoverLabel, options);
+            if (choice is null)
+                return;
+
+            // the picker turns the photo upright and makes it smaller than a camera original (fewer bytes to crop)
+            var pickerOptions = new MediaPickerOptions
+            {
+                SelectionLimit = 1,
+                RotateImage = true,
+                MaximumWidth = 2560,
+                MaximumHeight = 2560,
+                CompressionQuality = 90,
+            };
+
+            FileResult? file;
+            try
+            {
+                file = choice == AppResources.Attachments_TakePhoto
+                    ? await _mediaPicker.CapturePhotoAsync(pickerOptions)
+                    : (await _mediaPicker.PickPhotosAsync(pickerOptions))?.FirstOrDefault();
+            }
+            catch (FeatureNotSupportedException)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, AppResources.Attachments_NotSupported);
+                return;
+            }
+            catch (PermissionException)
+            {
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, AppResources.Attachments_PermissionDenied);
+                return;
+            }
+            if (file is null)
+                return;
+
+            IsCoverBusy = true;
+            try
+            {
+                await using var stream = await file.OpenReadAsync();
+                var coverId = await _covers.PrepareAsync(stream);
+                if (_stagedCoverId is { } previous)
+                    _covers.DiscardStaged(previous);
+                _stagedCoverId = coverId;
+                _removeCover = false;
+                CoverPreview = _covers.StagedFile(coverId);
+            }
+            catch (Exception ex) when (ex is InvalidDataException or PlatformNotSupportedException or IOException)
+            {
+                System.Diagnostics.Debug.WriteLine($"[TripForm] Cover: {ex.Message}");
+                await Dialogs.ShowMessageAsync(AppResources.Common_Info, AppResources.TripForm_CoverError);
+            }
+            finally
+            {
+                IsCoverBusy = false;
+            }
+        }
+
+        /// <summary>Kaldır: no cover after Kaydet.</summary>
+        [RelayCommand]
+        private void RemoveCover()
+        {
+            if (_stagedCoverId is { } staged)
+            {
+                _covers?.DiscardStaged(staged);
+                _stagedCoverId = null;
+            }
+            _removeCover = _existingTrip is not null && _covers?.HasCover(_existingTrip) == true;
+            CoverPreview = null;
+        }
 
         /// <summary>
         /// When an existing trip is saved, works out what happens to its day-plan activities under the new dates
@@ -455,6 +592,14 @@ namespace TravelPlanner.ViewModels
         }
 
         [RelayCommand]
-        private async Task CancelAsync() => await Shell.Current.GoToAsync("..");
+        private async Task CancelAsync()
+        {
+            if (_stagedCoverId is { } staged)
+            {
+                _covers?.DiscardStaged(staged);
+                _stagedCoverId = null;
+            }
+            await Shell.Current.GoToAsync("..");
+        }
     }
 }

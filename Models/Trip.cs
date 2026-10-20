@@ -44,7 +44,43 @@ namespace TravelPlanner.Models
         [System.ComponentModel.DataAnnotations.MaxLength(3)]
         public string? CurrencyCode { get; set; }
 
+        /// <summary>
+        /// Cloud path of the cover photo, "trips/&lt;trip SyncId&gt;/cover-&lt;id&gt;.jpg" (its thumbnail: the same name +
+        /// "-thumb"); null = no cover. Set only after both files are uploaded (TripCoverService), so every device that
+        /// sees it can download them. Server rule: supabase/migrations/…32_trip_cover.sql.
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.MaxLength(200)]
+        public string? CoverPath { get; set; }
+
+        /// <summary>
+        /// Device only (not synced): the id of a cover picked on this device whose files wait for upload; it is shown
+        /// instead of <see cref="CoverPath"/> until then. Null = nothing waiting.
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.MaxLength(32)]
+        public string? PendingCoverId { get; set; }
+
         // ---- Computed properties for UI binding (not stored in DB) ----
+
+        private string? _coverThumbFile;
+
+        /// <summary>The cover's thumbnail on this device (set by the list once it's there), or null: the list shows an icon.</summary>
+        [Ignore, System.Text.Json.Serialization.JsonIgnore]
+        public string? CoverThumbFile
+        {
+            get => _coverThumbFile;
+            set
+            {
+                if (_coverThumbFile == value)
+                    return;
+                _coverThumbFile = value;
+                OnPropertyChanged(nameof(CoverThumbFile));
+                OnPropertyChanged(nameof(HasCoverThumb));
+            }
+        }
+
+        [Ignore, System.Text.Json.Serialization.JsonIgnore]
+        public bool HasCoverThumb => _coverThumbFile is not null;
+
         [Ignore]
         public int DurationInDays => (EndDate.Date - StartDate.Date).Days + 1;
 

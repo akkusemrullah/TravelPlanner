@@ -7,7 +7,7 @@ Son güncelleme: 18 Ekim 2026 · Kaynak: kod (bkz. [ARCHITECTURE.md](../../ARCHI
 - **Hesapsız (misafir) kullanım:** hiçbir veri cihaz dışına çıkmaz (hava/harita/kur isteklerinde yalnızca şehir/koordinat/para birimi gider).
 - **Konum:** cihaz konumu **alınmaz** (konum izni yok); yerler kullanıcı tarafından seçilir veya aranır.
 - **Reklam, analitik, çökme raporlama SDK'sı:** yok. Kullanıcı izleme (tracking) yok.
-- **İzinler (AndroidManifest):** internet, ağ durumu, bildirim, tam zamanlı alarm, açılışta bildirimleri geri yükleme, titreşim, kamera (yalnızca belge fotoğrafı), Android ≤12'de depolama okuma.
+- **İzinler (AndroidManifest):** internet, ağ durumu, bildirim, tam zamanlı alarm, açılışta bildirimleri geri yükleme, titreşim, kamera (belge ve seyahat kapak fotoğrafı), Android ≤12'de depolama okuma.
 - **Şifreleme:** tüm trafik HTTPS/TLS. Yerel veri Android yedeğine ve cihazdan cihaza aktarıma dahil edilmez.
 - **Silme:** *Profil → Hesabımı sil*, çöp kutusunda *Kalıcı olarak sil*, çıkışta *bu cihazdaki verilerimi sil*, web: hesap silme sayfası.
 - **Satın alma / abonelik:** yok ([İade politikası](../legal/REFUND_POLICY.md)).
@@ -22,7 +22,7 @@ Hizmet sağlayıcılar (Supabase, OpenAI, Cloudflare) bizim adımıza işler; se
 | Kişisel bilgiler → E-posta adresi | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi | |
 | Kişisel bilgiler → Kullanıcı kimlikleri | Evet | İsteğe bağlı (hesap) | Uygulama işlevselliği, Hesap yönetimi | Hesap uid'i |
 | Finansal bilgiler → Diğer finansal bilgiler | Evet | İsteğe bağlı | Uygulama işlevselliği | Kullanıcının girdiği harcama kayıtları (ödeme bilgisi değil) |
-| Fotoğraflar ve videolar → Fotoğraflar | Evet | İsteğe bağlı | Uygulama işlevselliği | Belge olarak eklenen fotoğraflar |
+| Fotoğraflar ve videolar → Fotoğraflar | Evet | İsteğe bağlı | Uygulama işlevselliği | Belge olarak eklenen fotoğraflar ve seyahat kapak fotoğrafı |
 | Dosyalar ve belgeler | Evet | İsteğe bağlı | Uygulama işlevselliği | PDF bilet/rezervasyon |
 | Uygulama etkinliği → Kullanıcının oluşturduğu diğer içerik | Evet | İsteğe bağlı | Uygulama işlevselliği | Seyahat, plan, notlar, yapay zekâ isteği ve cevabı |
 | Cihaz veya diğer kimlikler | Evet | İsteğe bağlı (yapay zekâ) | Dolandırıcılığı önleme, güvenlik ve uyumluluk | Tuzlu SHA-256 cihaz özeti, yalnızca AI kotası için |
@@ -47,7 +47,7 @@ Hizmet sağlayıcılar (Supabase, OpenAI, Cloudflare) bizim adımıza işler; se
 | Identifiers → User ID | Hesap uid'i | App Functionality |
 | Identifiers → Device ID | AI kotası için cihaz özeti | App Functionality (fraud prevention) |
 | Financial Info → Other Financial Info | Girilen harcamalar | App Functionality |
-| User Content → Photos or Videos | Belge fotoğrafları | App Functionality |
+| User Content → Photos or Videos | Belge fotoğrafları, seyahat kapak fotoğrafı | App Functionality |
 | User Content → Other User Content | Seyahat, plan, notlar, belgeler, AI isteği | App Functionality |
 
 Toplanmayan: Location, Health & Fitness, Contacts, Browsing/Search History, Usage Data, Diagnostics, Purchases, Sensitive Info.

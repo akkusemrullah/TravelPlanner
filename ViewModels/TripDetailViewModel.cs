@@ -106,9 +106,11 @@ namespace TravelPlanner.ViewModels
             IAccountService account,
             IConnectivity connectivity,
             IDialogService dialogs,
-            IAiPlannerService? aiPlanner = null)
+            IAiPlannerService? aiPlanner = null,
+            ITripCoverService? covers = null)
             : base(dialogs)
         {
+            _covers = covers;
             _aiPlanner = aiPlanner;
             _access = access;
             _account = account;
@@ -119,6 +121,22 @@ namespace TravelPlanner.ViewModels
             _placeService = placeService;
             _reportService = reportService;
             _share = share;
+        }
+
+        private readonly ITripCoverService? _covers;
+
+        /// <summary>The trip's cover photo on the phone (downloaded when needed), or null: no cover shown.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasCoverFile))]
+        private string? coverFile;
+
+        public bool HasCoverFile => CoverFile is not null;
+
+        private async Task LoadCoverAsync(Trip trip)
+        {
+            var file = await _covers!.GetFileAsync(trip, thumbnail: false);
+            if (ReferenceEquals(Trip, trip))
+                CoverFile = file;
         }
 
         private Task LoadAsync(int id) => RunLoadAsync(async () =>
@@ -134,6 +152,10 @@ namespace TravelPlanner.ViewModels
             }
 
             Trip = loaded;
+            if (_covers?.HasCover(loaded) == true)
+                LoadCoverAsync(loaded).FireAndForget(); // may download it: the page doesn't wait
+            else
+                CoverFile = null;
 
             TotalExpenses = await _expenseService.GetTotalExpensesAsync(id);
             RemainingBudget = await _expenseService.GetRemainingBudgetAsync(id, Trip.PlannedBudget);

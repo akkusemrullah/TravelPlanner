@@ -118,20 +118,24 @@
                                             CommandParameter="{Binding .}" />
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}" VerticalOptions="Start">
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile}" WidthRequest="56" HeightRequest="56" VerticalOptions="Start">
                                             <Grid>
                                                 <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Briefcase}"
                                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TripListViewModel}}, Path=Selection.IsInactive}" />
-                                                <!-- Selection mode: the tile shows the tick. -->
-                                                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Circle}" TextColor="{DynamicResource tp-text-3}"
-                                                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TripListViewModel}}, Path=Selection.IsActive}">
-                                                    <Label.Triggers>
-                                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Text" Value="{StaticResource Ic.CheckCircle}" />
-                                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
-                                                        </DataTrigger>
-                                                    </Label.Triggers>
-                                                </Label>
+                                                <!-- the cover's thumbnail over the icon (a file on the phone, see TripCoverService) -->
+                                                <Image Source="{Binding CoverThumbFile}" Aspect="AspectFill" IsVisible="{Binding HasCoverThumb}" />
+                                                <!-- Selection mode: the tile shows the tick (over the thumbnail too). -->
+                                                <Grid BackgroundColor="{DynamicResource tp-surface-alt}"
+                                                      IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TripListViewModel}}, Path=Selection.IsActive}">
+                                                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Circle}" TextColor="{DynamicResource tp-text-3}">
+                                                        <Label.Triggers>
+                                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                                <Setter Property="Text" Value="{StaticResource Ic.CheckCircle}" />
+                                                                <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
+                                                            </DataTrigger>
+                                                        </Label.Triggers>
+                                                    </Label>
+                                                </Grid>
                                             </Grid>
                                         </Border>
                                         <VerticalStackLayout Grid.Column="1" Spacing="4">
