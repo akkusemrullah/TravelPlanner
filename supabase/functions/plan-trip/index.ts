@@ -14,7 +14,7 @@
 // OpenAI gave no answer at all (network error, HTTP error). An answer that was cut off, empty, not JSON or an
 // empty plan - and our own timeout - is billed by OpenAI, so it costs the user the plan too.
 // The model and its reasoning effort are chosen in the admin panel (Ayarlar, migration 31: public.ai_model_settings,
-// read with the service role key). Left empty there, the optional secrets AI_MODEL (default gpt-5-mini - nano made
+// read with the service role key). Left empty there (or unreadable - logged as a warning), the optional secrets AI_MODEL (default gpt-5-mini - nano made
 // plans that repeated places and mixed far-apart areas) and AI_REASONING (minimal | low | medium | high; default low,
 // minimal for nano models) decide. AI_MAX_TOKENS: upper bound of max_completion_tokens for the plan, default 16000 -
 // see planTokenBudget in planner.ts.
@@ -141,8 +141,11 @@ Deno.serve(async (req) => {
   if (!quota.ok) return quota.response;
 
   // the plan needs some thinking (grouping sights by area, one visit per place); the replacement question doesn't
-  const { model, effort: planEffort } = chooseModel(panel, { model: Deno.env.get("AI_MODEL"), reasoning: Deno.env.get("AI_REASONING") });
-  console.log(`model ${model}, reasoning ${planEffort}${panel?.model ? " (panel)" : ""}`);
+  const { model, effort: planEffort, source } = chooseModel(panel, { model: Deno.env.get("AI_MODEL"), reasoning: Deno.env.get("AI_REASONING") });
+  // TP-47: the panel decides; falling back to the secret or the default is kept (a settings problem never stops the
+  // planner) but stands out in the log
+  if (source === "panel") console.log(`model ${model}, reasoning ${planEffort} (panel)`);
+  else console.warn(`model ${model}, reasoning ${planEffort} (${source}: panel ${panel ? "has no model" : "not read"})`);
 
   const planTokens = planTokenBudget(request.days, request.pace, planEffort, Number(Deno.env.get("AI_MAX_TOKENS") ?? MAX_PLAN_TOKENS));
 
