@@ -3204,4 +3204,19 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Join_Short" xml:space="preserve">
     <value>Kodla katıl</value>
   </data>
+  <data name="AiPlan_DontClose" xml:space="preserve">
+    <value>Ekranı kapatma</value>
+  </data>
+  <data name="AiPlan_LeaveTitle" xml:space="preserve">
+    <value>Çıkılsın mı?</value>
+  </data>
+  <data name="AiPlan_LeaveMessage" xml:space="preserve">
+    <value>Çıkarsan AI plan hakkın azalır.</value>
+  </data>
+  <data name="AiPlan_LeaveAccept" xml:space="preserve">
+    <value>Çık</value>
+  </data>
+  <data name="AiPlan_LeaveStay" xml:space="preserve">
+    <value>Kal</value>
+  </data>
 </root>

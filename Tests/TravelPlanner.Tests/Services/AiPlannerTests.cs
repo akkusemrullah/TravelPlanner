@@ -460,7 +460,7 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
-        public async Task Generate_WaitingScreen_SaysWhatIsGoingOn_WithoutATimeEstimate()
+        public async Task Generate_WaitingScreen_SaysWhatIsGoingOn()
         {
             var answer = new TaskCompletionSource<AiPlanResult>();
             _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>())).Returns(answer.Task);
@@ -485,8 +485,31 @@ namespace TravelPlanner.Tests
 
             Assert.True(shown.Count >= 3);
             Assert.Equal(AiPlannerViewModel.GeneratingSteps.Take(shown.Count), shown.Take(AiPlannerViewModel.GeneratingSteps.Count));
-            Assert.DoesNotMatch(@"\d", AppResources.AiPlan_Generating); // no "20-60 seconds"
+            Assert.DoesNotMatch(@"\d", AppResources.AiPlan_Generating); // the rough duration is a line of its own (TP-45)
             Assert.False(vm.IsGenerating);
+        }
+
+        [Fact]
+        public async Task LeavingWhileGenerating_AsksFirst_AndStaysOnNo()
+        {
+            var answer = new TaskCompletionSource<AiPlanResult>();
+            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>())).Returns(answer.Task);
+            _dialogs.Setup(d => d.ConfirmAsync(AppResources.AiPlan_LeaveTitle, AppResources.AiPlan_LeaveMessage,
+                                               AppResources.AiPlan_LeaveAccept, AppResources.AiPlan_LeaveStay))
+                    .ReturnsAsync(false);
+            var vm = await LoadAsync();
+
+            Assert.True(await vm.ConfirmLeaveAsync()); // nothing running: no question
+            _dialogs.Verify(d => d.ConfirmAsync(AppResources.AiPlan_LeaveTitle, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
+
+            var generating = vm.GenerateCommand.ExecuteAsync(null);
+            Assert.True(vm.IsGenerating);
+            Assert.False(await vm.ConfirmLeaveAsync()); // "Kal"
+
+            answer.SetResult(new AiPlanResult(SamplePlan(), 4, false));
+            await generating;
+            Assert.True(await vm.ConfirmLeaveAsync()); // the plan is in: no question any more
+            _dialogs.Verify(d => d.ConfirmAsync(AppResources.AiPlan_LeaveTitle, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
         }
 
         [Fact]

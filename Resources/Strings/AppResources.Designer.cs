@@ -8676,5 +8676,50 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Join_Short", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ekranı kapatma.
+        /// </summary>
+        public static string AiPlan_DontClose {
+            get {
+                return ResourceManager.GetString("AiPlan_DontClose", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Çıkılsın mı?.
+        /// </summary>
+        public static string AiPlan_LeaveTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_LeaveTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Çıkarsan AI plan hakkın azalır..
+        /// </summary>
+        public static string AiPlan_LeaveMessage {
+            get {
+                return ResourceManager.GetString("AiPlan_LeaveMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Çık.
+        /// </summary>
+        public static string AiPlan_LeaveAccept {
+            get {
+                return ResourceManager.GetString("AiPlan_LeaveAccept", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kal.
+        /// </summary>
+        public static string AiPlan_LeaveStay {
+            get {
+                return ResourceManager.GetString("AiPlan_LeaveStay", resourceCulture);
+            }
+        }
     }
 }
