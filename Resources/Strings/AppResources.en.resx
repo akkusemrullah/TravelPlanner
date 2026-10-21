@@ -3200,4 +3200,7 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="AiPlan_Duration" xml:space="preserve">
     <value>Usually takes 1-3 min</value>
   </data>
+  <data name="Join_Short" xml:space="preserve">
+    <value>Join with code</value>
+  </data>
 </root>

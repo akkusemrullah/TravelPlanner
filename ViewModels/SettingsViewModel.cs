@@ -29,6 +29,7 @@ namespace TravelPlanner.ViewModels
         private readonly ISharingService? _sharing;
         private readonly IConsentService? _consent;
         private readonly ITrashService? _trash;
+        private readonly IJoinTripFlow? _joinFlow;
 
         /// <summary>"Sürüm 1.0.0 (12)" - TP-507.</summary>
         public string VersionText { get; }
@@ -115,9 +116,11 @@ namespace TravelPlanner.ViewModels
             IDialogService dialogs,
             ISharingService? sharing = null,
             IConsentService? consent = null,
-            ITrashService? trash = null)
+            ITrashService? trash = null,
+            IJoinTripFlow? joinFlow = null)
             : base(dialogs)
         {
+            _joinFlow = joinFlow ?? (sharing is null ? null : new JoinTripFlow(sharing, account, dialogs));
             _trash = trash;
             _consent = consent;
             _account = account;
@@ -630,32 +633,9 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task JoinTripAsync() => RunSafeAsync(async () =>
         {
-            if (_sharing is null || !_account.IsSignedIn) return;
-
-            var code = await Dialogs.PromptAsync(AppResources.Join_Title, AppResources.Join_Message,
-                                                 accept: AppResources.Join_Accept, cancel: AppResources.Common_Cancel);
-            if (string.IsNullOrWhiteSpace(code)) return;
-
-            JoinedTrip joined;
-            try
-            {
-                joined = await _sharing.AcceptInviteAsync(code);
-            }
-            catch (SharingException ex)
-            {
-                await Dialogs.ShowMessageAsync(AppResources.Common_Info, SharingTexts.ErrorFor(ex.Kind));
-                return;
-            }
-
-            if (joined.LocalTripId is int tripId)
-            {
+            if (_joinFlow is null || !_account.IsSignedIn) return;
+            if (await _joinFlow.RunAsync() is int tripId)
                 await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={tripId}");
-                return;
-            }
-
-            // Joined, but the sync hasn't brought it in yet (e.g. connection dropped): it appears with the next sync.
-            await Dialogs.ShowMessageAsync(AppResources.Common_Info,
-                string.Format(AppResources.Join_PendingFormat, joined.TripName ?? string.Empty));
         }, AppResources.Members_ActionError);
 
         [RelayCommand]

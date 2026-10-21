@@ -14,14 +14,22 @@
             <VerticalStackLayout Spacing="0">
 
                 <!-- ════════ Header ════════ -->
-                <Grid Style="{StaticResource PageHeader}" ColumnDefinitions="*,Auto">
+                <Grid Style="{StaticResource PageHeader}" ColumnDefinitions="*,Auto,Auto">
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
                         <Label Text="{Binding TodayDisplay}" Style="{StaticResource Text.Overline}" />
                         <Label Text="{Binding GreetingText}" Style="{StaticResource Text.H1}" SemanticProperties.HeadingLevel="Level1" />
                         <Label Text="{x:Static res:AppResources.Dashboard_Subtitle}" Style="{StaticResource Text.Body2}" />
                     </VerticalStackLayout>
 
-                    <Border Grid.Column="1" Style="{StaticResource IconButton.Filled}" VerticalOptions="Start"
+                    <!-- TP-48: join a shared trip with an invite code, next to "add" -->
+                    <Border Grid.Column="1" Style="{StaticResource IconButton}" VerticalOptions="Start"
+                            SemanticProperties.Description="{x:Static res:AppResources.Join_Short}" ToolTipProperties.Text="{x:Static res:AppResources.Join_Short}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding JoinTripCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Ticket}" />
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource IconButton.Filled}" VerticalOptions="Start"
                             SemanticProperties.Description="{x:Static res:AppResources.A11y_Add}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToAddTripCommand}" />
@@ -227,6 +235,8 @@
                                     <Label Text="{x:Static res:AppResources.Dashboard_EmptyBody}" Style="{StaticResource Text.Body2}" />
                                     <Button Text="{x:Static res:AppResources.Dashboard_CreateTrip}" Command="{Binding GoToAddTripCommand}"
                                             Style="{StaticResource Btn.Primary}" HorizontalOptions="Fill" />
+                                    <Button Text="{x:Static res:AppResources.Join_Short}" Command="{Binding JoinTripCommand}"
+                                            Style="{StaticResource Btn.Secondary}" HorizontalOptions="Fill" Margin="0,-6,0,0" />
                                 </VerticalStackLayout>
                             </Grid>
                         </Border>
