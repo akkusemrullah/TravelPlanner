@@ -11,9 +11,10 @@ namespace TravelPlanner.Services
     public sealed record PackingPlanEntry(string Label, string Text);
 
     /// <summary>
-    /// Plan-aware packing rules: words in the plan ("plaj", "yürüyüş", "toplantı", "cami"…) bring the items that
+    /// Plan-aware packing rules: words in the plan ("yürüyüş", "kayak", "toplantı", "cami"…) bring the items that
     /// activity needs. Pure and deterministic. Matching ignores case and Turkish characters ("DAG YURUYUSU" works)
-    /// and is word-based, so "Denizli" doesn't count as the sea and "Galata" isn't a gala.
+    /// and is word-based, so "Galata" isn't a gala and "Kampüs" isn't a camp.
+    /// Beach items (swimwear, beach towel, flip-flops) are never suggested (TP-44); users add them by hand.
     /// </summary>
     public static class PackingPlanMatcher
     {
@@ -22,24 +23,13 @@ namespace TravelPlanner.Services
 
         /// <summary>
         /// A rule fires when any keyword matches. Keywords are folded (lower case, no Turkish characters);
-        /// a word ending in '*' matches as a prefix (Turkish suffixes: "plaja", "plajda"), otherwise exactly;
+        /// a word ending in '*' matches as a prefix (Turkish suffixes: "kampa", "kampta"), otherwise exactly;
         /// several words must appear in a row ("milli park*"). Words starting with an exclusion never match.
         /// </summary>
         private sealed record Rule(string[] Keywords, string[] Exclusions, Func<string>[] Items);
 
         private static readonly Rule[] Rules =
         {
-            // Sea, beach, pool
-            new(new[] { "plaj*", "sahil*", "deniz*", "beach*", "sea", "seaside", "havuz*", "pool*", "snorkel*", "dalis*", "diving", "dive",
-                        "aquapark*", "su park*" },
-                new[] { "denizli" },
-                new Func<string>[] { () => AppResources.Packing_Swimwear, () => AppResources.Packing_BeachTowel, () => AppResources.Packing_FlipFlops }),
-
-            // Turkish bath, hot springs, spa
-            new(new[] { "hamam*", "kaplica*", "termal*", "thermal*", "spa", "sauna*" },
-                Array.Empty<string>(),
-                new Func<string>[] { () => AppResources.Packing_Swimwear, () => AppResources.Packing_FlipFlops }),
-
             // Boat trips and ferries
             new(new[] { "tekne*", "gulet*", "yat", "feribot*", "ferry*", "cruise*", "boat*", "mavi tur*" },
                 Array.Empty<string>(),
