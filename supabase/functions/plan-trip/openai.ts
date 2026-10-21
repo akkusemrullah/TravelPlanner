@@ -92,16 +92,20 @@ export function isReasoningModel(model: string): boolean {
 /**
  * The model and reasoning effort of a plan. The admin panel's choice (public.ai_model_settings, migration 31) comes
  * first, then the secrets AI_MODEL / AI_REASONING, then gpt-5-mini with "minimal" for nano models and "low" otherwise.
+ * `source` says where the model came from, for the function log (TP-47).
  */
 export function chooseModel(
   panel: { model?: unknown; reasoning?: unknown } | null,
   env: { model?: string; reasoning?: string },
-): { model: string; effort: string } {
+): { model: string; effort: string; source: "panel" | "secret" | "default" } {
   const text = (v: unknown) => typeof v === "string" && v.trim() ? v.trim().toLowerCase() : undefined;
-  const model = text(panel?.model) ?? text(env.model) ?? DEFAULT_MODEL;
+  const fromPanel = text(panel?.model);
+  const fromEnv = text(env.model);
+  const model = fromPanel ?? fromEnv ?? DEFAULT_MODEL;
+  const source = fromPanel ? "panel" : fromEnv ? "secret" : "default";
   const asked = text(panel?.reasoning) ?? text(env.reasoning);
   const effort = asked && REASONING_EFFORTS.includes(asked) ? asked : model.includes("nano") ? "minimal" : "low";
-  return { model, effort };
+  return { model, effort, source };
 }
 
 export class BodyTooLarge extends Error {}

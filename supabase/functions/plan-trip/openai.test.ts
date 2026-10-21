@@ -95,13 +95,14 @@ test("only a JWT-shaped bearer token gets past the door", () => {
 // migration 31: the model is chosen in the admin panel
 test("the panel's model comes before the secrets", () => {
   assert.deepEqual(chooseModel({ model: "GPT-5", reasoning: "medium" }, { model: "gpt-5-nano", reasoning: "low" }),
-    { model: "gpt-5", effort: "medium" });
+    { model: "gpt-5", effort: "medium", source: "panel" });
 });
 
 test("an empty panel leaves it to the secrets, then to gpt-5-mini", () => {
-  assert.deepEqual(chooseModel({ model: null, reasoning: null }, { model: "gpt-5-nano" }), { model: "gpt-5-nano", effort: "minimal" });
-  assert.deepEqual(chooseModel(null, {}), { model: "gpt-5-mini", effort: "low" });
-  assert.deepEqual(chooseModel({ model: "  " }, { reasoning: "high" }), { model: "gpt-5-mini", effort: "high" });
+  assert.deepEqual(chooseModel({ model: null, reasoning: null }, { model: "gpt-5-nano" }),
+    { model: "gpt-5-nano", effort: "minimal", source: "secret" });
+  assert.deepEqual(chooseModel(null, {}), { model: "gpt-5-mini", effort: "low", source: "default" });
+  assert.deepEqual(chooseModel({ model: "  " }, { reasoning: "high" }), { model: "gpt-5-mini", effort: "high", source: "default" });
 });
 
 test("an unknown reasoning effort falls back to the automatic one", () => {
