@@ -579,6 +579,19 @@ namespace TravelPlanner.ViewModels
         private Task OpenSignInAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Auth));
 
         [RelayCommand]
-        private async Task GoBackAsync() => await Shell.Current.GoToAsync("..");
+        private async Task GoBackAsync()
+        {
+            if (await ConfirmLeaveAsync())
+                await Shell.Current.GoToAsync("..");
+        }
+
+        /// <summary>
+        /// TP-49: leaving while the plan is being made still costs a plan (OpenAI answers anyway) and loses it, so
+        /// ask first. True when the page may close.
+        /// </summary>
+        internal async Task<bool> ConfirmLeaveAsync() =>
+            !IsGenerating
+            || await Dialogs.ConfirmAsync(AppResources.AiPlan_LeaveTitle, AppResources.AiPlan_LeaveMessage,
+                                          AppResources.AiPlan_LeaveAccept, AppResources.AiPlan_LeaveStay);
     }
 }
