@@ -90,7 +90,7 @@ namespace TravelPlanner.Services
     /// <summary>
     /// The rules behind the smart packing list (TP-405). Pure and deterministic, so it's unit-tested directly.
     /// Every item has to make sense for this trip: a passport only when leaving Türkiye (and not where the ID card
-    /// is enough), no clothes for a day trip, swimwear from the weather alone only as an unticked "maybe".
+    /// is enough), no clothes for a day trip, no beach items at all (TP-44).
     /// Thresholds are deliberately simple and conservative: better to suggest an umbrella that stays in the
     /// bag than to miss one.
     /// </summary>
@@ -101,7 +101,6 @@ namespace TravelPlanner.Services
         public const double CoatBelow = 12.0;             // °C (daily minimum)
         public const double WinterGearBelow = 2.0;        // °C (daily minimum)
         public const double SunGearAbove = 25.0;          // °C (daily maximum)
-        public const double SwimwearAbove = 28.0;         // °C (daily maximum)
         public const int LongTripDays = 7;
 
         /// <summary>The home currency: no "cash in …" suggestion for it.</summary>
@@ -301,11 +300,6 @@ namespace TravelPlanner.Services
                     add(AppResources.Packing_Sunglasses, hotReason, true);
                     add(AppResources.Packing_SunHat, hotReason, true);
                 }
-
-                // Heat alone doesn't mean a swim (think Ankara in July): offered unticked. A beach, pool or
-                // hamam in the plan has already added it ticked.
-                if (hottest >= SwimwearAbove)
-                    add(AppResources.Packing_Swimwear, hotReason, false);
             }
         }
 

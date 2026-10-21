@@ -33,12 +33,13 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
-        public void HotForecast_SuggestsSunGearAndSwimwear()
+        public void HotForecast_SuggestsSunGear_ButNoSwimwear()
         {
             var titles = Titles(PackingSuggestionEngine.Suggest(TripTo("Türkiye", 4), new[] { Day(31, 22) }, Array.Empty<string>()));
 
             Assert.Contains(AppResources.Packing_Sunscreen, titles);
-            Assert.Contains(AppResources.Packing_Swimwear, titles);
+            Assert.Contains(AppResources.Packing_SunHat, titles);
+            Assert.DoesNotContain(AppResources.Packing_Swimwear, titles);
             Assert.DoesNotContain(AppResources.Packing_Coat, titles);
         }
 
@@ -226,29 +227,30 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
-        public void HeatAlone_OffersSwimwearUnticked_ABeachInThePlanTicksIt()
+        public void HeatAndABeachInThePlan_SuggestNoBeachItems()
         {
             var hot = new[] { new DailyForecast { TemperatureMax = 34, TemperatureMin = 20 } };
-            var beach = new[] { new PackingPlanEntry("Plaj", "Plaj") };
+            var beach = new[] { new PackingPlanEntry("Plaj", "Plaj, havuz ve hamam") };
 
-            var heatOnly = Suggest(Trip("Türkiye", month: 7), hot).Single(s => s.Title == AppResources.Packing_Swimwear);
-            var withBeach = Suggest(Trip("Türkiye", month: 7), hot, plan: beach).Single(s => s.Title == AppResources.Packing_Swimwear);
+            var titles = Titles(Suggest(Trip("Türkiye", month: 7), hot, plan: beach));
 
-            Assert.False(heatOnly.IsSelected);
-            Assert.True(withBeach.IsSelected);
+            Assert.DoesNotContain(AppResources.Packing_Swimwear, titles);
+            Assert.DoesNotContain(AppResources.Packing_BeachTowel, titles);
+            Assert.DoesNotContain(AppResources.Packing_FlipFlops, titles);
+            Assert.Contains(AppResources.Packing_Sunscreen, titles);
         }
 
         [Fact]
         public void ItemsAlreadyOnTheList_AreRecognised_EvenWordedDifferently()
         {
-            var existing = new[] { "Pasaport ve vize", "5 günlük kıyafet", "mayo" };
+            var existing = new[] { "Pasaport ve vize", "5 günlük kıyafet", "güneş kremi" };
             var hot = new[] { new DailyForecast { TemperatureMax = 34, TemperatureMin = 20 } };
 
             var titles = Titles(Suggest(Trip("İtalya", days: 4, month: 7), hot, existing));
 
             Assert.DoesNotContain(AppResources.Packing_Passport, titles);
             Assert.DoesNotContain(titles, t => t.EndsWith("günlük kıyafet"));
-            Assert.DoesNotContain(AppResources.Packing_Swimwear, titles);
+            Assert.DoesNotContain(AppResources.Packing_Sunscreen, titles);
             Assert.Contains(AppResources.Packing_SchengenVisa, titles); // "vize" alone doesn't cover the Schengen visa
         }
 
@@ -279,13 +281,25 @@ namespace TravelPlanner.Tests
         private static PackingPlanEntry Entry(string text) => new(text, text);
 
         [Fact]
-        public void BeachInThePlan_SuggestsSwimwearAndTowel_QuotingThePlan()
+        public void HikeInThePlan_SuggestsShoes_QuotingThePlan()
         {
-            var suggestions = Suggest(TripTo("Kaş"), Entry("Kaputaş Plajı'nda yüzme"));
+            var suggestions = Suggest(TripTo("Kaş"), Entry("Likya Yolu'nda yürüyüş"));
 
-            var towel = Assert.Single(suggestions, s => s.Title == AppResources.Packing_BeachTowel);
-            Assert.Contains(suggestions, s => s.Title == AppResources.Packing_Swimwear);
-            Assert.Contains("Kaputaş", towel.Reason);
+            var shoes = Assert.Single(suggestions, s => s.Title == AppResources.Packing_HikingShoes);
+            Assert.Contains("Likya", shoes.Reason);
+        }
+
+        [Theory]
+        [InlineData("Kaputaş Plajı'nda yüzme")]
+        [InlineData("Otel havuzu")]
+        [InlineData("Çemberlitaş Hamamı")]
+        public void BeachPoolOrHamamInThePlan_SuggestsNoBeachItems(string planText)
+        {
+            var suggestions = Suggest(TripTo("Kaş"), Entry(planText));
+
+            Assert.DoesNotContain(suggestions, s => s.Title == AppResources.Packing_Swimwear);
+            Assert.DoesNotContain(suggestions, s => s.Title == AppResources.Packing_BeachTowel);
+            Assert.DoesNotContain(suggestions, s => s.Title == AppResources.Packing_FlipFlops);
         }
 
         [Theory]
@@ -297,7 +311,6 @@ namespace TravelPlanner.Tests
         [InlineData("Sultanahmet Camii", "Packing_Scarf")]
         [InlineData("Gulet ile mavi tur", "Packing_SeasicknessPills")]
         [InlineData("Kapadokya'da çadır kampı", "Packing_SleepingBag")]
-        [InlineData("Çemberlitaş Hamamı", "Packing_FlipFlops")]
         [InlineData("Arkadaşın düğünü", "Packing_SmartOutfit")]
         [InlineData("Sabah 06:30 uçuş", "Packing_NeckPillow")]
         public void PlanWords_BringTheirItems(string planText, string expectedResource)
@@ -308,7 +321,6 @@ namespace TravelPlanner.Tests
         }
 
         [Theory]
-        [InlineData("Denizli", "Packing_BeachTowel")]          // a city, not the sea
         [InlineData("Galata Kulesi", "Packing_SmartOutfit")]  // not a gala
         [InlineData("Kampüs gezisi", "Packing_SleepingBag")]  // not camping
         [InlineData("This is fine", "Packing_FormalWear")]    // English "is" is not "iş"
@@ -333,25 +345,25 @@ namespace TravelPlanner.Tests
         [Fact]
         public void PlanItemsAlreadyOnTheList_AreNotSuggestedAgain_AndNoPlanMeansNoPlanItems()
         {
-            var existing = new[] { AppResources.Packing_Swimwear };
+            var existing = new[] { AppResources.Packing_HikingShoes };
 
-            var withList = PackingSuggestionEngine.Suggest(TripTo("Bodrum"), null, existing, new[] { Entry("Plaj günü") });
+            var withList = PackingSuggestionEngine.Suggest(TripTo("Bodrum"), null, existing, new[] { Entry("Dağ yürüyüşü") });
             var withoutPlan = PackingSuggestionEngine.Suggest(TripTo("Bodrum"), null, Array.Empty<string>());
 
-            Assert.DoesNotContain(withList, s => s.Title == AppResources.Packing_Swimwear);
-            Assert.Contains(withList, s => s.Title == AppResources.Packing_BeachTowel);
-            Assert.DoesNotContain(withoutPlan, s => s.Title == AppResources.Packing_BeachTowel);
+            Assert.DoesNotContain(withList, s => s.Title == AppResources.Packing_HikingShoes);
+            Assert.Contains(withList, s => s.Title == AppResources.Packing_WaterBottle);
+            Assert.DoesNotContain(withoutPlan, s => s.Title == AppResources.Packing_WaterBottle);
         }
 
         [Fact]
         public void LongPlanTexts_AreShortenedInTheReason()
         {
-            var label = "Plaj " + new string('x', 80);
+            var label = "Yürüyüş " + new string('x', 80);
 
-            var towel = Suggest(TripTo("Bodrum"), new PackingPlanEntry(label, label)).Single(s => s.Title == AppResources.Packing_BeachTowel);
+            var shoes = Suggest(TripTo("Bodrum"), new PackingPlanEntry(label, label)).Single(s => s.Title == AppResources.Packing_HikingShoes);
 
-            Assert.True(towel.Reason.Length < label.Length);
-            Assert.Contains("…", towel.Reason);
+            Assert.True(shoes.Reason.Length < label.Length);
+            Assert.Contains("…", shoes.Reason);
         }
 
         [Fact]
