@@ -25,6 +25,7 @@ namespace TravelPlanner.ViewModels
         private readonly IAppInfo? _appInfo;
         private readonly IPreferences? _preferences;
         private readonly ITripCoverService? _covers;
+        private readonly IJoinTripFlow? _joinFlow;
 
         internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
 
@@ -104,9 +105,10 @@ namespace TravelPlanner.ViewModels
 
         public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs,
                                   IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null,
-                                  ITripCoverService? covers = null)
+                                  ITripCoverService? covers = null, IJoinTripFlow? joinFlow = null)
             : base(dialogs)
         {
+            _joinFlow = joinFlow;
             _tripService = tripService;
             _expenseService = expenseService;
             _settings = settings;
@@ -276,6 +278,15 @@ namespace TravelPlanner.ViewModels
 
         [RelayCommand]
         private async Task GoToAddTripAsync() => await Shell.Current.GoToAsync(Routes.TripForm);
+
+        /// <summary>TP-48: "Kodla katıl" next to "Seyahat oluştur"; opens the joined trip.</summary>
+        [RelayCommand]
+        private Task JoinTripAsync() => RunSafeAsync(async () =>
+        {
+            if (_joinFlow is null) return;
+            if (await _joinFlow.RunAsync() is int tripId)
+                await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={tripId}");
+        }, AppResources.Members_ActionError);
 
         [RelayCommand]
         private async Task GoToTripListAsync() => await Shell.Current.GoToAsync($"//{Routes.TripList}"); // tab (absolute route)

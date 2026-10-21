@@ -14,6 +14,7 @@ namespace TravelPlanner.ViewModels
         private readonly IExchangeRateService _exchangeRates;
         private readonly IConnectivity? _connectivity;
         private readonly ITripCoverService? _covers;
+        private readonly IJoinTripFlow? _joinFlow;
 
         /// <summary>Every trip from the database - the source the search/filter/sort projects from (TP-406).</summary>
         private List<Trip> _allTrips = new();
@@ -71,9 +72,10 @@ namespace TravelPlanner.ViewModels
 
         /// <param name="connectivity">G6: a shared trip is deleted only online (optional so older call sites keep working).</param>
         public TripListViewModel(ITripService tripService, IExchangeRateService exchangeRates, IDialogService dialogs, IConnectivity? connectivity = null,
-            ITripCoverService? covers = null)
+            ITripCoverService? covers = null, IJoinTripFlow? joinFlow = null)
             : base(dialogs)
         {
+            _joinFlow = joinFlow;
             _covers = covers;
             _tripService = tripService;
             _exchangeRates = exchangeRates;
@@ -165,6 +167,15 @@ namespace TravelPlanner.ViewModels
         {
             await Shell.Current.GoToAsync(Routes.TripForm);
         }
+
+        /// <summary>TP-48: "Kodla katıl" next to "Seyahat oluştur"; opens the joined trip.</summary>
+        [RelayCommand]
+        private Task JoinTripAsync() => RunSafeAsync(async () =>
+        {
+            if (_joinFlow is null) return;
+            if (await _joinFlow.RunAsync() is int tripId)
+                await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={tripId}");
+        }, AppResources.Members_ActionError);
 
         // ================= Selecting rows and deleting them together =================
 

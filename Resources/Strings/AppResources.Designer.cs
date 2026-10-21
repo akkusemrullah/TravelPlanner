@@ -8667,5 +8667,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("AiPlan_Duration", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kodla katıl.
+        /// </summary>
+        public static string Join_Short {
+            get {
+                return ResourceManager.GetString("Join_Short", resourceCulture);
+            }
+        }
     }
 }

@@ -133,6 +133,7 @@ namespace TravelPlanner
             // G6: roles per trip and sharing (invites, members).
             services.AddSingleton<ITripAccessService, TripAccessService>();
             services.AddSingleton<ISharingService, SharingService>();
+            services.AddTransient<IJoinTripFlow, JoinTripFlow>(); // TP-48: home, trip list and Settings
             services.AddSingleton<ITripCurrencyService, TripCurrencyService>();          // TP-11
             services.AddSingleton<IConsentService, ConsentService>();                    // TP-25: açık rıza
             services.AddSingleton<IMemberJoinWatcher, MemberJoinWatcher>();   // TP-4: "someone joined your trip"
