@@ -2041,6 +2041,24 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Yol tarifi.
+        /// </summary>
+        public static string Map_Directions {
+            get {
+                return ResourceManager.GetString("Map_Directions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Harita uygulaması açılamadı..
+        /// </summary>
+        public static string Map_DirectionsError {
+            get {
+                return ResourceManager.GetString("Map_DirectionsError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Yer eklemek için haritaya basılı tutun.
         /// </summary>
         public static string Map_LongPressHint {

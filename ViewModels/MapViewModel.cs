@@ -24,6 +24,7 @@ namespace TravelPlanner.ViewModels
         private readonly IGeocodingService _geocodingService;
         private readonly IConnectivity _connectivity;
         private readonly IActivityService _activityService;
+        private readonly IDirectionsService _directions;
 
         // Day -> that day's linked places in plan order (TP-505).
         private Dictionary<DateTime, List<Place>> _routesByDay = new();
@@ -56,6 +57,15 @@ namespace TravelPlanner.ViewModels
 
         public ObservableCollection<Place> Pins { get; } = new RangeObservableCollection<Place>();
 
+        /// <summary>TP-50: the place tapped on the map or in the list - the "Yol tarifi" bar is shown for it.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanGetDirections))]
+        private Place? selectedPlace;
+
+        /// <summary>A place is selected and has a usable coordinate.</summary>
+        public bool CanGetDirections =>
+            SelectedPlace is { } p && PlaceService.IsValidCoordinate(p.Latitude, p.Longitude);
+
         // ---- TP-505: day route ----
 
         /// <summary>"Rota yok" plus every day whose plan visits at least two saved places.</summary>
@@ -79,9 +89,10 @@ namespace TravelPlanner.ViewModels
         private bool isOffline;
 
         public MapViewModel(IPlaceService placeService, ITripService tripService, IGeocodingService geocodingService, IConnectivity connectivity,
-            IActivityService activityService, IDialogService dialogs)
+            IActivityService activityService, IDirectionsService directions, IDialogService dialogs)
             : base(dialogs)
         {
+            _directions = directions;
             _activityService = activityService;
             _placeService = placeService;
             _tripService = tripService;
@@ -100,6 +111,7 @@ namespace TravelPlanner.ViewModels
             {
                 var pins = MapPreview.Places.Where(p => PlaceService.IsValidCoordinate(p.Latitude, p.Longitude)).ToList();
                 Pins.ReplaceAll(pins);
+                KeepSelection();
                 RouteDays.Clear();
                 HasRoutes = false;
                 if (pins.Count > 0)
@@ -118,6 +130,7 @@ namespace TravelPlanner.ViewModels
             // make the marker JSON throw and MapLibre reject the whole layer - leave it off the map instead.
             var places = (await _placeService.GetByTripIdAsync(TripId)).Where(p => PlaceService.IsValidCoordinate(p.Latitude, p.Longitude)).ToList();
             Pins.ReplaceAll(places);
+            KeepSelection();
 
             await LoadRoutesAsync(places);
 
@@ -242,6 +255,46 @@ namespace TravelPlanner.ViewModels
             var lat = latitude.ToString("0.######", CultureInfo.InvariantCulture);
             var lon = longitude.ToString("0.######", CultureInfo.InvariantCulture);
             return Shell.Current.GoToAsync($"{Routes.PlaceForm}?TripId={TripId}&Lat={lat}&Lon={lon}");
+        }
+
+        /// <summary>After a reload: keep the selected place if it is still on the map (fresh copy), else clear it.</summary>
+        private void KeepSelection() =>
+            SelectedPlace = SelectedPlace is { } current ? Pins.FirstOrDefault(p => p.Id == current.Id) : null;
+
+        /// <summary>Custom URL the map's JavaScript navigates to when a pin is tapped (TP-50) - intercepted, never loaded.</summary>
+        public const string SelectPlaceUrlPrefix = "travelplanner://selectplace";
+
+        /// <summary>Parses "travelplanner://selectplace?id=12".</summary>
+        public static bool TryParseSelectPlaceUrl(string? url, out int placeId)
+        {
+            placeId = 0;
+            if (string.IsNullOrEmpty(url) || !url.StartsWith(SelectPlaceUrlPrefix, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var query = url.Contains('?') ? url[(url.IndexOf('?') + 1)..] : string.Empty;
+            foreach (var part in query.Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var kv = part.Split('=', 2);
+                if (kv.Length == 2 && kv[0].Equals("id", StringComparison.OrdinalIgnoreCase))
+                    return int.TryParse(kv[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out placeId);
+            }
+            return false;
+        }
+
+        /// <summary>TP-50: a pin was tapped on the map.</summary>
+        public void SelectPlace(int placeId) => SelectedPlace = Pins.FirstOrDefault(p => p.Id == placeId);
+
+        [RelayCommand]
+        private void ClearSelection() => SelectedPlace = null;
+
+        /// <summary>TP-50: the phone's map app (or Google Maps in the browser) with directions to the selected place.</summary>
+        [RelayCommand]
+        private async Task OpenDirectionsAsync()
+        {
+            if (SelectedPlace is not { } place || !CanGetDirections)
+                return;
+            if (!await _directions.OpenAsync(place.Latitude, place.Longitude, place.Name))
+                await Dialogs.ShowErrorAsync(AppResources.Map_DirectionsError);
         }
 
         [RelayCommand]

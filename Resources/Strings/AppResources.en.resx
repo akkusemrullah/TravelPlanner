@@ -1550,6 +1550,12 @@ We may update this policy as the app changes. We will announce important changes
   <data name="Map_LongPressHint" xml:space="preserve">
     <value>Long-press the map to add a place</value>
   </data>
+  <data name="Map_Directions" xml:space="preserve">
+    <value>Directions</value>
+  </data>
+  <data name="Map_DirectionsError" xml:space="preserve">
+    <value>Couldn't open a maps app.</value>
+  </data>
   <data name="Place_FromMapHint" xml:space="preserve">
     <value>Location picked on the map. Type a name or choose a suggestion.</value>
   </data>

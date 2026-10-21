@@ -1550,6 +1550,12 @@ Bu politikayı uygulama değiştikçe güncelleyebiliriz. Önemli değişiklikle
   <data name="Map_LongPressHint" xml:space="preserve">
     <value>Yer eklemek için haritaya basılı tutun</value>
   </data>
+  <data name="Map_Directions" xml:space="preserve">
+    <value>Yol tarifi</value>
+  </data>
+  <data name="Map_DirectionsError" xml:space="preserve">
+    <value>Harita uygulaması açılamadı.</value>
+  </data>
   <data name="Place_FromMapHint" xml:space="preserve">
     <value>Konum haritadan seçildi. Bir ad yazın veya önerilerden birini seçin.</value>
   </data>

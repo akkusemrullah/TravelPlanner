@@ -65,6 +65,14 @@ public partial class MapPage : ContentPage
     /// </summary>
     private async void OnMapNavigating(object? sender, WebNavigatingEventArgs e)
     {
+        // TP-50: a tapped pin selects that place (the "Yol tarifi" bar appears below the map)
+        if (MapViewModel.TryParseSelectPlaceUrl(e.Url, out var placeId))
+        {
+            e.Cancel = true;
+            _viewModel.SelectPlace(placeId);
+            return;
+        }
+
         if (!MapViewModel.TryParseAddPlaceUrl(e.Url, out var latitude, out var longitude))
             return;
 
@@ -295,6 +303,11 @@ public partial class MapPage : ContentPage
 
                             var label = document.createElement('span');
                             label.textContent = m.name;
+
+                            // TP-50: tapping a pin also selects it in the app (directions bar)
+                            el.addEventListener('click', function () {
+                                window.location.href = 'travelplanner://selectplace?id=' + m.id;
+                            });
 
                             markerObjs.push(new maplibregl.Marker({ element: el })
                                 .setLngLat([m.lon, m.lat])
