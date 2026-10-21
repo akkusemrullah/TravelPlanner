@@ -51,6 +51,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…30_forced_sign_out.sql` | Panelden "tüm cihazlardan çıkış" (ve ban) hemen işler: çıkış zamanı `private.forced_sign_outs`'ta tutulur, `account_status` bundan önce verilmiş token için `signed_out` döner, uygulama açılışta / öne gelince çıkış yapar (önceden telefondaki token 1 saate kadar çalışıyordu) |
 | `migrations/…31_ai_model_setting.sql` | AI modeli ve düşünme seviyesi panelden seçilir (`app_settings.ai_model` / `ai_reasoning`); `plan-trip` bunu `ai_model_settings()` ile (yalnızca `service_role`) okur. Boş bırakılırsa `AI_MODEL` / `AI_REASONING` secret'ları, o da yoksa `gpt-5-mini` |
 | `migrations/…32_trip_cover.sql` | Seyahat kapak fotoğrafı: `trips.cover_path` = `trips/<trip_id>/cover-<32 hex>.jpg` (16:9, 1280x720), yanında `…-thumb.jpg` (256x256, liste için). Eski kapak değişince/silinince kuyruğa girer; gece taraması kapak olmamış yüklemeleri de temizler |
+| `migrations/…33_admin_ai_usage_daily.sql` | Panel: `admin_ai_usage_daily(gün)` son N günün günlük AI plan sayısı (boş gün 0) + günlük genel limit; AI kullanım grafiği için (yalnızca `service_role`) |
 | `explore_samples.sql` | TP-33: üç taslak Keşfet planı (isteğe bağlı içerik, `all_in_one.sql`'de yok) |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 

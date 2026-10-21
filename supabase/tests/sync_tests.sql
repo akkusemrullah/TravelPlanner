@@ -1759,4 +1759,28 @@ reset role;
 delete from private.file_cleanup_queue;
 delete from storage.objects where name like 'trips/' || :'t32' || '/%';
 
+-- ------------------------------------------------------------------------------- 33: daily AI usage chart (TP-51)
+delete from private.ai_global_usage;
+insert into private.ai_global_usage (day, count) values (current_date, 7), (current_date - 2, 3), (current_date - 40, 9);
+set role service_role;
+select test.eq(jsonb_array_length(public.admin_ai_usage_daily(7) -> 'days'), 7, '33: seven days for 7');
+select test.eq(public.admin_ai_usage_daily(7) -> 'days' -> 6 ->> 'day', to_char(current_date, 'YYYY-MM-DD'), '33: oldest first, today last');
+select test.eq((public.admin_ai_usage_daily(7) -> 'days' -> 6 ->> 'count')::int, 7, '33: today''s count');
+select test.eq((public.admin_ai_usage_daily(7) -> 'days' -> 5 ->> 'count')::int, 0, '33: a day without plans is 0');
+select test.eq((public.admin_ai_usage_daily(7) ->> 'total')::int, 10, '33: total of the span');
+select test.eq((public.admin_ai_usage_daily(7) ->> 'max')::int, 7, '33: busiest day');
+select test.eq((public.admin_ai_usage_daily(90) ->> 'total')::int, 19, '33: 90 days reach further back');
+select test.eq(jsonb_array_length(public.admin_ai_usage_daily(0) -> 'days'), 1, '33: at least one day');
+select test.eq(jsonb_array_length(public.admin_ai_usage_daily(5000) -> 'days'), 366, '33: at most 366 days');
+reset role;
+select test.eq((public.admin_ai_usage_daily(7) ->> 'limit')::int, private.ai_global_daily_limit(), '33: the global limit');
+set role authenticated;
+do $$ begin
+    perform public.admin_ai_usage_daily(30);
+    raise exception 'FAILED: a client read the AI usage';
+exception when insufficient_privilege then raise notice 'ok - 33: AI usage is admin only';
+end $$;
+reset role;
+delete from private.ai_global_usage;
+
 \echo ALL SYNC TESTS PASSED
