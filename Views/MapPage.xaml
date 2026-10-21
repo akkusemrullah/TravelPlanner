@@ -72,9 +72,24 @@
         </Grid>
 
         <!-- ════════ Saved places sheet ════════ -->
-        <Grid Grid.Row="4" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+        <Grid Grid.Row="4" RowDefinitions="Auto,Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
             <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
-            <CollectionView Grid.Row="1" ItemsSource="{Binding Pins}" HeightRequest="148" Margin="0,4">
+            <!-- TP-50: the tapped place (pin or list row) + "Yol tarifi" to the phone's map app. -->
+            <Grid Grid.Row="1" IsVisible="{Binding CanGetDirections}" Padding="20,10,12,6" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Navigation}" TextColor="{DynamicResource tp-primary}" />
+                <Label Grid.Column="1" Text="{Binding SelectedPlace.Name, FallbackValue=''}" Style="{StaticResource Text.Title}" FontSize="14"
+                       LineBreakMode="TailTruncation" MaxLines="1" VerticalOptions="Center" />
+                <Button Grid.Column="2" Text="{x:Static res:AppResources.Map_Directions}" Command="{Binding OpenDirectionsCommand}"
+                        Style="{StaticResource Btn.Primary.Sm}" HeightRequest="38" />
+                <Border Grid.Column="3" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Common_Cancel}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text-2}" />
+                </Border>
+            </Grid>
+            <CollectionView Grid.Row="2" ItemsSource="{Binding Pins}" HeightRequest="148" Margin="0,4"
+                            SelectionMode="Single" SelectedItem="{Binding SelectedPlace, Mode=TwoWay}">
                 <CollectionView.EmptyView>
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="20,16">
                         <Border Grid.Column="0" Style="{StaticResource IconTile}">

@@ -81,6 +81,7 @@ namespace TravelPlanner
             services.AddSingleton<IMediaPicker>(MediaPicker.Default);     // TP-501
             services.AddSingleton<ILauncher>(Launcher.Default);           // TP-501
             services.AddSingleton<IAppInfo>(AppInfo.Current);             // TP-507
+            services.AddSingleton<IMap>(Microsoft.Maui.ApplicationModel.Map.Default);                    // TP-50
 
             // Data
             services.AddSingleton<IDatabaseService>(sp =>
@@ -89,6 +90,7 @@ namespace TravelPlanner
             services.AddSingleton<ITripService, TripService>();
             services.AddSingleton<ITodoService, TodoService>();
             services.AddSingleton<IPlaceService, PlaceService>();
+            services.AddSingleton<IDirectionsService, DirectionsService>();   // TP-50
             services.AddSingleton<IActivityService, ActivityService>();       // TP-401
             services.AddSingleton<IPackingService, PackingService>();         // TP-405
             services.AddSingleton<IBudgetAlertService, BudgetAlertService>(); // TP-404
