@@ -425,8 +425,8 @@ namespace TravelPlanner.ViewModels
         };
 
         /// <summary>
-        /// Walks through the waiting messages while the plan is being made - no time estimate, just what is going
-        /// on; the last one stays until the plan arrives.
+        /// Walks through the waiting messages while the plan is being made (the page shows a fixed rough duration
+        /// under them); the last one stays until the plan arrives.
         /// </summary>
         private async Task ShowGeneratingStepsAsync(CancellationToken cancellationToken)
         {

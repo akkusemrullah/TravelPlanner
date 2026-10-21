@@ -8658,5 +8658,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("TripForm_CropUse", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Genelde 1-3 dk sürer.
+        /// </summary>
+        public static string AiPlan_Duration {
+            get {
+                return ResourceManager.GetString("AiPlan_Duration", resourceCulture);
+            }
+        }
     }
 }

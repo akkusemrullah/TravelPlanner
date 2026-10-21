@@ -3198,4 +3198,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="TripForm_CropUse" xml:space="preserve">
     <value>Kullan</value>
   </data>
+  <data name="AiPlan_Duration" xml:space="preserve">
+    <value>Genelde 1-3 dk sürer</value>
+  </data>
 </root>

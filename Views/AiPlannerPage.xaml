@@ -174,12 +174,14 @@
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 
-                <!-- ════════ Working: animated, with what the planner is doing (no time estimate) ════════ -->
+                <!-- ════════ Working: animated, with what the planner is doing and a rough duration (TP-45) ════════ -->
                 <VerticalStackLayout IsVisible="{Binding IsGenerating}" Spacing="16" Padding="0,32,0,0">
                     <controls:LoadingLogo IsVisible="{Binding IsGenerating}" Size="96" />
                     <Label Text="{x:Static res:AppResources.AiPlan_Generating}" Style="{StaticResource Text.Title}" HorizontalTextAlignment="Center" />
                     <Label Text="{Binding GeneratingStatus}" Style="{StaticResource Text.Body2}" HorizontalTextAlignment="Center"
                            LineBreakMode="WordWrap" MinimumHeightRequest="40" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_Duration}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
