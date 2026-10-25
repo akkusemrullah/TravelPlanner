@@ -156,8 +156,8 @@ namespace TravelPlanner.ViewModels
             VisitedCountriesCount = CountVisitedCountries(trips, DateTime.Today);
             VisitedCitiesCount = CountVisitedCities(trips, DateTime.Today);
 
-            // TP-207: one SUM query (grouped by trip currency since TP-403) instead of one query per trip.
-            var totalsByCurrency = await _expenseService.GetTotalExpensesByCurrencyAsync();
+            // TP-403: grouped by trip currency. TP-69: the user's own spending - their share in shared trips.
+            var totalsByCurrency = await _expenseService.GetMyTotalsByCurrencyAsync(Services.Sync.ChangeTracker.CurrentUserId);
             TotalExpensesFormatted = await FormatCombinedTotalAsync(totalsByCurrency);
 
             // Featured card: an ongoing trip wins over the nearest upcoming one - "what's happening

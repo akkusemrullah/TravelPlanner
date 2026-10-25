@@ -210,7 +210,7 @@
     <value>Countries visited</value>
   </data>
   <data name="Dashboard_TotalExpenses" xml:space="preserve">
-    <value>Total spent</value>
+    <value>My spending</value>
   </data>
   <data name="Dashboard_BadgeOngoing" xml:space="preserve">
     <value>Trip in progress</value>
