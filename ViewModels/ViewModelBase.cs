@@ -133,7 +133,20 @@ namespace TravelPlanner.ViewModels
                 IsBusy = true;
                 try
                 {
-                    await load();
+                    // TP-81: a page that couldn't load offers "Tekrar dene" instead of only "Tamam"
+                    while (true)
+                    {
+                        try
+                        {
+                            await load();
+                            break;
+                        }
+                        catch (Exception ex) when (ex is not (OperationCanceledException or TripAccessException))
+                        {
+                            if (!await Dialogs.ShowRetryAsync(errorMessage ?? AppResources.Common_GenericError, ex))
+                                break;
+                        }
+                    }
                 }
                 finally
                 {

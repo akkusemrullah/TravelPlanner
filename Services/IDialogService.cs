@@ -15,6 +15,12 @@ namespace TravelPlanner.Services
         /// <summary>Logs <paramref name="exception"/> (if any) and shows a friendly, localized error message.</summary>
         Task ShowErrorAsync(string message, Exception? exception = null);
 
+        /// <summary>
+        /// TP-81: like <see cref="ShowErrorAsync"/> for a page that couldn't load, with "Tekrar dene" / "Kapat".
+        /// True when the user wants to try again.
+        /// </summary>
+        Task<bool> ShowRetryAsync(string message, Exception? exception = null);
+
         /// <summary>Shows an informational message with an OK button.</summary>
         Task ShowMessageAsync(string title, string message);
 

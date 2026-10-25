@@ -3275,4 +3275,10 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Sync_MergedFormat" xml:space="preserve">
     <value>Başka biri de değiştirdi, iki değişiklik birleştirildi: {0}.</value>
   </data>
+  <data name="Common_Retry" xml:space="preserve">
+    <value>Tekrar dene</value>
+  </data>
+  <data name="Common_Close" xml:space="preserve">
+    <value>Kapat</value>
+  </data>
 </root>
