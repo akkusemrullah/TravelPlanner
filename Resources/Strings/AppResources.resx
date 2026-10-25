@@ -3284,4 +3284,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Dashboard_StatsRule" xml:space="preserve">
     <value>Ülke ve şehirler başlamış seyahatlerden sayılır. Harcamalarım: senin payın.</value>
   </data>
+  <data name="Sync_BadgeA11y" xml:space="preserve">
+    <value>Eşitleme durumu</value>
+  </data>
 </root>
