@@ -3270,4 +3270,7 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Trash_DeletedByOther" xml:space="preserve">
     <value>Deleted by someone else</value>
   </data>
+  <data name="Sync_MergedFormat" xml:space="preserve">
+    <value>Someone else changed this too; both edits were merged: {0}.</value>
+  </data>
 </root>

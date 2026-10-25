@@ -301,6 +301,32 @@ namespace TravelPlanner.Tests
                          SyncRejectionMessage.Format(Assert.Single(told)));
         }
 
+        [Fact]
+        public async Task TP67_AMergedEdit_IsNamedToTheUser()
+        {
+            var trip = await SharedTripAsEditorAsync();
+            var expense = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            expense.Description = "Müze bileti";
+            await _expenses.SaveAsync(expense);
+            _client.Handler = (fn, args) =>
+            {
+                if (fn != "apply_changes")
+                    return SharedTripPull("editor", cursor: 60);
+                var answer = JsonNode.Parse(FakeSupabaseClient.AnswerAll(args, "applied", version: 3))!.AsArray();
+                foreach (var item in answer)
+                    item!["conflict"] = true;
+                return answer.ToJsonString();
+            };
+            var told = new List<IReadOnlyList<RejectedChange>>();
+            _sync.ChangesMerged += (_, merged) => told.Add(merged);
+
+            var result = await _sync.SyncNowAsync();
+
+            Assert.Equal(1, result.Conflicts);
+            Assert.Equal("Başka biri de değiştirdi, iki değişiklik birleştirildi: “Müze bileti”.",
+                         SyncRejectionMessage.Format(Assert.Single(told)));
+        }
+
         // ------------------------------------------------------------------ 28: a shared trip that vanishes is announced
 
         private static string SharedTripDeletedPull(string role) => new JsonObject

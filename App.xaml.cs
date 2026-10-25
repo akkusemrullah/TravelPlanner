@@ -87,6 +87,11 @@ namespace TravelPlanner
                 dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
                     SyncRejectionMessage.Format(rejected)).FireAndForget());
 
+            // TP-67: ... or merged them with someone else's edit of the same record.
+            _sync.ChangesMerged += (_, merged) => MainThread.BeginInvokeOnMainThread(() =>
+                dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,
+                    SyncRejectionMessage.Format(merged)).FireAndForget());
+
             // TP-3: ... or kept them back because a usage limit is reached (told once per change).
             _sync.QuotaExceeded += (_, count) => MainThread.BeginInvokeOnMainThread(() =>
                 dialogs.ShowMessageAsync(TravelPlanner.Resources.Strings.AppResources.Common_Info,

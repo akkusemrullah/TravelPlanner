@@ -105,6 +105,8 @@ namespace TravelPlanner.Services.Sync
 
         public event EventHandler<int>? QuotaExceeded;
 
+        public event EventHandler<IReadOnlyList<RejectedChange>>? ChangesMerged;
+
         public event EventHandler<IReadOnlyList<string>>? SharedTripsRemoved;
 
         // ------------------------------------------------------------------ triggers
@@ -264,6 +266,8 @@ namespace TravelPlanner.Services.Sync
                     RemoteChangesApplied?.Invoke(this, EventArgs.Empty);
                     ChangesRejected?.Invoke(this, push.RejectedChanges);
                 }
+                if (push.MergedChanges.Count > 0)
+                    ChangesMerged?.Invoke(this, push.MergedChanges);
 
                 var pulled = await PullAsync(db, push.NeedsFullPull || await IsFullPullDueAsync(db), token);
 
@@ -355,6 +359,9 @@ namespace TravelPlanner.Services.Sync
             /// <summary>TP-6: the changes refused for good (what the user is told about).</summary>
             public IReadOnlyList<RejectedChange> RejectedChanges { get; init; } = Array.Empty<RejectedChange>();
 
+            /// <summary>TP-67: changes the server merged with someone else's edit of the same record (named ones only).</summary>
+            public IReadOnlyList<RejectedChange> MergedChanges { get; init; } = Array.Empty<RejectedChange>();
+
             /// <summary>TP-6: attachment files (relative paths) of refused new rows that were removed.</summary>
             public IReadOnlyList<string> FilesToDelete { get; init; } = Array.Empty<string>();
 
@@ -366,6 +373,7 @@ namespace TravelPlanner.Services.Sync
                 NeedsFullPull || other.NeedsFullPull, OverQuota + other.OverQuota, NewlyOverQuota + other.NewlyOverQuota)
             {
                 RejectedChanges = RejectedChanges.Concat(other.RejectedChanges).ToList(),
+                MergedChanges = MergedChanges.Concat(other.MergedChanges).ToList(),
                 FilesToDelete = FilesToDelete.Concat(other.FilesToDelete).ToList(),
                 RemovedTripIds = RemovedTripIds.Concat(other.RemovedTripIds).ToList(),
             };
@@ -470,6 +478,7 @@ namespace TravelPlanner.Services.Sync
             int pushed = 0, rejected = 0, conflicts = 0, failed = 0, overQuota = 0, newlyOverQuota = 0;
             var needsFullPull = false;
             var rejections = new List<RejectedChange>();
+            var merged = new List<RejectedChange>();
             var removed = new RemoteApplier.Outcome();
             var results = response.ValueKind == JsonValueKind.Array ? response : default;
 
@@ -484,7 +493,12 @@ namespace TravelPlanner.Services.Sync
                 {
                     pushed++;
                     if (result.TryGetProperty("conflict", out var conflict) && conflict.ValueKind == JsonValueKind.True)
+                    {
                         conflicts++;
+                        // TP-67: someone else changed it too; the fields were merged - name it so the user can check
+                        if (MergedTitle(conn, pending) is { } mergedTitle)
+                            merged.Add(new RejectedChange(pending.EntityType, mergedTitle, "merged", RemovedLocally: false));
+                    }
 
                     DeletePendingIfUnchanged(conn, pending);
 
@@ -532,6 +546,7 @@ namespace TravelPlanner.Services.Sync
             return new PushOutcome(pushed, rejected, conflicts, failed, needsFullPull, overQuota, newlyOverQuota)
             {
                 RejectedChanges = rejections,
+                MergedChanges = merged,
                 FilesToDelete = removed.FilesToDelete,
                 RemovedTripIds = removed.RemovedTripIds.ToList(),
             };
@@ -570,6 +585,17 @@ namespace TravelPlanner.Services.Sync
 
             conn.Execute($"UPDATE \"{map.TableName}\" SET ChangeSeq = ? WHERE SyncId = ?", RemoteApplier.StaleChangeSeq, local.SyncId);
             return new RejectedChange(info.EntityType, title, reason, RemovedLocally: false);
+        }
+
+        /// <summary>TP-67: the name of a record whose upload was merged with another edit (null: no name of its own).</summary>
+        private static string? MergedTitle(SQLiteConnection conn, PendingChange pending)
+        {
+            if (pending.Operation != ChangeOperation.Upsert || !SyncSchema.TryForEntityType(pending.EntityType, out var info))
+                return null;
+            var map = conn.GetMapping(info.ClrType);
+            return conn.Query(map, $"SELECT * FROM \"{map.TableName}\" WHERE SyncId = ?", pending.EntitySyncId).FirstOrDefault() is ISyncEntity local
+                ? info.ResolveTitle(local) is { Length: > 0 } title ? title : null
+                : null;
         }
 
         /// <summary>Removes an outbox entry unless it was changed again while being sent (then it goes next round).</summary>
