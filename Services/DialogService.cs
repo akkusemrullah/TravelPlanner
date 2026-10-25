@@ -51,6 +51,16 @@ namespace TravelPlanner.Services
                 AppDialogPage.ShowCardAsync(navigation, AppResources.Common_Error, message, AppResources.Common_Ok, null, AppDialogPage.Tone.Error));
         }
 
+        public Task<bool> ShowRetryAsync(string message, Exception? exception = null)
+        {
+            if (exception is not null)
+                Debug.WriteLine($"[TravelPlanner] {message} :: {exception}");
+
+            return ShowAsync(false, async navigation =>
+                await AppDialogPage.ShowCardAsync(navigation, AppResources.Common_Error, message, AppResources.Common_Retry,
+                    AppResources.Common_Close, AppDialogPage.Tone.Error) is not null);
+        }
+
         public Task ShowMessageAsync(string title, string message) =>
             ShowAsync<string?>(null, navigation =>
                 AppDialogPage.ShowCardAsync(navigation, title, message, AppResources.Common_Ok, null, AppDialogPage.Tone.Info));

@@ -45,7 +45,25 @@ namespace TravelPlanner.Tests
 
             await vm.LoadTripsCommand.ExecuteAsync(null);
 
-            dialogs.Verify(d => d.ShowErrorAsync("Seyahatler yüklenemedi.", It.IsAny<InvalidOperationException>()), Times.Once);
+            dialogs.Verify(d => d.ShowRetryAsync("Seyahatler yüklenemedi.", It.IsAny<InvalidOperationException>()), Times.Once);
+            Assert.False(vm.IsBusy);
+        }
+
+        [Fact]
+        public async Task TP81_LoadFailure_TryAgain_LoadsAgain()
+        {
+            var calls = 0;
+            _trips.Setup(t => t.GetAllAsync()).Returns(() => ++calls == 1
+                ? Task.FromException<List<Trip>>(new InvalidOperationException("offline"))
+                : Task.FromResult(new List<Trip> { new() { Id = 1, Name = "Roma", StartDate = DateTime.Today, EndDate = DateTime.Today } }));
+            var dialogs = Fakes.Dialogs();
+            dialogs.Setup(d => d.ShowRetryAsync(It.IsAny<string>(), It.IsAny<Exception?>())).ReturnsAsync(true);
+            var vm = new TripListViewModel(_trips.Object, _rates.Object, dialogs.Object);
+
+            await vm.LoadTripsCommand.ExecuteAsync(null);
+
+            Assert.Equal(2, calls);
+            dialogs.Verify(d => d.ShowRetryAsync(It.IsAny<string>(), It.IsAny<Exception?>()), Times.Once);
             Assert.False(vm.IsBusy);
         }
 

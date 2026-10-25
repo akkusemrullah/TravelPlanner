@@ -8883,5 +8883,23 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Sync_MergedFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tekrar dene.
+        /// </summary>
+        public static string Common_Retry {
+            get {
+                return ResourceManager.GetString("Common_Retry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Kapat.
+        /// </summary>
+        public static string Common_Close {
+            get {
+                return ResourceManager.GetString("Common_Close", resourceCulture);
+            }
+        }
     }
 }
