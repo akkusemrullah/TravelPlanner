@@ -131,6 +131,23 @@
                     </Grid>
                 </Border>
 
+                <!-- ════════ No plan can be asked for: daily limit or maintenance ════════ -->
+                <Border IsVisible="{Binding IsBlocked}" Style="{StaticResource Card}" Margin="0,24,0,0">
+                    <VerticalStackLayout Spacing="10" Padding="8,16">
+                        <Border Style="{StaticResource IconTile.Warning}" WidthRequest="56" HeightRequest="56" HorizontalOptions="Center">
+                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Clock}" TextColor="{DynamicResource tp-warning}">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label" Binding="{Binding IsPaused}" Value="True">
+                                        <Setter Property="Text" Value="{StaticResource Ic.Settings}" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </Border>
+                        <Label Text="{Binding BlockedTitle}" Style="{StaticResource Text.Title}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                        <Label Text="{Binding BlockedText}" Style="{StaticResource EmptyStateTextLabel}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Border>
+
                 <!-- ════════ Questions ════════ -->
                 <VerticalStackLayout IsVisible="{Binding IsAsking}" Spacing="20">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
@@ -217,6 +234,8 @@
         <Grid Grid.Row="3" Padding="16,10,16,16" BackgroundColor="{DynamicResource tp-surface}">
             <Button IsVisible="{Binding IsAsking}" Text="{x:Static res:AppResources.AiPlan_Generate}" Command="{Binding GenerateCommand}"
                     IsEnabled="{Binding CanGenerate}" Style="{StaticResource Btn.Primary}" />
+            <Button IsVisible="{Binding IsBlocked}" Text="{x:Static res:AppResources.AiPlan_BackToTrip}" Command="{Binding GoBackCommand}"
+                    Style="{StaticResource Btn.Secondary}" />
             <VerticalStackLayout IsVisible="{Binding IsPreview}" Spacing="8">
                 <HorizontalStackLayout IsVisible="{Binding IsApplying}" Spacing="8" HorizontalOptions="Center">
                     <controls:LoadingDots IsVisible="{Binding IsApplying}" DotSize="6" DotColor="{DynamicResource tp-primary}" />

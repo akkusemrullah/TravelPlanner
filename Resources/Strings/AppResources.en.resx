@@ -3174,6 +3174,21 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Profile_DeleteHint" xml:space="preserve">
     <value>Removes your account and cloud data</value>
   </data>
+  <data name="AiPlan_QuotaNoneTitle" xml:space="preserve">
+    <value>No plans left today</value>
+  </data>
+  <data name="AiPlan_QuotaNoneText" xml:space="preserve">
+    <value>You get new plans tomorrow.</value>
+  </data>
+  <data name="AiPlan_PausedTitle" xml:space="preserve">
+    <value>AI is under maintenance</value>
+  </data>
+  <data name="AiPlan_PausedText" xml:space="preserve">
+    <value>Try again later.</value>
+  </data>
+  <data name="AiPlan_BackToTrip" xml:space="preserve">
+    <value>Back to trip</value>
+  </data>
   <data name="AiPlan_Paused" xml:space="preserve">
     <value>Planning with AI is paused for maintenance. Try again later.</value>
   </data>

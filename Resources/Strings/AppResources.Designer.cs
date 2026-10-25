@@ -5333,6 +5333,51 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bugünkü hakkın doldu.
+        /// </summary>
+        public static string AiPlan_QuotaNoneTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_QuotaNoneTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yarın yeni plan hakların gelir..
+        /// </summary>
+        public static string AiPlan_QuotaNoneText {
+            get {
+                return ResourceManager.GetString("AiPlan_QuotaNoneText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yapay zekâ bakımda.
+        /// </summary>
+        public static string AiPlan_PausedTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_PausedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Daha sonra tekrar dene..
+        /// </summary>
+        public static string AiPlan_PausedText {
+            get {
+                return ResourceManager.GetString("AiPlan_PausedText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahate dön.
+        /// </summary>
+        public static string AiPlan_BackToTrip {
+            get {
+                return ResourceManager.GetString("AiPlan_BackToTrip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Bugünkü plan hakkın doldu. Yarın tekrar deneyebilirsin..
         /// </summary>
         public static string AiPlan_QuotaNone {
