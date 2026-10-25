@@ -308,6 +308,7 @@ namespace TravelPlanner.ViewModels
             AuthErrorKind.Banned => AppResources.Auth_ErrorBanned,
             AuthErrorKind.CaptchaFailed => AppResources.Auth_ErrorCaptcha,
             AuthErrorKind.DisposableEmail => AppResources.Auth_ErrorDisposableEmail,
+            AuthErrorKind.BrowserFailed => AppResources.Auth_ErrorBrowser,
             _ => AppResources.Auth_ErrorUnknown,
         };
 

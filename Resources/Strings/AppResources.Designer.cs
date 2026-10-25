@@ -6035,6 +6035,15 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Google açılamadı. Tekrar dene..
+        /// </summary>
+        public static string Auth_ErrorBrowser {
+            get {
+                return ResourceManager.GetString("Auth_ErrorBrowser", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Google ile giriş bu cihazda desteklenmiyor. E-posta ile giriş yapabilirsin..
         /// </summary>
         public static string Auth_ErrorNotSupported {

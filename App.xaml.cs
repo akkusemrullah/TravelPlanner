@@ -15,6 +15,7 @@ namespace TravelPlanner
         private readonly ITripService _trips;
         private readonly IMemberJoinWatcher _memberJoins;
         private readonly IAiPlanJobs _aiJobs;
+        private readonly AppLifecycle _lifecycle;
         private bool _offeringAiPlan;
         private bool _shellShown;
 
@@ -37,8 +38,9 @@ namespace TravelPlanner
         public App(INotificationService notificationService, ISettingsService settings, IThemeService themeService,
                    ITrashService trashService, IAccountService account, IPreferences preferences, ISyncService sync,
                    ITripAccessService tripAccess, IDialogService dialogs, ITripService trips, IMemberJoinWatcher memberJoins,
-                   IAiPlanJobs aiJobs)
+                   IAiPlanJobs aiJobs, AppLifecycle lifecycle)
         {
+            _lifecycle = lifecycle;
             // Language first: every page reads its {x:Static} strings when it's built (TP-301).
             LocalizationHelper.Apply(settings.Language);
 
@@ -203,6 +205,7 @@ namespace TravelPlanner
         protected override void OnResume()
         {
             base.OnResume();
+            _lifecycle.RaiseResumed();
             _aiJobs.InForeground = true;
             if (_shellShown)
                 ResumeAsync().FireAndForget();
@@ -288,6 +291,7 @@ namespace TravelPlanner
         protected override void OnSleep()
         {
             base.OnSleep();
+            _lifecycle.RaiseSleeping();
             _sync.Stop();
             _aiJobs.InForeground = false; // a plan getting ready now is told by a notification
         }

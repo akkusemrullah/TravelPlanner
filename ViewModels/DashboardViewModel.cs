@@ -153,11 +153,7 @@ namespace TravelPlanner.ViewModels
 
             // "Gezilen ülke" = countries from trips that have actually happened, not ones merely
             // planned - so this only counts trips whose end date has already passed.
-            VisitedCountriesCount = trips
-                .Where(t => t.EndDate.Date < DateTime.Today && !string.IsNullOrWhiteSpace(t.Country))
-                .Select(t => t.Country.Trim())
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Count();
+            VisitedCountriesCount = CountVisitedCountries(trips, DateTime.Today);
             VisitedCitiesCount = CountVisitedCities(trips, DateTime.Today);
 
             // TP-207: one SUM query (grouped by trip currency since TP-403) instead of one query per trip.
@@ -188,13 +184,20 @@ namespace TravelPlanner.ViewModels
         /// with the free Frankfurter rate. If a rate is unavailable (offline, never fetched), the totals are shown
         /// side by side instead ("₺12.500 + €340") rather than adding up amounts of different currencies.
         /// </summary>
+        /// <summary>"Gezilen ülke": countries of trips that are over; "Türkiye" and "Türkiye Cumhuriyeti" are one country.</summary>
+        internal static int CountVisitedCountries(IEnumerable<Trip> trips, DateTime today) => trips
+            .Where(t => t.EndDate.Date < today.Date && !string.IsNullOrWhiteSpace(t.Country))
+            .Select(t => CountryNames.Key(t.Country))
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
         /// <summary>
         /// "Gezilen şehir" - like the countries: cities of trips that are over. The same city name in two countries
         /// (Paris, France / Paris, Texas) counts twice; case and spaces don't matter.
         /// </summary>
         internal static int CountVisitedCities(IEnumerable<Trip> trips, DateTime today) => trips
             .Where(t => t.EndDate.Date < today.Date && !string.IsNullOrWhiteSpace(t.City))
-            .Select(t => (t.Country ?? string.Empty).Trim().ToUpperInvariant() + "|" + t.City.Trim().ToUpperInvariant())
+            .Select(t => CountryNames.Key(t.Country) + "|" + t.City.Trim().ToUpperInvariant())
             .Distinct(StringComparer.Ordinal)
             .Count();
 

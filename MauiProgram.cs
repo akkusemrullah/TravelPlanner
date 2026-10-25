@@ -120,6 +120,8 @@ namespace TravelPlanner
             });
             // CAPTCHA (Cloudflare Turnstile) for e-mail sign-up / sign-in / password reset; off while SupabaseConfig.CaptchaSiteKey is empty.
             services.AddSingleton<ICaptchaService, TurnstileCaptchaService>();
+            services.AddSingleton<AppLifecycle>();
+            services.AddSingleton<IAppLifecycle>(sp => sp.GetRequiredService<AppLifecycle>());
             services.AddSingleton<IAuthService, SupabaseAuthService>();
 
             // G4/G5: sync engine (RPCs + Storage over plain HTTP).

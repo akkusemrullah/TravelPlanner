@@ -1884,6 +1884,9 @@ Seyahatlerinin bir kopyasını istiyorsan önce Yedekleme → Dışa aktar ile y
   <data name="Auth_ErrorRateLimited" xml:space="preserve">
     <value>Çok fazla deneme yapıldı. Biraz bekleyip tekrar dene.</value>
   </data>
+  <data name="Auth_ErrorBrowser" xml:space="preserve">
+    <value>Google açılamadı. Tekrar dene.</value>
+  </data>
   <data name="Auth_ErrorNotSupported" xml:space="preserve">
     <value>Google ile giriş bu cihazda desteklenmiyor. E-posta ile giriş yapabilirsin.</value>
   </data>

@@ -56,7 +56,9 @@ namespace TravelPlanner.Models
         /// <summary>The CAPTCHA (Cloudflare Turnstile) couldn't be completed or the server refused its token.</summary>
         CaptchaFailed,
         /// <summary>TP-15: sign-up with a throw-away e-mail address (refused by the server's sign-up hook).</summary>
-        DisposableEmail
+        DisposableEmail,
+        /// <summary>Google sign-in: the browser didn't open.</summary>
+        BrowserFailed
     }
 
     /// <summary>A sign-in/sign-up failure the UI can explain (see AuthViewModel's messages).</summary>

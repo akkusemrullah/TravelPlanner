@@ -316,7 +316,7 @@ namespace TravelPlanner.ViewModels
 
             _isApplyingCitySelection = true;
             City = selected.Name;
-            Country = selected.Country;
+            Country = CountryNames.Tidy(selected.Country);
             _isApplyingCitySelection = false;
 
             IsCitySuggestionsVisible = false;
