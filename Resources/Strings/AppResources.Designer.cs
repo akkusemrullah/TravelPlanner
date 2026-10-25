@@ -8946,5 +8946,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Attachments_MembersOnly", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Adım {0}/{1}.
+        /// </summary>
+        public static string AiPlan_StepFormat {
+            get {
+                return ResourceManager.GetString("AiPlan_StepFormat", resourceCulture);
+            }
+        }
     }
 }
