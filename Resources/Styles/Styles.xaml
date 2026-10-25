@@ -616,7 +616,8 @@
         <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
         <Setter Property="Stroke" Value="{DynamicResource tp-border-strong}" />
         <Setter Property="StrokeShape" Value="RoundRectangle 8" />
-        <Setter Property="Padding" Value="12,7" />
+        <!-- TP-62: 10 (was 12) so the four trip filters fit on most phones -->
+        <Setter Property="Padding" Value="10,7" />
     </Style>
 
     <!-- Empty-state icon disc. -->

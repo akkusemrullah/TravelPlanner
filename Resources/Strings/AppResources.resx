@@ -3262,4 +3262,10 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="AiPlan_EntryReady" xml:space="preserve">
     <value>Planın hazır, görmek için dokun</value>
   </data>
+  <data name="Ticket_TomorrowLast" xml:space="preserve">
+    <value>Yarın son gün</value>
+  </data>
+  <data name="Ticket_DaysMoreFormat" xml:space="preserve">
+    <value>{0} gün daha</value>
+  </data>
 </root>

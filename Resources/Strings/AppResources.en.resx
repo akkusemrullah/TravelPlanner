@@ -3261,4 +3261,10 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="AiPlan_EntryReady" xml:space="preserve">
     <value>Your plan is ready, tap to see</value>
   </data>
+  <data name="Ticket_TomorrowLast" xml:space="preserve">
+    <value>Last day tomorrow</value>
+  </data>
+  <data name="Ticket_DaysMoreFormat" xml:space="preserve">
+    <value>{0} more days</value>
+  </data>
 </root>

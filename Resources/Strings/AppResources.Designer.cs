@@ -8847,5 +8847,23 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("AiPlan_EntryReady", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yarın son gün.
+        /// </summary>
+        public static string Ticket_TomorrowLast {
+            get {
+                return ResourceManager.GetString("Ticket_TomorrowLast", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} gün daha.
+        /// </summary>
+        public static string Ticket_DaysMoreFormat {
+            get {
+                return ResourceManager.GetString("Ticket_DaysMoreFormat", resourceCulture);
+            }
+        }
     }
 }

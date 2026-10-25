@@ -6277,3 +6277,80 @@ begin
 end $$;
 
 notify pgrst, 'reload schema';
+
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261025000040_ai_day_istanbul.sql
+-- =====================================================================================================
+-- TravelPlanner - TP-63 / 40: the AI quota day follows Türkiye's clock.
+--
+-- The daily AI counters (per account, per device, global) are kept by current_date, which is the date in the
+-- session's time zone - UTC on Supabase. So "her gün yenilenir" happened at 03:00 in Türkiye. Every function that
+-- reads or writes those counters now runs with TimeZone = Europe/Istanbul, so current_date inside it is Türkiye's
+-- date and the quota renews at midnight there. now() and every timestamptz stay the same instant; only the
+-- calendar day changes. Rows already written keep their (UTC) day; between 00:00 and 03:00 on the day this runs
+-- the new day simply starts a little earlier.
+--
+-- NOTE for later migrations: CREATE OR REPLACE of one of these functions drops this setting - add
+--   set timezone = 'Europe/Istanbul'   to the new definition (or re-run this file).
+-- Safe to run again.
+-- =====================================================================================================
+
+do $$
+declare f text;
+begin
+    foreach f in array array[
+        'public.ai_plan_quota_status(text)',
+        'public.ai_plan_quota(text)',
+        'public.admin_overview()',
+        'private.admin_user_row(uuid)',
+        'public.admin_user(uuid)',
+        'public.admin_reset_ai_today(uuid)',
+        'private.ai_note_device(uuid,text)',
+        'public.admin_settings()',
+        'public.admin_ai_usage_daily(integer)'
+    ] loop
+        if to_regprocedure(f) is not null then
+            execute format('alter function %s set timezone = %L', f, 'Europe/Istanbul');
+        else
+            raise notice 'TP-63: % not found (older migrations not run?), skipped', f;
+        end if;
+    end loop;
+end $$;
+
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> migrations/20261025000041_invite_code_random.sql
+-- =====================================================================================================
+-- TravelPlanner - TP-64 / 41: every character of an invite code is fully random.
+--
+-- new_invite_code (migration 4) took the first 8 bytes of a random UUID. In a v4 UUID byte 6 carries the version
+-- (0x4_), so the 7th character could only be one of 16 letters, and "byte % 31" favoured the first 8 letters a
+-- little. Now only the 14 fully random bytes of each UUID are used (not byte 6, not byte 8 with the variant bits),
+-- and a byte is used only when it is below 248 (= 8 x 31), so each of the 31 characters is equally likely.
+-- Same alphabet and length as before; codes already handed out stay valid. Safe to run again.
+-- =====================================================================================================
+
+create or replace function private.new_invite_code() returns text
+language plpgsql
+volatile
+set search_path = ''
+as $$
+declare
+    v_alphabet constant text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';  -- 31 letters/digits
+    v_bytes bytea;
+    v_code  text := '';
+    v_byte  int;
+    i int;
+begin
+    while length(v_code) < 8 loop
+        v_bytes := uuid_send(gen_random_uuid());
+        for i in 0..15 loop
+            continue when i in (6, 8);              -- version and variant bits
+            v_byte := get_byte(v_bytes, i);
+            continue when v_byte >= 248;            -- no modulo bias
+            v_code := v_code || substr(v_alphabet, v_byte % 31 + 1, 1);
+            exit when length(v_code) = 8;
+        end loop;
+    end loop;
+    return v_code;
+end;
+$$;
+
+revoke all on function private.new_invite_code() from public, anon, authenticated;
