@@ -468,10 +468,31 @@ namespace TravelPlanner.Tests
             var vm = await LoadAsync();
             Assert.False(vm.CanGenerate);
             Assert.Equal("Bakımdayız", vm.QuotaText);
+            Assert.True(vm.IsBlocked);
+            Assert.False(vm.IsAsking);
+            Assert.Equal((AppResources.AiPlan_PausedTitle, "Bakımdayız"), (vm.BlockedTitle, vm.BlockedText));
 
             _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5, true));
             vm = await LoadAsync();
             Assert.Equal(AppResources.AiPlan_Paused, vm.QuotaText);
+            Assert.Equal(AppResources.AiPlan_PausedText, vm.BlockedText);
+        }
+
+        [Fact]
+        public async Task QuotaUsedUp_ShowsTheBlockedCard_InsteadOfTheQuestions()
+        {
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5));
+            var vm = await LoadAsync();
+
+            Assert.True(vm.IsBlocked);
+            Assert.False(vm.IsAsking);
+            Assert.False(vm.IsPaused);
+            Assert.Equal((AppResources.AiPlan_QuotaNoneTitle, AppResources.AiPlan_QuotaNoneText), (vm.BlockedTitle, vm.BlockedText));
+
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(2, 5));
+            vm = await LoadAsync();
+            Assert.False(vm.IsBlocked);
+            Assert.True(vm.IsAsking);
         }
 
         [Fact]
@@ -739,9 +760,12 @@ namespace TravelPlanner.Tests
 
             await vm.GenerateCommand.ExecuteAsync(null);
 
-            Assert.Equal(AppResources.AiPlan_QuotaNone, vm.ErrorText);
+            Assert.Null(vm.ErrorText); // the blocked card says it
             Assert.False(vm.IsPreview);
             Assert.False(vm.CanGenerate);
+            Assert.True(vm.IsBlocked);
+            Assert.False(vm.IsAsking);
+            Assert.Equal(AppResources.AiPlan_QuotaNoneTitle, vm.BlockedTitle);
         }
 
         [Fact]

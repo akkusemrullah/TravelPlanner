@@ -3175,6 +3175,21 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Profile_DeleteHint" xml:space="preserve">
     <value>Hesap ve bulut verileri silinir</value>
   </data>
+  <data name="AiPlan_QuotaNoneTitle" xml:space="preserve">
+    <value>Bugünkü hakkın doldu</value>
+  </data>
+  <data name="AiPlan_QuotaNoneText" xml:space="preserve">
+    <value>Yarın yeni plan hakların gelir.</value>
+  </data>
+  <data name="AiPlan_PausedTitle" xml:space="preserve">
+    <value>Yapay zekâ bakımda</value>
+  </data>
+  <data name="AiPlan_PausedText" xml:space="preserve">
+    <value>Daha sonra tekrar dene.</value>
+  </data>
+  <data name="AiPlan_BackToTrip" xml:space="preserve">
+    <value>Seyahate dön</value>
+  </data>
   <data name="AiPlan_Paused" xml:space="preserve">
     <value>Yapay zekâ planlama şu an bakımda. Daha sonra tekrar dene.</value>
   </data>

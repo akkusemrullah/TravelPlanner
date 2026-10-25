@@ -242,19 +242,28 @@ namespace TravelPlanner.ViewModels
         private bool isOnline = true;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsAsking), nameof(CanGenerate))]
+        [NotifyPropertyChangedFor(nameof(IsAsking), nameof(IsBlocked), nameof(CanGenerate))]
         private bool isGenerating;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(IsAsking), nameof(IsFormVisible))]
+        [NotifyPropertyChangedFor(nameof(IsAsking), nameof(IsBlocked), nameof(IsFormVisible))]
         private bool isPreview;
 
         [ObservableProperty]
         private bool isApplying;
 
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CanGenerate))]
+        [NotifyPropertyChangedFor(nameof(CanGenerate), nameof(IsAsking), nameof(IsBlocked))]
         private int? remaining;
+
+        /// <summary>AI maintenance (admin panel) rather than the daily limit.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(BlockedTitle))]
+        private bool isPaused;
+
+        /// <summary>Under the blocked card's title: the admin's maintenance note, or when the plans come back.</summary>
+        [ObservableProperty]
+        private string blockedText = string.Empty;
 
         /// <summary>TP-57: a plan of another trip is being made: one at a time.</summary>
         [ObservableProperty]
@@ -277,7 +286,11 @@ namespace TravelPlanner.ViewModels
 
         public bool IsGuest => !IsSignedIn;
         public bool IsOffline => !IsOnline;
-        public bool IsAsking => !IsGenerating && !IsPreview;
+        public bool IsAsking => !IsGenerating && !IsPreview && !IsBlocked;
+
+        /// <summary>No plan can be asked for (daily limit or maintenance): one clear card instead of the questions.</summary>
+        public bool IsBlocked => Remaining is 0 && !IsGenerating && !IsPreview;
+        public string BlockedTitle => IsPaused ? AppResources.AiPlan_PausedTitle : AppResources.AiPlan_QuotaNoneTitle;
 
         /// <summary>The questions / spinner area (everything but the preview list).</summary>
         public bool IsFormVisible => !IsPreview;
@@ -392,7 +405,8 @@ namespace TravelPlanner.ViewModels
                     StopSteps();
                     IsGenerating = false;
                     var kind = job.Error ?? AiPlanErrorKind.Failed;
-                    ErrorText = kind == AiPlanErrorKind.Paused ? null : MessageFor(kind); // paused: the quota line says it
+                    // paused / daily limit: the blocked card says it
+                    ErrorText = kind is AiPlanErrorKind.Paused or AiPlanErrorKind.QuotaExceeded ? null : MessageFor(kind);
                     if (kind == AiPlanErrorKind.QuotaExceeded)
                         ShowQuota(new AiQuota(0, 0));
                     else if (kind == AiPlanErrorKind.Paused)
@@ -411,13 +425,16 @@ namespace TravelPlanner.ViewModels
         {
             if (quota is null)
                 return;
+            IsPaused = quota.Paused;
             if (quota.Paused)
             {
                 // maintenance (admin panel): nothing can be asked for; the admin's note when there is one
-                Remaining = 0;
                 QuotaText = quota.Message ?? AppResources.AiPlan_Paused;
+                BlockedText = quota.Message ?? AppResources.AiPlan_PausedText;
+                Remaining = 0;
                 return;
             }
+            BlockedText = AppResources.AiPlan_QuotaNoneText;
             Remaining = quota.Remaining;
             QuotaText = quota.Remaining > 0
                 ? string.Format(AppResources.AiPlan_QuotaFormat, quota.Remaining, quota.Limit)
