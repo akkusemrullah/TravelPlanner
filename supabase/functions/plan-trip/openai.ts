@@ -11,10 +11,20 @@ export const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
  */
 export class AiCallError extends Error {
   readonly billed: boolean;
-  constructor(message: string, billed: boolean) {
+  /** For the AI plan log (TP-54): unreachable | timeout | http_<status> | unreadable | cut_off | empty | not_json */
+  readonly kind: string;
+  constructor(message: string, billed: boolean, kind = "ai_error") {
     super(message);
     this.billed = billed;
+    this.kind = kind;
   }
+}
+
+/** Tokens of every call of one plan request, added up (TP-54). */
+export interface TokenTally {
+  prompt: number;
+  completion: number;
+  reasoning: number;
 }
 
 export interface AskOptions {
@@ -26,6 +36,8 @@ export interface AskOptions {
   maxTokens: number;
   timeoutMs: number;
   effort: string;
+  /** Adds this call's token counts, when OpenAI reports them. */
+  tally?: TokenTally;
 }
 
 type FetchFn = (input: string, init?: RequestInit) => Promise<Response>;
@@ -51,12 +63,12 @@ export async function askOpenAi(fetchFn: FetchFn, o: AskOptions, log: (line: str
     // the answer comes in one piece at the end: a timeout means OpenAI was generating it all along (billed);
     // anything else (DNS, connection refused/reset) means it never got the request
     const timedOut = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
-    throw new AiCallError(`OpenAI ${timedOut ? "timed out" : "unreachable"}: ${String(e)}`, timedOut);
+    throw new AiCallError(`OpenAI ${timedOut ? "timed out" : "unreachable"}: ${String(e)}`, timedOut, timedOut ? "timeout" : "unreachable");
   }
 
   if (!res.ok) {
     const detail = await res.text().catch(() => "");
-    throw new AiCallError(`OpenAI ${res.status}: ${detail.slice(0, 500)}`, false);
+    throw new AiCallError(`OpenAI ${res.status}: ${detail.slice(0, 500)}`, false, `http_${res.status}`);
   }
 
   // HTTP 200: from here on every failure is billed
@@ -64,20 +76,26 @@ export async function askOpenAi(fetchFn: FetchFn, o: AskOptions, log: (line: str
   try {
     body = await res.json();
   } catch (e) {
-    throw new AiCallError(`OpenAI answer unreadable: ${String(e)}`, true);
+    throw new AiCallError(`OpenAI answer unreadable: ${String(e)}`, true, "unreadable");
   }
   const usage = body?.usage;
+  if (o.tally) {
+    const n = (v: unknown) => typeof v === "number" && Number.isFinite(v) ? v : 0;
+    o.tally.prompt += n(usage?.prompt_tokens);
+    o.tally.completion += n(usage?.completion_tokens);
+    o.tally.reasoning += n(usage?.completion_tokens_details?.reasoning_tokens);
+  }
   log(`openai usage ${o.name}: max ${o.maxTokens}, prompt ${usage?.prompt_tokens}, completion ${usage?.completion_tokens}` +
     ` (reasoning ${usage?.completion_tokens_details?.reasoning_tokens}), finish ${body?.choices?.[0]?.finish_reason}`);
 
   const choice = body?.choices?.[0];
-  if (choice?.finish_reason === "length") throw new AiCallError(`answer cut off ${JSON.stringify(usage)}`, true);
+  if (choice?.finish_reason === "length") throw new AiCallError(`answer cut off ${JSON.stringify(usage)}`, true, "cut_off");
   const content = choice?.message?.content;
-  if (!content) throw new AiCallError("empty answer", true);
+  if (!content) throw new AiCallError("empty answer", true, "empty");
   try {
     return JSON.parse(content);
   } catch {
-    throw new AiCallError("answer is not JSON", true);
+    throw new AiCallError("answer is not JSON", true, "not_json");
   }
 }
 

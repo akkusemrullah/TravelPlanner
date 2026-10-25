@@ -23,6 +23,12 @@ namespace TravelPlanner.Services
 
         /// <summary>Adds the chosen parts of a plan to <paramref name="trip"/>.</summary>
         Task<AiApplyResult> ApplyAsync(Trip trip, AiPlanSelection selection, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// TP-54: tells the server's AI plan log how long after the plan came the user saved it. Never throws: the log
+        /// is not worth an error message.
+        /// </summary>
+        Task ReportSavedAsync(string requestId, TimeSpan afterPlan, CancellationToken cancellationToken = default);
     }
 
     public class AiPlannerService : IAiPlannerService
@@ -110,7 +116,8 @@ namespace TravelPlanner.Services
                 var plan = response.GetProperty("plan").Deserialize<AiTripPlan>(Json) ?? new AiTripPlan();
                 var remaining = response.TryGetProperty("remaining", out var r) && r.ValueKind == JsonValueKind.Number ? r.GetInt32() : 0;
                 var truncated = response.TryGetProperty("truncatedDays", out var t) && t.ValueKind == JsonValueKind.True;
-                return new AiPlanResult(plan, remaining, truncated);
+                var requestId = response.TryGetProperty("requestId", out var id) && id.ValueKind == JsonValueKind.String ? id.GetString() : null;
+                return new AiPlanResult(plan, remaining, truncated, string.IsNullOrWhiteSpace(requestId) ? null : requestId);
             }
             catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
             {
@@ -140,6 +147,21 @@ namespace TravelPlanner.Services
                 },
             },
         };
+
+        public async Task ReportSavedAsync(string requestId, TimeSpan afterPlan, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(requestId))
+                return;
+            try
+            {
+                var seconds = (int)Math.Clamp(Math.Round(afterPlan.TotalSeconds), 0, 86400);
+                await _cloud.RpcAsync("ai_plan_saved", new JsonObject { ["p_request_id"] = requestId, ["p_seconds"] = seconds }, cancellationToken);
+            }
+            catch (Exception ex) when (ex is SyncException or OperationCanceledException or InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AI] Save time not reported: {ex.Message}");
+            }
+        }
 
         public async Task<AiApplyResult> ApplyAsync(Trip trip, AiPlanSelection selection, CancellationToken cancellationToken = default)
         {
