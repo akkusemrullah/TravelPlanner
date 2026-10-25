@@ -1516,6 +1516,7 @@ Accounts and cloud storage are provided by Supabase (data on servers in Frankfur
 • When you sign out you choose to keep your account's data on this device (it opens quickly next time) or to delete it from this device; your data in the cloud is not affected. The app's on-device data is not included in Android's Google backup or in device-to-device transfers.
 • If you can't use the app, you can ask for your account to be deleted by writing to {email} from the e-mail address of your account; we complete the request within 30 days.
 • Server security logs are kept for a short time and then deleted.
+• Action log: admin actions on your account (e.g. a ban or sign-out) and the account deletion record (your account's e-mail and ID, the date, who deleted it, device/browser details and IP address) are kept for 1 year for security and accountability, then deleted automatically. This record stays for 1 year after you delete your account.
 
 ## Security
 All communication between the app and the server is encrypted (HTTPS/TLS). Every table on the server is protected by row-level access rules: only a trip's members can see it and only authorised members can change it. Documents are kept in a private storage bucket. No system is perfect; if we learn of a security breach we will inform you and the authorities as the law requires.
@@ -2767,7 +2768,7 @@ Your personal data may be shared, only for the purposes above, with:
 As some of these providers are located abroad, your personal data is transferred abroad. Transfers are made in line with KVKK article 9: on the basis of appropriate safeguards in the agreements with the providers, or, where that is not possible, on the basis of the explicit consent you give when using the feature concerned. Planning with AI and signing in with Google are entirely optional; you can use the app's other features without them.
 
 ## 6. Retention
-Your personal data is kept while your account exists. Deleted records are permanently deleted within 30 days at the latest. When you delete your account, the trips you own (unless you hand them over to another member), their documents and your profile are deleted immediately; document and photo files are removed from the cloud immediately, or within 2 days at the latest if there is a technical problem. The cloud files of deleted documents are deleted within 31 days at the latest. Data that must be kept by law is kept for that period and then deleted, destroyed or anonymised.
+Your personal data is kept while your account exists. Deleted records are permanently deleted within 30 days at the latest. When you delete your account, the trips you own (unless you hand them over to another member), their documents and your profile are deleted immediately; document and photo files are removed from the cloud immediately, or within 2 days at the latest if there is a technical problem. The cloud files of deleted documents are deleted within 31 days at the latest. Admin actions on your account and the account deletion record (e-mail, account ID, date, who did it, device details and IP address) are kept for 1 year for security and accountability and then deleted automatically. Data that must be kept by law is kept for that period and then deleted, destroyed or anonymised.
 
 ## 7. Your rights under KVKK article 11
 By applying to the data controller you can:

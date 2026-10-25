@@ -1872,4 +1872,35 @@ select test.eq(private.purge_audit_log(), 1, '34: rows over a year old are purge
 select test.eq((select count(*)::int from private.audit_log where action = 'account.delete'), 1, '34: younger rows stay');
 delete from private.audit_log;
 
+-- ------------------------------------------------------------------------------- 35: account deletion log (TP-53)
+delete from private.audit_log;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000a0d35', 'Self@Example.com'),
+                                          ('00000000-0000-0000-0000-0000000a0d36', 'byadmin@example.com');
+insert into public.trips (id, owner_id, name, start_date, end_date)
+values (gen_random_uuid(), '00000000-0000-0000-0000-0000000a0d35', 'x', now(), now());
+select set_config('request.headers', '{"user-agent": "TravelPlanner/1.0 (Android)", "x-forwarded-for": "203.0.113.9, 10.0.0.1"}', false);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a0d35', false);
+set role authenticated;
+select public.delete_account();
+reset role;
+select set_config('request.headers', '', false);
+select test.eq((select actor_type || '|' || actor_email || '|' || action || '|' || target_id || '|' || (detail ->> 'by')
+                || '|' || (detail ->> 'trips_deleted') || '|' || device || '|' || ip
+                from private.audit_log where action = 'user.delete'),
+               'user|self@example.com|user.delete|00000000-0000-0000-0000-0000000a0d35|self|1|TravelPlanner/1.0 (Android)|203.0.113.9',
+               '35: deleting from the app logs "the user deleted it", with the account''s e-mail, device and address');
+select test.eq((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-0000000a0d35'), 0,
+               '35: and the account is gone');
+set role service_role;
+select test.eq(public.admin_audit_log(p_action => 'user.delete') -> 'items' -> 0 ->> 'target_label', 'self@example.com',
+               '35: the row stays and the log screen finds it');
+select public.admin_delete_user('00000000-0000-0000-0000-0000000a0d36');
+reset role;
+select test.eq((select count(*)::int from private.audit_log where target_id = '00000000-0000-0000-0000-0000000a0d36'), 0,
+               '35: a deletion from the panel is left to the panel''s own row (with the admin''s e-mail)');
+select test.eq(coalesce(current_setting('travelplanner.admin_delete', true), ''), '', '35: the panel flag is cleared');
+select test.eq((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-0000000a0d36'), 0,
+               '35: the panel still deletes');
+delete from private.audit_log;
+
 \echo ALL SYNC TESTS PASSED

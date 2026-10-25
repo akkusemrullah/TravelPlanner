@@ -53,6 +53,7 @@ istersen aynı dosyalar `supabase db push` ile de uygulanabilir.
 | `migrations/…32_trip_cover.sql` | Seyahat kapak fotoğrafı: `trips.cover_path` = `trips/<trip_id>/cover-<32 hex>.jpg` (16:9, 1280x720), yanında `…-thumb.jpg` (256x256, liste için). Eski kapak değişince/silinince kuyruğa girer; gece taraması kapak olmamış yüklemeleri de temizler |
 | `migrations/…33_admin_ai_usage_daily.sql` | Panel: `admin_ai_usage_daily(gün)` son N günün günlük AI plan sayısı (boş gün 0) + günlük genel limit; AI kullanım grafiği için (yalnızca `service_role`) |
 | `migrations/…34_audit_log.sql` | TP-52: ortak işlem logu `private.audit_log` (zaman, kim: admin/kullanıcı/sistem + e-posta metin olarak, işlem kodu, hedef, `detail` jsonb, cihaz, IP, sonuç). Yazma: SQL'den `private.audit_write(...)`, panel / Edge Function'dan `audit_log_write(json)`; okuma: `admin_audit_log(arama, işlem, hedef, sayfa)`. auth.users'a FK yok (hesap silinince log kalır); RLS açık, yalnızca `service_role`. 1 yıldan eski satırlar her gece 03:27'de silinir (pg_cron) |
+| `migrations/…35_account_delete_log.sql` | TP-53: hesap silme loglanır. Uygulamadan silmede `delete_account` aynı işlemde `user.delete` satırı yazar (kim: kullanıcının kendisi, hesabın e-postası/ID'si, silinen seyahat sayısı, cihaz ve IP); panelden silmede satırı panel adminin e-postasıyla yazar. Kayıt hesap silindikten sonra 1 yıl kalır |
 | `explore_samples.sql` | TP-33: üç taslak Keşfet planı (isteğe bağlı içerik, `all_in_one.sql`'de yok) |
 | `tests/` | **Sadece yerel test** – Supabase'de çalıştırma |
 

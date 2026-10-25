@@ -19,7 +19,7 @@ Son güncelleme: 25 Ekim 2026. Bu belge hukuki görüş değildir; mağazaya ç�
 | Yapay zekâ isteği | Destinasyon, tarih, tercihler, not, yer adları | Plan önerisi | Yurt dışı aktarım için açık rıza ([ACIK_RIZA](legal/ACIK_RIZA.md)) | Sunucuda saklanmaz (OpenAI kendi politikasına göre) |
 | Cihaz özeti | Tuzlu SHA-256 | AI kotası, kötüye kullanımı önleme | (f) meşru menfaat | Günlük sayaç |
 | İşlem güvenliği | IP, istek kayıtları | Güvenlik, bot koruması | (ç) hukuki yükümlülük, (f) | Kısa süreli sunucu kayıtları |
-| İşlem logu (`private.audit_log`, migration 34) | Yönetici işlemleri (ban, oturum kapatma, hesap silme, AI hakkı, ayarların eski/yeni değeri, Keşfet değişiklikleri), yapanın ve hedef hesabın e-postası/ID'si, tarayıcı bilgisi, IP | Hesap verebilirlik, güvenlik, kötüye kullanımı ve hataları izleme | (f) meşru menfaat, (ç) hukuki yükümlülük | 1 yıl; her gece otomatik silinir. Hesap silinince loglar kalır (e-posta metin olarak), 1 yıl dolunca silinir. Yalnızca yönetici (service key) okur |
+| İşlem logu (`private.audit_log`, migration 34-35) | Hesap silme (uygulamadan: kullanıcının kendisi; panelden: adminin e-postası, migration 35), yönetici işlemleri (ban, oturum kapatma, hesap silme, AI hakkı, ayarların eski/yeni değeri, Keşfet değişiklikleri), yapanın ve hedef hesabın e-postası/ID'si, tarayıcı bilgisi, IP | Hesap verebilirlik, güvenlik, kötüye kullanımı ve hataları izleme | (f) meşru menfaat, (ç) hukuki yükümlülük | 1 yıl; her gece otomatik silinir. Hesap silinince loglar kalır (e-posta metin olarak), 1 yıl dolunca silinir. Yalnızca yönetici (service key) okur. Gizlilik Politikası, KVKK Aydınlatma Metni ve hesap silme sayfasında anlatılır |
 
 Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı belge olarak pasaport/vize yükleyebilir → güvenli depolama, yalnızca seyahat üyeleri erişir.
 
@@ -47,4 +47,3 @@ Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı b
 1. Supabase ve OpenAI veri işleme sözleşmeleri (DPA), OpenAI'de veri saklama ayarları.
 2. VERBİS muafiyet kontrolü.
 3. Yasal metinlerin hukukçu tarafından gözden geçirilmesi.
-4. İşlem logu (migration 34) için Gizlilik Politikası ve KVKK Aydınlatma Metni'ne bir saklama satırı eklenmeli ("hesabınla ilgili yönetici işlemleri ve hesap silme kaydı 1 yıl tutulur"); hesap silme logu (TP-53) ile birlikte yapılması önerilir.
