@@ -8865,5 +8865,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Ticket_DaysMoreFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Başkası sildi.
+        /// </summary>
+        public static string Trash_DeletedByOther {
+            get {
+                return ResourceManager.GetString("Trash_DeletedByOther", resourceCulture);
+            }
+        }
     }
 }

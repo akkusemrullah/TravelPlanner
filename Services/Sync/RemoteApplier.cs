@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using SQLite;
 using TravelPlanner.Models;
@@ -6,7 +7,8 @@ namespace TravelPlanner.Services.Sync
 {
     /// <summary>
     /// Writes the answer of pull_changes into the local database (G4), inside one transaction. These writes do NOT go
-    /// through ChangeTracker: they come from the server, so nothing is queued and nothing goes to the trash.
+    /// through ChangeTracker: they come from the server, so nothing is queued. TP-66: a plan item, expense, to-do, place or
+    /// participant deleted on another device goes to the trash here too (unless the user may only view the trip).
     /// Rules:
     /// - a row with deleted_at is deleted locally (a trip with everything in it);
     /// - a row we already have at the same or a newer change_seq is skipped (e.g. the echo of our own push);
@@ -190,6 +192,7 @@ namespace TravelPlanner.Services.Sync
             {
                 if (local is not null)
                 {
+                    KeepInTrash(conn, local, row);
                     RemoveLocal(conn, local, outcome);
                     outcome.Changed++;
                 }
@@ -229,6 +232,8 @@ namespace TravelPlanner.Services.Sync
                     attachment.RelativePath = LocalPathFor(attachment);
 
                 conn.Insert(entity);
+                // TP-66: restored somewhere else - its copy in this device's trash would only make a second row
+                conn.Execute("DELETE FROM Trash WHERE EntitySyncId = ?", syncId);
                 Track(entity, outcome);
                 outcome.Changed++;
                 return;
@@ -250,6 +255,36 @@ namespace TravelPlanner.Services.Sync
             conn.Update(local);
             Track(local, outcome);
             outcome.Changed++;
+        }
+
+        /// <summary>
+        /// TP-66: before a row deleted on another device is removed here, it goes to the trash (with its expense shares),
+        /// so the trip's owner or an editor can restore it - before, only the device that deleted it could. Trips have
+        /// their own way back (the owner restores them), attachment files are removed from the cloud with the row, and
+        /// a viewer couldn't restore anything, so those are left out.
+        /// </summary>
+        private static void KeepInTrash(SQLiteConnection conn, ISyncEntity local, JsonElement row)
+        {
+            if (local is not (Expense or TodoItem or TripActivity or Place or Participant))
+                return;
+
+            var info = SyncSchema.For(local.GetType());
+            var tripSyncId = info.ResolveTripSyncId(conn, local);
+            if (TripRoles.Parse(conn.ExecuteScalar<string>("SELECT Role FROM TripMembership WHERE TripSyncId = ?", tripSyncId)) == TripRole.Viewer)
+                return;
+
+            var children = local switch
+            {
+                Expense expense => conn.Table<ExpenseShare>().Where(s => s.ExpenseId == expense.Id).ToList(),
+                Participant participant => conn.Table<ExpenseShare>().Where(s => s.ParticipantId == participant.Id).ToList(),
+                _ => new List<ExpenseShare>()
+            };
+
+            var deletedAt = DateTime.TryParse(SyncFieldMapper.GetString(row, "deleted_at"), CultureInfo.InvariantCulture,
+                                              DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var at)
+                ? at
+                : DateTime.UtcNow;
+            ChangeTracker.TrashRemoteDelete(conn, local, children, deletedAt, SyncFieldMapper.GetString(row, "updated_by"));
         }
 
         private static void Track(ISyncEntity entity, Outcome outcome)

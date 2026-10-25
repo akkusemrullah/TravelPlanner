@@ -26,6 +26,9 @@ namespace TravelPlanner.ViewModels
                 parts.Add(tripName!);
             if (entry.ItemCount > 1)
                 parts.Add(string.Format(CultureInfo.CurrentCulture, AppResources.Trash_ItemCountFormat, entry.ItemCount));
+            // TP-66: deleted by another member of the trip (it came with the sync)
+            if (entry.DeletedBy is { Length: > 0 } by && Services.Sync.ChangeTracker.CurrentUserId is { } me && by != me)
+                parts.Add(AppResources.Trash_DeletedByOther);
             Subtitle = string.Join(" · ", parts);
 
             var daysLeft = Math.Max(0, (int)Math.Ceiling((entry.ExpiresAtUtc - nowUtc).TotalDays));
