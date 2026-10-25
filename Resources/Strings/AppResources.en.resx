@@ -3286,4 +3286,13 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Sync_BadgeA11y" xml:space="preserve">
     <value>Sync status</value>
   </data>
+  <data name="ExpenseList_AddFirst" xml:space="preserve">
+    <value>Add your first expense</value>
+  </data>
+  <data name="PlaceList_AddFirst" xml:space="preserve">
+    <value>Add your first place</value>
+  </data>
+  <data name="Attachments_MembersOnly" xml:space="preserve">
+    <value>Only trip members can see documents.</value>
+  </data>
 </root>
