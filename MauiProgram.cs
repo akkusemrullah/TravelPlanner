@@ -39,6 +39,10 @@ namespace TravelPlanner
 #endif
                 });
 
+            // TP-70: crash reports, only when a Sentry DSN is configured.
+            if (CrashReportingConfig.IsEnabled)
+                UseCrashReporting(builder);
+
             // One modern look for every text field: no platform underline/border, focus highlight (InputChrome.cs).
             Handlers.InputChrome.Configure();
             // TextTransform="Uppercase" in the app language (Turkish İ/I), see CultureUppercase.cs.
@@ -262,6 +266,47 @@ namespace TravelPlanner
         /// at least logged, and unobserved task exceptions are marked observed so they can't tear the
         /// process down later on the finalizer thread.
         /// </summary>
+        /// <summary>
+        /// TP-70: Sentry with nothing personal in it - no user, IP or device name, no screenshots, no on-screen text in
+        /// breadcrumbs, no URL queries, no performance tracing. Only the crash, its stack trace and the app/OS version.
+        /// </summary>
+        private static void UseCrashReporting(MauiAppBuilder builder) => builder.UseSentry(options =>
+        {
+            options.Dsn = CrashReportingConfig.SentryDsn;
+            options.SendDefaultPii = false;
+            options.AttachScreenshot = false;
+            options.IncludeTextInBreadcrumbs = false;
+            options.IncludeTitleInBreadcrumbs = false;
+            options.TracesSampleRate = 0;
+            options.MaxBreadcrumbs = 30;
+#if DEBUG
+            options.Environment = "debug";
+#endif
+            options.SetBeforeSend((sentryEvent, _) =>
+            {
+                sentryEvent.User = new Sentry.SentryUser();
+                sentryEvent.ServerName = null;
+                if (sentryEvent.Request is { } request)
+                {
+                    request.Url = CrashReportingConfig.StripQuery(request.Url);
+                    request.QueryString = null;
+                    request.Data = null;
+                    request.Cookies = null;
+                }
+                return sentryEvent;
+            });
+            options.SetBeforeBreadcrumb((breadcrumb, _) =>
+            {
+                if (breadcrumb.Data is { } data && data.TryGetValue("url", out var url))
+                {
+                    var copy = data.ToDictionary(kv => kv.Key, kv => kv.Value);
+                    copy["url"] = CrashReportingConfig.StripQuery(url) ?? string.Empty;
+                    return new Sentry.Breadcrumb(breadcrumb.Message, breadcrumb.Type, copy, breadcrumb.Category, breadcrumb.Level);
+                }
+                return breadcrumb;
+            });
+        });
+
         private static void RegisterGlobalExceptionLogging()
         {
             AppDomain.CurrentDomain.UnhandledException += (_, e) =>

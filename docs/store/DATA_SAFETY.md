@@ -6,8 +6,8 @@ Son güncelleme: 18 Ekim 2026 · Kaynak: kod (bkz. [ARCHITECTURE.md](../../ARCHI
 
 - **Hesapsız (misafir) kullanım:** hiçbir veri cihaz dışına çıkmaz (hava/harita/kur isteklerinde yalnızca şehir/koordinat/para birimi gider).
 - **Konum:** cihaz konumu **alınmaz** (konum izni yok); yerler kullanıcı tarafından seçilir veya aranır.
-- **Reklam, analitik, çökme raporlama SDK'sı:** yok. Kullanıcı izleme (tracking) yok.
-- **İzinler (AndroidManifest):** internet, ağ durumu, bildirim, tam zamanlı alarm, açılışta bildirimleri geri yükleme, titreşim, kamera (belge ve seyahat kapak fotoğrafı), Android ≤12'de depolama okuma.
+- **Reklam, analitik, çökme raporlama SDK'sı:** yok. Kullanıcı izleme (tracking) yok. Sentry (TP-70) kodda var ama `Helpers/CrashReportingConfig.SentryDsn` boş olduğu sürece hiç başlamaz. DSN girilirse formda *App info and performance → Crash logs* ve *Diagnostics* "toplanıyor, paylaşılmıyor, isteğe bağlı değil, amaç: analitik/uygulama işlevi" olarak işaretlenmeli; gizlilik politikasına da eklenmeli.
+- **İzinler (AndroidManifest):** internet, ağ durumu, bildirim, açılışta bildirimleri geri yükleme, titreşim, kamera (belge ve seyahat kapak fotoğrafı), Android ≤12'de depolama okuma.
 - **Şifreleme:** tüm trafik HTTPS/TLS. Yerel veri Android yedeğine ve cihazdan cihaza aktarıma dahil edilmez.
 - **Silme:** *Profil → Hesabımı sil*, çöp kutusunda *Kalıcı olarak sil*, çıkışta *bu cihazdaki verilerimi sil*, web: hesap silme sayfası.
 - **Satın alma / abonelik:** yok ([İade politikası](../legal/REFUND_POLICY.md)).

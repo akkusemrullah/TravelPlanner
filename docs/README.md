@@ -12,7 +12,7 @@ Kod ile belge çelişirse doğru olan koddur; belge güncellenmelidir.
 | [DESIGN.md](DESIGN.md), [brand/](brand/) | Görsel dil, renkler, logo |
 | [supabase/README.md](../supabase/README.md) | Sunucu kurulumu, migration'lar, kotalar, Edge Functions |
 | [EXPLORE_CONTENT.md](EXPLORE_CONTENT.md) | Keşfet içeriği: JSON biçimi, yayınlama, görseller, güncelleme ritmi |
-| [RELEASE.md](RELEASE.md), [ci/ci.yml](ci/ci.yml) | Sürümleme, imzalama, CI, yayın kontrol listesi |
+| [RELEASE.md](RELEASE.md), [.github/workflows/ci.yml](../.github/workflows/ci.yml) | Sürümleme, imzalama, CI, yayın kontrol listesi |
 | [.env.example](../.env.example) | Gizli anahtarların adları ve nerede durdukları |
 
 ## Depo meta dosyaları
