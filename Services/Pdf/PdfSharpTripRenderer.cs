@@ -25,6 +25,11 @@ namespace TravelPlanner.Services.Pdf
         private static readonly SemaphoreSlim FontLock = new(1, 1);
         private static bool _fontsReady;
 
+        /// <summary>TP-74: characters both embedded faces can draw; the rest (emoji …) is left out of the PDF.</summary>
+        private static FontCoverage? _coverage;
+
+        private static string Printable(string? text) => _coverage?.Clean(text) ?? text ?? string.Empty;
+
         private readonly string _outputDirectory;
 
         /// <param name="outputDirectory">The app passes FileSystem.CacheDirectory.</param>
@@ -146,6 +151,7 @@ namespace TravelPlanner.Services.Pdf
                 // FontResolver can only be set once per process.
                 if (GlobalFontSettings.FontResolver is not EmbeddedFontResolver)
                     GlobalFontSettings.FontResolver = new EmbeddedFontResolver(regular, semibold);
+                _coverage = FontCoverage.Common(FontCoverage.FromFont(regular), FontCoverage.FromFont(semibold));
 
                 _fontsReady = true;
             }
@@ -249,6 +255,8 @@ namespace TravelPlanner.Services.Pdf
                 var brandFont = PdfFont(9, XFontStyleEx.Bold);
                 var pageWidth = _page.Width.Point;
 
+                title = Printable(title);
+                subtitles = subtitles.Select(Printable).ToList();
                 var titleLines = Wrap(title, titleFont, Width - 100).ToList();
                 var titleLineHeight = titleFont.GetHeight() + 2;
                 var subLineHeight = subFont.GetHeight() + 3;
@@ -328,6 +336,8 @@ namespace TravelPlanner.Services.Pdf
                 var font = PdfFont(10.5, XFontStyleEx.Regular);
                 var height = font.GetHeight() + 3;
                 Ensure(height);
+                key = Printable(key);
+                value = Printable(value);
                 _gfx.DrawString(key, font, new XSolidBrush(Text), new XRect(Margin, _y, Width * 0.6, height), XStringFormats.TopLeft);
                 _gfx.DrawString(value, PdfFont(10.5, XFontStyleEx.Bold), new XSolidBrush(Royal),
                     new XRect(Margin + Width * 0.6, _y, Width * 0.4, height), XStringFormats.TopRight);
@@ -343,7 +353,7 @@ namespace TravelPlanner.Services.Pdf
                 var lineHeight = font.GetHeight() + 3;
                 var maxWidth = Width - indent;
 
-                foreach (var paragraph in text.Replace("\r\n", "\n").Split('\n'))
+                foreach (var paragraph in Printable(text).Replace("\r\n", "\n").Split('\n'))
                 {
                     foreach (var line in Wrap(paragraph, font, maxWidth))
                     {
