@@ -1783,4 +1783,93 @@ end $$;
 reset role;
 delete from private.ai_global_usage;
 
+-- ------------------------------------------------------------------------------- 34: audit log (TP-52)
+delete from private.audit_log;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000a0d17', 'Gone@Example.com');
+set role service_role;
+select test.eq(public.audit_log_write('{"actor_email": " Admin@Example.com ", "action": "user.ban", "target_type": "user",
+    "target_id": "00000000-0000-0000-0000-0000000a0d17", "target_label": "gone@example.com", "detail": {"days": 7},
+    "device": "Mozilla/5.0", "ip": "203.0.113.5"}'::jsonb) > 0, true, '34: the panel writes a row');
+reset role;
+select test.eq((select actor_type || '|' || actor_email || '|' || result || '|' || (detail ->> 'days')
+                from private.audit_log where action = 'user.ban'), 'admin|admin@example.com|ok|7',
+               '34: admin by default, e-mail lower-cased, details kept');
+select test.eq(private.audit_write('user', 'account.delete', p_actor_id => '00000000-0000-0000-0000-0000000a0d17') > 0, true,
+               '34: SQL writes a row');
+select test.eq((select actor_email from private.audit_log where action = 'account.delete'), 'gone@example.com',
+               '34: the e-mail is taken from the account');
+delete from auth.users where id = '00000000-0000-0000-0000-0000000a0d17';
+select test.eq((select count(*)::int from private.audit_log where actor_id = '00000000-0000-0000-0000-0000000a0d17'
+                   or target_id = '00000000-0000-0000-0000-0000000a0d17'), 2, '34: rows stay after the account is deleted');
+set role service_role;
+select public.audit_log_write('{"actor_id": "nope", "action": "explore.delete", "result": "error"}'::jsonb) as a34_bad_id \gset
+select public.audit_log_write(jsonb_build_object('action', 'explore.import',
+       'detail', jsonb_build_object('json', repeat('x', 20000)))) as a34_huge \gset
+select public.audit_log_write(jsonb_build_object('action', 'explore.update', 'target_type', 'explore',
+       'target_label', repeat('y', 500))) as a34_long \gset
+reset role;
+select test.eq((select actor_id from private.audit_log where id = :a34_bad_id), null::uuid,
+               '34: an actor id that is not a uuid is dropped');
+select test.eq((select result from private.audit_log where id = :a34_bad_id), 'error', '34: failed actions are kept');
+select test.eq((select detail ->> 'truncated' from private.audit_log where id = :a34_huge), 'true', '34: a huge detail is cut');
+select test.eq((select char_length(target_label) from private.audit_log where id = :a34_long), 300, '34: a long label is cut');
+set role service_role;
+do $$ begin
+    perform public.audit_log_write('{"action": "Ban"}');
+    raise exception 'FAILED: a bad action code was written';
+exception when invalid_parameter_value then raise notice 'ok - 34: a bad action code is refused';
+end $$;
+do $$ begin
+    perform public.audit_log_write('{"action": "user.ban", "actor_type": "hacker"}');
+    raise exception 'FAILED: a bad actor type was written';
+exception when invalid_parameter_value then raise notice 'ok - 34: a bad actor type is refused';
+end $$;
+-- reading: newest first, filters, paging
+select test.eq(jsonb_array_length(public.admin_audit_log() -> 'items'), 5, '34: every row');
+select test.eq(public.admin_audit_log() -> 'items' -> 0 ->> 'action', 'explore.update', '34: newest first');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_action => 'explore') -> 'items'), 3, '34: an area filter');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_action => 'explore.delete') -> 'items'), 1, '34: an action filter');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_action => 'explo') -> 'items'), 0, '34: no half-word area match');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_query => 'GONE@') -> 'items'), 2, '34: search by e-mail or label');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_target_type => 'user',
+               p_target_id => '00000000-0000-0000-0000-0000000a0d17') -> 'items'), 1, '34: one target''s rows');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_limit => 2) -> 'items'), 2, '34: a page of 2');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_limit => 2,
+               p_before_id => (public.admin_audit_log(p_limit => 2) ->> 'next_before_id')::bigint) -> 'items'), 2,
+               '34: the second page');
+select test.eq(public.admin_audit_log(p_limit => 5) -> 'next_before_id', 'null'::jsonb, '34: no next page at the end');
+reset role;
+-- clients see nothing and write nothing
+set role authenticated;
+do $$ begin
+    perform count(*) from private.audit_log;
+    raise exception 'FAILED: a client read the audit log';
+exception when insufficient_privilege then raise notice 'ok - 34: the table is closed to clients';
+end $$;
+do $$ begin
+    perform public.admin_audit_log();
+    raise exception 'FAILED: a client read the audit log';
+exception when insufficient_privilege then raise notice 'ok - 34: reading is admin only';
+end $$;
+do $$ begin
+    perform public.audit_log_write('{"action": "user.ban"}');
+    raise exception 'FAILED: a client wrote the audit log';
+exception when insufficient_privilege then raise notice 'ok - 34: writing is service only';
+end $$;
+reset role;
+set role anon;
+do $$ begin
+    perform public.audit_log_write('{"action": "user.ban"}');
+    raise exception 'FAILED: anon wrote the audit log';
+exception when insufficient_privilege then raise notice 'ok - 34: anon cannot write';
+end $$;
+reset role;
+select test.eq((select relrowsecurity from pg_class where oid = 'private.audit_log'::regclass), true, '34: RLS is on');
+-- one year
+update private.audit_log set created_at = now() - interval '400 days' where action = 'user.ban';
+update private.audit_log set created_at = now() - interval '300 days' where action = 'account.delete';
+select test.eq(private.purge_audit_log(), 1, '34: rows over a year old are purged');
+select test.eq((select count(*)::int from private.audit_log where action = 'account.delete'), 1, '34: younger rows stay');
+delete from private.audit_log;
+
 \echo ALL SYNC TESTS PASSED

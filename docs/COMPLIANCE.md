@@ -1,6 +1,6 @@
 # Uyum ve Regülasyon / Compliance – Travel Planner
 
-Son güncelleme: 18 Ekim 2026. Bu belge hukuki görüş değildir; mağazaya çıkmadan önce bir hukukçuya kontrol ettirilmesi önerilir. Kaynak: kod ve [PRIVACY](PRIVACY.md), [KVKK](KVKK.md), [TERMS](TERMS.md), [ACCOUNT_DELETION](ACCOUNT_DELETION.md), [legal/](legal/) metinleri.
+Son güncelleme: 25 Ekim 2026. Bu belge hukuki görüş değildir; mağazaya çıkmadan önce bir hukukçuya kontrol ettirilmesi önerilir. Kaynak: kod ve [PRIVACY](PRIVACY.md), [KVKK](KVKK.md), [TERMS](TERMS.md), [ACCOUNT_DELETION](ACCOUNT_DELETION.md), [legal/](legal/) metinleri.
 
 ## 1. Kapsam ve roller
 - **Veri sorumlusu:** Emrullah AKKUŞ (EAKSOFT), Erciş / Van – `Helpers/AppConstants.cs`.
@@ -19,6 +19,7 @@ Son güncelleme: 18 Ekim 2026. Bu belge hukuki görüş değildir; mağazaya ç�
 | Yapay zekâ isteği | Destinasyon, tarih, tercihler, not, yer adları | Plan önerisi | Yurt dışı aktarım için açık rıza ([ACIK_RIZA](legal/ACIK_RIZA.md)) | Sunucuda saklanmaz (OpenAI kendi politikasına göre) |
 | Cihaz özeti | Tuzlu SHA-256 | AI kotası, kötüye kullanımı önleme | (f) meşru menfaat | Günlük sayaç |
 | İşlem güvenliği | IP, istek kayıtları | Güvenlik, bot koruması | (ç) hukuki yükümlülük, (f) | Kısa süreli sunucu kayıtları |
+| İşlem logu (`private.audit_log`, migration 34) | Yönetici işlemleri (ban, oturum kapatma, hesap silme, AI hakkı, ayarların eski/yeni değeri, Keşfet değişiklikleri), yapanın ve hedef hesabın e-postası/ID'si, tarayıcı bilgisi, IP | Hesap verebilirlik, güvenlik, kötüye kullanımı ve hataları izleme | (f) meşru menfaat, (ç) hukuki yükümlülük | 1 yıl; her gece otomatik silinir. Hesap silinince loglar kalır (e-posta metin olarak), 1 yıl dolunca silinir. Yalnızca yönetici (service key) okur |
 
 Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı belge olarak pasaport/vize yükleyebilir → güvenli depolama, yalnızca seyahat üyeleri erişir.
 
@@ -33,7 +34,7 @@ Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı b
 | Veri güvenliği (md. 12) | [SECURITY.md](../SECURITY.md): RLS, TLS, kota, doğrulama | ✅ |
 | İhlal bildirimi | 72 saat içinde Kurul'a ve ilgililere (SECURITY.md §5) | Süreç tanımlı |
 | VERBİS kaydı | Gerçek kişi veri sorumlusu, yıllık çalışan < 50 ve mali bilanço < 100 milyon TL ise ve ana faaliyet özel nitelikli veri işleme değilse muafiyet olabilir | ⚠️ Kontrol edilmeli |
-| Silme / anonimleştirme | Çöp 30 gün, gece temizliği, hesap silme, çıkışta yerel silme | ✅ |
+| Silme / anonimleştirme | Çöp 30 gün, gece temizliği, hesap silme, çıkışta yerel silme; işlem logu 1 yıl sonra otomatik silinir | ✅ |
 | Çocuklar | 13 yaş altı hesap açamaz (TERMS §2); çocuklara yönelik değil | ✅ (18 yaş altı için veli onayı hukukçuyla değerlendirilmeli) |
 | Google Play hesap silme | Uygulama içi + web sayfası (`ACCOUNT_DELETION`) | ✅ |
 | Google Play veri güvenliği | [store/DATA_SAFETY.md](store/DATA_SAFETY.md) | ✅ |
@@ -46,3 +47,4 @@ Hassas (özel nitelikli) kişisel veri bilinçli olarak toplanmaz; kullanıcı b
 1. Supabase ve OpenAI veri işleme sözleşmeleri (DPA), OpenAI'de veri saklama ayarları.
 2. VERBİS muafiyet kontrolü.
 3. Yasal metinlerin hukukçu tarafından gözden geçirilmesi.
+4. İşlem logu (migration 34) için Gizlilik Politikası ve KVKK Aydınlatma Metni'ne bir saklama satırı eklenmeli ("hesabınla ilgili yönetici işlemleri ve hesap silme kaydı 1 yıl tutulur"); hesap silme logu (TP-53) ile birlikte yapılması önerilir.
