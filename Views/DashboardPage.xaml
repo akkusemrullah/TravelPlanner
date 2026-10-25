@@ -296,6 +296,9 @@
                              amounts and labels like "Toplam Harcama" never have to squeeze into a third of the screen. -->
                         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
                             <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource Card.Compact}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding GoToTripListCommand}" />
+                                </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
                                     <Label Grid.Row="0" Grid.Column="0" Text="{Binding TotalTripsCount}" Style="{StaticResource Text.Metric}" />
                                     <Label Grid.Row="0" Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Trips}" VerticalOptions="Start" />
@@ -304,6 +307,9 @@
                                 </Grid>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource Card.Compact}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding GoToTripListCommand}" />
+                                </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
                                     <Label Grid.Row="0" Grid.Column="0" Text="{Binding VisitedCountriesCount}" Style="{StaticResource Text.Metric}" />
                                     <Label Grid.Row="0" Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Globe}" VerticalOptions="Start" />
@@ -312,6 +318,9 @@
                                 </Grid>
                             </Border>
                             <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource Card.Compact}">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding GoToTripListCommand}" />
+                                </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="2">
                                     <Label Grid.Row="0" Grid.Column="0" Text="{Binding VisitedCitiesCount}" Style="{StaticResource Text.Metric}" />
                                     <Label Grid.Row="0" Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Landmark}" VerticalOptions="Start" />
@@ -331,6 +340,8 @@
                                 </Grid>
                             </Border>
                         </Grid>
+                        <!-- TP-76: the rule behind the numbers, so an ongoing or planned trip doesn't look like a miscount -->
+                        <Label Text="{x:Static res:AppResources.Dashboard_StatsRule}" Style="{StaticResource Text.Caption}" Margin="4,0" />
                     </VerticalStackLayout>
 
                     <!-- ════════ Recent trips ════════ -->

@@ -3280,4 +3280,7 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Common_Close" xml:space="preserve">
     <value>Close</value>
   </data>
+  <data name="Dashboard_StatsRule" xml:space="preserve">
+    <value>Countries and cities count trips that have started. My spending: your share.</value>
+  </data>
 </root>
