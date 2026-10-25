@@ -60,13 +60,19 @@ namespace TravelPlanner.Services
                 var batch = TrashBatch.For(participant);
                 conn.DeleteAllTracked<ExpenseShare>(s => s.ParticipantId == participantId, batch);
 
-                foreach (var expense in conn.Table<Expense>().Where(e => e.PaidByParticipantId == participantId).ToList())
+                var paid = conn.Table<Expense>().Where(e => e.PaidByParticipantId == participantId).ToList();
+                foreach (var expense in paid)
                 {
                     expense.PaidByParticipantId = null;
                     conn.UpdateTracked(expense);
                 }
 
                 conn.DeleteTracked(participant, batch);
+
+                // TP-68: remember which expenses they paid, so restoring them from the trash links those back
+                if (paid.Count > 0)
+                    conn.Execute("UPDATE Trash SET PaidExpenseSyncIds = ? WHERE BatchId = ? AND IsRoot = 1",
+                                 string.Join(",", paid.Select(e => e.SyncId)), batch.Id);
             });
         }
 

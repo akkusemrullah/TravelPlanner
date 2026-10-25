@@ -40,5 +40,11 @@ namespace TravelPlanner.Models
 
         [System.ComponentModel.DataAnnotations.MaxLength(36)]
         public string? DeletedBy { get; set; }
+
+        /// <summary>
+        /// TP-68: for a deleted participant, the SyncIds of the expenses they had paid (comma-separated). Deleting
+        /// the participant clears the payer of those expenses; restoring them sets it back.
+        /// </summary>
+        public string? PaidExpenseSyncIds { get; set; }
     }
 }
