@@ -145,6 +145,8 @@ namespace TravelPlanner.ViewModels
         private readonly IConsentService? _consent;
         private Trip? _trip;
         private AiTripPlan? _plan;
+        private string? _planRequestId;
+        private long _planShownAt;
 
         public AiPlannerViewModel(IAiPlannerService planner, ITripService trips, IPlaceService places,
                                   IAccountService account, IConnectivity connectivity, IDialogService dialogs,
@@ -461,6 +463,8 @@ namespace TravelPlanner.ViewModels
         private void ShowPreview(Trip trip, AiPlanResult result, IReadOnlyList<string> existingPlaces)
         {
             _plan = result.Plan;
+            _planRequestId = result.RequestId;
+            _planShownAt = Clock.GetTimestamp();
             Days.Clear();
             Places.Clear();
             Todos.Clear();
@@ -561,12 +565,22 @@ namespace TravelPlanner.ViewModels
                 IsApplying = false;
             }
 
+            // TP-54: how long the user looked at the plan before saving it, for the AI plan log (once per plan)
+            if (_planRequestId is { } requestId)
+            {
+                _planRequestId = null;
+                _ = _planner.ReportSavedAsync(requestId, Clock.GetElapsedTime(_planShownAt));
+            }
+
             var message = string.Format(AppResources.AiPlan_AddedFormat, result.Activities, result.Places, result.Todos);
             if (result.UnlocatedPlaces > 0)
                 message += " " + string.Format(AppResources.AiPlan_ApproximateFormat, result.UnlocatedPlaces);
             await Dialogs.ShowMessageAsync(AppResources.AiPlan_Title, message);
             await AfterApplied(_trip.Id);
         }, AppResources.AiPlan_ApplyError);
+
+        /// <summary>Measures the time from the plan to "Plana ekle". Replaced in tests.</summary>
+        internal TimeProvider Clock { get; set; } = TimeProvider.System;
 
         /// <summary>After adding: show the day plan instead of this page. Replaced in tests.</summary>
         internal Func<int, Task> AfterApplied { get; set; } = async tripId =>

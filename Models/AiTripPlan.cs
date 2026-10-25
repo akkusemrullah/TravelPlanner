@@ -132,7 +132,8 @@ namespace TravelPlanner.Models
 
     /// <param name="Remaining">Plans the account may still ask for today.</param>
     /// <param name="TruncatedDays">The trip is longer than the planner's limit: only its first days were planned.</param>
-    public sealed record AiPlanResult(AiTripPlan Plan, int Remaining, bool TruncatedDays);
+    /// <param name="RequestId">The server's log id of the request (TP-54); null from an older function.</param>
+    public sealed record AiPlanResult(AiTripPlan Plan, int Remaining, bool TruncatedDays, string? RequestId = null);
 
     /// <param name="Paused">AI planning is in maintenance (admin panel); <paramref name="Message"/> is the admin's note, if any.</param>
     public sealed record AiQuota(int Remaining, int Limit, bool Paused = false, string? Message = null);

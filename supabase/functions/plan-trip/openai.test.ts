@@ -122,3 +122,23 @@ test("reasoning_effort is sent only to models that take it", async () => {
   assert.equal(isReasoningModel("o4-mini"), true);
   assert.equal(isReasoningModel("gpt-4o"), false);
 });
+
+test("TP-54: each failure says what kind it is", async () => {
+  assert.equal((await failure(answer("length", '{"a":'))).kind, "cut_off");
+  assert.equal((await failure(answer("stop", null))).kind, "empty");
+  assert.equal((await failure(answer("stop", "not json"))).kind, "not_json");
+  assert.equal((await failure(answer("stop", null, 503))).kind, "http_503");
+  const offline = (async () => { throw new TypeError("connection refused"); }) as typeof fetch;
+  assert.equal((await failure(offline)).kind, "unreachable");
+});
+
+test("TP-54: the token counts are added up", async () => {
+  const tally = { prompt: 1, completion: 2, reasoning: 0 };
+  const withReasoning = (async () => new Response(JSON.stringify({
+    choices: [{ finish_reason: "stop", message: { content: "{}" } }],
+    usage: { prompt_tokens: 10, completion_tokens: 30, completion_tokens_details: { reasoning_tokens: 20 } },
+  }))) as typeof fetch;
+  await askOpenAi(withReasoning, { ...opts, tally }, quiet);
+  await askOpenAi(answer("stop", "{}"), { ...opts, tally }, quiet);
+  assert.deepEqual(tally, { prompt: 21, completion: 1032, reasoning: 20 });
+});

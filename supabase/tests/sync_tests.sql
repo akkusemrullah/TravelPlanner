@@ -1903,4 +1903,40 @@ select test.eq((select count(*)::int from auth.users where id = '00000000-0000-0
                '35: the panel still deletes');
 delete from private.audit_log;
 
+-- ------------------------------------------------------------------------------- 36: AI plan log (TP-54)
+delete from private.audit_log;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000a0e36', 'planner@example.com');
+set role service_role;
+select public.audit_log_write('{"actor_type": "user", "actor_id": "00000000-0000-0000-0000-0000000a0e36", "action": "ai.plan",
+    "target_type": "ai_plan", "target_id": "req-1", "detail": {"status": "ok", "model": "gpt-5-mini", "duration_s": 41.2}}'::jsonb);
+select public.audit_log_write('{"actor_type": "user", "actor_id": "00000000-0000-0000-0000-0000000a0e36", "action": "ai.plan",
+    "result": "error", "target_type": "ai_plan", "target_id": "req-2", "detail": {"status": "refunded", "error_kind": "http_500"}}'::jsonb);
+reset role;
+select test.eq((select actor_email from private.audit_log where target_id = 'req-1'), 'planner@example.com',
+               '36: plan-trip''s row gets the account''s e-mail');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a0e36', false);
+set role authenticated;
+select test.eq(public.ai_plan_saved('req-1', 37), true, '36: the app reports the save time');
+select test.eq(public.ai_plan_saved('req-1', 99), false, '36: only once');
+select test.eq(public.ai_plan_saved('nope', 5), false, '36: an unknown request changes nothing');
+do $$ begin
+    perform public.admin_ai_plans('00000000-0000-0000-0000-0000000a0e36');
+    raise exception 'FAILED: a client read the AI plan log';
+exception when insufficient_privilege then raise notice 'ok - 36: the plan list is admin only';
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub', :'can', false);
+set role authenticated;
+select test.eq(public.ai_plan_saved('req-2', 5), false, '36: nobody else''s row');
+reset role;
+select test.eq((select detail ->> 'saved_after_s' from private.audit_log where target_id = 'req-1'), '37', '36: saved_after_s kept');
+select test.eq((select detail ? 'saved_after_s' from private.audit_log where target_id = 'req-2'), false, '36: the other row untouched');
+set role service_role;
+select test.eq(jsonb_array_length(public.admin_ai_plans('00000000-0000-0000-0000-0000000a0e36')), 2, '36: the user''s plans');
+select test.eq(public.admin_ai_plans('00000000-0000-0000-0000-0000000a0e36') -> 0 -> 'detail' ->> 'status', 'refunded', '36: newest first');
+select test.eq(jsonb_array_length(public.admin_ai_plans('00000000-0000-0000-0000-0000000a0e36', 1)), 1, '36: a limit');
+reset role;
+delete from auth.users where id = '00000000-0000-0000-0000-0000000a0e36';
+delete from private.audit_log;
+
 \echo ALL SYNC TESTS PASSED

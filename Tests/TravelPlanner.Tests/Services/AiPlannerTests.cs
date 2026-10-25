@@ -102,6 +102,31 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task CreatePlan_ReadsTheRequestId_AndTheSaveTimeIsReported()
+        {
+            _cloud.Handler = (fn, _) => fn == "fn:plan-trip"
+                ? """{"plan":{"summary":"x","days":[],"places":[],"todos":[],"tips":[]},"remaining":1,"truncatedDays":false,"requestId":"req-9"}"""
+                : "true";
+
+            var result = await _service.CreatePlanAsync(Request());
+            await _service.ReportSavedAsync(result.RequestId!, TimeSpan.FromSeconds(42.4));
+
+            Assert.Equal("req-9", result.RequestId);
+            var sent = _cloud.Calls.Single(c => c.Function == "ai_plan_saved").Arguments;
+            Assert.Equal("req-9", sent["p_request_id"]!.GetValue<string>());
+            Assert.Equal(42, sent["p_seconds"]!.GetValue<int>());
+        }
+
+        [Fact]
+        public async Task ReportSaved_NeverThrows()
+        {
+            _cloud.Handler = (_, _) => throw new SyncException(SyncErrorKind.Network, "offline");
+            await _service.ReportSavedAsync("req-1", TimeSpan.FromSeconds(5));
+            await _service.ReportSavedAsync("", TimeSpan.FromSeconds(5));
+            Assert.DoesNotContain(_cloud.Calls, c => c.Function == "ai_plan_saved" && c.Arguments["p_request_id"]!.GetValue<string>() == "");
+        }
+
+        [Fact]
         public async Task CreatePlan_SendsTheCityCentre_SoTheServerSearchesTheRightSpot()
         {
             _cloud.Handler = (_, _) => """{"plan":{"summary":"","days":[],"places":[],"todos":[],"tips":[]},"remaining":4}""";
@@ -558,6 +583,34 @@ namespace TravelPlanner.Tests
             Assert.Empty(sent.PlaceKeys);
             Assert.Equal(2, sent.PlanPlaces.Count);                          // to link activities to places the trip has
             _dialogs.Verify(d => d.ShowMessageAsync(It.IsAny<string>(), It.Is<string>(m => m.Contains("1"))));
+        }
+
+        [Fact]
+        public async Task AddSelected_ReportsHowLongAfterThePlanItWasSaved_Once()
+        {
+            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanResult(SamplePlan(), 4, false, "req-7"));
+            _planner.Setup(p => p.ApplyAsync(It.IsAny<Trip>(), It.IsAny<AiPlanSelection>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiApplyResult(1, 0, 1, 0));
+            var vm = await LoadAsync();
+            var clock = new StepClock();
+            vm.Clock = clock;
+            await vm.GenerateCommand.ExecuteAsync(null);
+
+            clock.Advance(TimeSpan.FromSeconds(30));
+            await vm.AddSelectedCommand.ExecuteAsync(null);
+            await vm.AddSelectedCommand.ExecuteAsync(null);
+
+            _planner.Verify(p => p.ReportSavedAsync("req-7", TimeSpan.FromSeconds(30), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        /// <summary>A clock that only moves when told to.</summary>
+        private sealed class StepClock : TimeProvider
+        {
+            private long _ticks;
+            public void Advance(TimeSpan by) => _ticks += by.Ticks;
+            public override long GetTimestamp() => _ticks;
+            public override long TimestampFrequency => TimeSpan.TicksPerSecond;
         }
     }
 }
