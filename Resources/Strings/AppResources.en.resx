@@ -1497,7 +1497,7 @@ When you share a trip with an invite code, the people who join see everything in
 
 ## Planning with AI
 This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass).
-To apply the daily plan quota we keep your account id and an irreversible hash (SHA-256) derived from your device's id, with a daily usage count; your device's actual id never leaves the device.
+To apply the daily plan quota we keep your account id and an irreversible hash (SHA-256) derived from your device's id, with a daily usage count; your device's actual id never leaves the device. The hash is also sent when you sign in and open the app: to prevent abuse (e.g. many accounts opened on one phone for more plans), which accounts were used on the same device, with the account's e-mail and first/last seen time, is kept for 1 year after the device was last seen and is only visible to the administrator.
 Please don't put personal or sensitive information in the note. AI suggestions can be wrong; check opening hours, prices and bookings. You can report an inappropriate suggestion with the "Report" link on the plan screen.
 
 ## External services
@@ -1516,7 +1516,7 @@ Accounts and cloud storage are provided by Supabase (data on servers in Frankfur
 • When you sign out you choose to keep your account's data on this device (it opens quickly next time) or to delete it from this device; your data in the cloud is not affected. The app's on-device data is not included in Android's Google backup or in device-to-device transfers.
 • If you can't use the app, you can ask for your account to be deleted by writing to {email} from the e-mail address of your account; we complete the request within 30 days.
 • Server security logs are kept for a short time and then deleted.
-• Action log: admin actions on your account (e.g. a ban or sign-out) the account deletion record (your account's e-mail and ID, the date, who deleted it, device/browser details and IP address) and a summary of your AI plan requests (time, outcome, duration, model used; not the plan or what you typed) are kept for 1 year for security and accountability, then deleted automatically. This record stays for 1 year after you delete your account.
+• Action log: admin actions on your account (e.g. a ban or sign-out), the account deletion record (your account's e-mail and ID, the date, who deleted it, device/browser details and IP address) and a summary of your AI plan requests (time, outcome, duration, model used; not the plan or what you typed) are kept for 1 year for security and accountability, then deleted automatically. This record stays for 1 year after you delete your account.
 
 ## Security
 All communication between the app and the server is encrypted (HTTPS/TLS). Every table on the server is protected by row-level access rules: only a trip's members can see it and only authorised members can change it. Documents are kept in a private storage bucket. No system is perfect; if we learn of a security breach we will inform you and the authorities as the law requires.
@@ -2739,7 +2739,7 @@ When you use the app without an account, your data stays on your device and is n
 • Contact: e-mail address.
 • User transaction data: trip details (name, country, city, dates, budget, description), the day plan, saved places and their locations, expense records (amount, currency, category, description, payer), participant names, to-dos, packing templates, your answers and notes to the AI planner.
 • Visual and document data: photos and documents you attach to trips (tickets, reservations, visas …), the address of your profile photo if you sign in with Google.
-• Transaction security: account id, session data, IP address and server logs, an irreversible hash derived from the device id and a daily usage count for the AI quota.
+• Transaction security: account id, session data, IP address and server logs, an irreversible hash derived from the device id, a daily usage count and a record of the accounts used on the same device, for the AI quota and abuse prevention.
 The app does not ask for special categories of personal data. Documents you attach (e.g. passport, visa) may contain such data; they are stored only on your instruction and are not processed for any other purpose. We recommend not attaching such documents unless necessary.
 
 ## 3. Purposes

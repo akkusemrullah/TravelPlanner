@@ -159,7 +159,8 @@ namespace TravelPlanner
                 FileSystem.AppDataDirectory,
                 AppConstants.DatabasePath,
                 sp.GetRequiredService<ISupabaseClient>(),  // G7: deleting the account
-                () => sp.GetRequiredService<ISyncService>())); // TP-9: the running round ends before a switch
+                () => sp.GetRequiredService<ISyncService>(),   // TP-9: the running round ends before a switch
+                sp.GetRequiredService<IDeviceIdentity>()));     // TP-55: which accounts share a phone
             services.AddSingleton<ITripPdfRenderer>(_ => new PdfSharpTripRenderer(FileSystem.CacheDirectory)); // TP-502
             services.AddSingleton<ITripReportService, TripReportService>();   // TP-502 / TP-503
             services.AddSingleton<IBackupService>(sp =>                      // TP-502

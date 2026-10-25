@@ -23,6 +23,7 @@ namespace TravelPlanner.Services
         private readonly string _guestDatabasePath;
         private readonly ISupabaseClient? _cloud;
         private readonly Func<ISyncService>? _sync;
+        private readonly IDeviceIdentity? _device;
         private readonly SemaphoreSlim _switchLock = new(1, 1);
         private bool _initialized;
 
@@ -42,8 +43,10 @@ namespace TravelPlanner.Services
             string appDataDirectory,
             string guestDatabasePath,
             ISupabaseClient? cloud = null,
-            Func<ISyncService>? sync = null)
+            Func<ISyncService>? sync = null,
+            IDeviceIdentity? device = null)
         {
+            _device = device;
             _cloud = cloud;
             _sync = sync;
             _auth = auth;
@@ -142,7 +145,27 @@ namespace TravelPlanner.Services
                 _switchLock.Release();
             }
 
+            NoteDeviceAsync().FireAndForget(); // TP-55: signed in on this device
             AccountChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// TP-55: tells the server this account is used on this device (its salted hash, never the raw id), so the
+        /// admin panel can show other accounts opened on the same phone. Never throws.
+        /// </summary>
+        private async Task NoteDeviceAsync(CancellationToken cancellationToken = default)
+        {
+            if (_cloud is null || _device is null || !_auth.IsSignedIn)
+                return;
+            try
+            {
+                await _cloud.RpcAsync("note_device", new JsonObject { ["p_device"] = _device.Hash }, cancellationToken);
+            }
+            catch (Exception ex) when (ex is SyncException or OperationCanceledException)
+            {
+                // offline, or the database without migration 37: next start tries again
+                System.Diagnostics.Debug.WriteLine($"[Account] Device not noted: {ex.Message}");
+            }
         }
 
         public async Task SignOutAsync(bool deleteLocalData = false)
@@ -229,6 +252,7 @@ namespace TravelPlanner.Services
                 try
                 {
                     await _auth.GetAccessTokenAsync(cancellationToken);
+                    await NoteDeviceAsync(cancellationToken); // TP-55: on every start and return to the app
                     return AccountEndReason.None;
                 }
                 catch (AuthException ex) when (ex.Kind is AuthErrorKind.SessionExpired or AuthErrorKind.Banned)

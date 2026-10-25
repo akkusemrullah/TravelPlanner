@@ -322,7 +322,7 @@ namespace TravelPlanner.Tests
             _auth.Setup(a => a.SignOutAsync()).Callback(() => _session = null).Returns(Task.CompletedTask);
             _settings.SetupProperty(s => s.UserName, string.Empty);
             _account = new AccountService(_auth.Object, _database, _attachments, _trips, new Mock<INotificationService>().Object,
-                                          _settings.Object, _dialogs.Object, _root, GuestDb, _cloud);
+                                          _settings.Object, _dialogs.Object, _root, GuestDb, _cloud, device: new FixedDevice());
             return Task.CompletedTask;
         }
 
@@ -541,6 +541,42 @@ namespace TravelPlanner.Tests
             Assert.Null(_account.ActiveUserId);
             Assert.False(Directory.Exists(userDirectory));
             Assert.Equal(AuthFakes.UserId, _cloud.Calls.Single(c => c.Function == "account_status").Arguments["p_user_id"]!.GetValue<string>());
+        }
+
+        [Fact]
+        public async Task CheckAccount_ActiveAccount_NotesThisDevice()
+        {
+            await SignInWithTripsAsync();
+            AccountStatusIs("active");
+            _cloud.Calls.Clear();
+
+            Assert.Equal(AccountEndReason.None, await _account.CheckAccountAsync());
+
+            var note = _cloud.Calls.Single(c => c.Function == "note_device").Arguments;
+            Assert.Equal(FixedDevice.Id, note["p_device"]!.GetValue<string>());
+        }
+
+        [Fact]
+        public async Task SignIn_NotesThisDevice_AndAFailedNoteChangesNothing()
+        {
+            _cloud.Handler = (function, _) => function == "note_device" ? throw new SyncException(SyncErrorKind.Network, "offline") : "[]";
+
+            await SignInWithTripsAsync();
+
+            Assert.Contains(_cloud.Calls, c => c.Function == "note_device");
+            Assert.True(_account.IsSignedIn);
+        }
+
+        [Fact]
+        public async Task CheckAccount_Banned_DoesNotNoteTheDevice()
+        {
+            await SignInWithTripsAsync();
+            AccountStatusIs("banned");
+            _cloud.Calls.Clear();
+
+            await _account.CheckAccountAsync();
+
+            Assert.DoesNotContain(_cloud.Calls, c => c.Function == "note_device");
         }
 
         [Fact]

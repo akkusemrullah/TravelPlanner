@@ -1497,7 +1497,7 @@ Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyah
 
 ## Yapay zekâ ile planlama
 Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır.
-Günlük plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile günlük kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz.
+Günlük plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile günlük kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz. Hesabınla giriş yaptığında ve uygulamayı açtığında da bu özet gönderilir: kötüye kullanımı (ör. plan hakkı için aynı telefonda çok sayıda hesap açılmasını) önlemek için hangi hesapların aynı cihazda kullanıldığı, hesabın e-postası ve ilk/son görülme zamanıyla birlikte, cihaz son görüldükten sonra 1 yıl tutulur ve yalnızca yönetici tarafından görülür.
 Özel istek notuna kişisel veya hassas bilgi yazmamanı öneririz. Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları kontrol et. Uygunsuz bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
 
 ## Kullanılan dış hizmetler
@@ -1516,7 +1516,7 @@ Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, A
 • Çıkış yaparken hesabının verilerini bu cihazda bırakmayı (bir sonraki girişte hızlı açılır) ya da bu cihazdan silmeyi seçersin; buluttaki verilerin bundan etkilenmez. Uygulamanın cihazdaki verileri Android’in Google yedeğine ve cihazdan cihaza aktarıma dahil edilmez.
 • Uygulamaya erişemiyorsan hesabının silinmesini {email} adresine, hesabının e-posta adresinden yazarak isteyebilirsin; talebini en geç 30 gün içinde yerine getiririz.
 • Sunucu güvenlik kayıtları kısa süre tutulur ve ardından silinir.
-• İşlem kaydı: hesabınla ilgili yönetici işlemleri (ör. ban, oturum kapatma) hesap silme kaydı (hesabın e-postası ve kimliği, tarih, kimin sildiği, cihaz/tarayıcı bilgisi ve IP adresi) ve yapay zekâ plan isteklerinin özeti (zaman, sonuç, süre, kullanılan model; planın içeriği ve yazdıkların değil) güvenlik ve hesap verebilirlik için 1 yıl tutulur, süre dolunca otomatik olarak silinir. Bu kayıt hesabını sildikten sonra da 1 yıl kalır.
+• İşlem kaydı: hesabınla ilgili yönetici işlemleri (ör. ban, oturum kapatma), hesap silme kaydı (hesabın e-postası ve kimliği, tarih, kimin sildiği, cihaz/tarayıcı bilgisi ve IP adresi) ve yapay zekâ plan isteklerinin özeti (zaman, sonuç, süre, kullanılan model; planın içeriği ve yazdıkların değil) güvenlik ve hesap verebilirlik için 1 yıl tutulur, süre dolunca otomatik olarak silinir. Bu kayıt hesabını sildikten sonra da 1 yıl kalır.
 
 ## Güvenlik
 Uygulama ile sunucu arasındaki tüm iletişim şifrelidir (HTTPS/TLS). Sunucudaki her tablo satır düzeyinde erişim kurallarıyla korunur: bir seyahati yalnızca üyeleri görebilir, yalnızca yetkili üyeler değiştirebilir. Belge dosyaları herkese kapalı bir depoda tutulur. Hiçbir sistem kusursuz değildir; bir güvenlik ihlalini öğrenirsek yasaların gerektirdiği şekilde seni ve ilgili kurumları bilgilendiririz.
@@ -2739,7 +2739,7 @@ Uygulamayı hesap açmadan kullandığında verilerin yalnızca cihazında kalı
 • İletişim: e-posta adresi.
 • Kullanıcı işlem verileri: seyahat bilgileri (ad, ülke, şehir, tarihler, bütçe, açıklama), gün gün plan, kayıtlı yerler ve konumları, harcama kayıtları (tutar, para birimi, kategori, açıklama, ödeyen), katılımcı adları, görevler, bavul şablonları, yapay zekâ planlayıcısına verdiğin cevaplar ve notlar.
 • Görsel ve belge verileri: seyahate eklediğin fotoğraflar ve belgeler (bilet, rezervasyon, vize vb.), Google ile giriş yaptıysan profil fotoğrafının adresi.
-• İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası için cihaz kimliğinden türetilen geri çevrilemeyen özet ve günlük kullanım sayısı.
+• İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası ve kötüye kullanımı önleme için cihaz kimliğinden türetilen geri çevrilemeyen özet, günlük kullanım sayısı ve aynı cihazda kullanılan hesapların kaydı.
 Uygulama özel nitelikli kişisel veri talep etmez. Eklediğin belgelerde (ör. pasaport, vize) bu tür veriler bulunabilir; bu belgeler yalnızca senin talimatınla saklanır ve başka bir amaçla işlenmez. Gerekmedikçe bu tür belgeleri eklememeni öneririz.
 
 ## 3. İşleme amaçları

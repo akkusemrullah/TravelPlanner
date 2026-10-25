@@ -25,7 +25,7 @@ Hizmet sağlayıcılar (Supabase, OpenAI, Cloudflare) bizim adımıza işler; se
 | Fotoğraflar ve videolar → Fotoğraflar | Evet | İsteğe bağlı | Uygulama işlevselliği | Belge olarak eklenen fotoğraflar ve seyahat kapak fotoğrafı |
 | Dosyalar ve belgeler | Evet | İsteğe bağlı | Uygulama işlevselliği | PDF bilet/rezervasyon |
 | Uygulama etkinliği → Kullanıcının oluşturduğu diğer içerik | Evet | İsteğe bağlı | Uygulama işlevselliği | Seyahat, plan, notlar, yapay zekâ isteği ve cevabı |
-| Cihaz veya diğer kimlikler | Evet | İsteğe bağlı (yapay zekâ) | Dolandırıcılığı önleme, güvenlik ve uyumluluk | Tuzlu SHA-256 cihaz özeti, yalnızca AI kotası için |
+| Cihaz veya diğer kimlikler | Evet | İsteğe bağlı (hesap) | Dolandırıcılığı önleme, güvenlik ve uyumluluk | Tuzlu SHA-256 cihaz özeti: AI kotası ve aynı cihazdaki hesapları görme (kötüye kullanım) |
 | Konum (yaklaşık / kesin) | **Hayır** | – | – | |
 | Kişiler, mesajlar, ses, sağlık, web geçmişi | **Hayır** | – | – | |
 
@@ -45,7 +45,7 @@ Hizmet sağlayıcılar (Supabase, OpenAI, Cloudflare) bizim adımıza işler; se
 | Contact Info → Name | Görünen ad | App Functionality |
 | Contact Info → Email Address | E-posta | App Functionality |
 | Identifiers → User ID | Hesap uid'i | App Functionality |
-| Identifiers → Device ID | AI kotası için cihaz özeti | App Functionality (fraud prevention) |
+| Identifiers → Device ID | AI kotası ve kötüye kullanım için cihaz özeti | App Functionality (fraud prevention) |
 | Financial Info → Other Financial Info | Girilen harcamalar | App Functionality |
 | User Content → Photos or Videos | Belge fotoğrafları, seyahat kapak fotoğrafı | App Functionality |
 | User Content → Other User Content | Seyahat, plan, notlar, belgeler, AI isteği | App Functionality |
@@ -54,4 +54,4 @@ Toplanmayan: Location, Health & Fitness, Contacts, Browsing/Search History, Usag
 iOS sürümü yayınlanırsa `PrivacyInfo.xcprivacy` (Required Reason API'ler: UserDefaults, dosya zaman damgası) eklenmelidir.
 
 ## English summary
-No location, no ads, no analytics or crash SDKs, no tracking. Without an account nothing leaves the device. With an optional account the app collects (never "shares" in Play's sense) name, e-mail, user ID, user-entered expenses, photos/documents, trips and AI requests, plus a salted device hash used only for the AI quota. Data is encrypted in transit and users can delete it in the app or via the web deletion page. App Store: "Data Not Used to Track You"; all collected data is linked to the user and used only for app functionality.
+No location, no ads, no analytics or crash SDKs, no tracking. Without an account nothing leaves the device. With an optional account the app collects (never "shares" in Play's sense) name, e-mail, user ID, user-entered expenses, photos/documents, trips and AI requests, plus a salted device hash used for the AI quota and abuse prevention (accounts on the same device). Data is encrypted in transit and users can delete it in the app or via the web deletion page. App Store: "Data Not Used to Track You"; all collected data is linked to the user and used only for app functionality.

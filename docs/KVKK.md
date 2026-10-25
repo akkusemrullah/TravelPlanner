@@ -20,7 +20,7 @@ Uygulamayı hesap açmadan kullandığında verilerin yalnızca cihazında kalı
 - İletişim: e-posta adresi.
 - Kullanıcı işlem verileri: seyahat bilgileri (ad, ülke, şehir, tarihler, bütçe, açıklama), gün gün plan, kayıtlı yerler ve konumları, harcama kayıtları (tutar, para birimi, kategori, açıklama, ödeyen), katılımcı adları, görevler, bavul şablonları, yapay zekâ planlayıcısına verdiğin cevaplar ve notlar.
 - Görsel ve belge verileri: seyahate eklediğin fotoğraflar ve belgeler (bilet, rezervasyon, vize vb.), Google ile giriş yaptıysan profil fotoğrafının adresi.
-- İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası için cihaz kimliğinden türetilen geri çevrilemeyen özet ve günlük kullanım sayısı.
+- İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası ve kötüye kullanımı önleme için cihaz kimliğinden türetilen geri çevrilemeyen özet, günlük kullanım sayısı ve aynı cihazda kullanılan hesapların kaydı.
 
 Uygulama özel nitelikli kişisel veri talep etmez. Eklediğin belgelerde (ör. pasaport, vize) bu tür veriler bulunabilir; bu belgeler yalnızca senin talimatınla saklanır ve başka bir amaçla işlenmez. Gerekmedikçe bu tür belgeleri eklememeni öneririz.
 
@@ -87,7 +87,7 @@ When you use the app without an account, your data stays on your device and is n
 - Contact: e-mail address.
 - User transaction data: trip details (name, country, city, dates, budget, description), the day plan, saved places and their locations, expense records (amount, currency, category, description, payer), participant names, to-dos, packing templates, your answers and notes to the AI planner.
 - Visual and document data: photos and documents you attach to trips (tickets, reservations, visas …), the address of your profile photo if you sign in with Google.
-- Transaction security: account id, session data, IP address and server logs, an irreversible hash derived from the device id and a daily usage count for the AI quota.
+- Transaction security: account id, session data, IP address and server logs, an irreversible hash derived from the device id, a daily usage count and a record of the accounts used on the same device, for the AI quota and abuse prevention.
 
 The app does not ask for special categories of personal data. Documents you attach (e.g. passport, visa) may contain such data; they are stored only on your instruction and are not processed for any other purpose. We recommend not attaching such documents unless necessary.
 
