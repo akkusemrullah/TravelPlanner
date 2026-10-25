@@ -2012,4 +2012,33 @@ delete from private.account_devices;
 delete from auth.users where id in ('00000000-0000-0000-0000-0000000a0f01', '00000000-0000-0000-0000-0000000a0f03',
                                     '00000000-0000-0000-0000-0000000a0f04');
 
+-- ------------------------------------------------------------------------------- 38: log screen filters (TP-56)
+delete from private.audit_log;
+insert into private.audit_log (created_at, actor_type, actor_id, actor_email, action, result, target_type, target_id, target_label)
+values (now() - interval '3 days', 'admin', null, 'admin@example.com', 'user.ban', 'ok', 'user', '00000000-0000-0000-0000-0000000a1001', 'u1@example.com'),
+       (now() - interval '2 days', 'user', '00000000-0000-0000-0000-0000000a1001', 'u1@example.com', 'ai.plan', 'error', 'ai_plan', 'r1', null),
+       (now() - interval '1 day', 'user', '00000000-0000-0000-0000-0000000a1002', 'u2@example.com', 'ai.plan', 'ok', 'ai_plan', 'r2', null),
+       (now(), 'system', null, null, 'system.purge', 'ok', null, null, null);
+set role service_role;
+select test.eq(jsonb_array_length(public.admin_audit_log() -> 'items'), 4, '38: no filter, every row');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_from => now() - interval '36 hours') -> 'items'), 2, '38: from a date');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_from => now() - interval '4 days', p_to => now() - interval '36 hours') -> 'items'), 2,
+               '38: a date range');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_actor_type => 'user') -> 'items'), 2, '38: done by users');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_actor_type => 'system') -> 'items'), 1, '38: done by the system');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_result => 'error') -> 'items'), 1, '38: only errors');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_user_id => '00000000-0000-0000-0000-0000000a1001') -> 'items'), 2,
+               '38: one account''s rows: done by it and done to it');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_action => 'ai', p_result => 'ok') -> 'items'), 1, '38: filters combine');
+select test.eq(jsonb_array_length(public.admin_audit_log(p_query => 'u2@') -> 'items'), 1, '38: e-mail search still works');
+reset role;
+set role authenticated;
+do $$ begin
+    perform public.admin_audit_log(p_result => 'ok');
+    raise exception 'FAILED: a client read the audit log';
+exception when insufficient_privilege then raise notice 'ok - 38: still admin only';
+end $$;
+reset role;
+delete from private.audit_log;
+
 \echo ALL SYNC TESTS PASSED
