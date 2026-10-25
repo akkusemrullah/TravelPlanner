@@ -3283,4 +3283,7 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Dashboard_StatsRule" xml:space="preserve">
     <value>Countries and cities count trips that have started. My spending: your share.</value>
   </data>
+  <data name="Sync_BadgeA11y" xml:space="preserve">
+    <value>Sync status</value>
+  </data>
 </root>

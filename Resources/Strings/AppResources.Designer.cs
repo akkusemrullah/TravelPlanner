@@ -8910,5 +8910,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Dashboard_StatsRule", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Eşitleme durumu.
+        /// </summary>
+        public static string Sync_BadgeA11y {
+            get {
+                return ResourceManager.GetString("Sync_BadgeA11y", resourceCulture);
+            }
+        }
     }
 }

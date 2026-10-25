@@ -100,6 +100,24 @@ namespace TravelPlanner.Tests
                 Mock.Of<IDialogService>(), Mock.Of<IAppConfigService>(), appInfo.Object, _preferences);
         }
 
+        [Theory]
+        [InlineData(SyncStatus.UpToDate, 0, false, "")]
+        [InlineData(SyncStatus.Pending, 3, true, "3")]
+        [InlineData(SyncStatus.Offline, 0, true, "")]
+        [InlineData(SyncStatus.Offline, 2, true, "2")]
+        [InlineData(SyncStatus.Error, 0, true, "")]
+        public void TP78_Dashboard_CloudBadge_WhenOfflineOrChangesWait(SyncStatus status, int pending, bool shown, string text)
+        {
+            var sync = new Mock<ISyncService>();
+            sync.SetupGet(s => s.Status).Returns(status);
+            sync.SetupGet(s => s.PendingCount).Returns(pending);
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+                Mock.Of<IDialogService>(), sync: sync.Object);
+
+            Assert.Equal(shown, vm.ShowSyncBadge);
+            Assert.Equal(text, vm.SyncBadgeText);
+        }
+
         [Fact]
         public void Dashboard_ShowsTheNotice_UntilItIsClosed()
         {

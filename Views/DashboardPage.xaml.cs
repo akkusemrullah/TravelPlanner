@@ -17,5 +17,12 @@ public partial class DashboardPage : ContentPage
     {
         base.OnAppearing();
         this.LoadOnAppearing(() => _viewModel.LoadCommand.Execute(null));
+        _viewModel.AttachSyncStatus(true);
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        _viewModel.AttachSyncStatus(false);
     }
 }

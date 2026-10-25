@@ -16,7 +16,18 @@
                 <!-- ════════ Header ════════ -->
                 <Grid Style="{StaticResource PageHeader}" ColumnDefinitions="*,Auto,Auto">
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
-                        <Label Text="{Binding TodayDisplay}" Style="{StaticResource Text.Overline}" />
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="{Binding TodayDisplay}" Style="{StaticResource Text.Overline}" VerticalOptions="Center" />
+                            <!-- TP-78: offline / changes waiting to be sent -->
+                            <HorizontalStackLayout Spacing="3" IsVisible="{Binding ShowSyncBadge}" VerticalOptions="Center"
+                                                   SemanticProperties.Description="{x:Static res:AppResources.Sync_BadgeA11y}">
+                                <HorizontalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ShowSyncStatusCommand}" />
+                                </HorizontalStackLayout.GestureRecognizers>
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Cloud}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Center" />
+                                <Label Text="{Binding SyncBadgeText}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </HorizontalStackLayout>
                         <Label Text="{Binding GreetingText}" Style="{StaticResource Text.H1}" SemanticProperties.HeadingLevel="Level1" />
                         <Label Text="{x:Static res:AppResources.Dashboard_Subtitle}" Style="{StaticResource Text.Body2}" />
                     </VerticalStackLayout>

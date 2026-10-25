@@ -306,15 +306,18 @@ namespace TravelPlanner.ViewModels
         public string AccountSubtitle => _account.IsSignedIn ? AppResources.Account_SignedInHint : AppResources.Auth_GuestHint;
 
         /// <summary>"Eşitlendi · 14:32", "3 değişiklik bekliyor", "Çevrimdışı" … (G4).</summary>
-        public string SyncStatusText => _sync.Status switch
+        public string SyncStatusText => DescribeSync(_sync);
+
+        /// <summary>The sync status line, also shown when the home screen's cloud badge is tapped (TP-78).</summary>
+        internal static string DescribeSync(ISyncService sync) => sync.Status switch
         {
             SyncStatus.Syncing => AppResources.Sync_StatusSyncing,
-            SyncStatus.Offline => _sync.PendingCount > 0
-                ? string.Format(AppResources.Sync_StatusOfflinePendingFormat, _sync.PendingCount)
+            SyncStatus.Offline => sync.PendingCount > 0
+                ? string.Format(AppResources.Sync_StatusOfflinePendingFormat, sync.PendingCount)
                 : AppResources.Sync_StatusOffline,
-            SyncStatus.Pending => string.Format(AppResources.Sync_StatusPendingFormat, _sync.PendingCount),
+            SyncStatus.Pending => string.Format(AppResources.Sync_StatusPendingFormat, sync.PendingCount),
             SyncStatus.Error => AppResources.Sync_StatusError,
-            SyncStatus.UpToDate when _sync.LastSyncedAtUtc is { } last =>
+            SyncStatus.UpToDate when sync.LastSyncedAtUtc is { } last =>
                 string.Format(AppResources.Sync_StatusUpToDateFormat, last.ToLocalTime().ToString("t", System.Globalization.CultureInfo.CurrentCulture)),
             SyncStatus.UpToDate => AppResources.Sync_StatusUpToDate,
             _ => string.Empty,

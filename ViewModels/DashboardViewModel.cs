@@ -26,6 +26,7 @@ namespace TravelPlanner.ViewModels
         private readonly IPreferences? _preferences;
         private readonly ITripCoverService? _covers;
         private readonly IJoinTripFlow? _joinFlow;
+        private readonly Services.Sync.ISyncService? _sync;
 
         internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
 
@@ -105,9 +106,11 @@ namespace TravelPlanner.ViewModels
 
         public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs,
                                   IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null,
-                                  ITripCoverService? covers = null, IJoinTripFlow? joinFlow = null)
+                                  ITripCoverService? covers = null, IJoinTripFlow? joinFlow = null,
+                                  Services.Sync.ISyncService? sync = null)
             : base(dialogs)
         {
+            _sync = sync;
             _joinFlow = joinFlow;
             _tripService = tripService;
             _expenseService = expenseService;
@@ -120,6 +123,43 @@ namespace TravelPlanner.ViewModels
 
             RefreshHeader();
         }
+
+        // ---- TP-78: small cloud badge in the header while offline or changes wait to be sent ----
+
+        /// <summary>Shown while signed in and offline, failing, or with changes waiting to be sent.</summary>
+        public bool ShowSyncBadge => _sync is { } sync &&
+            (sync.PendingCount > 0 || sync.Status is Services.Sync.SyncStatus.Offline or Services.Sync.SyncStatus.Error);
+
+        /// <summary>How many changes wait ("3"), empty when none.</summary>
+        public string SyncBadgeText => _sync is { PendingCount: > 0 } sync
+            ? sync.PendingCount.ToString(CultureInfo.CurrentCulture)
+            : string.Empty;
+
+        /// <summary>DashboardPage calls this in OnAppearing / OnDisappearing so the badge stays live.</summary>
+        public void AttachSyncStatus(bool attach)
+        {
+            if (_sync is null)
+                return;
+            _sync.StatusChanged -= OnSyncStatusChanged;
+            if (attach)
+            {
+                _sync.StatusChanged += OnSyncStatusChanged;
+                RaiseSyncBadge();
+            }
+        }
+
+        private void OnSyncStatusChanged(object? sender, EventArgs e) => MainThread.BeginInvokeOnMainThread(RaiseSyncBadge);
+
+        internal void RaiseSyncBadge()
+        {
+            OnPropertyChanged(nameof(ShowSyncBadge));
+            OnPropertyChanged(nameof(SyncBadgeText));
+        }
+
+        [RelayCommand]
+        private Task ShowSyncStatusAsync() => _sync is null
+            ? Task.CompletedTask
+            : Dialogs.ShowMessageAsync(AppResources.Common_Info, SettingsViewModel.DescribeSync(_sync));
 
         /// <summary>Greeting + "Bugün 15 Ağustos" line, in the app language. Re-run on every load so a
         /// name changed in Settings shows up as soon as the user comes back here.</summary>
