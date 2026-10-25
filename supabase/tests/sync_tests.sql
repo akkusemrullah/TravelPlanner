@@ -2041,4 +2041,61 @@ end $$;
 reset role;
 delete from private.audit_log;
 
+-- ------------------------------------------------------------------------------- 39: AI plans in the background (TP-57)
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000a3901', 'job1@example.com'),
+                                          ('00000000-0000-0000-0000-0000000a3902', 'job2@example.com');
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a3901', false);
+set role authenticated;
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000001'), 'ok', '39: the first plan starts');
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000002'), 'busy', '39: no second plan at the same time');
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000001'), 'exists', '39: the same id twice');
+select test.eq(public.ai_plan_job('39000000-0000-0000-0000-000000000001') ->> 'status', 'running', '39: the app sees it running');
+select test.eq(public.ai_plan_job_clear('39000000-0000-0000-0000-000000000001'), false, '39: a running plan is not cleared');
+do $$ begin
+    perform public.ai_plan_job_finish('39000000-0000-0000-0000-000000000001', 'done', '{}'::jsonb);
+    raise exception 'FAILED: a client finished a job';
+exception when insufficient_privilege then raise notice 'ok - 39: only plan-trip finishes a job';
+end $$;
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a3902', false);
+set role authenticated;
+select test.eq(public.ai_plan_job('39000000-0000-0000-0000-000000000001') is null, true, '39: another account does not see it');
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000001'), 'exists', '39: nor take its id');
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000003'), 'ok', '39: another account plans at the same time');
+reset role;
+set role service_role;
+select test.eq(public.ai_plan_job_finish('39000000-0000-0000-0000-000000000001', 'done',
+               '{"plan": {"days": []}, "remaining": 4, "requestId": "r1"}'::jsonb, null, 4), true, '39: plan-trip writes the answer');
+select test.eq(public.ai_plan_job_finish('39000000-0000-0000-0000-000000000001', 'failed', null, 'ai_failed', 4), false,
+               '39: a finished job stays as it is');
+select test.eq(public.ai_plan_job_finish('39000000-0000-0000-0000-000000000003', 'failed', null, 'quota_exceeded', 0), true,
+               '39: or the error');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a3901', false);
+set role authenticated;
+select test.eq(public.ai_plan_job('39000000-0000-0000-0000-000000000001'),
+               '{"status": "done", "result": {"plan": {"days": []}, "remaining": 4, "requestId": "r1"}, "remaining": 4}'::jsonb,
+               '39: the app gets the plan');
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000004'), 'ok', '39: done: a new plan may start');
+select test.eq(public.ai_plan_job_clear('39000000-0000-0000-0000-000000000001'), true, '39: the app has it: off the server');
+select test.eq(public.ai_plan_job('39000000-0000-0000-0000-000000000001') is null, true, '39: gone');
+reset role;
+-- a plan-trip that died: "running" for more than 5 minutes is a failure and no longer blocks
+update private.ai_plan_jobs set created_at = now() - interval '6 minutes' where id = '39000000-0000-0000-0000-000000000004';
+set role authenticated;
+select test.eq(public.ai_plan_job('39000000-0000-0000-0000-000000000004'), '{"status": "failed", "error": "timeout"}'::jsonb,
+               '39: a dead job counts as failed');
+select test.eq(public.ai_plan_job_begin('39000000-0000-0000-0000-000000000005'), 'ok', '39: and a new plan starts');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a3902', false);
+set role authenticated;
+select test.eq(public.ai_plan_job('39000000-0000-0000-0000-000000000003'), '{"status": "failed", "error": "quota_exceeded", "remaining": 0}'::jsonb,
+               '39: the error and what is left');
+reset role;
+update private.ai_plan_jobs set created_at = now() - interval '2 days' where id = '39000000-0000-0000-0000-000000000003';
+select test.eq(private.purge_ai_plan_jobs(), 1, '39: rows older than a day are purged');
+delete from auth.users where id = '00000000-0000-0000-0000-0000000a3901';
+select test.eq((select count(*)::int from private.ai_plan_jobs), 0, '39: a deleted account takes its jobs with it');
+delete from auth.users where id = '00000000-0000-0000-0000-0000000a3902';
+
 \echo ALL SYNC TESTS PASSED

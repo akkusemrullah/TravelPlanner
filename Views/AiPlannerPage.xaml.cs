@@ -19,12 +19,10 @@ public partial class AiPlannerPage : ContentPage
         _viewModel.LoadCommand.Execute(null); // also after coming back from the sign-in page
     }
 
-    // TP-49: hardware back while the plan is being made asks first, like the app bar's back arrow
-    protected override bool OnBackButtonPressed()
+    // TP-57: the plan goes on without the page; a notification says when it is ready
+    protected override void OnDisappearing()
     {
-        if (!_viewModel.IsGenerating)
-            return base.OnBackButtonPressed();
-        _viewModel.GoBackCommand.Execute(null);
-        return true;
+        base.OnDisappearing();
+        _viewModel.Leave();
     }
 }

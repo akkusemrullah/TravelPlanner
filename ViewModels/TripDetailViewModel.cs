@@ -107,9 +107,11 @@ namespace TravelPlanner.ViewModels
             IConnectivity connectivity,
             IDialogService dialogs,
             IAiPlannerService? aiPlanner = null,
-            ITripCoverService? covers = null)
+            ITripCoverService? covers = null,
+            IAiPlanJobs? aiJobs = null)
             : base(dialogs)
         {
+            _aiJobs = aiJobs;
             _covers = covers;
             _aiPlanner = aiPlanner;
             _access = access;
@@ -124,6 +126,7 @@ namespace TravelPlanner.ViewModels
         }
 
         private readonly ITripCoverService? _covers;
+        private readonly IAiPlanJobs? _aiJobs;
 
         /// <summary>The trip's cover photo on the phone (downloaded when needed), or null: no cover shown.</summary>
         [ObservableProperty]
@@ -183,6 +186,16 @@ namespace TravelPlanner.ViewModels
             {
                 AiPlannerSubtitle = AppResources.AiPlan_EntrySignIn;
                 return;
+            }
+            // TP-57: a plan of this trip being made in the background, or made and not looked at yet
+            switch (Trip is null ? null : _aiJobs?.For(Trip.Id)?.Phase)
+            {
+                case AiPlanJobPhase.Running:
+                    AiPlannerSubtitle = AppResources.AiPlan_EntryRunning;
+                    return;
+                case AiPlanJobPhase.Ready:
+                    AiPlannerSubtitle = AppResources.AiPlan_EntryReady;
+                    return;
             }
             if (_aiPlanner is null || _connectivity.NetworkAccess != NetworkAccess.Internet)
             {

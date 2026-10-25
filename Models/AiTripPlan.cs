@@ -135,6 +135,25 @@ namespace TravelPlanner.Models
     /// <param name="RequestId">The server's log id of the request (TP-54); null from an older function.</param>
     public sealed record AiPlanResult(AiTripPlan Plan, int Remaining, bool TruncatedDays, string? RequestId = null);
 
+    /// <summary>
+    /// TP-57: what the planner answered: the plan itself (an older plan-trip, or the server without migration 39),
+    /// or that it is being made in the background under <paramref name="JobId"/>.
+    /// </summary>
+    public sealed record AiPlanStart(AiPlanResult? Result, string? JobId, int Remaining);
+
+    public enum AiPlanJobStatus
+    {
+        Running,
+        Done,
+        Failed,
+
+        /// <summary>The server has no such job (never started, cleared, older than a day, or migration 39 not run).</summary>
+        Missing
+    }
+
+    /// <summary>TP-57: a background plan on the server; <paramref name="Result"/> when done, <paramref name="Error"/> when failed.</summary>
+    public sealed record AiPlanJobState(AiPlanJobStatus Status, AiPlanResult? Result = null, AiPlanErrorKind? Error = null, int? Remaining = null);
+
     /// <param name="Paused">AI planning is in maintenance (admin panel); <paramref name="Message"/> is the admin's note, if any.</param>
     public sealed record AiQuota(int Remaining, int Limit, bool Paused = false, string? Message = null);
 
@@ -151,6 +170,9 @@ namespace TravelPlanner.Models
         InvalidRequest,
         NotConfigured,
         Paused,
+
+        /// <summary>TP-57: a plan of this account is already being made.</summary>
+        Busy,
         Failed
     }
 

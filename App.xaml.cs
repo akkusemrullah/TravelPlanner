@@ -14,6 +14,8 @@ namespace TravelPlanner
         private readonly IDialogService _dialogs;
         private readonly ITripService _trips;
         private readonly IMemberJoinWatcher _memberJoins;
+        private readonly IAiPlanJobs _aiJobs;
+        private bool _offeringAiPlan;
         private bool _shellShown;
 
         // Reminders mention the day's activities and the open to-dos, so they are re-planned when those change
@@ -34,7 +36,8 @@ namespace TravelPlanner
 
         public App(INotificationService notificationService, ISettingsService settings, IThemeService themeService,
                    ITrashService trashService, IAccountService account, IPreferences preferences, ISyncService sync,
-                   ITripAccessService tripAccess, IDialogService dialogs, ITripService trips, IMemberJoinWatcher memberJoins)
+                   ITripAccessService tripAccess, IDialogService dialogs, ITripService trips, IMemberJoinWatcher memberJoins,
+                   IAiPlanJobs aiJobs)
         {
             // Language first: every page reads its {x:Static} strings when it's built (TP-301).
             LocalizationHelper.Apply(settings.Language);
@@ -48,6 +51,10 @@ namespace TravelPlanner
             _dialogs = dialogs;
             _trips = trips;
             _memberJoins = memberJoins;
+            _aiJobs = aiJobs;
+
+            // TP-57: an AI plan got ready while its page was closed and no notification could be shown
+            _aiJobs.ReadyUnnoticed += (_, _) => MainThread.BeginInvokeOnMainThread(() => OfferReadyAiPlanAsync().FireAndForget());
 
             // G4: a sync that brought other people's changes reloads the visible page.
             _sync.RemoteChangesApplied += (_, _) =>
@@ -186,12 +193,17 @@ namespace TravelPlanner
             // Day reminders are only scheduled 30 days ahead, and older versions scheduled different ones.
             RefreshAllRemindersAsync().FireAndForget();
 
+            // TP-57: an AI plan made while the app was closed
+            _aiJobs.ResumeAsync().FireAndForget();
+            OfferReadyAiPlanAsync().FireAndForget();
+
             await OfferSignInOnceAsync();
         }
 
         protected override void OnResume()
         {
             base.OnResume();
+            _aiJobs.InForeground = true;
             if (_shellShown)
                 ResumeAsync().FireAndForget();
         }
@@ -200,6 +212,10 @@ namespace TravelPlanner
         {
             await CheckAccountAsync(); // banned / deleted while the app was in the background?
             _sync.Start();             // fetch what changed while the app was in the background
+
+            // TP-57: the AI plan went on while the app was away (also after a tap on "Planın hazır")
+            _aiJobs.ResumeAsync().FireAndForget();
+            OfferReadyAiPlanAsync().FireAndForget();
 
             if (DateTime.Now - _lastRemindersRefresh > RemindersRefreshInterval)
                 await RefreshAllRemindersAsync();
@@ -273,6 +289,46 @@ namespace TravelPlanner
         {
             base.OnSleep();
             _sync.Stop();
+            _aiJobs.InForeground = false; // a plan getting ready now is told by a notification
+        }
+
+        /// <summary>
+        /// TP-57: an AI plan is ready and the user hasn't seen it (made while the app was closed, or its page was
+        /// left): "Roma için AI planı hazır. Görmek ister misin?" - once per plan.
+        /// </summary>
+        private async Task OfferReadyAiPlanAsync()
+        {
+            var job = _aiJobs.Current;
+            if (_offeringAiPlan || job is not { Phase: AiPlanJobPhase.Ready, Offered: false } || _aiJobs.WatchedTripId == job.TripId)
+                return;
+
+            _offeringAiPlan = true;
+            try
+            {
+                await Task.Delay(800); // after the first page (and a sign-in page offered at the first start)
+                if (await _trips.GetByIdAsync(job.TripId) is null)
+                {
+                    _aiJobs.Dismiss(job.TripId); // the trip is gone
+                    return;
+                }
+                _aiJobs.MarkOffered();
+                var show = await MainThread.InvokeOnMainThreadAsync(() => _dialogs.ConfirmAsync(
+                    TravelPlanner.Resources.Strings.AppResources.AiPlan_ReadyTitle,
+                    string.Format(TravelPlanner.Resources.Strings.AppResources.AiPlan_ReadyAsk, job.TripName),
+                    TravelPlanner.Resources.Strings.AppResources.AiPlan_ReadyShow,
+                    TravelPlanner.Resources.Strings.AppResources.AiPlan_ReadyLater));
+                if (show)
+                    await MainThread.InvokeOnMainThreadAsync(() =>
+                        Shell.Current?.GoToAsync($"{Routes.AiPlanner}?TripId={job.TripId}") ?? Task.CompletedTask);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AI] Offering the ready plan failed: {ex.Message}");
+            }
+            finally
+            {
+                _offeringAiPlan = false;
+            }
         }
 
         // First start: offer sign-in / account creation once. "Misafir olarak devam et" simply closes it, and

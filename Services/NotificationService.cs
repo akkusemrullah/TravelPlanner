@@ -137,6 +137,34 @@ namespace TravelPlanner.Services
             }
         }
 
+        /// <summary>TP-57: one id for the AI plan notice - "failed" never stays next to a newer "ready".</summary>
+        internal const int AiPlanNotificationId = 2_100_000_002;
+
+        public async Task<bool> ShowAiPlanAsync(string title, string message)
+        {
+            if (!IsSupported)
+                return false;
+
+            try
+            {
+                if (!await LocalNotificationCenter.Current.AreNotificationsEnabled())
+                    return false;
+
+                await LocalNotificationCenter.Current.Show(new NotificationRequest
+                {
+                    NotificationId = AiPlanNotificationId,
+                    Title = title,
+                    Description = message
+                });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[NotificationService] AI plan notice failed: {ex}");
+                return false;
+            }
+        }
+
         private static Task ShowNotificationAsync(int id, string title, string message, DateTime notifyTime)
         {
             var request = new NotificationRequest

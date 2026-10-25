@@ -1496,7 +1496,7 @@ We do not use your data for advertising, profiling or marketing.
 When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name and profile photo; e-mail addresses are only visible to the trip's owner. Invite codes are single-use and valid for 48 hours by default; share a code only with the person you invite.
 
 ## Planning with AI
-This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass).
+This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass). The plan is made in the background; a ready plan is kept on our server until it reaches your app, and deleted then, at the latest after 1 day.
 To apply the daily plan quota we keep your account id and an irreversible hash (SHA-256) derived from your device's id, with a daily usage count; your device's actual id never leaves the device. The hash is also sent when you sign in and open the app: to prevent abuse (e.g. many accounts opened on one phone for more plans), which accounts were used on the same device, with the account's e-mail and first/last seen time, is kept for 1 year after the device was last seen and is only visible to the administrator.
 Please don't put personal or sensitive information in the note. AI suggestions can be wrong; check opening hours, prices and bookings. You can report an inappropriate suggestion with the "Report" link on the plan screen.
 
@@ -3210,19 +3210,37 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Join_Short" xml:space="preserve">
     <value>Join with code</value>
   </data>
-  <data name="AiPlan_DontClose" xml:space="preserve">
-    <value>Keep this screen open</value>
+  <data name="AiPlan_CanLeave" xml:space="preserve">
+    <value>You can leave, it keeps going</value>
   </data>
-  <data name="AiPlan_LeaveTitle" xml:space="preserve">
-    <value>Leave?</value>
+  <data name="AiPlan_ReadyTitle" xml:space="preserve">
+    <value>Your plan is ready</value>
   </data>
-  <data name="AiPlan_LeaveMessage" xml:space="preserve">
-    <value>Leaving still uses up an AI plan.</value>
+  <data name="AiPlan_ReadyFormat" xml:space="preserve">
+    <value>The AI plan for {0} is ready.</value>
   </data>
-  <data name="AiPlan_LeaveAccept" xml:space="preserve">
-    <value>Leave</value>
+  <data name="AiPlan_ReadyAsk" xml:space="preserve">
+    <value>The AI plan for {0} is ready. Take a look?</value>
   </data>
-  <data name="AiPlan_LeaveStay" xml:space="preserve">
-    <value>Stay</value>
+  <data name="AiPlan_ReadyShow" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="AiPlan_ReadyLater" xml:space="preserve">
+    <value>Later</value>
+  </data>
+  <data name="AiPlan_FailedTitle" xml:space="preserve">
+    <value>Plan couldn't be made</value>
+  </data>
+  <data name="AiPlan_FailedFormat" xml:space="preserve">
+    <value>Try again for {0}.</value>
+  </data>
+  <data name="AiPlan_Busy" xml:space="preserve">
+    <value>Another plan is being made</value>
+  </data>
+  <data name="AiPlan_EntryRunning" xml:space="preserve">
+    <value>Your plan is being made…</value>
+  </data>
+  <data name="AiPlan_EntryReady" xml:space="preserve">
+    <value>Your plan is ready, tap to see</value>
   </data>
 </root>

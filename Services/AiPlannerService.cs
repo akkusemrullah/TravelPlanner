@@ -18,8 +18,18 @@ namespace TravelPlanner.Services
         /// <summary>Plans left today for this account on this device; null when it can't be checked (offline, not signed in).</summary>
         Task<AiQuota?> GetQuotaAsync(CancellationToken cancellationToken = default);
 
-        /// <summary>Asks for a plan (uses one of today's plans). Throws <see cref="AiPlanException"/>.</summary>
-        Task<AiPlanResult> CreatePlanAsync(AiPlanRequest request, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Asks for a plan (uses one of today's plans). TP-57: with <paramref name="jobId"/> the server makes it in the
+        /// background and answers at once (<see cref="AiPlanStart.JobId"/>); an older server sends the plan itself.
+        /// Throws <see cref="AiPlanException"/>.
+        /// </summary>
+        Task<AiPlanStart> StartPlanAsync(AiPlanRequest request, string? jobId, CancellationToken cancellationToken = default);
+
+        /// <summary>TP-57: how the background plan <paramref name="jobId"/> is doing. Throws <see cref="AiPlanException"/> (offline…).</summary>
+        Task<AiPlanJobState> GetJobAsync(string jobId, CancellationToken cancellationToken = default);
+
+        /// <summary>TP-57: the app has the plan: it is deleted from the server. Never throws.</summary>
+        Task ClearJobAsync(string jobId, CancellationToken cancellationToken = default);
 
         /// <summary>Adds the chosen parts of a plan to <paramref name="trip"/>.</summary>
         Task<AiApplyResult> ApplyAsync(Trip trip, AiPlanSelection selection, CancellationToken cancellationToken = default);
@@ -81,7 +91,7 @@ namespace TravelPlanner.Services
             }
         }
 
-        public async Task<AiPlanResult> CreatePlanAsync(AiPlanRequest request, CancellationToken cancellationToken = default)
+        public async Task<AiPlanStart> StartPlanAsync(AiPlanRequest request, string? jobId, CancellationToken cancellationToken = default)
         {
             var body = new JsonObject
             {
@@ -97,6 +107,11 @@ namespace TravelPlanner.Services
                 ["notes"] = request.Notes,
                 ["existingPlaces"] = new JsonArray(request.ExistingPlaces.Take(30).Select(p => (JsonNode?)JsonValue.Create(p)).ToArray()),
             };
+            if (!string.IsNullOrEmpty(jobId))
+            {
+                body["background"] = true;
+                body["jobId"] = jobId;
+            }
 
             if (!string.IsNullOrWhiteSpace(request.City) && await SafeGeocodeCityAsync(request.City, request.Country) is { } center)
                 body["center"] = new JsonObject { ["lat"] = center.Latitude, ["lon"] = center.Longitude };
@@ -113,11 +128,11 @@ namespace TravelPlanner.Services
 
             try
             {
-                var plan = response.GetProperty("plan").Deserialize<AiTripPlan>(Json) ?? new AiTripPlan();
-                var remaining = response.TryGetProperty("remaining", out var r) && r.ValueKind == JsonValueKind.Number ? r.GetInt32() : 0;
-                var truncated = response.TryGetProperty("truncatedDays", out var t) && t.ValueKind == JsonValueKind.True;
-                var requestId = response.TryGetProperty("requestId", out var id) && id.ValueKind == JsonValueKind.String ? id.GetString() : null;
-                return new AiPlanResult(plan, remaining, truncated, string.IsNullOrWhiteSpace(requestId) ? null : requestId);
+                if (response.ValueKind == JsonValueKind.Object && !response.TryGetProperty("plan", out _) &&
+                    response.TryGetProperty("jobId", out var job) && job.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(job.GetString()))
+                    return new AiPlanStart(null, job.GetString(), RemainingOf(response) ?? 0);
+                var result = ResultOf(response);
+                return new AiPlanStart(result, null, result.Remaining);
             }
             catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
             {
@@ -125,26 +140,98 @@ namespace TravelPlanner.Services
             }
         }
 
+        /// <summary>plan-trip's answer with a plan: { plan, remaining, truncatedDays, requestId }.</summary>
+        private static AiPlanResult ResultOf(JsonElement response)
+        {
+            var plan = response.GetProperty("plan").Deserialize<AiTripPlan>(Json) ?? new AiTripPlan();
+            var truncated = response.TryGetProperty("truncatedDays", out var t) && t.ValueKind == JsonValueKind.True;
+            var requestId = response.TryGetProperty("requestId", out var id) && id.ValueKind == JsonValueKind.String ? id.GetString() : null;
+            return new AiPlanResult(plan, RemainingOf(response) ?? 0, truncated, string.IsNullOrWhiteSpace(requestId) ? null : requestId);
+        }
+
+        private static int? RemainingOf(JsonElement element) =>
+            element.ValueKind == JsonValueKind.Object && element.TryGetProperty("remaining", out var r) && r.ValueKind == JsonValueKind.Number
+                ? r.GetInt32()
+                : null;
+
+        public async Task<AiPlanJobState> GetJobAsync(string jobId, CancellationToken cancellationToken = default)
+        {
+            JsonElement job;
+            try
+            {
+                job = await _cloud.RpcAsync("ai_plan_job", new JsonObject { ["p_id"] = jobId }, cancellationToken);
+            }
+            catch (SyncException ex) when (ex.Status == 404)
+            {
+                return new AiPlanJobState(AiPlanJobStatus.Missing); // migration 39 not run: there are no jobs
+            }
+            catch (SyncException ex)
+            {
+                throw new AiPlanException(KindOf(ex), ex.Message, ex);
+            }
+
+            try
+            {
+                if (job.ValueKind != JsonValueKind.Object)
+                    return new AiPlanJobState(AiPlanJobStatus.Missing);
+                var remaining = RemainingOf(job);
+                switch (job.TryGetProperty("status", out var s) ? s.GetString() : null)
+                {
+                    case "running":
+                        return new AiPlanJobState(AiPlanJobStatus.Running, Remaining: remaining);
+                    case "done":
+                        var result = ResultOf(job.GetProperty("result"));
+                        return new AiPlanJobState(AiPlanJobStatus.Done, result, Remaining: remaining ?? result.Remaining);
+                    case "failed":
+                        var code = job.TryGetProperty("error", out var e) && e.ValueKind == JsonValueKind.String ? e.GetString() : null;
+                        return new AiPlanJobState(AiPlanJobStatus.Failed, Error: KindOf(code) ?? AiPlanErrorKind.Failed, Remaining: remaining);
+                    default:
+                        return new AiPlanJobState(AiPlanJobStatus.Missing);
+                }
+            }
+            catch (Exception ex) when (ex is JsonException or KeyNotFoundException or InvalidOperationException)
+            {
+                throw new AiPlanException(AiPlanErrorKind.Failed, "Unexpected answer from the planner.", ex);
+            }
+        }
+
+        public async Task ClearJobAsync(string jobId, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                await _cloud.RpcAsync("ai_plan_job_clear", new JsonObject { ["p_id"] = jobId }, cancellationToken);
+            }
+            catch (Exception ex) when (ex is SyncException or OperationCanceledException or InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AI] Plan job not cleared: {ex.Message}"); // the server drops it after a day
+            }
+        }
+
+        /// <summary>The kind of a plan-trip error code ("quota_exceeded"…); null for one it doesn't know.</summary>
+        internal static AiPlanErrorKind? KindOf(string? code) => code switch
+        {
+            "quota_exceeded" => AiPlanErrorKind.QuotaExceeded,
+            "account_disabled" => AiPlanErrorKind.AccountDisabled,
+            "not_signed_in" => AiPlanErrorKind.NotSignedIn,
+            "invalid_request" => AiPlanErrorKind.InvalidRequest,
+            "ai_not_configured" => AiPlanErrorKind.NotConfigured,
+            "ai_paused" => AiPlanErrorKind.Paused,
+            "plan_running" => AiPlanErrorKind.Busy,
+            _ => null,
+        };
+
         internal static AiPlanErrorKind KindOf(SyncException ex) => ex.Kind switch
         {
             SyncErrorKind.Network => AiPlanErrorKind.Offline,
             SyncErrorKind.NotSignedIn => AiPlanErrorKind.NotSignedIn,
-            _ => ex.ServerCode switch
+            _ => KindOf(ex.ServerCode) ?? ex.Status switch
             {
-                "quota_exceeded" => AiPlanErrorKind.QuotaExceeded,
-                "account_disabled" => AiPlanErrorKind.AccountDisabled,
-                "not_signed_in" => AiPlanErrorKind.NotSignedIn,
-                "invalid_request" => AiPlanErrorKind.InvalidRequest,
-                "ai_not_configured" => AiPlanErrorKind.NotConfigured,
-                "ai_paused" => AiPlanErrorKind.Paused,
-                _ => ex.Status switch
-                {
-                    503 => AiPlanErrorKind.Paused,
-                    429 => AiPlanErrorKind.QuotaExceeded,
-                    403 => AiPlanErrorKind.AccountDisabled,
-                    404 => AiPlanErrorKind.NotConfigured, // the function isn't deployed
-                    _ => AiPlanErrorKind.Failed,
-                },
+                503 => AiPlanErrorKind.Paused,
+                429 => AiPlanErrorKind.QuotaExceeded,
+                403 => AiPlanErrorKind.AccountDisabled,
+                404 => AiPlanErrorKind.NotConfigured, // the function isn't deployed
+                409 => AiPlanErrorKind.Busy,
+                _ => AiPlanErrorKind.Failed,
             },
         };
 

@@ -1496,7 +1496,7 @@ Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
 Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını ve profil fotoğrafını görür; e-posta adresleri yalnızca seyahatin sahibine görünür. Davet kodları varsayılan olarak tek kullanımlıktır ve 48 saat geçerlidir; kodu yalnızca davet ettiğin kişiyle paylaş.
 
 ## Yapay zekâ ile planlama
-Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır.
+Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır. Plan arka planda hazırlanır; hazır olan plan uygulamana ulaşana kadar sunucumuzda tutulur, ulaşınca ve en geç 1 gün içinde silinir.
 Günlük plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile günlük kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz. Hesabınla giriş yaptığında ve uygulamayı açtığında da bu özet gönderilir: kötüye kullanımı (ör. plan hakkı için aynı telefonda çok sayıda hesap açılmasını) önlemek için hangi hesapların aynı cihazda kullanıldığı, hesabın e-postası ve ilk/son görülme zamanıyla birlikte, cihaz son görüldükten sonra 1 yıl tutulur ve yalnızca yönetici tarafından görülür.
 Özel istek notuna kişisel veya hassas bilgi yazmamanı öneririz. Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları kontrol et. Uygunsuz bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
 
@@ -3211,19 +3211,37 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Join_Short" xml:space="preserve">
     <value>Kodla katıl</value>
   </data>
-  <data name="AiPlan_DontClose" xml:space="preserve">
-    <value>Ekranı kapatma</value>
+  <data name="AiPlan_CanLeave" xml:space="preserve">
+    <value>Çıkabilirsin, arka planda sürer</value>
   </data>
-  <data name="AiPlan_LeaveTitle" xml:space="preserve">
-    <value>Çıkılsın mı?</value>
+  <data name="AiPlan_ReadyTitle" xml:space="preserve">
+    <value>Planın hazır</value>
   </data>
-  <data name="AiPlan_LeaveMessage" xml:space="preserve">
-    <value>Çıkarsan AI plan hakkın azalır.</value>
+  <data name="AiPlan_ReadyFormat" xml:space="preserve">
+    <value>{0} için AI planı hazır.</value>
   </data>
-  <data name="AiPlan_LeaveAccept" xml:space="preserve">
-    <value>Çık</value>
+  <data name="AiPlan_ReadyAsk" xml:space="preserve">
+    <value>{0} için AI planı hazır. Görmek ister misin?</value>
   </data>
-  <data name="AiPlan_LeaveStay" xml:space="preserve">
-    <value>Kal</value>
+  <data name="AiPlan_ReadyShow" xml:space="preserve">
+    <value>Göster</value>
+  </data>
+  <data name="AiPlan_ReadyLater" xml:space="preserve">
+    <value>Sonra</value>
+  </data>
+  <data name="AiPlan_FailedTitle" xml:space="preserve">
+    <value>Plan hazırlanamadı</value>
+  </data>
+  <data name="AiPlan_FailedFormat" xml:space="preserve">
+    <value>{0} için tekrar dene.</value>
+  </data>
+  <data name="AiPlan_Busy" xml:space="preserve">
+    <value>Başka bir plan hazırlanıyor</value>
+  </data>
+  <data name="AiPlan_EntryRunning" xml:space="preserve">
+    <value>Planın hazırlanıyor…</value>
+  </data>
+  <data name="AiPlan_EntryReady" xml:space="preserve">
+    <value>Planın hazır, görmek için dokun</value>
   </data>
 </root>

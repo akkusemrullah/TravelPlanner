@@ -8696,47 +8696,101 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ekranı kapatma.
+        ///   Looks up a localized string similar to Çıkabilirsin, arka planda sürer.
         /// </summary>
-        public static string AiPlan_DontClose {
+        public static string AiPlan_CanLeave {
             get {
-                return ResourceManager.GetString("AiPlan_DontClose", resourceCulture);
+                return ResourceManager.GetString("AiPlan_CanLeave", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Çıkılsın mı?.
+        ///   Looks up a localized string similar to Planın hazır.
         /// </summary>
-        public static string AiPlan_LeaveTitle {
+        public static string AiPlan_ReadyTitle {
             get {
-                return ResourceManager.GetString("AiPlan_LeaveTitle", resourceCulture);
+                return ResourceManager.GetString("AiPlan_ReadyTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Çıkarsan AI plan hakkın azalır..
+        ///   Looks up a localized string similar to {0} için AI planı hazır..
         /// </summary>
-        public static string AiPlan_LeaveMessage {
+        public static string AiPlan_ReadyFormat {
             get {
-                return ResourceManager.GetString("AiPlan_LeaveMessage", resourceCulture);
+                return ResourceManager.GetString("AiPlan_ReadyFormat", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Çık.
+        ///   Looks up a localized string similar to {0} için AI planı hazır. Görmek ister misin?.
         /// </summary>
-        public static string AiPlan_LeaveAccept {
+        public static string AiPlan_ReadyAsk {
             get {
-                return ResourceManager.GetString("AiPlan_LeaveAccept", resourceCulture);
+                return ResourceManager.GetString("AiPlan_ReadyAsk", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Kal.
+        ///   Looks up a localized string similar to Göster.
         /// </summary>
-        public static string AiPlan_LeaveStay {
+        public static string AiPlan_ReadyShow {
             get {
-                return ResourceManager.GetString("AiPlan_LeaveStay", resourceCulture);
+                return ResourceManager.GetString("AiPlan_ReadyShow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sonra.
+        /// </summary>
+        public static string AiPlan_ReadyLater {
+            get {
+                return ResourceManager.GetString("AiPlan_ReadyLater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan hazırlanamadı.
+        /// </summary>
+        public static string AiPlan_FailedTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_FailedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} için tekrar dene..
+        /// </summary>
+        public static string AiPlan_FailedFormat {
+            get {
+                return ResourceManager.GetString("AiPlan_FailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Başka bir plan hazırlanıyor.
+        /// </summary>
+        public static string AiPlan_Busy {
+            get {
+                return ResourceManager.GetString("AiPlan_Busy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Planın hazırlanıyor….
+        /// </summary>
+        public static string AiPlan_EntryRunning {
+            get {
+                return ResourceManager.GetString("AiPlan_EntryRunning", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Planın hazır, görmek için dokun.
+        /// </summary>
+        public static string AiPlan_EntryReady {
+            get {
+                return ResourceManager.GetString("AiPlan_EntryReady", resourceCulture);
             }
         }
     }

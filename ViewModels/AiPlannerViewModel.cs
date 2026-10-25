@@ -125,6 +125,8 @@ namespace TravelPlanner.ViewModels
     /// AI trip planner: 4 questions (interests, pace, budget, company) + an optional note → the plan from the
     /// "plan-trip" Edge Function → a preview where everything can be unticked → "Seçilenleri plana ekle".
     /// Needs an account (the daily quota is per account) and a connection; only editors of the trip get here.
+    /// TP-57: the plan is made by <see cref="IAiPlanJobs"/>, not by this page: the user can leave while it is being
+    /// made, and coming back (even after the app was closed) shows the progress or the ready plan.
     /// </summary>
     [QueryProperty(nameof(TripId), "TripId")]
     public partial class AiPlannerViewModel : ViewModelBase
@@ -138,6 +140,7 @@ namespace TravelPlanner.ViewModels
         public const int MaxInterests = 4;
 
         private readonly IAiPlannerService _planner;
+        private readonly IAiPlanJobs _jobs;
         private readonly ITripService _trips;
         private readonly IPlaceService _places;
         private readonly IAccountService _account;
@@ -148,13 +151,19 @@ namespace TravelPlanner.ViewModels
         private string? _planRequestId;
         private long _planShownAt;
 
-        public AiPlannerViewModel(IAiPlannerService planner, ITripService trips, IPlaceService places,
+        /// <summary>The job whose plan (or error) is on screen: shown once.</summary>
+        private string? _shownJobId;
+        private bool _watching;
+        private CancellationTokenSource? _steps;
+
+        public AiPlannerViewModel(IAiPlannerService planner, IAiPlanJobs jobs, ITripService trips, IPlaceService places,
                                   IAccountService account, IConnectivity connectivity, IDialogService dialogs,
                                   IConsentService? consent = null)
             : base(dialogs)
         {
             _consent = consent;
             _planner = planner;
+            _jobs = jobs;
             _trips = trips;
             _places = places;
             _account = account;
@@ -247,6 +256,11 @@ namespace TravelPlanner.ViewModels
         [NotifyPropertyChangedFor(nameof(CanGenerate))]
         private int? remaining;
 
+        /// <summary>TP-57: a plan of another trip is being made: one at a time.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanGenerate))]
+        private bool isBusyElsewhere;
+
         [ObservableProperty]
         private string quotaText = string.Empty;
 
@@ -273,7 +287,7 @@ namespace TravelPlanner.ViewModels
         public bool HasTodos => Todos.Count > 0;
         public bool HasTips => Tips.Count > 0;
         public bool HasSummary => !string.IsNullOrWhiteSpace(Summary);
-        public bool CanGenerate => IsSignedIn && IsOnline && !IsGenerating && CanEdit && Remaining is not 0;
+        public bool CanGenerate => IsSignedIn && IsOnline && !IsGenerating && !IsBusyElsewhere && CanEdit && Remaining is not 0;
 
         partial void OnSummaryChanged(string value) => OnPropertyChanged(nameof(HasSummary));
 
@@ -293,9 +307,102 @@ namespace TravelPlanner.ViewModels
             IsSignedIn = _account.IsSignedIn;
             IsOnline = _connectivity.NetworkAccess == NetworkAccess.Internet;
 
-            if (IsSignedIn && IsOnline && !IsPreview)
+            Watch();
+            await ShowJobAsync();
+            if (IsSignedIn && IsOnline && !IsPreview && !IsGenerating)
                 ShowQuota(await _planner.GetQuotaAsync());
         }, AppResources.AiPlan_LoadError);
+
+        /// <summary>Runs on the UI thread (the jobs report from any thread). Replaced in tests.</summary>
+        internal Action<Action> Dispatch { get; set; } = MainThread.BeginInvokeOnMainThread;
+
+        /// <summary>The page is on screen: follow the plan of this trip, and no notification for it.</summary>
+        private void Watch()
+        {
+            _jobs.WatchedTripId = TripId;
+            if (_watching)
+                return;
+            _watching = true;
+            _jobs.Changed += OnJobsChanged;
+        }
+
+        /// <summary>The page left the screen: the plan goes on without it, and a notification says when it is ready.</summary>
+        public void Leave()
+        {
+            if (_jobs.WatchedTripId == TripId)
+                _jobs.WatchedTripId = null;
+            if (_watching)
+            {
+                _watching = false;
+                _jobs.Changed -= OnJobsChanged;
+            }
+            StopSteps();
+        }
+
+        private void OnJobsChanged(object? sender, EventArgs e) =>
+            Dispatch(() => RunSafeAsync(ShowJobAsync, AppResources.AiPlan_ErrorFailed).FireAndForget());
+
+        /// <summary>Shows where this trip's plan is: being made, ready (the preview) or failed (why).</summary>
+        private async Task ShowJobAsync()
+        {
+            if (_trip is null)
+                return;
+
+            var job = _jobs.For(_trip.Id);
+            var busyElsewhere = job is null && _jobs.IsRunning;
+            if (IsBusyElsewhere != busyElsewhere)
+            {
+                IsBusyElsewhere = busyElsewhere;
+                if (busyElsewhere)
+                    ErrorText = AppResources.AiPlan_Busy;
+                else if (ErrorText == AppResources.AiPlan_Busy)
+                    ErrorText = null;
+            }
+
+            switch (job?.Phase)
+            {
+                case null:
+                    StopSteps();
+                    IsGenerating = false;
+                    return;
+
+                case AiPlanJobPhase.Running:
+                    IsPreview = false;
+                    ErrorText = null;
+                    IsGenerating = true;
+                    StartSteps(job.StartedUtc);
+                    return;
+
+                case AiPlanJobPhase.Ready when job.Result is { } result:
+                    StopSteps();
+                    IsGenerating = false;
+                    if (!job.Offered)
+                        _jobs.MarkOffered();
+                    if (_shownJobId == job.Id && IsPreview)
+                        return;
+                    _shownJobId = job.Id;
+                    var existing = (await _places.GetByTripIdAsync(_trip.Id)).Select(p => p.Name).ToList();
+                    ShowPreview(_trip, result, existing);
+                    ShowQuota(new AiQuota(result.Remaining, Math.Max(result.Remaining, 1)));
+                    if (result.Remaining > 0)
+                        QuotaText = string.Format(AppResources.AiPlan_QuotaLeftFormat, result.Remaining);
+                    return;
+
+                default: // failed: say why once, then the questions are back
+                    StopSteps();
+                    IsGenerating = false;
+                    var kind = job.Error ?? AiPlanErrorKind.Failed;
+                    ErrorText = kind == AiPlanErrorKind.Paused ? null : MessageFor(kind); // paused: the quota line says it
+                    if (kind == AiPlanErrorKind.QuotaExceeded)
+                        ShowQuota(new AiQuota(0, 0));
+                    else if (kind == AiPlanErrorKind.Paused)
+                        ShowQuota(new AiQuota(0, 0, Paused: true));
+                    else if (job.Remaining is int left)
+                        ShowQuota(new AiQuota(left, Math.Max(left, 1)));
+                    _jobs.Dismiss(_trip.Id);
+                    return;
+            }
+        }
 
         // The preview must not be thrown away by a sync that reloads the page.
         protected override bool ReloadOnRemoteChanges => false;
@@ -377,36 +484,18 @@ namespace TravelPlanner.ViewModels
             if (_consent is not null && !await _consent.EnsureAsync(ConsentKind.AiPlanning))
                 return;
 
-            ErrorText = null;
-            var existing = (await _places.GetByTripIdAsync(_trip.Id)).Select(p => p.Name).ToList();
-
-            IsGenerating = true;
-            using var steps = new CancellationTokenSource();
-            ShowGeneratingStepsAsync(steps.Token).FireAndForget();
-            AiPlanResult result;
-            try
+            // TP-57: one plan at a time (also one of another trip)
+            if (_jobs.IsRunning)
             {
-                result = await _planner.CreatePlanAsync(BuildRequest(_trip, existing));
-            }
-            catch (AiPlanException ex)
-            {
-                ErrorText = ex.Kind == AiPlanErrorKind.Paused ? null : MessageFor(ex.Kind); // paused: the quota line says it
-                if (ex.Kind == AiPlanErrorKind.QuotaExceeded)
-                    ShowQuota(new AiQuota(0, 0));
-                else if (ex.Kind == AiPlanErrorKind.Paused)
-                    ShowQuota(new AiQuota(0, 0, Paused: true));
+                await ShowJobAsync();
                 return;
             }
-            finally
-            {
-                steps.Cancel();
-                IsGenerating = false;
-            }
 
-            ShowPreview(_trip, result, existing);
-            ShowQuota(new AiQuota(result.Remaining, Math.Max(result.Remaining, 1)));
-            if (result.Remaining > 0)
-                QuotaText = string.Format(AppResources.AiPlan_QuotaLeftFormat, result.Remaining);
+            ErrorText = null;
+            var existing = (await _places.GetByTripIdAsync(_trip.Id)).Select(p => p.Name).ToList();
+            if (!_jobs.Start(_trip.Id, _trip.Name, BuildRequest(_trip, existing)))
+                ErrorText = AppResources.AiPlan_Busy;
+            await ShowJobAsync();
         }, AppResources.AiPlan_ErrorFailed);
 
         /// <summary>What the waiting screen says the planner is doing ("Gezilecek yerler seçiliyor…").</summary>
@@ -426,14 +515,30 @@ namespace TravelPlanner.ViewModels
             AppResources.AiPlan_Step_Finish,
         };
 
+        private void StartSteps(DateTime startedUtc)
+        {
+            if (_steps is not null)
+                return;
+            _steps = new CancellationTokenSource();
+            // back on the page later: the message the plan has got to by now
+            var at = (int)Math.Max(0, (DateTime.UtcNow - startedUtc) / StepInterval);
+            ShowGeneratingStepsAsync(at, _steps.Token).FireAndForget();
+        }
+
+        private void StopSteps()
+        {
+            _steps?.Cancel();
+            _steps = null;
+        }
+
         /// <summary>
         /// Walks through the waiting messages while the plan is being made (the page shows a fixed rough duration
         /// under them); the last one stays until the plan arrives.
         /// </summary>
-        private async Task ShowGeneratingStepsAsync(CancellationToken cancellationToken)
+        private async Task ShowGeneratingStepsAsync(int from, CancellationToken cancellationToken)
         {
             var steps = GeneratingSteps;
-            for (var i = 0; i < steps.Count && !cancellationToken.IsCancellationRequested; i++)
+            for (var i = Math.Min(from, steps.Count - 1); i < steps.Count && !cancellationToken.IsCancellationRequested; i++)
             {
                 GeneratingStatus = steps[i];
                 if (i == steps.Count - 1)
@@ -457,6 +562,7 @@ namespace TravelPlanner.ViewModels
             AiPlanErrorKind.QuotaExceeded => AppResources.AiPlan_QuotaNone,
             AiPlanErrorKind.NotConfigured => AppResources.AiPlan_ErrorNotConfigured,
             AiPlanErrorKind.Paused => AppResources.AiPlan_Paused,
+            AiPlanErrorKind.Busy => AppResources.AiPlan_Busy,
             _ => AppResources.AiPlan_ErrorFailed,
         };
 
@@ -538,6 +644,8 @@ namespace TravelPlanner.ViewModels
         {
             IsPreview = false;
             ErrorText = null;
+            if (_trip is not null)
+                _jobs.Dismiss(_trip.Id);
         }
 
         [RelayCommand]
@@ -575,6 +683,7 @@ namespace TravelPlanner.ViewModels
             var message = string.Format(AppResources.AiPlan_AddedFormat, result.Activities, result.Places, result.Todos);
             if (result.UnlocatedPlaces > 0)
                 message += " " + string.Format(AppResources.AiPlan_ApproximateFormat, result.UnlocatedPlaces);
+            _jobs.Dismiss(_trip.Id); // in the trip now
             await Dialogs.ShowMessageAsync(AppResources.AiPlan_Title, message);
             await AfterApplied(_trip.Id);
         }, AppResources.AiPlan_ApplyError);
@@ -592,20 +701,8 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task OpenSignInAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Auth));
 
+        /// <summary>TP-57 (was TP-49's "leave?" question): the plan goes on in the background, so the page just closes.</summary>
         [RelayCommand]
-        private async Task GoBackAsync()
-        {
-            if (await ConfirmLeaveAsync())
-                await Shell.Current.GoToAsync("..");
-        }
-
-        /// <summary>
-        /// TP-49: leaving while the plan is being made still costs a plan (OpenAI answers anyway) and loses it, so
-        /// ask first. True when the page may close.
-        /// </summary>
-        internal async Task<bool> ConfirmLeaveAsync() =>
-            !IsGenerating
-            || await Dialogs.ConfirmAsync(AppResources.AiPlan_LeaveTitle, AppResources.AiPlan_LeaveMessage,
-                                          AppResources.AiPlan_LeaveAccept, AppResources.AiPlan_LeaveStay);
+        private Task GoBackAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(".."));
     }
 }

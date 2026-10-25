@@ -28,5 +28,11 @@ namespace TravelPlanner.Services
         /// available, so the caller can show the message in the app instead.
         /// </summary>
         Task<bool> ShowMemberJoinedAsync(string title, string message);
+
+        /// <summary>
+        /// TP-57: shows an immediate "your AI plan is ready / couldn't be made" notification. Returns false when
+        /// notifications aren't available, so the caller can tell the user in the app instead.
+        /// </summary>
+        Task<bool> ShowAiPlanAsync(string title, string message);
     }
 }
