@@ -5,6 +5,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 ## [Yayınlanmadı / Unreleased] – 1.0.0
 
 ### Eklendi
+- AI planı arka planda hazırlanır (TP-57, migration 39): plan hazırlanırken sayfadan çıkılabilir, uygulama kapansa bile plan kaybolmaz; bitince "Planın hazır" bildirimi gelir, açılışta "Görmek ister misin?" diye sorulur. Aynı anda tek plan. TP-49'un çıkış uyarısı kalktı, yerine "Çıkabilirsin, arka planda sürer" yazar. `plan-trip` yeniden deploy edilmeli.
 - Seyahat kapak fotoğrafı (migration 32): formdan ekle / değiştir / kaldır; 16:9 olmayan fotoğrafta kırpma penceresi açılır (sürükle, iki parmakla yakınlaştır; 1280x720 JPEG), Seyahatler listesinde ve ana sayfada 256x256 küçük resmi, detayda kapağı görünür. Dosyalar cihazda ve `trip-files` kovasında; diğer cihazlar indirir, eski kapaklar gece temizlenir.
 - AI modeli ve düşünme seviyesi yönetim panelinden seçilir (migration 31); `plan-trip` boşsa `AI_MODEL` / `AI_REASONING` secret'larını kullanır.
 - Yönetim panelinden uygulama ayarları (migration 29): AI planlamayı bakıma alma (uygulama mesajı gösterir, `plan-trip` 503 `ai_paused` döner), AI limitleri artık SQL sabiti değil panelden değişir, ana sayfa duyurusu, eski sürüme "Yeni sürüm var" uyarısı, yeni kullanıcıların varsayılan para birimi ve hatırlatma saati.

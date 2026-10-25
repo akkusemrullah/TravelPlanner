@@ -83,7 +83,7 @@ namespace TravelPlanner.Tests
                   """
                 : "{}";
 
-            var result = await _service.CreatePlanAsync(Request());
+            var result = (await _service.StartPlanAsync(Request(), null)).Result!;
 
             var sent = _cloud.Calls.Single(c => c.Function == "fn:plan-trip").Arguments;
             Assert.Equal("2026-10-22", sent["startDate"]!.GetValue<string>());
@@ -108,7 +108,7 @@ namespace TravelPlanner.Tests
                 ? """{"plan":{"summary":"x","days":[],"places":[],"todos":[],"tips":[]},"remaining":1,"truncatedDays":false,"requestId":"req-9"}"""
                 : "true";
 
-            var result = await _service.CreatePlanAsync(Request());
+            var result = (await _service.StartPlanAsync(Request(), null)).Result!;
             await _service.ReportSavedAsync(result.RequestId!, TimeSpan.FromSeconds(42.4));
 
             Assert.Equal("req-9", result.RequestId);
@@ -127,11 +127,70 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task StartPlan_InTheBackground_SendsTheJobId_AndReadsTheJob()
+        {
+            _cloud.Handler = (fn, _) => fn == "fn:plan-trip" ? """{"jobId":"j-1","status":"running","remaining":3}""" : "{}";
+
+            var start = await _service.StartPlanAsync(Request(), "j-1");
+
+            var sent = _cloud.Calls.Single(c => c.Function == "fn:plan-trip").Arguments;
+            Assert.True(sent["background"]!.GetValue<bool>());
+            Assert.Equal("j-1", sent["jobId"]!.GetValue<string>());
+            Assert.Equal(new AiPlanStart(null, "j-1", 3), start);
+        }
+
+        [Fact]
+        public async Task StartPlan_AnOlderServerSendsThePlanItself()
+        {
+            _cloud.Handler = (_, _) => """{"plan":{"summary":"x","days":[],"places":[],"todos":[],"tips":[]},"remaining":2}""";
+
+            var start = await _service.StartPlanAsync(Request(), "j-1");
+
+            Assert.Null(start.JobId);
+            Assert.Equal(2, start.Result!.Remaining);
+        }
+
+        [Fact]
+        public async Task Job_RunningDoneFailedOrMissing()
+        {
+            var answer = "null";
+            _cloud.Handler = (fn, args) => fn == "ai_plan_job" && args["p_id"]!.GetValue<string>() == "j-1" ? answer : "null";
+
+            answer = """{"status":"running"}""";
+            Assert.Equal(AiPlanJobStatus.Running, (await _service.GetJobAsync("j-1")).Status);
+
+            answer = """{"status":"done","remaining":4,"result":{"plan":{"summary":"Roma","days":[],"places":[],"todos":[],"tips":[]},"remaining":4,"truncatedDays":true,"requestId":"r-1"}}""";
+            var done = await _service.GetJobAsync("j-1");
+            Assert.Equal((AiPlanJobStatus.Done, "Roma", true, "r-1", 4), (done.Status, done.Result!.Plan.Summary, done.Result.TruncatedDays, done.Result.RequestId, done.Remaining));
+
+            answer = """{"status":"failed","error":"quota_exceeded","remaining":0}""";
+            Assert.Equal(new AiPlanJobState(AiPlanJobStatus.Failed, Error: AiPlanErrorKind.QuotaExceeded, Remaining: 0), await _service.GetJobAsync("j-1"));
+
+            answer = """{"status":"failed","error":"timeout"}""";
+            Assert.Equal(AiPlanErrorKind.Failed, (await _service.GetJobAsync("j-1")).Error);
+
+            answer = "null";
+            Assert.Equal(AiPlanJobStatus.Missing, (await _service.GetJobAsync("j-1")).Status);
+        }
+
+        [Fact]
+        public async Task Job_WithoutMigration39_IsMissing_AndOfflineThrows()
+        {
+            _cloud.Handler = (_, _) => throw new SyncException(SyncErrorKind.Rejected, "no function", status: 404);
+            Assert.Equal(AiPlanJobStatus.Missing, (await _service.GetJobAsync("j-1")).Status);
+            await _service.ClearJobAsync("j-1"); // never throws
+
+            _cloud.Handler = (_, _) => throw new SyncException(SyncErrorKind.Network, "offline");
+            var ex = await Assert.ThrowsAsync<AiPlanException>(() => _service.GetJobAsync("j-1"));
+            Assert.Equal(AiPlanErrorKind.Offline, ex.Kind);
+        }
+
+        [Fact]
         public async Task CreatePlan_SendsTheCityCentre_SoTheServerSearchesTheRightSpot()
         {
             _cloud.Handler = (_, _) => """{"plan":{"summary":"","days":[],"places":[],"todos":[],"tips":[]},"remaining":4}""";
 
-            await _service.CreatePlanAsync(Request() with { City = "Roma", Country = "İtalya" });
+            await _service.StartPlanAsync(Request() with { City = "Roma", Country = "İtalya" }, null);
 
             var center = _cloud.Calls.Single(c => c.Function == "fn:plan-trip").Arguments["center"]!;
             Assert.Equal(RomeLat, center["lat"]!.GetValue<double>(), 4);
@@ -164,11 +223,12 @@ namespace TravelPlanner.Tests
         [InlineData(SyncErrorKind.Server, 502, "ai_failed", AiPlanErrorKind.Failed)]
         [InlineData(SyncErrorKind.Server, 503, "ai_paused", AiPlanErrorKind.Paused)]
         [InlineData(SyncErrorKind.Server, 503, null, AiPlanErrorKind.Paused)]
+        [InlineData(SyncErrorKind.Rejected, 409, "plan_running", AiPlanErrorKind.Busy)]
         public async Task CreatePlan_ErrorsAreExplained(SyncErrorKind kind, int? status, string? code, AiPlanErrorKind expected)
         {
             _cloud.Handler = (_, _) => throw new SyncException(kind, "x", status: status, serverCode: code);
 
-            var ex = await Assert.ThrowsAsync<AiPlanException>(() => _service.CreatePlanAsync(Request()));
+            var ex = await Assert.ThrowsAsync<AiPlanException>(() => _service.StartPlanAsync(Request(), null));
 
             Assert.Equal(expected, ex.Kind);
         }
@@ -354,6 +414,9 @@ namespace TravelPlanner.Tests
         private readonly Mock<IPlaceService> _places = new();
         private readonly Mock<IAccountService> _account = new();
         private readonly Mock<IDialogService> _dialogs = Fakes.Dialogs();
+        private readonly Mock<INotificationService> _notifications = new();
+        private readonly InMemoryPreferences _preferences = new();
+        private readonly AiPlanJobs _jobs;
 
         private static readonly Trip Rome = new()
         {
@@ -361,24 +424,41 @@ namespace TravelPlanner.Tests
             StartDate = new DateTime(2026, 10, 22), EndDate = new DateTime(2026, 10, 24)
         };
 
+        static AiPlannerViewModelTests() => AiPlanJobs.PollInterval = TimeSpan.FromMilliseconds(5);
+
         public AiPlannerViewModelTests()
         {
+            _jobs = NewJobs();
+            _notifications.Setup(n => n.ShowAiPlanAsync(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
             _trips.Setup(t => t.GetByIdAsync(1)).ReturnsAsync(Rome);
             _places.Setup(p => p.GetByTripIdAsync(1)).ReturnsAsync(new List<Place> { new() { Name = "Pantheon" } });
             _account.SetupGet(a => a.IsSignedIn).Returns(true);
             _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(5, 5));
         }
 
-        private async Task<AiPlannerViewModel> LoadAsync()
+        private async Task<AiPlannerViewModel> LoadAsync(int tripId = 1)
         {
-            var vm = new AiPlannerViewModel(_planner.Object, _trips.Object, _places.Object, _account.Object,
+            var vm = new AiPlannerViewModel(_planner.Object, _jobs, _trips.Object, _places.Object, _account.Object,
                                             Fakes.Connectivity(online: true), _dialogs.Object)
             {
-                TripId = 1,
-                AfterApplied = _ => Task.CompletedTask
+                TripId = tripId,
+                AfterApplied = _ => Task.CompletedTask,
+                Dispatch = a => a(),
             };
             await vm.LoadCommand.ExecuteAsync(null);
             return vm;
+        }
+
+        /// <summary>The background plans of one account, saved in <see cref="_preferences"/> (a restart is a new one).</summary>
+        private AiPlanJobs NewJobs() => new(_planner.Object, _preferences, _notifications.Object) { CurrentUser = () => "u1" };
+
+        private static AiPlanStart Started(AiPlanResult result) => new(result, null, result.Remaining);
+
+        private static async Task Until(Func<bool> condition)
+        {
+            for (var i = 0; i < 400 && !condition(); i++)
+                await Task.Delay(5);
+            Assert.True(condition());
         }
 
         [Fact]
@@ -398,7 +478,7 @@ namespace TravelPlanner.Tests
         public async Task PausedWhileAsking_SaysSoOnce()
         {
             var vm = await LoadAsync();
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new AiPlanException(AiPlanErrorKind.Paused));
 
             await vm.GenerateCommand.ExecuteAsync(null);
@@ -454,8 +534,8 @@ namespace TravelPlanner.Tests
         [Fact]
         public async Task Generate_ShowsThePreview_WithEverythingTicked()
         {
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new AiPlanResult(SamplePlan(), 4, TruncatedDays: false));
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(Started(new AiPlanResult(SamplePlan(), 4, TruncatedDays: false)));
             var vm = await LoadAsync();
 
             await vm.GenerateCommand.ExecuteAsync(null);
@@ -470,7 +550,7 @@ namespace TravelPlanner.Tests
             var place = Assert.Single(vm.Places);                            // Pantheon is already in the trip
             Assert.Equal($"{AppResources.AiPlan_Cat_Landmark} · Monti — Antik arena", place.Description);
             Assert.True(vm.HasPlaces && vm.HasTodos && vm.HasTips);
-            _planner.Verify(p => p.CreatePlanAsync(It.Is<AiPlanRequest>(r => r.ExistingPlaces.Contains("Pantheon")), It.IsAny<CancellationToken>()));
+            _planner.Verify(p => p.StartPlanAsync(It.Is<AiPlanRequest>(r => r.ExistingPlaces.Contains("Pantheon")), It.IsAny<string?>(), It.IsAny<CancellationToken>()));
 
             // one flat, virtualized list: section, day, its activities, then places, to-dos and tips
             Assert.Equal(new[]
@@ -487,8 +567,8 @@ namespace TravelPlanner.Tests
         [Fact]
         public async Task Generate_WaitingScreen_SaysWhatIsGoingOn()
         {
-            var answer = new TaskCompletionSource<AiPlanResult>();
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>())).Returns(answer.Task);
+            var answer = new TaskCompletionSource<AiPlanStart>();
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>())).Returns(answer.Task);
             var vm = await LoadAsync();
             var shown = new List<string>();
             vm.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(AiPlannerViewModel.GeneratingStatus)) shown.Add(vm.GeneratingStatus); };
@@ -500,8 +580,10 @@ namespace TravelPlanner.Tests
                 for (var i = 0; i < 100 && shown.Count < 3; i++)
                     await Task.Delay(10);
                 Assert.True(vm.IsGenerating);
-                answer.SetResult(new AiPlanResult(SamplePlan(), 4, false));
-                await generating;
+                await generating; // the page doesn't wait for the plan (TP-57)
+                Assert.True(vm.IsGenerating);
+                answer.SetResult(Started(new AiPlanResult(SamplePlan(), 4, false)));
+                await Until(() => vm.IsPreview);
             }
             finally
             {
@@ -515,32 +597,143 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
-        public async Task LeavingWhileGenerating_AsksFirst_AndStaysOnNo()
+        public async Task LeavingWhileGenerating_ThePlanGoesOn_AndComingBackShowsIt()
         {
-            var answer = new TaskCompletionSource<AiPlanResult>();
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>())).Returns(answer.Task);
-            _dialogs.Setup(d => d.ConfirmAsync(AppResources.AiPlan_LeaveTitle, AppResources.AiPlan_LeaveMessage,
-                                               AppResources.AiPlan_LeaveAccept, AppResources.AiPlan_LeaveStay))
-                    .ReturnsAsync(false);
+            string? jobId = null;
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .Callback<AiPlanRequest, string?, CancellationToken>((_, id, _) => jobId = id)
+                    .ReturnsAsync(new AiPlanStart(null, "server-id-ignored", 4));
+            var ready = false;
+            _planner.Setup(p => p.GetJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => ready
+                        ? new AiPlanJobState(AiPlanJobStatus.Done, new AiPlanResult(SamplePlan(), 4, false, "req-1"))
+                        : new AiPlanJobState(AiPlanJobStatus.Running));
             var vm = await LoadAsync();
 
-            Assert.True(await vm.ConfirmLeaveAsync()); // nothing running: no question
-            _dialogs.Verify(d => d.ConfirmAsync(AppResources.AiPlan_LeaveTitle, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
-
-            var generating = vm.GenerateCommand.ExecuteAsync(null);
+            await vm.GenerateCommand.ExecuteAsync(null);
             Assert.True(vm.IsGenerating);
-            Assert.False(await vm.ConfirmLeaveAsync()); // "Kal"
+            Assert.NotNull(jobId);                                           // the phone's id goes to the server
+            vm.Leave();                                                      // no "leave?" question any more
+            _dialogs.Verify(d => d.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
 
-            answer.SetResult(new AiPlanResult(SamplePlan(), 4, false));
-            await generating;
-            Assert.True(await vm.ConfirmLeaveAsync()); // the plan is in: no question any more
-            _dialogs.Verify(d => d.ConfirmAsync(AppResources.AiPlan_LeaveTitle, It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Once);
+            ready = true;
+            await Until(() => _jobs.Current?.Phase == AiPlanJobPhase.Ready);
+            _notifications.Verify(n => n.ShowAiPlanAsync(AppResources.AiPlan_ReadyTitle, string.Format(AppResources.AiPlan_ReadyFormat, "Roma")));
+            _planner.Verify(p => p.GetJobAsync(jobId!, It.IsAny<CancellationToken>()), Times.AtLeastOnce());
+            _planner.Verify(p => p.ClearJobAsync(jobId!, It.IsAny<CancellationToken>()));   // the phone keeps it now
+            Assert.False(vm.IsPreview);                                      // the closed page isn't touched
+
+            var back = await LoadAsync();
+            Assert.True(back.IsPreview);
+            Assert.Single(back.Days);
+            Assert.True(_jobs.Current!.Offered);
+        }
+
+        [Fact]
+        public async Task PlanReadyOnItsOwnPage_NoNotification()
+        {
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanStart(null, "x", 4));
+            _planner.Setup(p => p.GetJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanJobState(AiPlanJobStatus.Done, new AiPlanResult(SamplePlan(), 3, false)));
+            var vm = await LoadAsync();
+
+            await vm.GenerateCommand.ExecuteAsync(null);
+            await Until(() => vm.IsPreview);
+
+            Assert.False(vm.IsGenerating);
+            _notifications.Verify(n => n.ShowAiPlanAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task OnlyOnePlanAtATime_AlsoForAnotherTrip()
+        {
+            _trips.Setup(t => t.GetByIdAsync(2)).ReturnsAsync(new Trip
+            {
+                Id = 2, Name = "Paris", City = "Paris", StartDate = new DateTime(2026, 11, 1), EndDate = new DateTime(2026, 11, 3)
+            });
+            _places.Setup(p => p.GetByTripIdAsync(2)).ReturnsAsync(new List<Place>());
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .Returns(new TaskCompletionSource<AiPlanStart>().Task);   // still being made
+            var rome = await LoadAsync();
+            await rome.GenerateCommand.ExecuteAsync(null);
+            Assert.True(rome.IsGenerating);
+
+            var paris = await LoadAsync(2);
+            Assert.True(paris.IsBusyElsewhere);
+            Assert.False(paris.CanGenerate);
+            Assert.Equal(AppResources.AiPlan_Busy, paris.ErrorText);
+            await paris.GenerateCommand.ExecuteAsync(null);
+            _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task AppClosedWhileGenerating_NextStartPicksThePlanUp()
+        {
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .Returns(new TaskCompletionSource<AiPlanStart>().Task);   // the app is closed before the answer
+            var vm = await LoadAsync();
+            await vm.GenerateCommand.ExecuteAsync(null);
+            var id = _jobs.Current!.Id;
+
+            // a new process: only what was saved on the phone is left
+            _planner.Setup(p => p.GetJobAsync(id, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanJobState(AiPlanJobStatus.Done, new AiPlanResult(SamplePlan(), 2, false)));
+            var restarted = NewJobs();
+            Assert.True(restarted.IsRunning);
+            await restarted.ResumeAsync();
+
+            Assert.Equal(AiPlanJobPhase.Ready, restarted.Current!.Phase);
+            Assert.False(restarted.Current.Offered);                         // the app asks "Göster?"
+            var again = NewJobs();                                           // and it survives one more restart
+            Assert.Equal("Kolezyum turu", again.For(1)!.Result!.Plan.Days[0].Activities[0].Title);
+            Assert.Null(again.For(2));
+        }
+
+        [Fact]
+        public async Task PlanThatFailedInTheBackground_SaysWhy_AndTheQuestionsAreBack()
+        {
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanStart(null, "x", 4));
+            _planner.Setup(p => p.GetJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanJobState(AiPlanJobStatus.Failed, Error: AiPlanErrorKind.Failed, Remaining: 5));
+            var vm = await LoadAsync();
+
+            await vm.GenerateCommand.ExecuteAsync(null);
+            await Until(() => !vm.IsGenerating);
+
+            Assert.Equal(AppResources.AiPlan_ErrorFailed, vm.ErrorText);
+            Assert.Equal(5, vm.Remaining);                                   // given back by the server
+            Assert.Null(_jobs.Current);                                      // told once
+            Assert.True(vm.CanGenerate);
+        }
+
+        [Fact]
+        public async Task JobTheServerDoesNotKnow_Fails()
+        {
+            _planner.Setup(p => p.GetJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanJobState(AiPlanJobStatus.Missing));
+            _preferences.Set(AiPlanJobs.StoreKey, """{"id":"j1","userId":"u1","tripId":1,"tripName":"Roma","phase":0}""");
+            var jobs = NewJobs();
+
+            await jobs.ResumeAsync();
+
+            Assert.Equal((AiPlanJobPhase.Failed, AiPlanErrorKind.Failed), (jobs.Current!.Phase, jobs.Current.Error));
+        }
+
+        [Fact]
+        public void AnotherAccount_DoesNotSeeThePlan()
+        {
+            _preferences.Set(AiPlanJobs.StoreKey, """{"id":"j1","userId":"u2","tripId":1,"tripName":"Roma","phase":0}""");
+            var jobs = NewJobs();
+            Assert.Null(jobs.Current);
+            Assert.False(jobs.IsRunning);
         }
 
         [Fact]
         public async Task Generate_WhenTheDailyLimitIsReached_SaysSo()
         {
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new AiPlanException(AiPlanErrorKind.QuotaExceeded));
             var vm = await LoadAsync();
 
@@ -560,14 +753,14 @@ namespace TravelPlanner.Tests
             Assert.True(vm.IsGuest);
             Assert.False(vm.CanGenerate);
             await vm.GenerateCommand.ExecuteAsync(null);
-            _planner.Verify(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]
         public async Task AddSelected_PassesOnlyTheTickedItems()
         {
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new AiPlanResult(SamplePlan(), 4, false));
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(Started(new AiPlanResult(SamplePlan(), 4, false)));
             AiPlanSelection? sent = null;
             _planner.Setup(p => p.ApplyAsync(It.IsAny<Trip>(), It.IsAny<AiPlanSelection>(), It.IsAny<CancellationToken>()))
                     .Callback<Trip, AiPlanSelection, CancellationToken>((_, selection, _) => sent = selection)
@@ -588,8 +781,8 @@ namespace TravelPlanner.Tests
         [Fact]
         public async Task AddSelected_ReportsHowLongAfterThePlanItWasSaved_Once()
         {
-            _planner.Setup(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(new AiPlanResult(SamplePlan(), 4, false, "req-7"));
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(Started(new AiPlanResult(SamplePlan(), 4, false, "req-7")));
             _planner.Setup(p => p.ApplyAsync(It.IsAny<Trip>(), It.IsAny<AiPlanSelection>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new AiApplyResult(1, 0, 1, 0));
             var vm = await LoadAsync();

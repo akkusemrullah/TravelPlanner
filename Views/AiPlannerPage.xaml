@@ -182,8 +182,8 @@
                            LineBreakMode="WordWrap" MinimumHeightRequest="40" />
                     <Label Text="{x:Static res:AppResources.AiPlan_Duration}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center"
                            LineBreakMode="WordWrap" />
-                    <!-- TP-49: leaving loses the plan but still costs it -->
-                    <Label Text="{x:Static res:AppResources.AiPlan_DontClose}" Style="{StaticResource Text.Caption}" FontAttributes="Bold"
+                    <!-- TP-57: the plan is made in the background -->
+                    <Label Text="{x:Static res:AppResources.AiPlan_CanLeave}" Style="{StaticResource Text.Caption}" FontAttributes="Bold"
                            HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
                 </VerticalStackLayout>
             </VerticalStackLayout>

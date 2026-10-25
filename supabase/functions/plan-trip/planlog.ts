@@ -12,10 +12,12 @@ import type { TokenTally } from "./openai.ts";
  *   refunded        the AI failed (OpenAI never answered) and the plan went back to the quota
  *   quota_exceeded  no plans left today
  *   paused          AI planning is in maintenance (admin panel)
+ *   busy            TP-57: the account already has a plan being made (nothing was spent)
  *   account_disabled, not_configured, quota_check_failed
  */
 export type PlanStatus =
-  | "ok" | "error" | "refunded" | "quota_exceeded" | "paused" | "account_disabled" | "not_configured" | "quota_check_failed";
+  | "ok" | "error" | "refunded" | "quota_exceeded" | "paused" | "busy" | "account_disabled" | "not_configured"
+  | "quota_check_failed";
 
 export interface PlanLog {
   requestId: string;

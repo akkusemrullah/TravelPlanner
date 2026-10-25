@@ -110,7 +110,8 @@ namespace TravelPlanner.Tests
             var consent = new Mock<IConsentService>();
             consent.Setup(c => c.EnsureAsync(ConsentKind.AiPlanning)).ReturnsAsync(false);
 
-            var vm = new AiPlannerViewModel(planner.Object, trips.Object, places.Object, account.Object,
+            var vm = new AiPlannerViewModel(planner.Object, new AiPlanJobs(planner.Object, new InMemoryPreferences()),
+                                            trips.Object, places.Object, account.Object,
                                             Fakes.Connectivity(online: true), Fakes.Dialogs().Object, consent.Object)
             {
                 TripId = 1,
@@ -121,7 +122,7 @@ namespace TravelPlanner.Tests
             await vm.GenerateCommand.ExecuteAsync(null);
 
             consent.Verify(c => c.EnsureAsync(ConsentKind.AiPlanning), Times.Once);
-            planner.Verify(p => p.CreatePlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<CancellationToken>()), Times.Never);
+            planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
         }
     }
 }

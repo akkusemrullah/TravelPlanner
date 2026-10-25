@@ -5,6 +5,7 @@
 //   200 → { plan: TripPlan, remaining: number, truncatedDays: boolean, requestId: string }
 //   400 invalid_request · 401 not_signed_in · 403 account_disabled · 413 body_too_large · 429 quota_exceeded
 //   503 ai_paused (AI is in maintenance, set in the admin panel)
+//   409 plan_running (TP-57: this account already has a plan being made) · 409 job_exists
 //   502 ai_failed
 //
 // The OpenAI key lives only here, as the secret OPENAI_API_KEY. The user's own token pays for one plan of the
@@ -26,12 +27,17 @@
 // TP-54: every request that got past the token check leaves one audit log row (action "ai.plan", planlog.ts):
 // status, model, reasoning, duration, tokens, error kind - never the plan or what the user typed. Its requestId goes
 // back to the app, which reports how long the user took to save the plan (public.ai_plan_saved, migration 36).
+//
+// TP-57: with { background: true, jobId } in the body the answer comes at once - 200 → { jobId, status: "running",
+// remaining } - and the plan is made after it (EdgeRuntime.waitUntil); the answer it would have sent goes into the
+// job (migration 39), where the app picks it up. See jobs.ts.
 
 import {
   buildMessages, buildReplacementMessages, MAX_BODY_BYTES, MAX_PLAN_TOKENS, parseRequest, PLAN_SCHEMA, planTokenBudget,
   REPLACEMENT_SCHEMA, RequestError, sanitizePlan, sanitizeReplacements,
 } from "./planner.ts";
 import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, looksLikeBearerJwt, readJsonBody, type TokenTally } from "./openai.ts";
+import { beginResult, type BeginResult, finishArgs, jobIdOf, waitUntilOf } from "./jobs.ts";
 import { type PlanLog, planLogEntry, type PlanStatus, tokenSubject } from "./planlog.ts";
 import { findCenter, foodVenues, type Point, type Venue, verifyPlan } from "./places.ts";
 
@@ -114,6 +120,44 @@ async function writePlanLog(entry: PlanLog): Promise<void> {
   }
 }
 
+/** TP-57: claims the job of a background request with the user's token (public.ai_plan_job_begin). Never throws. */
+async function beginJob(authorization: string, apikey: string, jobId: string): Promise<BeginResult> {
+  try {
+    const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/rpc/ai_plan_job_begin`, {
+      method: "POST",
+      headers: { apikey, Authorization: authorization, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_id: jobId }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    const text = await res.text();
+    if (!res.ok) console.warn("plan job not started", res.status, text.slice(0, 200));
+    return beginResult(res.ok, res.ok ? JSON.parse(text) : null);
+  } catch (e) {
+    console.warn("plan job not started", String(e));
+    return "unavailable";
+  }
+}
+
+/** TP-57: puts the answer of a background request into its job (public.ai_plan_job_finish). Never throws. */
+async function finishJob(jobId: string, status: number, body: unknown): Promise<void> {
+  const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!key) return;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`${Deno.env.get("SUPABASE_URL")}/rest/v1/rpc/ai_plan_job_finish`, {
+        method: "POST",
+        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify(finishArgs(jobId, status, body)),
+        signal: AbortSignal.timeout(10_000),
+      });
+      if (res.ok) return;
+      console.error("plan job not finished", res.status, (await res.text()).slice(0, 200));
+    } catch (e) {
+      console.error("plan job not finished", String(e));
+    }
+  }
+}
+
 /** Gives back the plan of a request OpenAI never answered (public.ai_plan_refund). Never throws. */
 async function refundQuota(authorization: string, apikey: string, ticket: string | null): Promise<boolean> {
   if (!ticket) return false;
@@ -157,9 +201,11 @@ Deno.serve(async (req) => {
     return response;
   };
 
+  let body: unknown;
   let parsed;
   try {
-    parsed = parseRequest(await readJsonBody(req, MAX_BODY_BYTES));
+    body = await readJsonBody(req, MAX_BODY_BYTES);
+    parsed = parseRequest(body);
   } catch (e) {
     if (e instanceof BodyTooLarge) return fail(413, "body_too_large");
     return fail(400, "invalid_request", e instanceof RequestError ? e.message : "body is not JSON");
@@ -171,77 +217,111 @@ Deno.serve(async (req) => {
     return await done(fail(502, "ai_not_configured"), "not_configured", { errorKind: "not_configured" });
   }
 
+  // TP-57: a background request claims its job before the quota, so a second plan at the same time costs nothing
+  let jobId = jobIdOf(body);
+  const waitUntil = waitUntilOf((globalThis as { EdgeRuntime?: unknown }).EdgeRuntime);
+  if (jobId) {
+    const begun = await beginJob(authorization, apikey, jobId);
+    if (begun === "busy") return await done(fail(409, "plan_running"), "busy");
+    if (begun === "exists") return fail(409, "job_exists");
+    if (begun === "unavailable") jobId = null; // migration 39 not run: the plan comes in the answer, as before
+  }
+
   const { request, truncatedDays } = parsed;
   // the quota first: a request without plans left (or without a valid session) costs the map services nothing.
   // The panel's model choice is read at the same time.
   const [quota, panel] = await Promise.all([useQuota(authorization, apikey, request.deviceId), panelModel()]);
-  if (!quota.ok) return quota.status ? await done(quota.response, quota.status) : quota.response;
+  if (!quota.ok) {
+    if (jobId) await finishJob(jobId, quota.response.status, await quota.response.clone().json().catch(() => null));
+    return quota.status ? await done(quota.response, quota.status) : quota.response;
+  }
 
-  // the plan needs some thinking (grouping sights by area, one visit per place); the replacement question doesn't
-  const { model, effort: planEffort, source } = chooseModel(panel, { model: Deno.env.get("AI_MODEL"), reasoning: Deno.env.get("AI_REASONING") });
-  // TP-47: the panel decides; falling back to the secret or the default is kept (a settings problem never stops the
-  // planner) but stands out in the log
-  Object.assign(log, { model, reasoning: planEffort, modelSource: source, days: request.days });
-  if (source === "panel") console.log(`model ${model}, reasoning ${planEffort} (panel)`);
-  else console.warn(`model ${model}, reasoning ${planEffort} (${source}: panel ${panel ? "has no model" : "not read"})`);
+  /** Everything after the quota: the plan, or why there is none. */
+  const makePlan = async (): Promise<Response> => {
+    // the plan needs some thinking (grouping sights by area, one visit per place); the replacement question doesn't
+    const { model, effort: planEffort, source } = chooseModel(panel, { model: Deno.env.get("AI_MODEL"), reasoning: Deno.env.get("AI_REASONING") });
+    // TP-47: the panel decides; falling back to the secret or the default is kept (a settings problem never stops the
+    // planner) but stands out in the log
+    Object.assign(log, { model, reasoning: planEffort, modelSource: source, days: request.days });
+    if (source === "panel") console.log(`model ${model}, reasoning ${planEffort} (panel)`);
+    else console.warn(`model ${model}, reasoning ${planEffort} (${source}: panel ${panel ? "has no model" : "not read"})`);
 
-  const planTokens = planTokenBudget(request.days, request.pace, planEffort, Number(Deno.env.get("AI_MAX_TOKENS") ?? MAX_PLAN_TOKENS));
+    const planTokens = planTokenBudget(request.days, request.pace, planEffort, Number(Deno.env.get("AI_MAX_TOKENS") ?? MAX_PLAN_TOKENS));
 
-  /** One structured-output call: the parsed JSON answer; throws AiCallError on any failure. */
-  const started = Date.now();
-  const ask = (messages: unknown, name: string, schema: unknown, maxTokens: number, timeoutMs: number, effort: string) =>
-    askOpenAi(fetch, { apiKey: openAiKey, model, messages, name, schema, maxTokens, timeoutMs, effort, tally: tokens });
+    /** One structured-output call: the parsed JSON answer; throws AiCallError on any failure. */
+    const started = Date.now();
+    const ask = (messages: unknown, name: string, schema: unknown, maxTokens: number, timeoutMs: number, effort: string) =>
+      askOpenAi(fetch, { apiKey: openAiKey, model, messages, name, schema, maxTokens, timeoutMs, effort, tally: tokens });
 
-  // the AI failed. The plan goes back to the quota only when OpenAI never answered (nothing was billed); an answer
-  // that came back unusable was paid for, so it counts - otherwise one could loop "cut off" answers for free.
-  const aiFailed = async (billed: boolean, detail: string, errorKind: string, errorMessage?: string) => {
-    const refunded = !billed && await refundQuota(authorization, apikey, quota.ticket);
-    return await done(json(502, { error: "ai_failed", detail, remaining: refunded ? quota.remaining + 1 : quota.remaining, requestId }),
-                      refunded ? "refunded" : "error", { errorKind, errorMessage });
+    // the AI failed. The plan goes back to the quota only when OpenAI never answered (nothing was billed); an answer
+    // that came back unusable was paid for, so it counts - otherwise one could loop "cut off" answers for free.
+    const aiFailed = async (billed: boolean, detail: string, errorKind: string, errorMessage?: string) => {
+      const refunded = !billed && await refundQuota(authorization, apikey, quota.ticket);
+      return await done(json(502, { error: "ai_failed", detail, remaining: refunded ? quota.remaining + 1 : quota.remaining, requestId }),
+                        refunded ? "refunded" : "error", { errorKind, errorMessage });
+    };
+
+    // the destination and the real restaurants around it
+    let center: Point | null = request.center;
+    let venues: Venue[] = [];
+    try {
+      center ??= await findCenter(fetch, request.destination);
+      venues = center ? await foodVenues(fetch, center) : [];
+    } catch (e) {
+      console.warn("map lookup failed", String(e));
+    }
+
+    let plan;
+    try {
+      plan = sanitizePlan(await ask(buildMessages(request, venues), "trip_plan", PLAN_SCHEMA, planTokens, 100_000, planEffort), request.days);
+    } catch (e) {
+      // anything else than AiCallError (a bug in sanitizePlan) happened after a billed answer
+      const billed = !(e instanceof AiCallError) || e.billed;
+      console.error(`OpenAI call failed (${billed ? "billed, no refund" : "not billed, refund"})`, String(e));
+      return await aiFailed(billed, billed ? "ai_answer_unusable" : "ai_unreachable",
+                            e instanceof AiCallError ? e.kind : "parse_error", String(e));
+    }
+    if (plan.days.length === 0 && plan.places.length === 0) return await aiFailed(true, "empty plan", "empty_plan");
+
+    let checked;
+    try {
+      // the function has about 150 s: the second question only when there's time left for it
+      const canAskAgain = Date.now() - started < 85_000;
+      const result = await verifyPlan(plan, center, venues, fetch, canAskAgain
+        ? async (missing, used, v) => sanitizeReplacements(
+          await ask(buildReplacementMessages(request, missing, used, v), "replacements", REPLACEMENT_SCHEMA, 6000, 35_000, "minimal"))
+        : null,
+        started + 125_000); // the map check stops in time; places it couldn't check are left to the app
+      console.log(`places: ${result.places.length - result.unchecked} on the map, ${result.unchecked} unchecked (map service didn't answer), ` +
+        `${result.replaced} replaced, ${result.dropped} dropped; ${venues.length} venues`);
+      const { replaced, dropped, unchecked: _u, ...rest } = result;
+      Object.assign(log, { replaced, dropped });
+      checked = rest;
+    } catch (e) {
+      // the map services failing must not cost the user the plan: send it unchecked
+      console.error("map check failed", String(e));
+      checked = { ...plan, places: plan.places.map((p) => ({ ...p, verified: false })) };
+    }
+
+    return await done(json(200, { plan: checked, remaining: quota.remaining, truncatedDays, requestId }), "ok",
+                      { places: checked.places.length, truncatedDays });
   };
 
-  // the destination and the real restaurants around it
-  let center: Point | null = request.center;
-  let venues: Venue[] = [];
-  try {
-    center ??= await findCenter(fetch, request.destination);
-    venues = center ? await foodVenues(fetch, center) : [];
-  } catch (e) {
-    console.warn("map lookup failed", String(e));
-  }
-
-  let plan;
-  try {
-    plan = sanitizePlan(await ask(buildMessages(request, venues), "trip_plan", PLAN_SCHEMA, planTokens, 100_000, planEffort), request.days);
-  } catch (e) {
-    // anything else than AiCallError (a bug in sanitizePlan) happened after a billed answer
-    const billed = !(e instanceof AiCallError) || e.billed;
-    console.error(`OpenAI call failed (${billed ? "billed, no refund" : "not billed, refund"})`, String(e));
-    return await aiFailed(billed, billed ? "ai_answer_unusable" : "ai_unreachable",
-                          e instanceof AiCallError ? e.kind : "parse_error", String(e));
-  }
-  if (plan.days.length === 0 && plan.places.length === 0) return await aiFailed(true, "empty plan", "empty_plan");
-
-  let checked;
-  try {
-    // the function has about 150 s: the second question only when there's time left for it
-    const canAskAgain = Date.now() - started < 85_000;
-    const result = await verifyPlan(plan, center, venues, fetch, canAskAgain
-      ? async (missing, used, v) => sanitizeReplacements(
-        await ask(buildReplacementMessages(request, missing, used, v), "replacements", REPLACEMENT_SCHEMA, 6000, 35_000, "minimal"))
-      : null,
-      started + 125_000); // the map check stops in time; places it couldn't check are left to the app
-    console.log(`places: ${result.places.length - result.unchecked} on the map, ${result.unchecked} unchecked (map service didn't answer), ` +
-      `${result.replaced} replaced, ${result.dropped} dropped; ${venues.length} venues`);
-    const { replaced, dropped, unchecked: _u, ...rest } = result;
-    Object.assign(log, { replaced, dropped });
-    checked = rest;
-  } catch (e) {
-    // the map services failing must not cost the user the plan: send it unchecked
-    console.error("map check failed", String(e));
-    checked = { ...plan, places: plan.places.map((p) => ({ ...p, verified: false })) };
-  }
-
-  return await done(json(200, { plan: checked, remaining: quota.remaining, truncatedDays, requestId }), "ok",
-                    { places: checked.places.length, truncatedDays });
+  if (!jobId) return await makePlan();
+  const id = jobId;
+  /** Makes the plan and puts the answer into the job; never throws. */
+  const finish = async (): Promise<Response> => {
+    let response: Response;
+    try {
+      response = await makePlan();
+    } catch (e) {
+      console.error("plan failed", String(e));
+      response = fail(502, "ai_failed");
+    }
+    await finishJob(id, response.status, await response.clone().json().catch(() => null));
+    return response;
+  };
+  if (!waitUntil) return await finish(); // no background work here: the job is filled in all the same
+  waitUntil(finish());
+  return json(200, { jobId: id, status: "running", remaining: quota.remaining });
 });
