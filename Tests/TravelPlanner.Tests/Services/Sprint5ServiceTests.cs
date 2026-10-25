@@ -181,6 +181,35 @@ namespace TravelPlanner.Tests
             if (Directory.Exists(_root)) Directory.Delete(_root, true);
         }
 
+        [Fact]
+        public async Task TP73_AFileThatIsNotWhatItsNameSays_IsRefused()
+        {
+            await Assert.ThrowsAsync<UnsupportedAttachmentTypeException>(() =>
+                _service.AddAsync(3, new MemoryStream(System.Text.Encoding.ASCII.GetBytes("MZ not a pdf")), "bilet.pdf", "application/pdf"));
+            Assert.False(Directory.Exists(_root) && Directory.EnumerateFiles(_root, "*", SearchOption.AllDirectories).Any());
+        }
+
+        [Fact]
+        public async Task TP73_APngNamedJpg_IsKeptAsAPng()
+        {
+            var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 1, 2 };
+            var attachment = await _service.AddAsync(3, new MemoryStream(png), "foto.jpg", "image/jpeg");
+
+            Assert.Equal("image/png", attachment.ContentType);
+            Assert.EndsWith(".png", attachment.RelativePath);
+            Assert.Equal(png, await File.ReadAllBytesAsync(attachment.FullPath));
+        }
+
+        [Theory]
+        [InlineData(new byte[] { 0xFF, 0xD8, 0xFF, 0xE1 }, "image/jpeg")]
+        [InlineData(new byte[] { 0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50 }, "image/webp")]
+        [InlineData(new byte[] { 0, 0, 0, 0x18, 0x66, 0x74, 0x79, 0x70, 0x6D, 0x69, 0x66, 0x31 }, "image/heif")]
+        [InlineData(new byte[] { 0x0A, 0x25, 0x50, 0x44, 0x46, 0x2D }, "application/pdf")]
+        [InlineData(new byte[] { 0x50, 0x4B, 0x03, 0x04 }, null)] // zip / apk
+        [InlineData(new byte[] { }, null)]
+        public void TP73_Detect_ReadsTheMagicBytes(byte[] head, string? expected) =>
+            Assert.Equal(expected, Helpers.FileSignatures.Detect(head));
+
         private static MemoryStream Bytes(int count) => new(Enumerable.Range(0, count).Select(i => (byte)i).ToArray());
 
         [Theory]
@@ -218,7 +247,7 @@ namespace TravelPlanner.Tests
         [Fact]
         public async Task Add_StoresTheNormalizedType()
         {
-            var attachment = await _service.AddAsync(3, Bytes(10), "IMG_2.jpeg", "image/jpg");
+            var attachment = await _service.AddAsync(3, TestFiles.Jpeg(1, 2, 3), "IMG_2.jpeg", "image/jpg");
 
             Assert.Equal("image/jpeg", attachment.ContentType);
             Assert.Equal(AttachmentKind.Photo, attachment.Kind);
@@ -227,7 +256,7 @@ namespace TravelPlanner.Tests
         [Fact]
         public async Task Add_CopiesTheFileIntoAppStorage_AndDeleteRemovesIt()
         {
-            var attachment = await _service.AddAsync(3, Bytes(2048), "Uçak bileti.pdf", "application/pdf");
+            var attachment = await _service.AddAsync(3, new MemoryStream(TestFiles.PdfBytes(new byte[2048 - 9])), "Uçak bileti.pdf", "application/pdf");
 
             Assert.True(File.Exists(attachment.FullPath));
             Assert.StartsWith(Path.Combine(_root, "attachments", "3"), attachment.FullPath);
@@ -246,8 +275,8 @@ namespace TravelPlanner.Tests
         [Fact]
         public async Task DeleteFilesForTrip_RemovesOnlyThatTripsFolder()
         {
-            var a = await _service.AddAsync(1, Bytes(10), "a.jpg", "image/jpeg");
-            var b = await _service.AddAsync(2, Bytes(10), "b.jpg", "image/jpeg");
+            var a = await _service.AddAsync(1, TestFiles.Jpeg(1), "a.jpg", "image/jpeg");
+            var b = await _service.AddAsync(2, TestFiles.Jpeg(2), "b.jpg", "image/jpeg");
 
             _service.DeleteFilesForTrip(1);
 
@@ -299,7 +328,7 @@ namespace TravelPlanner.Tests
             await expenses.SaveAsync(dinner);
             await split.SaveSplitAsync(dinner, ali.Id, new[] { ali.Id });
             await new ActivityService(_source.Service).SaveAsync(new TripActivity { TripId = trip.Id, Date = trip.StartDate, Title = "Kolezyum" });
-            await srcAttachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2, 3 }), "bilet.pdf", "application/pdf");
+            await srcAttachments.AddAsync(trip.Id, TestFiles.Pdf(1, 2, 3), "bilet.pdf", "application/pdf");
 
             var zipPath = await new BackupService(_source.Service, srcAttachments, Path.Combine(_root, "out")).ExportAsync();
 
@@ -333,7 +362,7 @@ namespace TravelPlanner.Tests
             Assert.Equal(4250, summary.SplitTotalMinor);
 
             var file = Assert.Single(await dstAttachments.GetByTripIdAsync(trip.Id));
-            Assert.Equal(new byte[] { 1, 2, 3 }, await File.ReadAllBytesAsync(file.FullPath));
+            Assert.Equal(TestFiles.PdfBytes(1, 2, 3), await File.ReadAllBytesAsync(file.FullPath));
         }
 
         [Fact]
