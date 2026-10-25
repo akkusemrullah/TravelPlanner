@@ -3296,4 +3296,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Attachments_MembersOnly" xml:space="preserve">
     <value>Belgeleri yalnızca seyahat üyeleri görür.</value>
   </data>
+  <data name="AiPlan_StepFormat" xml:space="preserve">
+    <value>Adım {0}/{1}</value>
+  </data>
 </root>

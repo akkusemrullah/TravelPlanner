@@ -519,6 +519,14 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private string generatingStatus = string.Empty;
 
+        /// <summary>TP-77: how far the waiting messages have got, 0..1, for the progress bar under them.</summary>
+        [ObservableProperty]
+        private double generatingProgress;
+
+        /// <summary>TP-77: "Adım 3/6".</summary>
+        [ObservableProperty]
+        private string generatingStepText = string.Empty;
+
         /// <summary>How long each waiting message stays before the next one.</summary>
         internal static TimeSpan StepInterval { get; set; } = TimeSpan.FromSeconds(4);
 
@@ -558,6 +566,8 @@ namespace TravelPlanner.ViewModels
             for (var i = Math.Min(from, steps.Count - 1); i < steps.Count && !cancellationToken.IsCancellationRequested; i++)
             {
                 GeneratingStatus = steps[i];
+                GeneratingProgress = (i + 1) / (double)steps.Count;
+                GeneratingStepText = string.Format(System.Globalization.CultureInfo.CurrentCulture, AppResources.AiPlan_StepFormat, i + 1, steps.Count);
                 if (i == steps.Count - 1)
                     return;
                 try

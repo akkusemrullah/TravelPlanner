@@ -3295,4 +3295,7 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Attachments_MembersOnly" xml:space="preserve">
     <value>Only trip members can see documents.</value>
   </data>
+  <data name="AiPlan_StepFormat" xml:space="preserve">
+    <value>Step {0} of {1}</value>
+  </data>
 </root>

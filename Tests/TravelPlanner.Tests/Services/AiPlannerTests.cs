@@ -592,7 +592,12 @@ namespace TravelPlanner.Tests
             _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>())).Returns(answer.Task);
             var vm = await LoadAsync();
             var shown = new List<string>();
-            vm.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(AiPlannerViewModel.GeneratingStatus)) shown.Add(vm.GeneratingStatus); };
+            var steps = new List<string>();
+            vm.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(AiPlannerViewModel.GeneratingStatus)) shown.Add(vm.GeneratingStatus);
+                if (e.PropertyName == nameof(AiPlannerViewModel.GeneratingStepText)) steps.Add(vm.GeneratingStepText);
+            };
             var interval = AiPlannerViewModel.StepInterval;
             AiPlannerViewModel.StepInterval = TimeSpan.FromMilliseconds(10);
             try
@@ -613,6 +618,8 @@ namespace TravelPlanner.Tests
 
             Assert.True(shown.Count >= 3);
             Assert.Equal(AiPlannerViewModel.GeneratingSteps.Take(shown.Count), shown.Take(AiPlannerViewModel.GeneratingSteps.Count));
+            Assert.Equal("Adım 1/6", steps[0]); // TP-77
+            Assert.Equal("Adım 2/6", steps[1]);
             Assert.DoesNotMatch(@"\d", AppResources.AiPlan_Generating); // the rough duration is a line of its own (TP-45)
             Assert.False(vm.IsGenerating);
         }
