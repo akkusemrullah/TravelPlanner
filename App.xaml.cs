@@ -45,6 +45,12 @@ namespace TravelPlanner
             LocalizationHelper.Apply(settings.Language);
 
             InitializeComponent();
+
+            // TP-79: the keyboard shrinks the page instead of covering it, so a field low on a form (the trip's budget)
+            // can be scrolled into view above it.
+            Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific.Application.SetWindowSoftInputModeAdjust(
+                this, Microsoft.Maui.Controls.PlatformConfiguration.AndroidSpecific.WindowSoftInputModeAdjust.Resize);
+
             _notificationService = notificationService;
             _trashService = trashService;
             _account = account;
