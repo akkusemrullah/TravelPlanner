@@ -72,6 +72,36 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP69_MyTotals_SameAsAllForASoloTrip()
+        {
+            var lira = await NewTripAsync("TRY");
+            await _expenses.SaveAsync(new Expense { TripId = lira.Id, Amount = 100m });
+
+            Assert.Equal(100m, (await _expenses.GetMyTotalsByCurrencyAsync(null))["TRY"]);
+        }
+
+        [Theory]
+        [InlineData(new[] { 1, 2, 3 }, 1, 334)]   // my share of 10,00 split three ways (the first gets the extra kuruş)
+        [InlineData(new[] { 1, 2, 3 }, 2, 333)]
+        [InlineData(new[] { 2, 3 }, 1, 0)]          // split without me
+        public void TP69_MyPart_OfASplitExpense_IsMyShare(int[] members, int me, long expected)
+        {
+            var expense = new Expense { AmountMinor = 1000, CreatedBy = "other" };
+            Assert.Equal(expected, ExpenseService.MyPartMinor(expense, members, me, "me"));
+        }
+
+        [Theory]
+        [InlineData("me", 1000)]
+        [InlineData(null, 1000)]     // entered before accounts / as a guest
+        [InlineData("other", 0)]     // another member's unsplit expense
+        public void TP69_MyPart_OfAnUnsplitExpense_DependsOnWhoEnteredIt(string? createdBy, long expected)
+        {
+            var expense = new Expense { AmountMinor = 1000, CreatedBy = createdBy };
+            Assert.Equal(expected, ExpenseService.MyPartMinor(expense, null, 1, "me"));
+            Assert.Equal(1000, ExpenseService.MyPartMinor(expense, null, null, null)); // guest: everything is theirs
+        }
+
+        [Fact]
         public async Task ConvertTripExpenses_KeepsOriginals_AndRestoresExactAmountsTypedInTheNewCurrency()
         {
             var trip = await NewTripAsync("TRY");

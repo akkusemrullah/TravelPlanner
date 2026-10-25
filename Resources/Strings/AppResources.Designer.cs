@@ -1375,7 +1375,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Toplam Harcama.
+        ///   Looks up a localized string similar to Harcamalarım.
         /// </summary>
         public static string Dashboard_TotalExpenses {
             get {

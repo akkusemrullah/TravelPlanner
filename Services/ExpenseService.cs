@@ -124,6 +124,49 @@ namespace TravelPlanner.Services
             return totals;
         }
 
+        public async Task<Dictionary<string, decimal>> GetMyTotalsByCurrencyAsync(string? userId)
+        {
+            var db = await _databaseService.Connection;
+            var currencyByTrip = (await db.Table<Trip>().ToListAsync()).ToDictionary(t => t.Id, t => MoneyFormatter.Normalize(t.CurrencyCode));
+            var participants = await db.Table<Participant>().ToListAsync();
+            var sharesByExpense = (await db.Table<ExpenseShare>().ToListAsync())
+                .GroupBy(s => s.ExpenseId)
+                .ToDictionary(g => g.Key, g => g.Select(s => s.ParticipantId).Distinct().OrderBy(id => id).ToList());
+            var meByTrip = userId is null
+                ? new Dictionary<int, int>()
+                : participants.Where(p => string.Equals(p.UserId, userId, StringComparison.OrdinalIgnoreCase))
+                              .GroupBy(p => p.TripId).ToDictionary(g => g.Key, g => g.First().Id);
+
+            var totals = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+            foreach (var expense in await db.Table<Expense>().ToListAsync())
+            {
+                if (!currencyByTrip.TryGetValue(expense.TripId, out var code))
+                    continue;
+                var part = MyPartMinor(expense, sharesByExpense.GetValueOrDefault(expense.Id),
+                                       meByTrip.TryGetValue(expense.TripId, out var me) ? me : null, userId);
+                totals[code] = (totals.TryGetValue(code, out var existing) ? existing : 0m) + MoneyConverter.FromMinor(part);
+            }
+            return totals;
+        }
+
+        /// <summary>
+        /// TP-69: the user's part of one expense. Split, with the user among the trip's participants: their equal share
+        /// (0 if they are not in it). Otherwise the whole amount if they entered it (or it was entered without an
+        /// account), nothing if another member did - so a shared trip isn't counted once per member.
+        /// </summary>
+        internal static long MyPartMinor(Expense expense, IReadOnlyList<int>? shareParticipantIds, int? myParticipantId, string? userId)
+        {
+            if (shareParticipantIds is { Count: > 0 } members && myParticipantId is int me)
+            {
+                var index = members.ToList().IndexOf(me);
+                return index < 0 ? 0 : SplitCalculator.EqualShares(expense.AmountMinor, members.Count)[index];
+            }
+
+            return userId is null || expense.CreatedBy is null || string.Equals(expense.CreatedBy, userId, StringComparison.OrdinalIgnoreCase)
+                ? expense.AmountMinor
+                : 0;
+        }
+
         public async Task<int> ConvertTripExpensesAsync(int tripId, string fromCurrency, string toCurrency, decimal rate)
         {
             if (!InputLimits.IsValidRate(rate))

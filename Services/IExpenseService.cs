@@ -22,6 +22,12 @@ namespace TravelPlanner.Services
         Task<Dictionary<string, decimal>> GetTotalExpensesByCurrencyAsync();
 
         /// <summary>
+        /// TP-69: what the user (<paramref name="userId"/>) spent, per trip currency - in shared trips their own share
+        /// of split expenses, not the whole group's. See <see cref="ExpenseService.MyPartMinor"/>.
+        /// </summary>
+        Task<Dictionary<string, decimal>> GetMyTotalsByCurrencyAsync(string? userId);
+
+        /// <summary>
         /// Switches a trip to <paramref name="toCurrency"/>: re-expresses every expense in it and updates the trip's
         /// CurrencyCode, all in one transaction. Amounts originally typed in <paramref name="toCurrency"/> get their
         /// exact value back.
