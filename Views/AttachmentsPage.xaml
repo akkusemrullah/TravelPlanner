@@ -89,6 +89,8 @@
                     <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Attachment}" TextColor="{DynamicResource tp-text-2}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Attachments_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
+                <!-- TP-80: say who can see a passport or ticket before the first one is added -->
+                <Label Text="{x:Static res:AppResources.Attachments_MembersOnly}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
             <RefreshView IsVisible="{Binding HasAttachments}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">

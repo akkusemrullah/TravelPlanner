@@ -8919,5 +8919,32 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Sync_BadgeA11y", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to İlk harcamanı ekle.
+        /// </summary>
+        public static string ExpenseList_AddFirst {
+            get {
+                return ResourceManager.GetString("ExpenseList_AddFirst", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to İlk yerini ekle.
+        /// </summary>
+        public static string PlaceList_AddFirst {
+            get {
+                return ResourceManager.GetString("PlaceList_AddFirst", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Belgeleri yalnızca seyahat üyeleri görür..
+        /// </summary>
+        public static string Attachments_MembersOnly {
+            get {
+                return ResourceManager.GetString("Attachments_MembersOnly", resourceCulture);
+            }
+        }
     }
 }

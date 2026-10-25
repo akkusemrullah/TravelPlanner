@@ -127,6 +127,9 @@
                     <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.MapPinned}" TextColor="{DynamicResource tp-text-2}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.PlaceList_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
+                <!-- TP-80: one tap to the first entry -->
+                <Button Text="{x:Static res:AppResources.PlaceList_AddFirst}" Command="{Binding GoToAddPlaceCommand}"
+                        IsVisible="{Binding CanEdit}" Style="{StaticResource Btn.Primary.Sm}" HorizontalOptions="Center" />
             </VerticalStackLayout>
 
         <Border Style="{StaticResource Fab}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Add}" IsVisible="{Binding ShowAddButton}">

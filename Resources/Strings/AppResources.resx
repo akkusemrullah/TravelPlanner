@@ -3287,4 +3287,13 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Sync_BadgeA11y" xml:space="preserve">
     <value>Eşitleme durumu</value>
   </data>
+  <data name="ExpenseList_AddFirst" xml:space="preserve">
+    <value>İlk harcamanı ekle</value>
+  </data>
+  <data name="PlaceList_AddFirst" xml:space="preserve">
+    <value>İlk yerini ekle</value>
+  </data>
+  <data name="Attachments_MembersOnly" xml:space="preserve">
+    <value>Belgeleri yalnızca seyahat üyeleri görür.</value>
+  </data>
 </root>
