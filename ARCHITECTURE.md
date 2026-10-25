@@ -90,7 +90,7 @@ RLS + yalnızca RPC ile yazma, değer ve kota sınırları, Turnstile ve kayıt 
 
 ## 7. Derleme ve test
 - `dotnet test Tests/TravelPlanner.Tests` – birim ve entegrasyon testleri (gerçek SQLite).
-- `dotnet build TravelPlanner.csproj -f net10.0-android` – Android; imzalı APK: `build-apk.ps1`; CI: `docs/ci/ci.yml`.
+- `dotnet build TravelPlanner.csproj -f net10.0-android` – Android; imzalı APK: `build-apk.ps1`; CI: `.github/workflows/ci.yml`.
 - Sunucu: `supabase/migrations/*` (ve birleşik `all_in_one.sql`), yerel SQL testleri `supabase/tests/`, fonksiyon testleri `node --test supabase/functions/*/*.test.ts`.
 
 ## English summary
