@@ -21,7 +21,7 @@ Hesabının kayıtlı olduğu e-posta adresinden **emrullahakkus@gmail.com** adr
 
 ### Neler kalır?
 - Başkalarının seyahatlerine eklediğin içerik o seyahatlerin bir parçası olarak kalır, ancak artık hesabınla ilişkilendirilmez.
-- Yapay zekâ kotası için tutulan, cihazından türetilen geri çevrilemeyen özet ve günlük sayaç (kişiyi tanımlamaz); kısa süreli sunucu güvenlik kayıtları kendiliğinden silinir.
+- Yapay zekâ kotası için tutulan, cihazından türetilen geri çevrilemeyen özet ve günlük sayaç (kişiyi tanımlamaz); kötüye kullanımı önlemek için bu özetle birlikte hesabın e-postası cihaz son görüldükten sonra 1 yıl tutulur; kısa süreli sunucu güvenlik kayıtları kendiliğinden silinir.
 - Hesap silme kaydı (hesabın e-postası ve kimliği, tarih, kimin sildiği, cihaz bilgisi ve IP adresi) güvenlik ve hesap verebilirlik için 1 yıl tutulur, sonra otomatik olarak silinir.
 - Daha önce silinmiş kayıtların sunucudaki kopyaları en geç 30 gün içinde, belgelerin buluttaki dosyaları en geç 31 gün içinde otomatik olarak temizlenir.
 
@@ -47,7 +47,7 @@ Send an e-mail with the subject "Account deletion request" from your account's e
 
 ### What is kept
 - Content you added to other people's trips stays part of those trips but is no longer linked to your account.
-- The irreversible device hash and daily count kept for the AI quota (they don't identify you); short-lived server security logs are deleted automatically.
+- The irreversible device hash and daily count kept for the AI quota (they don't identify you); to prevent abuse, the account's e-mail is kept with that hash for 1 year after the device was last seen; short-lived server security logs are deleted automatically.
 - The account deletion record (your account's e-mail and ID, the date, who deleted it, device details and IP address) is kept for 1 year for security and accountability, then deleted automatically.
 - Server copies of records deleted earlier are purged automatically within 30 days, the cloud files of documents within 31 days.
 

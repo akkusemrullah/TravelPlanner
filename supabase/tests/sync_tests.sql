@@ -1939,4 +1939,77 @@ reset role;
 delete from auth.users where id = '00000000-0000-0000-0000-0000000a0e36';
 delete from private.audit_log;
 
+-- ------------------------------------------------------------------------------- 37: accounts on one device (TP-55)
+delete from private.account_devices;
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000a0f01', 'One@Example.com'),
+                                          ('00000000-0000-0000-0000-0000000a0f02', 'two@example.com'),
+                                          ('00000000-0000-0000-0000-0000000a0f03', 'three@example.com'),
+                                          ('00000000-0000-0000-0000-0000000a0f04', 'solo@example.com');
+\set dev1 '1111111111111111111111111111111111111111111111111111111111111111'
+\set dev2 '2222222222222222222222222222222222222222222222222222222222222222'
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a0f01', false);
+set role authenticated;
+select public.note_device(:'dev1');
+select public.note_device(:'dev2');
+reset role;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a0f02', false);
+set role authenticated;
+select public.note_device(:'dev1');
+do $$ begin
+    perform public.note_device('not a hash');
+    raise exception 'FAILED: a bad device was noted';
+exception when others then
+    if sqlerrm like 'FAILED%' then raise; end if;
+    raise notice 'ok - 37: a bad device is refused';
+end $$;
+do $$ begin
+    perform public.admin_device_accounts('00000000-0000-0000-0000-0000000a0f01');
+    raise exception 'FAILED: a client read the device list';
+exception when insufficient_privilege then raise notice 'ok - 37: the device list is admin only';
+end $$;
+reset role;
+-- the AI screen notes the device too (older apps)
+select private.ai_note_device('00000000-0000-0000-0000-0000000a0f03', :'dev2');
+select private.note_account_device('00000000-0000-0000-0000-0000000a0f04', '4444444444444444444444444444444444444444444444444444444444444444');
+select test.eq((select email from private.account_devices where user_id = '00000000-0000-0000-0000-0000000a0f01' limit 1),
+               'one@example.com', '37: the e-mail is kept with the note');
+select test.eq((select count(*)::int from private.account_devices where user_id = '00000000-0000-0000-0000-0000000a0f03'), 1,
+               '37: the AI screen notes the device too');
+-- touched at most once an hour
+update private.account_devices set last_seen = now() - interval '10 minutes', first_seen = now() - interval '5 days'
+ where user_id = '00000000-0000-0000-0000-0000000a0f02';
+select private.note_account_device('00000000-0000-0000-0000-0000000a0f02', :'dev1');
+select test.eq((select last_seen < now() - interval '5 minutes' from private.account_devices
+                where user_id = '00000000-0000-0000-0000-0000000a0f02'), true, '37: not rewritten within the hour');
+update private.account_devices set last_seen = now() - interval '2 hours' where user_id = '00000000-0000-0000-0000-0000000a0f02';
+select private.note_account_device('00000000-0000-0000-0000-0000000a0f02', :'dev1');
+select test.eq((select last_seen > now() - interval '1 minute' and first_seen < now() - interval '4 days'
+                from private.account_devices where user_id = '00000000-0000-0000-0000-0000000a0f02'), true,
+               '37: later the last seen moves, the first seen stays');
+set role service_role;
+select test.eq(jsonb_array_length(public.admin_device_accounts('00000000-0000-0000-0000-0000000a0f01')), 2,
+               '37: one''s devices were used by two and three');
+select test.eq((select string_agg(e ->> 'email', ',' order by e ->> 'email')
+                from jsonb_array_elements(public.admin_device_accounts('00000000-0000-0000-0000-0000000a0f01')) e),
+               'three@example.com,two@example.com', '37: with their e-mails');
+select test.eq(jsonb_array_length(public.admin_device_accounts('00000000-0000-0000-0000-0000000a0f02')), 1,
+               '37: two shares dev1 with one only');
+select test.eq(jsonb_array_length(public.admin_device_accounts('00000000-0000-0000-0000-0000000a0f04')), 0, '37: solo is alone');
+select test.eq((public.admin_user('00000000-0000-0000-0000-0000000a0f01') ->> 'device_accounts')::int, 2,
+               '37: the user row counts the other accounts');
+reset role;
+-- deleted and banned accounts still show
+update auth.users set banned_until = now() + interval '1 day' where id = '00000000-0000-0000-0000-0000000a0f03';
+delete from auth.users where id = '00000000-0000-0000-0000-0000000a0f02';
+set role service_role;
+select test.eq((select string_agg((e ->> 'email') || '=' || (e ->> 'state'), ',' order by e ->> 'email')
+                from jsonb_array_elements(public.admin_device_accounts('00000000-0000-0000-0000-0000000a0f01')) e),
+               'three@example.com=banned,two@example.com=deleted', '37: banned and deleted accounts are shown as such');
+reset role;
+update private.account_devices set last_seen = now() - interval '400 days' where user_id = '00000000-0000-0000-0000-0000000a0f04';
+select test.eq(private.purge_account_devices(), 1, '37: notes over a year old are purged');
+delete from private.account_devices;
+delete from auth.users where id in ('00000000-0000-0000-0000-0000000a0f01', '00000000-0000-0000-0000-0000000a0f03',
+                                    '00000000-0000-0000-0000-0000000a0f04');
+
 \echo ALL SYNC TESTS PASSED
