@@ -27,5 +27,32 @@ namespace TravelPlanner.Tests
 
             Assert.Equal(3, DashboardViewModel.CountVisitedCities(trips, Today));
         }
+
+        [Fact]
+        public void VisitedCountries_OneCountryWrittenDifferently_CountsOnce()
+        {
+            var trips = new[]
+            {
+                Trip("İstanbul", "Türkiye Cumhuriyeti", Today.AddDays(-20)),
+                Trip("Nevşehir", "Türkiye", Today.AddDays(-10)),
+                Trip("Ankara", "turkey", Today.AddDays(-5)),
+                Trip("Girne", "Kuzey Kıbrıs Türk Cumhuriyeti", Today.AddDays(-4)), // not Türkiye
+                Trip("Roma", "İtalya", Today.AddDays(-3)),
+                Trip("Milano", "italya ", Today.AddDays(-2)),
+                Trip("Paris", "Fransa", Today.AddDays(3)),                         // not over yet
+            };
+
+            Assert.Equal(3, DashboardViewModel.CountVisitedCountries(trips, Today));
+        }
+
+        [Theory]
+        [InlineData("Türkiye Cumhuriyeti", "Türkiye")]
+        [InlineData("Turkey (Türkiye)", "Türkiye")]
+        [InlineData(" İtalya ", "İtalya")]
+        [InlineData("Kuzey Kıbrıs Türk Cumhuriyeti", "Kuzey Kıbrıs Türk Cumhuriyeti")]
+        public void CountryNames_Tidy_ShortensTurkiye(string input, string expected)
+        {
+            Assert.Equal(expected, Helpers.CountryNames.Tidy(input));
+        }
     }
 }

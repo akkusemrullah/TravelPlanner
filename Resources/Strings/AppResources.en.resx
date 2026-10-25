@@ -1884,6 +1884,9 @@ If you want a copy of your trips, export a backup first (Backup → Export).</va
   <data name="Auth_ErrorRateLimited" xml:space="preserve">
     <value>Too many attempts. Please wait a little and try again.</value>
   </data>
+  <data name="Auth_ErrorBrowser" xml:space="preserve">
+    <value>Google didn't open. Try again.</value>
+  </data>
   <data name="Auth_ErrorNotSupported" xml:space="preserve">
     <value>Google sign-in isn't supported on this device. You can sign in with e-mail.</value>
   </data>

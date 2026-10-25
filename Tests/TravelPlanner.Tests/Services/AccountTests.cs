@@ -170,6 +170,67 @@ namespace TravelPlanner.Tests
             Assert.Equal(AuthErrorKind.Banned, ex.Kind);
         }
 
+        private SupabaseAuthService CreateWatchedService(AppLifecycle lifecycle)
+        {
+            var client = _http.CreateClient();
+            var auth = new SupabaseAuthService(() => client, _storage, _web.Object, lifecycle: lifecycle)
+            {
+                BrowserOpenTimeout = TimeSpan.FromMilliseconds(100),
+                BrowserReturnGrace = TimeSpan.FromMilliseconds(50),
+            };
+            return auth;
+        }
+
+        [Fact]
+        public async Task Google_BrowserNeverOpens_StopsWaiting()
+        {
+            _web.Setup(w => w.AuthenticateAsync(It.IsAny<WebAuthenticatorOptions>()))
+                .Returns(new TaskCompletionSource<WebAuthenticatorResult>().Task); // MAUI never answers
+
+            var ex = await Assert.ThrowsAsync<AuthException>(() => CreateWatchedService(new AppLifecycle()).SignInWithGoogleAsync());
+
+            Assert.Equal(AuthErrorKind.BrowserFailed, ex.Kind);
+        }
+
+        [Fact]
+        public async Task Google_BackInTheAppWithoutResult_IsACancel()
+        {
+            var lifecycle = new AppLifecycle();
+            _web.Setup(w => w.AuthenticateAsync(It.IsAny<WebAuthenticatorOptions>()))
+                .Returns(() =>
+                {
+                    lifecycle.RaiseSleeping(); // the browser opened...
+                    lifecycle.RaiseResumed();  // ...and the user came back without signing in
+                    return new TaskCompletionSource<WebAuthenticatorResult>().Task;
+                });
+
+            var ex = await Assert.ThrowsAsync<AuthException>(() => CreateWatchedService(lifecycle).SignInWithGoogleAsync());
+
+            Assert.Equal(AuthErrorKind.Cancelled, ex.Kind);
+        }
+
+        [Fact]
+        public async Task Google_SlowSignInInTheBrowser_StillWorks()
+        {
+            var lifecycle = new AppLifecycle();
+            var answer = new TaskCompletionSource<WebAuthenticatorResult>();
+            _web.Setup(w => w.AuthenticateAsync(It.IsAny<WebAuthenticatorOptions>()))
+                .Returns(() =>
+                {
+                    lifecycle.RaiseSleeping();
+                    return answer.Task;
+                });
+            _http.Respond("token?grant_type=pkce", AuthFakes.SessionJson());
+            var auth = CreateWatchedService(lifecycle);
+
+            var signIn = auth.SignInWithGoogleAsync();
+            await Task.Delay(300); // longer than the open timeout: the browser is open, so keep waiting
+            answer.SetResult(new WebAuthenticatorResult(new Dictionary<string, string> { ["code"] = "abc" }));
+            await signIn;
+
+            Assert.True(auth.IsSignedIn);
+        }
+
         [Theory]
         [InlineData(400, """{"error_code":"invalid_credentials","msg":"Invalid login credentials"}""", AuthErrorKind.InvalidCredentials)]
         [InlineData(400, """{"error":"invalid_grant","error_description":"Email not confirmed"}""", AuthErrorKind.EmailNotConfirmed)]

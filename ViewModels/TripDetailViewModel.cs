@@ -206,6 +206,8 @@ namespace TravelPlanner.ViewModels
             var quota = await _aiPlanner.GetQuotaAsync();
             AiPlannerSubtitle = quota is null
                 ? AppResources.AiPlan_EntrySubtitle
+                : quota.Paused
+                    ? quota.Message ?? AppResources.AiPlan_Paused // maintenance: the admin's note, not "no plans left"
                 : quota.Remaining > 0
                     ? string.Format(AppResources.AiPlan_QuotaFormat, quota.Remaining, quota.Limit)
                     : AppResources.AiPlan_QuotaNone;

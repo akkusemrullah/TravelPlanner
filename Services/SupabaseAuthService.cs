@@ -33,19 +33,21 @@ namespace TravelPlanner.Services
         private readonly ISecureStorage _storage;
         private readonly IWebAuthenticator _webAuthenticator;
         private readonly ICaptchaService _captcha;
+        private readonly IAppLifecycle? _lifecycle;
         private readonly SemaphoreSlim _refreshLock = new(1, 1);
 
         public SupabaseAuthService(IHttpClientFactory httpClientFactory, ISecureStorage storage, IWebAuthenticator webAuthenticator,
-                                   ICaptchaService captcha)
-            : this(() => httpClientFactory.CreateClient(HttpClientName), storage, webAuthenticator, captcha)
+                                   ICaptchaService captcha, IAppLifecycle lifecycle)
+            : this(() => httpClientFactory.CreateClient(HttpClientName), storage, webAuthenticator, captcha, lifecycle)
         {
         }
 
         /// <param name="createClient">Tests pass a client over a fake handler. BaseAddress defaults to the auth API.</param>
         /// <param name="captcha">CAPTCHA for the protected e-mail calls; none when null.</param>
         internal SupabaseAuthService(Func<HttpClient> createClient, ISecureStorage storage, IWebAuthenticator webAuthenticator,
-                                     ICaptchaService? captcha = null)
+                                     ICaptchaService? captcha = null, IAppLifecycle? lifecycle = null)
         {
+            _lifecycle = lifecycle;
             _createClient = createClient;
             _storage = storage;
             _webAuthenticator = webAuthenticator;
@@ -244,12 +246,12 @@ namespace TravelPlanner.Services
             WebAuthenticatorResult result;
             try
             {
-                result = await _webAuthenticator.AuthenticateAsync(new WebAuthenticatorOptions
+                result = await WaitForBrowserAsync(() => _webAuthenticator.AuthenticateAsync(new WebAuthenticatorOptions
                 {
                     Url = authorizeUrl,
                     CallbackUrl = new Uri(SupabaseConfig.AuthCallbackUrl),
                     PrefersEphemeralWebBrowserSession = true,
-                });
+                }));
             }
             catch (OperationCanceledException ex)
             {
@@ -280,6 +282,57 @@ namespace TravelPlanner.Services
                 ["code_verifier"] = verifier,
             });
             await SaveSessionAsync(ParseSession(response), raise: true);
+        }
+
+        /// <summary>The browser has this long to open (the app goes to the background) before Google sign-in gives up.</summary>
+        internal TimeSpan BrowserOpenTimeout { get; set; } = TimeSpan.FromSeconds(12);
+
+        /// <summary>After the app is back from the browser, the sign-in result has this long to arrive.</summary>
+        internal TimeSpan BrowserReturnGrace { get; set; } = TimeSpan.FromSeconds(3);
+
+        /// <summary>
+        /// MAUI's WebAuthenticator sometimes never completes on Android: the browser doesn't open, or the user is back in
+        /// the app without a result. The sign-in screen then spun forever and ignored every tap. Watch the app's
+        /// lifecycle instead: no browser in time -> BrowserFailed; back without a result -> Cancelled.
+        /// </summary>
+        private async Task<WebAuthenticatorResult> WaitForBrowserAsync(Func<Task<WebAuthenticatorResult>> start)
+        {
+            if (_lifecycle is null)
+                return await start();
+
+            var stalled = new TaskCompletionSource<AuthErrorKind>(TaskCreationOptions.RunContinuationsAsynchronously);
+            var left = false;
+            void OnSleeping(object? sender, EventArgs e) => left = true;
+            void OnResumed(object? sender, EventArgs e)
+            {
+                if (left)
+                    Task.Delay(BrowserReturnGrace).ContinueWith(_ => stalled.TrySetResult(AuthErrorKind.Cancelled), TaskScheduler.Default);
+            }
+
+            Task<WebAuthenticatorResult> authenticate;
+            _lifecycle.Sleeping += OnSleeping;
+            _lifecycle.Resumed += OnResumed;
+            try
+            {
+                authenticate = start();
+                _ = Task.Delay(BrowserOpenTimeout).ContinueWith(_ =>
+                {
+                    if (!left)
+                        stalled.TrySetResult(AuthErrorKind.BrowserFailed);
+                }, TaskScheduler.Default);
+
+                if (await Task.WhenAny(authenticate, stalled.Task) == authenticate)
+                    return await authenticate;
+            }
+            finally
+            {
+                _lifecycle.Sleeping -= OnSleeping;
+                _lifecycle.Resumed -= OnResumed;
+            }
+
+            // a late result is dropped: the next tap starts a fresh sign-in
+            _ = authenticate.ContinueWith(t => _ = t.Exception, TaskContinuationOptions.OnlyOnFaulted);
+            throw new AuthException(await stalled.Task, "The browser sign-in didn't complete.");
         }
 
         // ------------------------------------------------------------------ plumbing
