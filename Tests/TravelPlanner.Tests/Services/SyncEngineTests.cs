@@ -360,6 +360,80 @@ namespace TravelPlanner.Tests
             Assert.Empty(told);
         }
 
+        // ------------------------------------------------------------------ TP-66: deletes from other devices go to the trash
+
+        private const string OtherUserId = "99999999-9999-9999-9999-999999999999";
+
+        private static string SharedExpenseDeletedPull(string role, long changeSeq = 30) => new JsonObject
+        {
+            ["cursor"] = 90,
+            ["memberships"] = new JsonArray(new JsonObject { ["trip_id"] = SharedTripId, ["role"] = role, ["change_seq"] = 5 }),
+            ["expenses"] = new JsonArray(RemoteExpense(SharedExpenseId, SharedTripId, changeSeq,
+                ("deleted_at", "2026-09-05T08:00:00Z"), ("updated_by", OtherUserId), ("version", 2))),
+        }.ToJsonString();
+
+        [Theory]
+        [InlineData("owner")]
+        [InlineData("editor")]
+        public async Task TP66_AnExpenseDeletedByAnotherMember_LandsInTheTrash_AndCanBeRestored(string role)
+        {
+            _client.Handler = (_, _) => SharedTripPull(role);
+            await _sync.SyncNowAsync();
+            _client.Handler = (_, _) => SharedExpenseDeletedPull(role);
+
+            await _sync.SyncNowAsync();
+
+            var trip = Assert.Single(await _trips.GetAllAsync());
+            Assert.Empty(await _expenses.GetByTripIdAsync(trip.Id));
+            var trash = new TrashService(_db.Service, _attachments);
+            var entry = Assert.Single(await trash.GetEntriesAsync());
+            Assert.Equal("Müze", entry.Title);
+            Assert.Equal(OtherUserId, entry.DeletedBy);
+            Assert.Equal(new DateTime(2026, 9, 5, 8, 0, 0, DateTimeKind.Utc), entry.DeletedAtUtc.ToUniversalTime());
+            Assert.Equal(0, await OutboxCountAsync());
+
+            Assert.Equal(1, await trash.RestoreAsync(entry.BatchId));
+
+            var back = Assert.Single(await _expenses.GetByTripIdAsync(trip.Id));
+            Assert.Equal("Müze", back.Description);
+            Assert.Equal(1, await OutboxCountAsync()); // a full upsert undeletes it on the server
+            Assert.Empty(await trash.GetEntriesAsync());
+        }
+
+        [Fact]
+        public async Task TP66_AViewerDoesNotKeepOthersDeletes()
+        {
+            _client.Handler = (_, _) => SharedTripPull("viewer");
+            await _sync.SyncNowAsync();
+            _client.Handler = (_, _) => SharedExpenseDeletedPull("viewer");
+
+            await _sync.SyncNowAsync();
+
+            Assert.Empty(await new TrashService(_db.Service, _attachments).GetEntriesAsync());
+        }
+
+        [Fact]
+        public async Task TP66_RestoredOnAnotherDevice_LeavesThisDevicesTrash()
+        {
+            _client.Handler = (_, _) => SharedTripPull("owner");
+            await _sync.SyncNowAsync();
+            _client.Handler = (_, _) => SharedExpenseDeletedPull("owner");
+            await _sync.SyncNowAsync();
+            var trash = new TrashService(_db.Service, _attachments);
+            Assert.Single(await trash.GetEntriesAsync());
+
+            _client.Handler = (_, _) => new JsonObject
+            {
+                ["cursor"] = 95,
+                ["memberships"] = new JsonArray(new JsonObject { ["trip_id"] = SharedTripId, ["role"] = "owner", ["change_seq"] = 5 }),
+                ["expenses"] = new JsonArray(RemoteExpense(SharedExpenseId, SharedTripId, 40, ("version", 3))),
+            }.ToJsonString();
+            await _sync.SyncNowAsync();
+
+            Assert.Single(await _expenses.GetByTripIdAsync(Assert.Single(await _trips.GetAllAsync()).Id));
+            Assert.Empty(await trash.GetEntriesAsync());
+        }
+
         [Fact]
         public void Deleted28_SeveralLostTrips_AreCounted()
         {

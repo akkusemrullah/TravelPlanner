@@ -77,9 +77,13 @@ namespace TravelPlanner.Services
                     if (Deserialize(item, info) is not { } entity)
                         continue;
 
-                    var existing = conn.Find(entity.Id, conn.GetMapping(info.ClrType)) as ISyncEntity;
+                    var map = conn.GetMapping(info.ClrType);
+                    var existing = conn.Find(entity.Id, map) as ISyncEntity;
                     if (existing is not null)
                         continue; // already back (or the id is taken) - never overwrite another row
+                    if (!string.IsNullOrEmpty(entity.SyncId) &&
+                        conn.ExecuteScalar<int>($"SELECT COUNT(*) FROM \"{map.TableName}\" WHERE SyncId = ?", entity.SyncId) > 0)
+                        continue; // TP-66: someone else already brought it back (it came in with the sync)
 
                     if (!ResolveReferences(conn, info, entity))
                         continue;

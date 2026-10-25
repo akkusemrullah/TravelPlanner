@@ -294,6 +294,32 @@ namespace TravelPlanner.Services.Sync
             if (string.IsNullOrEmpty(stored.SyncId))
                 stored.SyncId = NewSyncId();
 
+            WriteTrash(conn, batch, info, stored, tripSyncId, UtcNow(), CurrentUserId);
+
+            var result = conn.Delete(stored);
+            EnqueueDelete(conn, info, stored, tripSyncId);
+            return result;
+        }
+
+        /// <summary>
+        /// TP-66: a row someone else deleted (it arrives from the server with deleted_at) is kept in this device's trash
+        /// too - with what hangs on it - so the owner or an editor can bring it back. Nothing is queued: the delete
+        /// already happened on the server; restoring queues a full upsert, which undeletes it there.
+        /// </summary>
+        internal static void TrashRemoteDelete(SQLiteConnection conn, ISyncEntity root, IEnumerable<ISyncEntity> children,
+                                               DateTime deletedAtUtc, string? deletedBy)
+        {
+            var info = SyncSchema.For(root.GetType());
+            var tripSyncId = info.ResolveTripSyncId(conn, root);
+            var batch = TrashBatch.For(root);
+            WriteTrash(conn, batch, info, root, tripSyncId, deletedAtUtc, deletedBy);
+            foreach (var child in children)
+                WriteTrash(conn, batch, SyncSchema.For(child.GetType()), child, tripSyncId, deletedAtUtc, deletedBy);
+        }
+
+        private static void WriteTrash(SQLiteConnection conn, TrashBatch batch, SyncEntityInfo info, ISyncEntity stored,
+                                       string? tripSyncId, DateTime deletedAtUtc, string? deletedBy)
+        {
             conn.Insert(new TrashItem
             {
                 BatchId = batch.Id,
@@ -303,13 +329,9 @@ namespace TravelPlanner.Services.Sync
                 TripSyncId = tripSyncId,
                 Title = Helpers.InputLimits.Truncate(info.ResolveTitle(stored), 150),
                 Json = JsonSerializer.Serialize(stored, stored.GetType(), BackupService.JsonOptions),
-                DeletedAtUtc = UtcNow(),
-                DeletedBy = CurrentUserId,
+                DeletedAtUtc = deletedAtUtc,
+                DeletedBy = deletedBy,
             });
-
-            var result = conn.Delete(stored);
-            EnqueueDelete(conn, info, stored, tripSyncId);
-            return result;
         }
 
         /// <summary>

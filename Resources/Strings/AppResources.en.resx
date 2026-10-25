@@ -3267,4 +3267,7 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Ticket_DaysMoreFormat" xml:space="preserve">
     <value>{0} more days</value>
   </data>
+  <data name="Trash_DeletedByOther" xml:space="preserve">
+    <value>Deleted by someone else</value>
+  </data>
 </root>

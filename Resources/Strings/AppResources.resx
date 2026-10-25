@@ -3268,4 +3268,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Ticket_DaysMoreFormat" xml:space="preserve">
     <value>{0} gün daha</value>
   </data>
+  <data name="Trash_DeletedByOther" xml:space="preserve">
+    <value>Başkası sildi</value>
+  </data>
 </root>
