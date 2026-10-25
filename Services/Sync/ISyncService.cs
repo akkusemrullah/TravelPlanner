@@ -21,7 +21,7 @@ namespace TravelPlanner.Services.Sync
     /// <summary>TP-6: a change the server refused for good, rolled back on this device.</summary>
     /// <param name="EntityType">"Expense", "Todo" … (<see cref="SyncEntityInfo.EntityType"/>).</param>
     /// <param name="Title">What the user calls the record (null when it has no name of its own, e.g. an expense share).</param>
-    /// <param name="Reason">The server's reason: "forbidden", "row_deleted", "trip_deleted", "trip_mismatch" or "unknown_entity".</param>
+    /// <param name="Reason">The server's reason: "forbidden", "row_deleted", "trip_deleted", "trip_mismatch" or "unknown_entity"; "merged" for TP-67.</param>
     /// <param name="RemovedLocally">The row never reached the server, so it was removed from this device.</param>
     public sealed record RejectedChange(string EntityType, string? Title, string Reason, bool RemovedLocally);
 
@@ -58,6 +58,12 @@ namespace TravelPlanner.Services.Sync
         /// and are retried later.
         /// </summary>
         event EventHandler<int>? QuotaExceeded;
+
+        /// <summary>
+        /// TP-67: someone else changed the same records while this device was offline; the server kept both edits
+        /// field by field (the later one wins per field). The argument names them (Reason "merged").
+        /// </summary>
+        event EventHandler<IReadOnlyList<RejectedChange>>? ChangesMerged;
 
         /// <summary>
         /// 28: trips shared with the user were removed from this device by a pull (the owner deleted them, closed their

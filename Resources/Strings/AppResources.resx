@@ -3271,4 +3271,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Trash_DeletedByOther" xml:space="preserve">
     <value>Başkası sildi</value>
   </data>
+  <data name="Sync_MergedFormat" xml:space="preserve">
+    <value>Başka biri de değiştirdi, iki değişiklik birleştirildi: {0}.</value>
+  </data>
 </root>

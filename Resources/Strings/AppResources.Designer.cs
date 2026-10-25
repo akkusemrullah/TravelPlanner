@@ -8874,5 +8874,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Trash_DeletedByOther", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Başka biri de değiştirdi, iki değişiklik birleştirildi: {0}..
+        /// </summary>
+        public static string Sync_MergedFormat {
+            get {
+                return ResourceManager.GetString("Sync_MergedFormat", resourceCulture);
+            }
+        }
     }
 }

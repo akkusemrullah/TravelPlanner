@@ -23,6 +23,7 @@ namespace TravelPlanner.Services.Sync
         {
             "forbidden" => AppResources.Sync_RejectedForbiddenFormat,
             "row_deleted" or "trip_deleted" => AppResources.Sync_RejectedDeletedFormat,
+            "merged" => AppResources.Sync_MergedFormat,
             _ => AppResources.Sync_RejectedOtherFormat,
         };
 
