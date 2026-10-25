@@ -160,7 +160,7 @@ namespace TravelPlanner.Tests
             await _places.SaveAsync(place);
             await _activities.SaveAsync(new TripActivity { TripId = trip.Id, Date = trip.StartDate, Title = "Tur", PlaceId = place.Id });
             await _todos.SaveAsync(new TodoItem { TripId = trip.Id, Title = "Pasaport" });
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 7, 8, 9 }), "bilet.pdf", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(7, 8, 9), "bilet.pdf", "application/pdf");
 
             await _trips.DeleteAsync(trip);
 
@@ -180,7 +180,7 @@ namespace TravelPlanner.Tests
             Assert.Equal(new[] { ali.Id }, await _split.GetShareParticipantIdsAsync(dinner.Id));
             Assert.Equal(place.Id, Assert.Single(await _activities.GetByTripIdAsync(trip.Id)).PlaceId);
             var attachment = Assert.Single(await _attachments.GetByTripIdAsync(trip.Id));
-            Assert.Equal(new byte[] { 7, 8, 9 }, await File.ReadAllBytesAsync(attachment.FullPath));
+            Assert.Equal(TestFiles.PdfBytes(7, 8, 9), await File.ReadAllBytesAsync(attachment.FullPath));
             Assert.Empty(await _trash.GetEntriesAsync());
 
             // Every restored row is queued as a full upsert, parents first.
@@ -250,7 +250,7 @@ namespace TravelPlanner.Tests
         public async Task Purge_RemovesOnlyItemsOlderThanTheRetention()
         {
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "a.pdf", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "a.pdf", "application/pdf");
             await _attachments.DeleteAsync(file);
             var trashed = _attachments.GetTrashPath(file);
             Assert.True(File.Exists(trashed));
@@ -273,8 +273,8 @@ namespace TravelPlanner.Tests
         public async Task DeleteForever_RemovesOnlyTheChosenBatches_AndTheirFiles()
         {
             var trip = await NewTripAsync();
-            var a = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "a.pdf", "application/pdf");
-            var b = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 2 }), "b.pdf", "application/pdf");
+            var a = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "a.pdf", "application/pdf");
+            var b = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(2), "b.pdf", "application/pdf");
             await _attachments.DeleteAsync(a);
             await _attachments.DeleteAsync(b);
             var batchA = await BatchOfAsync(a);
@@ -312,7 +312,7 @@ namespace TravelPlanner.Tests
             auth.SetupGet(x => x.IsSignedIn).Returns(true);
             var trash = new TrashService(_db.Service, _attachments, cloud.Object, auth.Object);
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "bilet.PDF", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "bilet.PDF", "application/pdf");
             await _attachments.DeleteAsync(file);
 
             await trash.DeleteForeverAsync(new[] { await BatchOfAsync(file) });
@@ -332,7 +332,7 @@ namespace TravelPlanner.Tests
             auth.SetupGet(x => x.IsSignedIn).Returns(true);
             var trash = new TrashService(_db.Service, _attachments, cloud.Object, auth.Object);
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "a.pdf", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "a.pdf", "application/pdf");
             await _attachments.DeleteAsync(file);
 
             Assert.Equal(1, await trash.DeleteForeverAsync(new[] { await BatchOfAsync(file) }));
@@ -342,7 +342,7 @@ namespace TravelPlanner.Tests
             var guestCloud = new Mock<ISupabaseClient>();
             var guestAuth = new Mock<IAuthService>();
             var guestTrash = new TrashService(_db.Service, _attachments, guestCloud.Object, guestAuth.Object);
-            var other = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "b.pdf", "application/pdf");
+            var other = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "b.pdf", "application/pdf");
             await _attachments.DeleteAsync(other);
             await guestTrash.DeleteForeverAsync(new[] { await BatchOfAsync(other) });
             guestCloud.VerifyNoOtherCalls();

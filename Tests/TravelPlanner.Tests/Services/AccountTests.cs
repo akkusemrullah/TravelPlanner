@@ -401,7 +401,7 @@ namespace TravelPlanner.Tests
         {
             await _trips.SaveAsync(new Trip { Name = "Roma", City = "Roma", StartDate = DateTime.Today, EndDate = DateTime.Today });
             var trip = Assert.Single(await _trips.GetAllAsync());
-            await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "bilet.pdf", "application/pdf");
+            await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1, 2), "bilet.pdf", "application/pdf");
         }
 
         private void SignIn() => _session = new AuthSession { UserId = AuthFakes.UserId, Email = "ali@example.com", DisplayName = "Ali Yılmaz" };

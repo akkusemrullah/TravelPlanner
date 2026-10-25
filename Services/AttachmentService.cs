@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using TravelPlanner.Helpers;
 using TravelPlanner.Models;
 using TravelPlanner.Services.Sync;
 
@@ -164,8 +165,14 @@ namespace TravelPlanner.Services
             var displayName = string.IsNullOrWhiteSpace(originalFileName) ? "file" : Path.GetFileName(originalFileName.Trim());
             // TP-3: only what the cloud accepts, so every attachment can reach the trip's other devices
             contentType = CloudContentType(displayName, contentType) ?? throw new UnsupportedAttachmentTypeException();
+            // TP-73: and only if the bytes really are a photo or PDF - the name and the picker's type can lie. A photo
+            // of another type than its name says (a PNG saved as .jpg) is kept under its real type.
+            var head = await ReadHeadAsync(content);
+            contentType = FileSignatures.Detect(head) ?? throw new UnsupportedAttachmentTypeException();
             // TP-5: always a photo/PDF extension (also for "IMG_1234" without one), so the cloud path and opening agree
-            var extension = CloudExtension(displayName, contentType) ?? throw new UnsupportedAttachmentTypeException();
+            var extension = CloudContentType(displayName, null) == contentType
+                ? CloudExtension(displayName, contentType) ?? throw new UnsupportedAttachmentTypeException()
+                : ExtensionsByCloudType[contentType]; // TP-73: named as another type than it is
 
             var relativePath = $"{FolderName}/{tripId}/{Guid.NewGuid():N}{extension}";
             var attachment = new TripAttachment
@@ -185,8 +192,9 @@ namespace TravelPlanner.Services
             {
                 await using (var target = File.Create(fullPath))
                 {
+                    await target.WriteAsync(head);
                     var buffer = new byte[81920];
-                    long total = 0;
+                    long total = head.Length;
                     int read;
                     while ((read = await content.ReadAsync(buffer)) > 0)
                     {
@@ -231,6 +239,16 @@ namespace TravelPlanner.Services
             MoveFileToTrash(attachment);
         }
 
+        private static async Task<byte[]> ReadHeadAsync(Stream content)
+        {
+            var buffer = new byte[FileSignatures.HeadLength];
+            var filled = 0;
+            int read;
+            while (filled < buffer.Length && (read = await content.ReadAsync(buffer.AsMemory(filled))) > 0)
+                filled += read;
+            return buffer[..filled];
+        }
+
         public async Task<bool> EnsureLocalFileAsync(TripAttachment attachment, CancellationToken cancellationToken = default)
         {
             var path = GetFullPath(attachment);
@@ -256,6 +274,13 @@ namespace TravelPlanner.Services
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
                 await using (var file = File.Create(temporary))
                     await _remote.DownloadAsync(SyncService.Bucket, attachment.RemotePath, file, cancellationToken);
+                // TP-73: another member's file is opened here - only if it really is a photo or PDF
+                if (FileSignatures.Detect(FileSignatures.ReadHead(temporary)) is null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AttachmentService] Not keeping {attachment.SyncId}: not a photo or PDF.");
+                    TryDeleteFile(temporary);
+                    return false;
+                }
                 File.Move(temporary, path, overwrite: true);
                 return true;
             }

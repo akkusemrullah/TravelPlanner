@@ -475,7 +475,7 @@ namespace TravelPlanner.Tests
             var taxi = new Expense { TripId = trip.Id, Amount = 30m, Description = "Taksi", Date = new DateTime(2026, 9, 2) };
             await _expenses.SaveAsync(taxi);
             await _split.SaveSplitAsync(taxi, ali.Id, new[] { ali.Id });
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "bilet.pdf", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1, 2), "bilet.pdf", "application/pdf");
             var filePath = _attachments.GetFullPath(file);
             Assert.True(File.Exists(filePath));
             ServerSaysForbidden();
@@ -705,7 +705,7 @@ namespace TravelPlanner.Tests
             var now = new DateTime(2026, 10, 17, 12, 0, 0, DateTimeKind.Utc);
             _sync.UtcNow = () => now;
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "IMG_1.JPG", null);
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Jpeg(1, 2), "IMG_1.JPG", null);
             _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
             _client.UploadError = _ => new SyncException(SyncErrorKind.Rejected, "HTTP 400: new row violates row-level security policy", status: 400);
             var told = new List<int>();
@@ -744,7 +744,7 @@ namespace TravelPlanner.Tests
 
         private async Task<TripAttachment> AttachmentOnTheServerAsync(Trip trip)
         {
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "IMG_1.JPG", "image/jpeg");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Jpeg(1, 2), "IMG_1.JPG", "image/jpeg");
             await (await _db.Connection).ExecuteAsync("UPDATE Attachment SET ChangeSeq = 7 WHERE Id = ?", file.Id);
             return file;
         }
@@ -1032,14 +1032,14 @@ namespace TravelPlanner.Tests
         public async Task Attachments_AreUploaded_AndDownloadedOnAnotherDevice()
         {
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 4, 5, 6 }), "bilet.pdf", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(4, 5, 6), "bilet.pdf", "application/pdf");
             _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
 
             var result = await _sync.SyncNowAsync();
 
             Assert.Equal(1, result.FilesUploaded);
             var remotePath = $"trips/{trip.SyncId}/{file.SyncId}.pdf";
-            Assert.Equal(new byte[] { 4, 5, 6 }, _client.Storage[$"trip-files/{remotePath}"]);
+            Assert.Equal(TestFiles.PdfBytes(4, 5, 6), _client.Storage[$"trip-files/{remotePath}"]);
             var stored = Assert.Single(await _attachments.GetByTripIdAsync(trip.Id));
             Assert.Equal(remotePath, stored.RemotePath);
             // the second push told the server where the file is
@@ -1049,7 +1049,20 @@ namespace TravelPlanner.Tests
             // "another device": the row is here, the file isn't
             File.Delete(stored.FullPath);
             Assert.True(await _attachments.EnsureLocalFileAsync(stored));
-            Assert.Equal(new byte[] { 4, 5, 6 }, await File.ReadAllBytesAsync(stored.FullPath));
+            Assert.Equal(TestFiles.PdfBytes(4, 5, 6), await File.ReadAllBytesAsync(stored.FullPath));
+        }
+
+        [Fact]
+        public async Task TP73_ADownloadedFileThatIsNotAPhotoOrPdf_IsNotKept()
+        {
+            var trip = await NewTripAsync();
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "bilet.pdf", "application/pdf");
+            File.Delete(_attachments.GetFullPath(file));
+            file.RemotePath = $"trips/{trip.SyncId}/{file.SyncId}.pdf";
+            _client.Storage[$"trip-files/{file.RemotePath}"] = System.Text.Encoding.ASCII.GetBytes("<script>alert(1)</script>");
+
+            Assert.False(await _attachments.EnsureLocalFileAsync(file));
+            Assert.False(File.Exists(file.FullPath));
         }
 
         // ------------------------------------------------------------------ TP-5: attachment paths and types
@@ -1068,7 +1081,7 @@ namespace TravelPlanner.Tests
         public async Task EnsureLocalFile_NeverRequests_APathThatIsNotTheAttachmentsOwn(string pattern)
         {
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1 }), "bilet.pdf", "application/pdf");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Pdf(1), "bilet.pdf", "application/pdf");
             File.Delete(_attachments.GetFullPath(file));
             file.RemotePath = pattern.Replace("{trip}", trip.SyncId).Replace("{id}", file.SyncId).Replace("{other}", Guid.NewGuid().ToString());
             _client.Storage[$"trip-files/{file.RemotePath}"] = new byte[] { 6, 6, 6 };
@@ -1083,7 +1096,7 @@ namespace TravelPlanner.Tests
         public async Task FileWithoutExtension_IsKeptAndUploaded_UnderItsTypesExtension()
         {
             var trip = await NewTripAsync();
-            var file = await _attachments.AddAsync(trip.Id, new MemoryStream(new byte[] { 1, 2 }), "IMG_1234", "image/heic");
+            var file = await _attachments.AddAsync(trip.Id, TestFiles.Heic(1, 2), "IMG_1234", "image/heic");
             _client.Handler = (fn, args) => fn == "apply_changes" ? FakeSupabaseClient.AnswerAll(args, "applied") : FakeSupabaseClient.EmptyPull(0, trip.SyncId);
 
             await _sync.SyncNowAsync();
