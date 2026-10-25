@@ -1,6 +1,6 @@
 # Gizlilik Politikası / Privacy Policy – Travel Planner
 
-Son güncelleme: 18 Ekim 2026 · Last updated: 18 October 2026
+Son güncelleme: 25 Ekim 2026 · Last updated: 25 October 2026
 
 > Bu metin uygulamadaki *Profil → Yasal ve gizlilik* sayfasıyla aynıdır (kaynak: `Resources/Strings/AppResources*.resx`). Uygulamadaki metni değiştirdiğinde bu dosyayı da güncelle.
 
@@ -63,6 +63,7 @@ Hesap ve bulut altyapısı Supabase tarafından sağlanır (veriler Frankfurt, A
 - Çıkış yaparken hesabının verilerini bu cihazda bırakmayı (bir sonraki girişte hızlı açılır) ya da bu cihazdan silmeyi seçersin; buluttaki verilerin bundan etkilenmez. Uygulamanın cihazdaki verileri Android’in Google yedeğine ve cihazdan cihaza aktarıma dahil edilmez.
 - Uygulamaya erişemiyorsan hesabının silinmesini emrullahakkus@gmail.com adresine, hesabının e-posta adresinden yazarak isteyebilirsin; talebini en geç 30 gün içinde yerine getiririz.
 - Sunucu güvenlik kayıtları kısa süre tutulur ve ardından silinir.
+- İşlem kaydı: hesabınla ilgili yönetici işlemleri (ör. ban, oturum kapatma) ve hesap silme kaydı (hesabın e-postası ve kimliği, tarih, kimin sildiği, cihaz/tarayıcı bilgisi ve IP adresi) güvenlik ve hesap verebilirlik için 1 yıl tutulur, süre dolunca otomatik olarak silinir. Bu kayıt hesabını sildikten sonra da 1 yıl kalır.
 
 ### Güvenlik
 Uygulama ile sunucu arasındaki tüm iletişim şifrelidir (HTTPS/TLS). Sunucudaki her tablo satır düzeyinde erişim kurallarıyla korunur: bir seyahati yalnızca üyeleri görebilir, yalnızca yetkili üyeler değiştirebilir. Belge dosyaları herkese kapalı bir depoda tutulur. Hiçbir sistem kusursuz değildir; bir güvenlik ihlalini öğrenirsek yasaların gerektirdiği şekilde seni ve ilgili kurumları bilgilendiririz.
@@ -145,6 +146,7 @@ Accounts and cloud storage are provided by Supabase (data on servers in Frankfur
 - When you sign out you choose to keep your account's data on this device (it opens quickly next time) or to delete it from this device; your data in the cloud is not affected. The app's on-device data is not included in Android's Google backup or in device-to-device transfers.
 - If you can't use the app, you can ask for your account to be deleted by writing to emrullahakkus@gmail.com from the e-mail address of your account; we complete the request within 30 days.
 - Server security logs are kept for a short time and then deleted.
+- Action log: admin actions on your account (e.g. a ban or sign-out) and the account deletion record (your account's e-mail and ID, the date, who deleted it, device/browser details and IP address) are kept for 1 year for security and accountability, then deleted automatically. This record stays for 1 year after you delete your account.
 
 ### Security
 All communication between the app and the server is encrypted (HTTPS/TLS). Every table on the server is protected by row-level access rules: only a trip's members can see it and only authorised members can change it. Documents are kept in a private storage bucket. No system is perfect; if we learn of a security breach we will inform you and the authorities as the law requires.
