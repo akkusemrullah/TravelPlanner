@@ -126,6 +126,28 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP68_RestoringAParticipant_MakesThemThePayerAgain()
+        {
+            var ali = await _split.SaveParticipantAsync(_trip.Id, "Ali");
+            var can = await _split.SaveParticipantAsync(_trip.Id, "Can");
+            var dinner = new Expense { TripId = _trip.Id, Amount = 100m };
+            var taxi = new Expense { TripId = _trip.Id, Amount = 20m };
+            await _expenses.SaveAsync(dinner);
+            await _expenses.SaveAsync(taxi);
+            await _split.SaveSplitAsync(dinner, ali.Id, new[] { ali.Id, can.Id });
+            await _split.SaveSplitAsync(taxi, ali.Id, new[] { ali.Id, can.Id });
+            await _split.DeleteParticipantAsync(ali);
+            await _split.SaveSplitAsync(taxi, can.Id, new[] { can.Id }); // someone picked another payer meanwhile
+
+            var trash = new TrashService(_db.Service, new Mock<IAttachmentService>().Object);
+            await trash.RestoreAsync(Assert.Single(await trash.GetEntriesAsync()).BatchId);
+
+            Assert.Equal(ali.Id, (await _expenses.GetByIdAsync(dinner.Id))!.PaidByParticipantId);
+            Assert.Equal(can.Id, (await _expenses.GetByIdAsync(taxi.Id))!.PaidByParticipantId);
+            Assert.Contains(ali.Id, await _split.GetShareParticipantIdsAsync(dinner.Id));
+        }
+
+        [Fact]
         public async Task DeletingAnExpense_OrTheTrip_RemovesSplitRows()
         {
             var ali = await _split.SaveParticipantAsync(_trip.Id, "Ali");

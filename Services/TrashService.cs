@@ -91,6 +91,9 @@ namespace TravelPlanner.Services
                     conn.RestoreTracked(entity);
                     restored++;
 
+                    if (entity is Participant participant)
+                        RelinkPaidExpenses(conn, participant, item.PaidExpenseSyncIds);
+
                     if (entity is TripAttachment attachment)
                         restoredAttachments.Add(attachment);
                 }
@@ -203,6 +206,25 @@ namespace TravelPlanner.Services
         /// (activity → place, expense → payer) that doesn't is cleared; a required one (→ trip, → expense) makes
         /// the row unrestorable.
         /// </summary>
+        /// <summary>
+        /// TP-68: a restored participant becomes the payer again of the expenses they had paid - unless someone has
+        /// picked another payer for an expense since (or the expense is gone).
+        /// </summary>
+        private static void RelinkPaidExpenses(SQLiteConnection conn, Participant participant, string? expenseSyncIds)
+        {
+            if (string.IsNullOrEmpty(expenseSyncIds))
+                return;
+
+            foreach (var syncId in expenseSyncIds.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var expense = conn.Table<Expense>().FirstOrDefault(e => e.SyncId == syncId);
+                if (expense is null || expense.PaidByParticipantId is not null || expense.TripId != participant.TripId)
+                    continue;
+                expense.PaidByParticipantId = participant.Id;
+                conn.UpdateTracked(expense);
+            }
+        }
+
         private static bool ResolveReferences(SQLiteConnection conn, SyncEntityInfo info, ISyncEntity entity)
         {
             foreach (var key in info.ForeignKeys)
