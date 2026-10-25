@@ -8901,5 +8901,14 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Common_Close", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ülke ve şehirler başlamış seyahatlerden sayılır. Harcamalarım: senin payın..
+        /// </summary>
+        public static string Dashboard_StatsRule {
+            get {
+                return ResourceManager.GetString("Dashboard_StatsRule", resourceCulture);
+            }
+        }
     }
 }

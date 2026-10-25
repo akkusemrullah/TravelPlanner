@@ -3281,4 +3281,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Common_Close" xml:space="preserve">
     <value>Kapat</value>
   </data>
+  <data name="Dashboard_StatsRule" xml:space="preserve">
+    <value>Ülke ve şehirler başlamış seyahatlerden sayılır. Harcamalarım: senin payın.</value>
+  </data>
 </root>
