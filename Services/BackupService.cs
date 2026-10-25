@@ -101,10 +101,41 @@ namespace TravelPlanner.Services
             };
         }
 
+        /// <summary>
+        /// TP-72: removes backup zips this app exported into <paramref name="cacheDirectory"/> earlier (and restore
+        /// buffers a crash left behind) once they are older than <paramref name="olderThan"/>. The share sheet only
+        /// hands the file over - the app it went to may still be reading it - so it isn't deleted right after
+        /// sharing, but at the next export or app start. A copy of all the user's data shouldn't stay in the cache.
+        /// </summary>
+        public static int DeleteOldExports(string cacheDirectory, TimeSpan olderThan)
+        {
+            if (!Directory.Exists(cacheDirectory))
+                return 0;
+
+            var cutoff = DateTime.UtcNow - olderThan;
+            var deleted = 0;
+            foreach (var file in Directory.EnumerateFiles(cacheDirectory, "TravelPlanner-*.zip")
+                         .Concat(Directory.EnumerateFiles(cacheDirectory, "restore-*.tmp")))
+            {
+                try
+                {
+                    if (File.GetLastWriteTimeUtc(file) <= cutoff)
+                    {
+                        File.Delete(file);
+                        deleted++;
+                    }
+                }
+                catch (IOException) { /* in use - next time */ }
+                catch (UnauthorizedAccessException) { }
+            }
+            return deleted;
+        }
+
         public async Task<string> ExportAsync()
         {
             var data = await ReadAllAsync();
             Directory.CreateDirectory(_outputDirectory);
+            DeleteOldExports(_outputDirectory, TimeSpan.Zero);
             var path = Path.Combine(_outputDirectory, $"TravelPlanner-{data.ExportedAt:yyyy-MM-dd-HHmm}.zip");
 
             await Task.Run(() =>
@@ -152,7 +183,8 @@ namespace TravelPlanner.Services
                     var entry = zip.GetEntry(DataEntryName) ?? throw new InvalidBackupException("missing data entry");
                     if (entry.Length > MaxDataEntryBytes)
                         throw new InvalidBackupException("data entry too large");
-                    using var stream = entry.Open();
+                    // TP-72: entry.Length is what the zip claims - count what really comes out (zip bomb)
+                    using var stream = new LimitedReadStream(entry.Open(), MaxDataEntryBytes);
                     data = JsonSerializer.Deserialize<BackupData>(stream, JsonOptions) ?? throw new InvalidBackupException("empty");
                 }
                 else
@@ -174,6 +206,11 @@ namespace TravelPlanner.Services
             {
                 zip?.Dispose();
                 throw;
+            }
+            catch (IOException ex) when (ex.InnerException is InvalidBackupException inner)
+            {
+                zip?.Dispose();
+                throw inner;
             }
 
             using (zip)
@@ -408,6 +445,7 @@ namespace TravelPlanner.Services
             }
 
             var restored = 0;
+            long written = 0;
             foreach (var attachment in attachments)
             {
                 var entry = zip.GetEntry(attachment.RelativePath.Replace('\\', '/'));
@@ -422,17 +460,71 @@ namespace TravelPlanner.Services
                 try
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                    entry.ExtractToFile(target, overwrite: true);
+                    // TP-72: copy with a real byte limit - per file, and for all files together - instead of trusting
+                    // the size the zip claims (ExtractToFile would write whatever the entry inflates to)
+                    var limit = Math.Min(AttachmentService.MaxFileBytes, MaxBackupBytes - written);
+                    using (var source = new LimitedReadStream(entry.Open(), limit))
+                    using (var output = File.Create(target))
+                        source.CopyTo(output);
+                    written += new FileInfo(target).Length;
                     restored++;
                 }
                 catch (Exception ex)
                 {
+                    TryDelete(target); // a half-written or too-large file
                     // The data is already restored; one unreadable file must not fail the whole restore.
                     System.Diagnostics.Debug.WriteLine($"[BackupService] Could not restore {attachment.RelativePath}: {ex}");
                 }
             }
 
             return restored;
+        }
+
+        private static void TryDelete(string path)
+        {
+            try { File.Delete(path); } catch (IOException) { } catch (UnauthorizedAccessException) { }
+        }
+
+        /// <summary>TP-72: a read-only stream that fails once more than <c>maxBytes</c> have come out of it.</summary>
+        internal sealed class LimitedReadStream(Stream inner, long maxBytes) : Stream
+        {
+            private long _read;
+
+            public override bool CanRead => true;
+            public override bool CanSeek => false;
+            public override bool CanWrite => false;
+            public override long Length => throw new NotSupportedException();
+            public override long Position { get => _read; set => throw new NotSupportedException(); }
+
+            public override int Read(byte[] buffer, int offset, int count) => Count(inner.Read(buffer, offset, count));
+
+            public override int Read(Span<byte> buffer) => Count(inner.Read(buffer));
+
+            public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
+                Count(await inner.ReadAsync(buffer, cancellationToken));
+
+            public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
+                ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+
+            private int Count(int read)
+            {
+                _read += read;
+                if (_read > maxBytes)
+                    throw new InvalidBackupException("entry larger than allowed");
+                return read;
+            }
+
+            public override void Flush() { }
+            public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+            public override void SetLength(long value) => throw new NotSupportedException();
+            public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+            protected override void Dispose(bool disposing)
+            {
+                if (disposing)
+                    inner.Dispose();
+                base.Dispose(disposing);
+            }
         }
 
         private static async Task CopyWithLimitAsync(Stream source, Stream target, long maxBytes)

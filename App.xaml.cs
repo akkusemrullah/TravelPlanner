@@ -366,6 +366,8 @@ namespace TravelPlanner
             try
             {
                 await _trashService.PurgeExpiredAsync();
+                // TP-72: backup zips shared earlier shouldn't stay in the cache
+                Services.BackupService.DeleteOldExports(FileSystem.CacheDirectory, TimeSpan.FromHours(1));
             }
             catch (Exception ex)
             {
