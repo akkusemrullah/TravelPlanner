@@ -54,8 +54,10 @@
                            SemanticProperties.Description="{x:Static res:AppResources.TripList_SearchPlaceholder}" />
             </Border>
 
-            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                <HorizontalStackLayout Spacing="8" BindableLayout.ItemsSource="{Binding StatusFilters}">
+            <!-- TP-62: the chips scroll out to the screen edges (negative margin + inner padding), so the last one isn't
+                 cut at the 16 dp padding and it is clear that the row scrolls. -->
+            <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="-16,0">
+                <HorizontalStackLayout Spacing="6" Padding="16,0" BindableLayout.ItemsSource="{Binding StatusFilters}">
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:TripStatusFilterOption">
                             <Border Style="{StaticResource Chip}" SemanticProperties.Description="{Binding Label}">

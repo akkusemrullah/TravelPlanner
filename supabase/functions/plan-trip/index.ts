@@ -214,7 +214,8 @@ Deno.serve(async (req) => {
   const openAiKey = Deno.env.get("OPENAI_API_KEY");
   if (!openAiKey) {
     console.error("OPENAI_API_KEY secret is not set");
-    return await done(fail(502, "ai_not_configured"), "not_configured", { errorKind: "not_configured" });
+    // TP-65: the token hasn't been checked yet (that is the quota call), so its user id isn't logged
+    return await done(fail(502, "ai_not_configured"), "not_configured", { errorKind: "not_configured", userId: null });
   }
 
   // TP-57: a background request claims its job before the quota, so a second plan at the same time costs nothing

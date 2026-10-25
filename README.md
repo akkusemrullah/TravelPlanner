@@ -134,7 +134,7 @@ Tests/        Birim test projesi
 
 ## Platform notları
 
-- **Android 12+:** Hatırlatmalar tam zamanlı alarm kullanır (`SCHEDULE_EXACT_ALARM`). Android 14'te bu izin varsayılan olarak kapalıdır. Hatırlatmalar geç gelirse uygulama ayarlarından açılmalıdır.
+- **Android:** Hatırlatmalar tam zamanlı alarm izni (`SCHEDULE_EXACT_ALARM`) istemez (TP-58); sistem birkaç dakika geciktirebilir, Doze modunda da çalışır.
 - **Windows:** Plugin.LocalNotification Windows'u desteklemez. Uygulama çalışır ama hatırlatma gönderilmez.
 
 ## Yayın ve CI/CD

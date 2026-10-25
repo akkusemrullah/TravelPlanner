@@ -66,9 +66,21 @@ namespace TravelPlanner.Tests
 
             Assert.Equal(TripStatus.Ongoing, ticket.Status);
             Assert.Equal(string.Format(AppResources.Ticket_DayOfFormat, 4, 8), ticket.CountdownLabel);
-            Assert.Equal(string.Format(AppResources.Ticket_DaysLeftFormat, 4), ticket.CountdownValue);
+            Assert.Equal(string.Format(AppResources.Ticket_DaysMoreFormat, 4), ticket.CountdownValue);
             Assert.InRange(ticket.Progress, 0.42, 0.44); // 3 of 7 days
+            Assert.Equal(AppResources.Ticket_TomorrowLast, new TripTicket(Roma(), today: Start.AddDays(6)).CountdownValue);
             Assert.Equal(AppResources.Ticket_LastDay, new TripTicket(Roma(), today: Start.AddDays(7)).CountdownValue);
+        }
+
+        [Fact]
+        public void TwoDayTrip_FirstDay_SaysLastDayTomorrow()
+        {
+            // TP-60: Ankara 25-26 Oct, today the 25th - "1. gün / 2" and "Yarın son gün", not "1 gün kaldı"
+            var trip = new Trip { Name = "Ankara", City = "Ankara", StartDate = Start, EndDate = Start.AddDays(1) };
+            var ticket = new TripTicket(trip, today: Start);
+
+            Assert.Equal(string.Format(AppResources.Ticket_DayOfFormat, 1, 2), ticket.CountdownLabel);
+            Assert.Equal(AppResources.Ticket_TomorrowLast, ticket.CountdownValue);
         }
 
         [Fact]

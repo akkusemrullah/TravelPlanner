@@ -151,8 +151,8 @@ namespace TravelPlanner.ViewModels
             HasNoTrips = trips.Count == 0;
             HasAnyTrips = !HasNoTrips;
 
-            // "Gezilen ülke" = countries from trips that have actually happened, not ones merely
-            // planned - so this only counts trips whose end date has already passed.
+            // "Gezilen ülke" = countries of trips that have started (TP-59: an ongoing trip counts too),
+            // not ones merely planned.
             VisitedCountriesCount = CountVisitedCountries(trips, DateTime.Today);
             VisitedCitiesCount = CountVisitedCities(trips, DateTime.Today);
 
@@ -179,28 +179,28 @@ namespace TravelPlanner.ViewModels
             RecentTrips.ReplaceAll(recent.Select(trip => new TripSummaryItem(trip)));
         }, AppResources.Dashboard_LoadError);
 
-        /// <summary>
-        /// Trips can have different currencies (TP-403): convert every currency's total into the default one
-        /// with the free Frankfurter rate. If a rate is unavailable (offline, never fetched), the totals are shown
-        /// side by side instead ("₺12.500 + €340") rather than adding up amounts of different currencies.
-        /// </summary>
-        /// <summary>"Gezilen ülke": countries of trips that are over; "Türkiye" and "Türkiye Cumhuriyeti" are one country.</summary>
+        /// <summary>"Gezilen ülke": countries of trips that have started; "Türkiye" and "Türkiye Cumhuriyeti" are one country.</summary>
         internal static int CountVisitedCountries(IEnumerable<Trip> trips, DateTime today) => trips
-            .Where(t => t.EndDate.Date < today.Date && !string.IsNullOrWhiteSpace(t.Country))
+            .Where(t => t.StartDate.Date <= today.Date && !string.IsNullOrWhiteSpace(t.Country))
             .Select(t => CountryNames.Key(t.Country))
             .Distinct(StringComparer.Ordinal)
             .Count();
 
         /// <summary>
-        /// "Gezilen şehir" - like the countries: cities of trips that are over. The same city name in two countries
+        /// "Gezilen şehir" - like the countries: cities of trips that have started. The same city name in two countries
         /// (Paris, France / Paris, Texas) counts twice; case and spaces don't matter.
         /// </summary>
         internal static int CountVisitedCities(IEnumerable<Trip> trips, DateTime today) => trips
-            .Where(t => t.EndDate.Date < today.Date && !string.IsNullOrWhiteSpace(t.City))
+            .Where(t => t.StartDate.Date <= today.Date && !string.IsNullOrWhiteSpace(t.City))
             .Select(t => CountryNames.Key(t.Country) + "|" + t.City.Trim().ToUpperInvariant())
             .Distinct(StringComparer.Ordinal)
             .Count();
 
+        /// <summary>
+        /// Trips can have different currencies (TP-403): convert every currency's total into the default one
+        /// with the free Frankfurter rate. If a rate is unavailable (offline, never fetched), the totals are shown
+        /// side by side instead ("₺12.500 + €340") rather than adding up amounts of different currencies.
+        /// </summary>
         private async Task<string> FormatCombinedTotalAsync(Dictionary<string, decimal> totals)
         {
             var target = MoneyFormatter.CurrencyCode;

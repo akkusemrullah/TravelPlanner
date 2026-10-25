@@ -11,9 +11,8 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-	<!-- TP-107: trip reminders are scheduled for an exact time; Android 12+ needs the exact-alarm
-	     permission, and RECEIVE_BOOT_COMPLETED lets Plugin.LocalNotification restore them after a reboot. -->
-	<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+	<!-- TP-107/TP-58: trip reminders use inexact alarms (no SCHEDULE_EXACT_ALARM: Play allows it only for alarm and
+	     calendar apps). RECEIVE_BOOT_COMPLETED lets Plugin.LocalNotification restore them after a reboot. -->
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<uses-permission android:name="android.permission.VIBRATE" />

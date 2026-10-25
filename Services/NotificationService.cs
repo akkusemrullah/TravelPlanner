@@ -1,5 +1,6 @@
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
+using Plugin.LocalNotification.Core.Models.AndroidOption;
 using TravelPlanner.Helpers;
 using TravelPlanner.Models;
 using TravelPlanner.Resources.Strings;
@@ -173,7 +174,13 @@ namespace TravelPlanner.Services
                 Title = title,
                 Description = message,
                 // Plugin.LocalNotification 14: NotifyTime is a DateTimeOffset (local wall-clock time, as before).
-                Schedule = new NotificationRequestSchedule { NotifyTime = new DateTimeOffset(notifyTime) }
+                Schedule = new NotificationRequestSchedule
+                {
+                    NotifyTime = new DateTimeOffset(notifyTime),
+                    // TP-58: no SCHEDULE_EXACT_ALARM (Play allows it only for alarm/calendar apps, and Android 14+ denies
+                    // it by default). A trip reminder may come a few minutes late; it still fires in Doze.
+                    Android = new AndroidScheduleOptions { ScheduleMode = AndroidScheduleMode.InexactAllowWhileIdle }
+                }
             };
 
             return LocalNotificationCenter.Current.Show(request);

@@ -12,7 +12,7 @@ namespace TravelPlanner.Tests
             new() { Name = city, City = city, Country = country, StartDate = end.AddDays(-2), EndDate = end };
 
         [Fact]
-        public void VisitedCities_CountsFinishedTrips_OncePerCityAndCountry()
+        public void VisitedCities_CountsStartedTrips_OncePerCityAndCountry()
         {
             var trips = new[]
             {
@@ -20,12 +20,22 @@ namespace TravelPlanner.Tests
                 Trip(" roma ", "İtalya", Today.AddDays(-10)),       // same city again
                 Trip("Paris", "Fransa", Today.AddDays(-5)),
                 Trip("Paris", "ABD", Today.AddDays(-3)),            // another Paris
-                Trip("Bari", "İtalya", Today.AddDays(5)),           // not over yet
-                Trip("Bari", "İtalya", Today),                      // ends today: not over yet
+                Trip("Bari", "İtalya", Today.AddDays(5)),           // starts in 3 days: not yet
+                Trip("Bari", "İtalya", Today),                      // ongoing: counts (TP-59)
                 Trip(" ", "İtalya", Today.AddDays(-1)),             // no city
             };
 
-            Assert.Equal(3, DashboardViewModel.CountVisitedCities(trips, Today));
+            Assert.Equal(4, DashboardViewModel.CountVisitedCities(trips, Today));
+        }
+
+        [Fact]
+        public void OngoingTrip_CountsAsVisited()
+        {
+            // TP-59: "DEVAM EDİYOR" Ankara with Gezilen ülke/şehir 0 looked like a bug
+            var trips = new[] { new Trip { Name = "Ankara", City = "Ankara", Country = "Türkiye", StartDate = Today, EndDate = Today.AddDays(1) } };
+
+            Assert.Equal(1, DashboardViewModel.CountVisitedCountries(trips, Today));
+            Assert.Equal(1, DashboardViewModel.CountVisitedCities(trips, Today));
         }
 
         [Fact]
@@ -39,7 +49,7 @@ namespace TravelPlanner.Tests
                 Trip("Girne", "Kuzey Kıbrıs Türk Cumhuriyeti", Today.AddDays(-4)), // not Türkiye
                 Trip("Roma", "İtalya", Today.AddDays(-3)),
                 Trip("Milano", "italya ", Today.AddDays(-2)),
-                Trip("Paris", "Fransa", Today.AddDays(3)),                         // not over yet
+                Trip("Paris", "Fransa", Today.AddDays(3)),                         // starts tomorrow: not yet
             };
 
             Assert.Equal(3, DashboardViewModel.CountVisitedCountries(trips, Today));

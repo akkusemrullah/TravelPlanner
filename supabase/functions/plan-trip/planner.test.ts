@@ -48,6 +48,12 @@ test("user text goes in as data, the language is set", () => {
   assert.equal(JSON.parse(user.content).notes, "Vejetaryeniz");
 });
 
+test("an interest that doesn't fit the destination is not forced (TP-61)", () => {
+  const [system] = buildMessages(parseRequest({ ...valid, destination: "Ankara", interests: ["beach", "history"] }).request);
+  assert.match(system.content, /does not fit the destination/);
+  assert.match(system.content, /skip it and say so in one tip/);
+});
+
 test("schema is strict: every object lists all its properties as required", () => {
   const check = (node: any) => {
     if (node?.type === "object") {

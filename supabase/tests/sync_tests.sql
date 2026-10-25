@@ -2098,4 +2098,21 @@ delete from auth.users where id = '00000000-0000-0000-0000-0000000a3901';
 select test.eq((select count(*)::int from private.ai_plan_jobs), 0, '39: a deleted account takes its jobs with it');
 delete from auth.users where id = '00000000-0000-0000-0000-0000000a3902';
 
+-- ------------------------------------------------------------------------------- 40: AI day in Türkiye's clock (TP-63)
+select test.eq((select count(*)::int from pg_proc p where p.oid in (
+        'public.ai_plan_quota_status(text)'::regprocedure, 'public.ai_plan_quota(text)'::regprocedure,
+        'public.admin_overview()'::regprocedure, 'private.admin_user_row(uuid)'::regprocedure,
+        'public.admin_user(uuid)'::regprocedure, 'public.admin_reset_ai_today(uuid)'::regprocedure,
+        'private.ai_note_device(uuid,text)'::regprocedure, 'public.admin_settings()'::regprocedure,
+        'public.admin_ai_usage_daily(integer)'::regprocedure)
+    and 'TimeZone=Europe/Istanbul' = any (p.proconfig)), 9, '40: every AI counter function counts days in Europe/Istanbul');
+create function pg_temp.tz_today() returns date language sql set timezone = 'Europe/Istanbul' as $$ select current_date $$;
+select test.eq(pg_temp.tz_today(), (now() at time zone 'Europe/Istanbul')::date, '40: current_date inside such a function is Türkiye''s date');
+
+-- ------------------------------------------------------------------------------- 41: invite codes fully random (TP-64)
+create temp table invite_codes as select private.new_invite_code() as c from generate_series(1, 4000);
+select test.eq((select count(*)::int from invite_codes where c !~ '^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{8}$'), 0, '41: 8 characters from the alphabet');
+select test.eq((select count(distinct substr(c, 7, 1))::int from invite_codes), 31, '41: the 7th character uses all 31 characters (was 16)');
+select test.eq((select count(distinct c)::int from invite_codes), 4000, '41: no repeats in 4000 codes');
+
 \echo ALL SYNC TESTS PASSED

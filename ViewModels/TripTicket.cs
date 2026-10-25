@@ -47,7 +47,13 @@ namespace TravelPlanner.ViewModels
                 case TripStatus.Ongoing:
                     var left = (end - now).Days;
                     CountdownLabel = string.Format(culture, AppResources.Ticket_DayOfFormat, (now - start).Days + 1, days);
-                    CountdownValue = left == 0 ? AppResources.Ticket_LastDay : string.Format(culture, AppResources.Ticket_DaysLeftFormat, left);
+                    // TP-60: "1. gün / 2" next to "1 gün kaldı" read as a contradiction - say what is left after today
+                    CountdownValue = left switch
+                    {
+                        0 => AppResources.Ticket_LastDay,
+                        1 => AppResources.Ticket_TomorrowLast,
+                        _ => string.Format(culture, AppResources.Ticket_DaysMoreFormat, left)
+                    };
                     break;
                 default:
                     CountdownLabel = string.Empty;

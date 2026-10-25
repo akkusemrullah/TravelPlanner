@@ -175,6 +175,8 @@ export function buildMessages(r: PlanRequest, venues: FoodVenue[] = []): { role:
     "   \"for photos\", \"the interior\" or \"a walk at the shore\". A restaurant or cafe is used at most once too.",
     "5. If there are not enough real sights for every day, plan fewer activities (2 per day is fine), add day trips to",
     "   nearby towns, or leave free time - never repeat a place and never invent one.",
+    "   An interest that does not fit the destination (e.g. beach for an inland city like Ankara) is not forced: use a real",
+    "   nearby equivalent only if one exists (a lake beach, a river shore), otherwise skip it and say so in one tip.",
     "6. Order each day's activities as they are done, with realistic times, then add meals near that day's sights.",
     "7. Check before answering: no place on two days, no two far-apart areas on one day, every activity at a place has",
     "   its place_key, nothing generic.",
