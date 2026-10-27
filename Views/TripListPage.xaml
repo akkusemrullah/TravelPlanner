@@ -184,7 +184,11 @@
                 <Button Text="{x:Static res:AppResources.Dashboard_CreateTrip}" Command="{Binding GoToAddTripCommand}"
                         Style="{StaticResource Btn.Primary}" HorizontalOptions="Center" />
                 <Button Text="{x:Static res:AppResources.Join_Short}" Command="{Binding JoinTripCommand}"
-                        Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />
+                        Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" ContentLayout="Left,8">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Ticket}" Size="16" Color="{DynamicResource tp-text}" />
+                    </Button.ImageSource>
+                </Button>
             </VerticalStackLayout>
 
             <!-- Filters match nothing -->
