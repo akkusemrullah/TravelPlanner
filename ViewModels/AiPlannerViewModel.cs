@@ -764,27 +764,8 @@ namespace TravelPlanner.ViewModels
         /// TP-104: the preview is one flat list, drawn as the prototype's cards - each day (its header and activities),
         /// and the places, tasks and tips under their section title, become one card of slices.
         /// </summary>
-        internal static void AssignCardPositions(IEnumerable<object> rows)
-        {
-            var cards = new List<List<IListPositioned>>();
-            List<IListPositioned>? card = null;
-            foreach (var row in rows)
-            {
-                if (row is not IListPositioned slice)
-                {
-                    card = null; // a section title ends the card above it
-                    continue;
-                }
-                if (row is AiPreviewDay || card is null)
-                {
-                    card = new List<IListPositioned>();
-                    cards.Add(card);
-                }
-                card.Add(slice);
-            }
-            foreach (var each in cards)
-                ListPositions.Update(each);
-        }
+        internal static void AssignCardPositions(IEnumerable<object> rows) =>
+            ListPositions.AssignCards(rows, row => row is AiPreviewDay);
 
         [RelayCommand]
         private void StartOver()

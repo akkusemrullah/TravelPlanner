@@ -43,6 +43,32 @@ namespace TravelPlanner.Helpers
             }
         }
 
+        /// <summary>
+        /// TP-104/105: a flat list drawn as several cards. Rows that aren't <see cref="IListPositioned"/> (section titles)
+        /// end the card above them; <paramref name="startsCard"/> rows (a day header) start a new one.
+        /// </summary>
+        public static void AssignCards(IEnumerable<object> rows, Func<object, bool> startsCard)
+        {
+            var cards = new List<List<IListPositioned>>();
+            List<IListPositioned>? card = null;
+            foreach (var row in rows)
+            {
+                if (row is not IListPositioned slice)
+                {
+                    card = null;
+                    continue;
+                }
+                if (card is null || startsCard(row))
+                {
+                    card = new List<IListPositioned>();
+                    cards.Add(card);
+                }
+                card.Add(slice);
+            }
+            foreach (var each in cards)
+                Update(each);
+        }
+
         /// <summary>True when the row has a row above it (used for inset dividers in plain stacks).</summary>
         public static bool HasRowAbove(ListPosition position) => position is ListPosition.Middle or ListPosition.Last;
     }

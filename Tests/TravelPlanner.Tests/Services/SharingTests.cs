@@ -688,6 +688,17 @@ namespace TravelPlanner.Tests
             dialogs.Verify(d => d.ShowMessageAsync(It.IsAny<string>(), AppResources.Access_ReadOnly), Times.Once);
             dialogs.Verify(d => d.ShowErrorAsync(It.IsAny<string>(), It.IsAny<Exception?>()), Times.Never);
         }
+
+        [Fact]
+        public void TP105_TrashRow_RedWhenAWeekOrLessIsLeft()
+        {
+            var now = DateTime.UtcNow;
+            var soon = new TrashItemView(new TrashEntry("a", "Todo", "x", null, now.AddDays(-25), null, 1), null, now);
+            var later = new TrashItemView(new TrashEntry("b", "Todo", "y", null, now.AddDays(-10), null, 1), null, now);
+
+            Assert.True(soon.IsExpiringSoon);
+            Assert.False(later.IsExpiringSoon);
+        }
     }
 
     public class TrashPermanentDeleteTests

@@ -7,6 +7,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:controls="clr-namespace:TravelPlanner.Controls"
              x:Class="TravelPlanner.Views.HelpCenterPage"
              x:DataType="vm:HelpCenterViewModel"
              Shell.NavBarIsVisible="False"
@@ -26,22 +27,13 @@
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,20,16,32" Spacing="20">
+            <VerticalStackLayout Padding="16,16,16,40" Spacing="16">
 
-                <!-- ════════ Header + search ════════ -->
+                <!-- ════════ Header + search (TP-105: the prototype's big question + search box) ════════ -->
                 <VerticalStackLayout Spacing="12">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" VerticalOptions="Center">
-                            <Label Style="{StaticResource Icon.Accent}" Text="{StaticResource Ic.Compass}" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="{x:Static res:AppResources.Help_Heading}" Style="{StaticResource Text.H2}" LineBreakMode="WordWrap"
-                                   SemanticProperties.HeadingLevel="Level1" />
-                            <Label Text="{x:Static res:AppResources.Help_Subtitle}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                        </VerticalStackLayout>
-                    </Grid>
-                    <!-- SearchBar draws its own magnifier/clear icons; the Border only supplies the field chrome. -->
-                    <Border Style="{StaticResource Input}" Padding="2,0">
+                    <Label Text="{x:Static res:AppResources.Help_Heading}" FontFamily="InterBold" FontSize="22" TextColor="{DynamicResource tp-text}"
+                           LineBreakMode="WordWrap" SemanticProperties.HeadingLevel="Level1" />
+                    <Border Style="{StaticResource SearchBox}">
                         <SearchBar Text="{Binding SearchText}" Placeholder="{x:Static res:AppResources.Help_SearchPlaceholder}"
                                    SemanticProperties.Description="{x:Static res:AppResources.Help_SearchPlaceholder}" />
                     </Border>
@@ -65,21 +57,20 @@
                                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:HelpCenterViewModel}}, Path=ToggleCommand}"
                                                                 CommandParameter="{Binding .}" />
                                                         </Grid.GestureRecognizers>
-                                                        <Label Grid.Column="0" Text="{Binding Question}" Style="{StaticResource Text.Body}" FontFamily="InterSemiBold"
+                                                        <Label Grid.Column="0" Text="{Binding Question}" FontFamily="InterMedium" FontSize="14.5" TextColor="{DynamicResource tp-text}"
                                                                LineBreakMode="WordWrap" VerticalOptions="Center" />
-                                                        <Label Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronDown}"
+                                                        <Label Grid.Column="1" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.ChevronDown}"
                                                                TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center">
                                                             <Label.Triggers>
                                                                 <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
                                                                     <Setter Property="Rotation" Value="180" />
-                                                                    <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
                                                                 </DataTrigger>
                                                             </Label.Triggers>
                                                         </Label>
                                                     </Grid>
-                                                    <Label Text="{Binding Answer}" Style="{StaticResource Text.Body}" FontSize="14" LineHeight="1.4"
+                                                    <Label Text="{Binding Answer}" FontSize="13.5" LineHeight="1.4"
                                                            TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap"
-                                                           Padding="16,0,16,16" IsVisible="{Binding IsExpanded}" />
+                                                           Padding="16,0,16,16" Margin="0,-4,0,0" IsVisible="{Binding IsExpanded}" />
                                                     <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
                                                 </VerticalStackLayout>
                                             </DataTemplate>
@@ -94,26 +85,26 @@
                 <!-- Nothing matched the search -->
                 <VerticalStackLayout IsVisible="{Binding NoResults}" Spacing="12" Padding="16,8">
                     <Border Style="{StaticResource EmptyIcon}">
-                        <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-accent-text}" />
+                        <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.SearchX}" TextColor="{DynamicResource tp-accent-text}" />
                     </Border>
-                    <Label Text="{x:Static res:AppResources.Help_NoResults}" Style="{StaticResource EmptyStateTextLabel}" />
+                    <Label Text="{x:Static res:AppResources.Help_NoResults}" Style="{StaticResource Text.EmptyText}" />
                     <Button Text="{x:Static res:AppResources.Help_ClearSearch}" Command="{Binding ClearSearchCommand}"
-                            Style="{StaticResource Btn.Ghost.Sm}" HorizontalOptions="Center" />
+                            Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />
                 </VerticalStackLayout>
 
-                <!-- ════════ Contact ════════ -->
-                <Border Style="{StaticResource Card}" Padding="20">
-                    <VerticalStackLayout Spacing="12">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                            <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" VerticalOptions="Start">
-                                <Label Style="{StaticResource Icon.Accent}" Text="{StaticResource Ic.Notebook}" />
-                            </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                <Label Text="{x:Static res:AppResources.Help_ContactTitle}" Style="{StaticResource Text.Title}" SemanticProperties.HeadingLevel="Level2" />
-                                <Label Text="{Binding ContactHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                            </VerticalStackLayout>
-                        </Grid>
-                        <Button Text="{x:Static res:AppResources.Help_WriteToUs}" Command="{Binding ContactCommand}" Style="{StaticResource Btn.Primary}" />
+                <!-- ════════ Contact (TP-105: centred card like the prototype) ════════ -->
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="0">
+                        <Label Text="{x:Static res:AppResources.Help_ContactTitle}" FontFamily="InterSemiBold" FontSize="15" TextColor="{DynamicResource tp-text}"
+                               HorizontalTextAlignment="Center" SemanticProperties.HeadingLevel="Level2" />
+                        <Label Text="{x:Static res:AppResources.Help_ContactShort}" FontSize="13" TextColor="{DynamicResource tp-text-3}" HorizontalTextAlignment="Center"
+                               LineBreakMode="WordWrap" Margin="0,4,0,0" />
+                        <Button Text="{x:Static res:AppResources.Help_WriteToUs}" Command="{Binding ContactCommand}" Style="{StaticResource Btn.Primary}"
+                                HorizontalOptions="Center" Margin="0,12,0,0" Padding="20,0" ContentLayout="Left,8">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Mail}" Size="16" Color="{DynamicResource tp-on-primary}" />
+                            </Button.ImageSource>
+                        </Button>
                     </VerticalStackLayout>
                 </Border>
 
@@ -122,41 +113,14 @@
                     <Label Text="{x:Static res:AppResources.Profile_Legal}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="52"
-                                  SemanticProperties.Description="{x:Static res:AppResources.Privacy_Title}">
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="privacy" />
-                                </Grid.GestureRecognizers>
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Lock}" TextColor="{DynamicResource tp-accent-text}" />
-                                </Border>
-                                <Label Grid.Column="1" Text="{x:Static res:AppResources.Privacy_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
-                                <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
-                            </Grid>
-                            <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="52"
-                                  SemanticProperties.Description="{x:Static res:AppResources.Kvkk_Title}">
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="kvkk" />
-                                </Grid.GestureRecognizers>
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Info}">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Shield}" TextColor="{DynamicResource tp-info}" />
-                                </Border>
-                                <Label Grid.Column="1" Text="{x:Static res:AppResources.Kvkk_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
-                                <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
-                            </Grid>
-                            <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,8" MinimumHeightRequest="52"
-                                  SemanticProperties.Description="{x:Static res:AppResources.Terms_Title}">
-                                <Grid.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding OpenDocumentCommand}" CommandParameter="terms" />
-                                </Grid.GestureRecognizers>
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Scale}" TextColor="{DynamicResource tp-warning}" />
-                                </Border>
-                                <Label Grid.Column="1" Text="{x:Static res:AppResources.Terms_Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
-                                <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
-                            </Grid>
+                            <controls:ListRow Icon="{StaticResource Ic.ShieldPlain}" Tone="info" Title="{x:Static res:AppResources.Privacy_Title}"
+                                              Command="{Binding OpenDocumentCommand}" CommandParameter="privacy" />
+                            <BoxView Style="{StaticResource Divider.Inset}" />
+                            <controls:ListRow Icon="{StaticResource Ic.FileText}" Tone="info" Title="{x:Static res:AppResources.Kvkk_Title}"
+                                              Command="{Binding OpenDocumentCommand}" CommandParameter="kvkk" />
+                            <BoxView Style="{StaticResource Divider.Inset}" />
+                            <controls:ListRow Icon="{StaticResource Ic.BookOpen}" Tone="info" Title="{x:Static res:AppResources.Terms_Title}"
+                                              Command="{Binding OpenDocumentCommand}" CommandParameter="terms" />
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>

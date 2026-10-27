@@ -3502,4 +3502,31 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="AiPlan_SummaryTitle" xml:space="preserve">
     <value>Plan summary</value>
   </data>
+  <data name="Explore_NoResultsText" xml:space="preserve">
+    <value>No sample plan matches your search or filters.</value>
+  </data>
+  <data name="Explore_EmptyText" xml:space="preserve">
+    <value>Our team is preparing new routes. They will be here soon.</value>
+  </data>
+  <data name="Explore_LoadErrorText" xml:space="preserve">
+    <value>Something went wrong. Try again in a moment.</value>
+  </data>
+  <data name="Explore_EndOfList" xml:space="preserve">
+    <value>That is all</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>Refresh</value>
+  </data>
+  <data name="Settings_NameHint" xml:space="preserve">
+    <value>Used for the Home greeting and your avatar.</value>
+  </data>
+  <data name="Settings_CurrencyHint" xml:space="preserve">
+    <value>Used for new trips and the Home total.</value>
+  </data>
+  <data name="Settings_ThemeHint" xml:space="preserve">
+    <value>Applied right away.</value>
+  </data>
+  <data name="Help_ContactShort" xml:space="preserve">
+    <value>We usually reply within a few working days.</value>
+  </data>
 </root>

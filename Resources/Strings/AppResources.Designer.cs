@@ -9420,5 +9420,59 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("AiPlan_SummaryTitle", resourceCulture);
             }
         }
+
+        public static string Explore_NoResultsText {
+            get {
+                return ResourceManager.GetString("Explore_NoResultsText", resourceCulture);
+            }
+        }
+
+        public static string Explore_EmptyText {
+            get {
+                return ResourceManager.GetString("Explore_EmptyText", resourceCulture);
+            }
+        }
+
+        public static string Explore_LoadErrorText {
+            get {
+                return ResourceManager.GetString("Explore_LoadErrorText", resourceCulture);
+            }
+        }
+
+        public static string Explore_EndOfList {
+            get {
+                return ResourceManager.GetString("Explore_EndOfList", resourceCulture);
+            }
+        }
+
+        public static string Common_Refresh {
+            get {
+                return ResourceManager.GetString("Common_Refresh", resourceCulture);
+            }
+        }
+
+        public static string Settings_NameHint {
+            get {
+                return ResourceManager.GetString("Settings_NameHint", resourceCulture);
+            }
+        }
+
+        public static string Settings_CurrencyHint {
+            get {
+                return ResourceManager.GetString("Settings_CurrencyHint", resourceCulture);
+            }
+        }
+
+        public static string Settings_ThemeHint {
+            get {
+                return ResourceManager.GetString("Settings_ThemeHint", resourceCulture);
+            }
+        }
+
+        public static string Help_ContactShort {
+            get {
+                return ResourceManager.GetString("Help_ContactShort", resourceCulture);
+            }
+        }
     }
 }

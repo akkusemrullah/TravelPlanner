@@ -114,6 +114,18 @@ namespace TravelPlanner.Tests
                     .ReturnsAsync(typed);
         }
 
+        [Fact]
+        public void TP105_ThemeTilesAndLanguageSegments_PickTheOption()
+        {
+            var vm = CreateViewModel(new SettingsService(_preferences));
+
+            vm.SelectThemeCommand.Execute(AppThemeOption.Dark);
+            vm.SelectLanguageCommand.Execute(AppLanguages.English);
+
+            Assert.Equal(AppThemeOption.Dark, vm.SelectedTheme?.Value);
+            Assert.Equal(AppLanguages.English, vm.SelectedLanguage?.Value);
+        }
+
         [Theory]
         [InlineData("SİL")]
         [InlineData("sil")]

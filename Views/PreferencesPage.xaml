@@ -4,6 +4,7 @@
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:services="clr-namespace:TravelPlanner.Services"
              x:Class="TravelPlanner.Views.PreferencesPage"
              x:DataType="vm:SettingsViewModel"
              Shell.NavBarIsVisible="False"
@@ -25,83 +26,211 @@
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
+        <!-- TP-105: the prototype's form - plain fields with hints, theme as three tiles, language as a segment -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,20,16,24" Spacing="16">
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="20">
 
-                <Border Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="6">
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
                         <Label Text="{x:Static res:AppResources.Settings_NameLabel}" Style="{StaticResource Text.Field}" />
-                        <Border Style="{StaticResource Input}">
-                            <Entry Text="{Binding UserName}" Placeholder="{x:Static res:AppResources.Settings_NamePlaceholder}" MaxLength="40" Keyboard="{x:Static helpers:AppKeyboards.Words}" />
-                        </Border>
-                    </VerticalStackLayout>
-                </Border>
+                        <Label Grid.Column="1" Text="{Binding UserName.Length, StringFormat='{0}/40'}" Style="{StaticResource Text.Counter}" />
+                    </Grid>
+                    <Border Style="{StaticResource Input}">
+                        <Entry Text="{Binding UserName}" Placeholder="{x:Static res:AppResources.Settings_NamePlaceholder}" MaxLength="40" Keyboard="{x:Static helpers:AppKeyboards.Words}" />
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.Settings_NameHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
 
-                <Border Style="{StaticResource Card.List}">
-                    <VerticalStackLayout Spacing="0">
-                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
-                        <VerticalStackLayout Spacing="10" Padding="16,14">
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Coins}" TextColor="{DynamicResource tp-accent-text}" />
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                    <Label Text="{x:Static res:AppResources.Settings_CurrencyLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
-                                </VerticalStackLayout>
-                            </Grid>
-                            <Border Style="{StaticResource Input}">
-                                <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" Title="{x:Static res:AppResources.Settings_CurrencyLabel}" />
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{x:Static res:AppResources.Settings_CurrencyLabel}" Style="{StaticResource Text.Field}" />
+                    <Border Style="{StaticResource Input}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}" Title="{x:Static res:AppResources.Settings_CurrencyLabel}" />
+                            <Label Grid.Column="1" Style="{StaticResource Input.Icon}" Text="{StaticResource Ic.ChevronDown}" InputTransparent="True" />
+                        </Grid>
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.Settings_CurrencyHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{x:Static res:AppResources.Settings_ReminderLabel}" Style="{StaticResource Text.Field}" />
+                    <Border Style="{StaticResource Input}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Picker ItemsSource="{Binding ReminderHours}" SelectedItem="{Binding SelectedReminderHour}" Title="{x:Static res:AppResources.Settings_ReminderLabel}" />
+                            <Label Grid.Column="1" Style="{StaticResource Input.Icon}" Text="{StaticResource Ic.ChevronDown}" InputTransparent="True" />
+                        </Grid>
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.Settings_ReminderHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{x:Static res:AppResources.Settings_ThemeLabel}" Style="{StaticResource Text.Field}" />
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                        <Border Grid.Column="0" HeightRequest="76" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-surface}"
+                                Stroke="{DynamicResource tp-border}" SemanticProperties.Description="{x:Static res:AppResources.Theme_System}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.System}">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+                                    <Setter Property="Stroke" Value="{DynamicResource tp-accent}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectThemeCommand}" CommandParameter="{x:Static services:AppThemeOption.System}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Monitor}" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.System}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{x:Static res:AppResources.Theme_System}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.System}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" HeightRequest="76" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-surface}"
+                                Stroke="{DynamicResource tp-border}" SemanticProperties.Description="{x:Static res:AppResources.Theme_Light}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.Light}">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+                                    <Setter Property="Stroke" Value="{DynamicResource tp-accent}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectThemeCommand}" CommandParameter="{x:Static services:AppThemeOption.Light}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Sun}" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.Light}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{x:Static res:AppResources.Theme_Light}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.Light}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="2" HeightRequest="76" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-surface}"
+                                Stroke="{DynamicResource tp-border}" SemanticProperties.Description="{x:Static res:AppResources.Theme_Dark}">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.Dark}">
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+                                    <Setter Property="Stroke" Value="{DynamicResource tp-accent}" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectThemeCommand}" CommandParameter="{x:Static services:AppThemeOption.Dark}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Moon}" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.Dark}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Label Text="{x:Static res:AppResources.Theme_Dark}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedTheme.Value}" Value="{x:Static services:AppThemeOption.Dark}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent-text}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                    <Label Text="{x:Static res:AppResources.Settings_ThemeHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{x:Static res:AppResources.Settings_LanguageLabel}" Style="{StaticResource Text.Field}" />
+                    <Border BackgroundColor="{DynamicResource tp-surface-sunken}" StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="3">
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="2">
+                            <Border Grid.Column="0" HeightRequest="36" StrokeThickness="0" StrokeShape="RoundRectangle 9" BackgroundColor="Transparent"
+                                    SemanticProperties.Description="{x:Static res:AppResources.Language_System}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding SelectedLanguage.Value}" Value="{x:Static services:AppLanguages.System}">
+                                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+                                        <Setter Property="Shadow">
+                                            <Shadow Brush="Black" Opacity="0.08" Radius="3" Offset="0,1" />
+                                        </Setter>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectLanguageCommand}" CommandParameter="{x:Static services:AppLanguages.System}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{x:Static res:AppResources.Language_System}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}"
+                                       HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedLanguage.Value}" Value="{x:Static services:AppLanguages.System}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+                                            <Setter Property="FontFamily" Value="InterSemiBold" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                             </Border>
-                        </VerticalStackLayout>
-                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
-                        <VerticalStackLayout Spacing="10" Padding="16,14">
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Bell}" TextColor="{DynamicResource tp-accent-text}" />
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                    <Label Text="{x:Static res:AppResources.Settings_ReminderLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
-                                    <Label Text="{x:Static res:AppResources.Settings_ReminderHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                                </VerticalStackLayout>
-                            </Grid>
-                            <Border Style="{StaticResource Input}">
-                                <Picker ItemsSource="{Binding ReminderHours}" SelectedItem="{Binding SelectedReminderHour}" Title="{x:Static res:AppResources.Settings_ReminderLabel}" />
+                            <Border Grid.Column="1" HeightRequest="36" StrokeThickness="0" StrokeShape="RoundRectangle 9" BackgroundColor="Transparent"
+                                    SemanticProperties.Description="{x:Static res:AppResources.Language_Turkish}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding SelectedLanguage.Value}" Value="{x:Static services:AppLanguages.Turkish}">
+                                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+                                        <Setter Property="Shadow">
+                                            <Shadow Brush="Black" Opacity="0.08" Radius="3" Offset="0,1" />
+                                        </Setter>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectLanguageCommand}" CommandParameter="{x:Static services:AppLanguages.Turkish}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{x:Static res:AppResources.Language_Turkish}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}"
+                                       HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedLanguage.Value}" Value="{x:Static services:AppLanguages.Turkish}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+                                            <Setter Property="FontFamily" Value="InterSemiBold" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                             </Border>
-                        </VerticalStackLayout>
-                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
-                        <VerticalStackLayout Spacing="10" Padding="16,14">
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.SunMoon}" TextColor="{DynamicResource tp-accent-text}" />
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                    <Label Text="{x:Static res:AppResources.Settings_ThemeLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
-                                </VerticalStackLayout>
-                            </Grid>
-                            <Border Style="{StaticResource Input}">
-                                <Picker ItemsSource="{Binding Themes}" SelectedItem="{Binding SelectedTheme}" Title="{x:Static res:AppResources.Settings_ThemeLabel}" />
+                            <Border Grid.Column="2" HeightRequest="36" StrokeThickness="0" StrokeShape="RoundRectangle 9" BackgroundColor="Transparent"
+                                    SemanticProperties.Description="{x:Static res:AppResources.Language_English}">
+                                <Border.Triggers>
+                                    <DataTrigger TargetType="Border" Binding="{Binding SelectedLanguage.Value}" Value="{x:Static services:AppLanguages.English}">
+                                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+                                        <Setter Property="Shadow">
+                                            <Shadow Brush="Black" Opacity="0.08" Radius="3" Offset="0,1" />
+                                        </Setter>
+                                    </DataTrigger>
+                                </Border.Triggers>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding SelectLanguageCommand}" CommandParameter="{x:Static services:AppLanguages.English}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{x:Static res:AppResources.Language_English}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}"
+                                       HorizontalOptions="Center" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding SelectedLanguage.Value}" Value="{x:Static services:AppLanguages.English}">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+                                            <Setter Property="FontFamily" Value="InterSemiBold" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
                             </Border>
-                        </VerticalStackLayout>
-                        <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                        <!-- Label on top, full-width value field below: long labels/values never fight for one row. -->
-                        <VerticalStackLayout Spacing="10" Padding="16,14">
-                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" VerticalOptions="Start">
-                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Language}" TextColor="{DynamicResource tp-accent-text}" />
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                    <Label Text="{x:Static res:AppResources.Settings_LanguageLabel}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
-                                    <Label Text="{x:Static res:AppResources.Settings_LanguageHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                                </VerticalStackLayout>
-                            </Grid>
-                            <Border Style="{StaticResource Input}">
-                                <Picker ItemsSource="{Binding Languages}" SelectedItem="{Binding SelectedLanguage}" Title="{x:Static res:AppResources.Settings_LanguageLabel}" />
-                            </Border>
-                        </VerticalStackLayout>
-                    </VerticalStackLayout>
-                </Border>
+                        </Grid>
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.Settings_LanguageHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>

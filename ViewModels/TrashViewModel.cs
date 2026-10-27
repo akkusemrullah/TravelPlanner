@@ -1,3 +1,4 @@
+using TravelPlanner.Helpers;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
@@ -10,9 +11,10 @@ using TravelPlanner.Services;
 namespace TravelPlanner.ViewModels
 {
     /// <summary>One deleted item in the trash list. Tickable in "Seçerek sil" mode (<see cref="ISelectableRow"/>).</summary>
-    public sealed class TrashItemView : ISelectableRow, INotifyPropertyChanged
+    public sealed class TrashItemView : ISelectableRow, INotifyPropertyChanged, IListPositioned
     {
         private bool _isSelected;
+        private ListPosition _listPosition;
 
         public TrashItemView(TrashEntry entry, string? tripName, DateTime nowUtc)
         {
@@ -33,6 +35,23 @@ namespace TravelPlanner.ViewModels
 
             var daysLeft = Math.Max(0, (int)Math.Ceiling((entry.ExpiresAtUtc - nowUtc).TotalDays));
             ExpiryText = string.Format(CultureInfo.CurrentCulture, AppResources.Trash_DaysLeftFormat, daysLeft);
+            IsExpiringSoon = daysLeft <= 7;
+        }
+
+        /// <summary>TP-105: 7 days or less left - the prototype shows the line in red, otherwise amber.</summary>
+        public bool IsExpiringSoon { get; }
+
+        /// <summary>TP-105: its slice of the one list card.</summary>
+        public ListPosition ListPosition
+        {
+            get => _listPosition;
+            set
+            {
+                if (_listPosition == value)
+                    return;
+                _listPosition = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ListPosition)));
+            }
         }
 
         public TrashEntry Entry { get; }
@@ -95,6 +114,7 @@ namespace TravelPlanner.ViewModels
                 if (e.PropertyName == nameof(Selection.IsActive))
                     OnPropertyChanged(nameof(ShowDeleteMenu));
             };
+            ListPositions.Track(Items);
         }
 
         /// <summary>Clock (replaceable in tests).</summary>
