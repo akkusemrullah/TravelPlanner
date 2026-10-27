@@ -38,13 +38,18 @@ namespace TravelPlanner.ViewModels
         /// </summary>
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsTripMap))]
+        [NotifyPropertyChangedFor(nameof(Subtitle))]
         private bool preview;
 
         /// <summary>A saved trip's map (visited legend and tags), not a preview.</summary>
         public bool IsTripMap => !Preview;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(Subtitle))]
         private Trip? trip;
+
+        /// <summary>TP-103: the app bar's second line - the trip's name, or the Keşfet plan's title in a preview.</summary>
+        public string Subtitle => Preview ? MapPreview.Title : Trip?.Name ?? string.Empty;
 
         [ObservableProperty]
         private double centerLatitude;
@@ -78,6 +83,9 @@ namespace TravelPlanner.ViewModels
         private bool hasRoutes;
 
         /// <summary>Places of the selected day in visiting order - drawn as a numbered line on the map.</summary>
+        /// <summary>TP-103: a route line is on the map, so the legend shows its pill.</summary>
+        public bool HasRoutePlaces => RoutePlaces.Count > 1;
+
         public IReadOnlyList<Place> RoutePlaces =>
             SelectedRouteDay?.Value is DateTime day && _routesByDay.TryGetValue(day, out var places) ? places : Array.Empty<Place>();
 
@@ -98,6 +106,7 @@ namespace TravelPlanner.ViewModels
             _tripService = tripService;
             _geocodingService = geocodingService;
             _connectivity = connectivity;
+            ListPositions.Track(Pins);
         }
 
         // NOTE (TP-104): loading is triggered only from MapPage.OnAppearing.
@@ -219,6 +228,7 @@ namespace TravelPlanner.ViewModels
         partial void OnSelectedRouteDayChanged(SettingsOption<DateTime?>? value)
         {
             OnPropertyChanged(nameof(RoutePlaces));
+            OnPropertyChanged(nameof(HasRoutePlaces));
             RouteChanged?.Invoke(this, EventArgs.Empty);
         }
 

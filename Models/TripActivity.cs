@@ -70,6 +70,17 @@ namespace TravelPlanner.Models
             }
         }
 
+        /// <summary>TP-103: the start time alone ("09:30"), the plan row's bold top line.</summary>
+        [Ignore]
+        public string StartTimeDisplay => StartTime is null ? string.Empty : FormatTime(StartTime.Value);
+
+        /// <summary>TP-103: the end time alone, the plan row's small second line (empty when none).</summary>
+        [Ignore]
+        public string EndTimeDisplay => StartTime is null || EndTime is null ? string.Empty : FormatTime(EndTime.Value);
+
+        [Ignore]
+        public bool HasEndTime => StartTime is not null && EndTime is not null;
+
         private static string FormatTime(TimeSpan time) =>
             DateTime.Today.Add(time).ToString("HH:mm", CultureInfo.InvariantCulture);
     }

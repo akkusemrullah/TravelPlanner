@@ -21,7 +21,20 @@ namespace TravelPlanner.ViewModels
         private int tripId;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanAddTask))]
         private string newTaskTitle = string.Empty;
+
+        /// <summary>TP-103: the app bar's subtitle.</summary>
+        [ObservableProperty]
+        private string tripName = string.Empty;
+
+        /// <summary>TP-103: the add button is dimmed until something is typed.</summary>
+        public bool CanAddTask => !string.IsNullOrWhiteSpace(NewTaskTitle);
+
+        /// <summary>TP-103: the quick-add row and the rows' edit buttons - editors only, not while selecting.</summary>
+        public bool ShowQuickAdd => CanEdit && !Selection.IsActive;
+
+        public bool ShowRowEdit => ShowQuickAdd;
 
         public ObservableCollection<TodoItem> Tasks { get; } = new RangeObservableCollection<TodoItem>();
 
@@ -38,6 +51,12 @@ namespace TravelPlanner.ViewModels
 
         [ObservableProperty]
         private bool hasNoTasks; // false until the first load has run, so the empty state never flashes
+
+        /// <summary>TP-103: the green bar above the list - share of ticked tasks, 0..1.</summary>
+        public double DoneProgress => Tasks.Count == 0 ? 0 : (double)Tasks.Count(t => t.IsCompleted) / Tasks.Count;
+
+        /// <summary>TP-103: "7/9" next to the bar.</summary>
+        public string DoneText => $"{Tasks.Count(t => t.IsCompleted)}/{Tasks.Count}";
 
         // ---- Smart packing list (TP-405) ----
 
@@ -74,6 +93,20 @@ namespace TravelPlanner.ViewModels
             _weatherService = weatherService;
             _packingService = packingService;
             Selection = new ListSelection<TodoItem>(() => Tasks);
+            ListPositions.Track(Tasks); // TP-103: the tasks form one card
+            Selection.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(Selection.IsActive))
+                {
+                    OnPropertyChanged(nameof(ShowQuickAdd));
+                    OnPropertyChanged(nameof(ShowRowEdit));
+                }
+            };
+            Tasks.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(DoneProgress));
+                OnPropertyChanged(nameof(DoneText));
+            };
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -81,6 +114,11 @@ namespace TravelPlanner.ViewModels
             base.OnPropertyChanged(e);
             if (e.PropertyName is nameof(CanEdit) or nameof(HasTasks))
                 base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(ShowDeleteMenu)));
+            if (e.PropertyName is nameof(CanEdit))
+            {
+                base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(ShowQuickAdd)));
+                base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(ShowRowEdit)));
+            }
         }
 
         // NOTE (TP-104): loading is triggered only from TodoListPage.OnAppearing.
@@ -91,6 +129,7 @@ namespace TravelPlanner.ViewModels
             if (TripId == 0) return;
 
             await RefreshAccessAsync(TripId); // G6: viewers don't get add/edit buttons
+            TripName = (await _tripService.GetByIdAsync(TripId))?.Name ?? string.Empty;
 
             var tasks = await _todoService.GetByTripIdAsync(TripId);
             Tasks.ReplaceAll(tasks);
@@ -148,9 +187,8 @@ namespace TravelPlanner.ViewModels
         }, AppResources.Todo_UpdateError);
 
         /// <summary>
-        /// Called by TodoListPage only when the user actually ticks/unticks a box (TP-105) - the page
-        /// ignores the CheckedChanged events the binding raises while rows are being created, so loading
-        /// the list no longer writes every task back to the database.
+        /// Called when the user actually ticks/unticks a task (TP-105; since TP-103 by tapping the row, see
+        /// <see cref="TaskTapped"/>). A change to the value already stored is ignored, so nothing is written for it.
         /// </summary>
         [RelayCommand]
         private Task SetCompletedAsync(TodoCompletionChange change) => RunSafeAsync(async () =>
@@ -348,6 +386,8 @@ namespace TravelPlanner.ViewModels
         {
             if (Selection.IsActive)
                 Selection.Toggle(task);
+            else if (task is not null && CanEdit) // TP-103: as in the prototype, tapping the row ticks / unticks it
+                SetCompletedCommand.Execute(new TodoCompletionChange(task, !task.IsCompleted));
         }
 
         [RelayCommand]

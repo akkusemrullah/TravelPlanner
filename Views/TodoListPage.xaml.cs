@@ -32,18 +32,4 @@ public partial class TodoListPage : ContentPage
 
         return base.OnBackButtonPressed();
     }
-
-    // TP-105: the CheckBox is bound OneWay, so CheckedChanged also fires when a row is created/recycled
-    // and the binding pushes the stored value in. Those events carry a value equal to what's already on
-    // the task - only a real user toggle differs, and only that gets saved.
-    private void OnTaskCheckedChanged(object? sender, CheckedChangedEventArgs e)
-    {
-        if (sender is not CheckBox { BindingContext: TodoItem task })
-            return;
-
-        if (task.IsCompleted == e.Value)
-            return;
-
-        _viewModel.SetCompletedCommand.Execute(new TodoCompletionChange(task, e.Value));
-    }
 }

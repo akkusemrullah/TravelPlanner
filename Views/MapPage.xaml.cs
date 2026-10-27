@@ -34,6 +34,17 @@ public partial class MapPage : ContentPage
     private bool _pendingUpdate;
     private bool _pendingFit;
 
+    // TP-103: the prototype's +/- control on the map.
+    private void OnZoomIn(object? sender, TappedEventArgs e) => ZoomAsync("zoomIn").FireAndForget();
+
+    private void OnZoomOut(object? sender, TappedEventArgs e) => ZoomAsync("zoomOut").FireAndForget();
+
+    private async Task ZoomAsync(string method)
+    {
+        if (_ready)
+            await MapWebView.EvaluateJavaScriptAsync($"window.map && window.map.{method}()");
+    }
+
     public MapPage(MapViewModel viewModel)
     {
         InitializeComponent();
@@ -221,9 +232,9 @@ public partial class MapPage : ContentPage
                 .pin.stop { width: 24px; height: 24px; background: #DC4A33 !important; }
                 .maplibregl-popup-content { font: 13px system-ui, sans-serif; color: #14161B; border-radius: 8px; padding: 8px 12px; }
                 #hint {
-                    position: absolute; z-index: 999; left: 50%; bottom: 28px; transform: translateX(-50%);
-                    padding: 7px 12px; border-radius: 8px; background: rgba(20,22,27,.85); color: #fff;
-                    font: 12px system-ui, sans-serif; white-space: nowrap; pointer-events: none; transition: opacity .6s;
+                    position: absolute; z-index: 999; left: 50%; bottom: 12px; transform: translateX(-50%);
+                    padding: 0 12px; height: 28px; line-height: 28px; border-radius: 14px; background: rgba(20,22,27,.7); color: #fff;
+                    font: 500 11.5px system-ui, sans-serif; white-space: nowrap; pointer-events: none; transition: opacity .6s;
                 }
             </style>
         </head>

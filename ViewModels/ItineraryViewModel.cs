@@ -32,7 +32,13 @@ namespace TravelPlanner.ViewModels
         private bool isSelected;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CountText))]
         private int activityCount;
+
+        /// <summary>TP-103: "4 etkinlik" under the day chip, or "Boş".</summary>
+        public string CountText => ActivityCount > 0
+            ? string.Format(AppResources.Itinerary_ActivityCountFormat, ActivityCount)
+            : AppResources.Itinerary_DayEmpty;
     }
 
     /// <summary>
@@ -95,6 +101,9 @@ namespace TravelPlanner.ViewModels
         /// <summary>The add button and the reorder grips are out of the way while rows are being ticked.</summary>
         public bool ShowEditActions => CanEdit && !Selection.IsActive;
 
+        /// <summary>TP-103: "Sıralamak için … sürükleyin" - only when there are two rows to reorder.</summary>
+        public bool ShowDragHint => ShowEditActions && DayActivities.Count > 1;
+
         public ItineraryViewModel(ITripService tripService, IActivityService activityService, IPlaceService placeService, IDialogService dialogs)
             : base(dialogs)
         {
@@ -102,11 +111,16 @@ namespace TravelPlanner.ViewModels
             _activityService = activityService;
             _placeService = placeService;
             Selection = new ListSelection<TripActivity>(() => DayActivities);
+            ListPositions.Track(DayActivities); // TP-103: the day's rows form one card
             Selection.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(Selection.IsActive))
+                {
                     OnPropertyChanged(nameof(ShowEditActions));
+                    OnPropertyChanged(nameof(ShowDragHint));
+                }
             };
+            DayActivities.CollectionChanged += (_, _) => OnPropertyChanged(nameof(ShowDragHint));
         }
 
         protected override void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -116,6 +130,7 @@ namespace TravelPlanner.ViewModels
             {
                 base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(ShowDeleteMenu)));
                 base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(ShowEditActions)));
+                base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(ShowDragHint)));
             }
         }
 

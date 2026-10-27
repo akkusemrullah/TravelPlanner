@@ -7,8 +7,11 @@ namespace TravelPlanner.Views;
 
 public partial class ItineraryPage : ContentPage
 {
-    /// <summary>Same as the CollectionView's ItemSpacing - part of the distance between two rows.</summary>
-    private const double RowSpacing = 8;
+    /// <summary>
+    /// The gap between two rows: TP-103 draws the day's rows as one card, each row overlapping the one above by 1
+    /// (Helpers/ListPositions), so the next row starts 1 above the end of this one.
+    /// </summary>
+    private const double RowSpacing = -1;
 
     private readonly ItineraryViewModel _viewModel;
 

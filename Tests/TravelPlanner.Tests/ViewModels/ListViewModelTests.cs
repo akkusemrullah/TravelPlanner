@@ -174,6 +174,21 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public void TaskTapped_OutsideSelection_TicksTheTask()
+        {
+            // TP-103: as in the prototype, tapping the row ticks / unticks it.
+            var vm = CreateViewModel();
+            var task = new TodoItem { Id = 1, Title = "Pasaport", IsCompleted = false };
+            vm.Tasks.Add(task);
+
+            vm.TaskTappedCommand.Execute(task);
+
+            Assert.True(task.IsCompleted);
+            Assert.Equal("1/1", vm.DoneText);
+            _todos.Verify(t => t.SaveAsync(task), Times.Once);
+        }
+
+        [Fact]
         public async Task AddTask_TrimsTitle_AndClearsTheInput()
         {
             var vm = CreateViewModel();

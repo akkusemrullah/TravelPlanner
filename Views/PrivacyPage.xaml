@@ -23,7 +23,7 @@
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" LineBreakMode="TailTruncation" />
+            <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.AppBarTitle}" Margin="0,0,44,0" LineBreakMode="TailTruncation" />
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 

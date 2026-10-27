@@ -619,7 +619,7 @@
         <Setter Property="Padding" Value="0" />
         <Setter Property="HorizontalOptions" Value="End" />
         <Setter Property="VerticalOptions" Value="End" />
-        <Setter Property="Margin" Value="0,0,20,20" />
+        <Setter Property="Margin" Value="0,0,16,20" />
     </Style>
 
     <!-- App bar of pushed pages: [back] Title [actions], 56 high, hairline below (add a Divider after it). -->

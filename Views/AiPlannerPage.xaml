@@ -98,7 +98,7 @@
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="0,0,44,0" />
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
@@ -126,7 +126,7 @@
 
                 <Border IsVisible="{Binding HasError}" Style="{StaticResource Banner.Error}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
                         <Label Grid.Column="1" Text="{Binding ErrorText}" FontSize="13" TextColor="{DynamicResource tp-danger}" LineBreakMode="WordWrap" />
                     </Grid>
                 </Border>

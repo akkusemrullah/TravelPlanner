@@ -48,6 +48,22 @@ namespace TravelPlanner.Models
         public string TemperatureRange =>
             $"{FormatTemperature(TemperatureMax)} / {FormatTemperature(TemperatureMin)}";
 
+        /// <summary>TP-103: the prototype's row shows the max bold and " / min" lighter.</summary>
+        public string MaxDisplay => FormatTemperature(TemperatureMax);
+
+        public string MinDisplay => $" / {FormatTemperature(TemperatureMin)}";
+
+        /// <summary>
+        /// TP-103: the icon's tone in the prototype - sunny/partly cloudy = warning, overcast/fog = neutral,
+        /// rain/snow/storm = info (WMO codes).
+        /// </summary>
+        public string ConditionTone => WeatherCode switch
+        {
+            <= 2 => "warning",
+            3 or 45 or 48 => "neutral",
+            _ => "info",
+        };
+
         /// <summary>"%40" (probability) or "2,4 mm" (amount); empty when dry/unknown.</summary>
         public string PrecipitationDisplay
         {

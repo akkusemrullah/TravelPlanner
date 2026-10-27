@@ -44,7 +44,7 @@
 
                 <Border x:Name="ErrorBanner" IsVisible="False" Style="{StaticResource Banner.Error}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
                         <Label Grid.Column="1" Text="{x:Static res:AppResources.Captcha_Failed}" FontSize="13" TextColor="{DynamicResource tp-danger}" LineBreakMode="WordWrap" />
                     </Grid>
                 </Border>

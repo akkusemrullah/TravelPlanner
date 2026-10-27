@@ -17,7 +17,7 @@
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.Page_Expense}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Page_Expense}" Style="{StaticResource Text.AppBarTitle}" Margin="0,0,44,0" />
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
@@ -123,11 +123,11 @@
             <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12">
                 <Border IsVisible="{Binding HasValidationError}" Style="{StaticResource Banner.Error}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
                         <Label Grid.Column="1" Text="{Binding ValidationMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" />
                     </Grid>
                 </Border>
-                <Grid ColumnDefinitions="*,2*" ColumnSpacing="8">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Secondary}" />
                     <Button Grid.Column="1" Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
                 </Grid>

@@ -33,6 +33,12 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private bool hasPlaces;
 
+        /// <summary>TP-103: "8 yer" above the list.</summary>
+        public string CountText => string.Format(AppResources.PlaceList_CountFormat, Places.Count);
+
+        /// <summary>TP-103: "3 ziyaret edildi" (green) opposite the count.</summary>
+        public string VisitedCountText => string.Format(AppResources.PlaceList_VisitedCountFormat, Places.Count(p => p.IsVisited));
+
         [ObservableProperty]
         private bool hasNoPlaces; // false until the first load has run, so the empty state never flashes
 
@@ -41,6 +47,12 @@ namespace TravelPlanner.ViewModels
         {
             _placeService = placeService;
             Selection = new ListSelection<Place>(() => Places);
+            ListPositions.Track(Places); // TP-103: the places form one card
+            Places.CollectionChanged += (_, _) =>
+            {
+                OnPropertyChanged(nameof(CountText));
+                OnPropertyChanged(nameof(VisitedCountText));
+            };
             Selection.PropertyChanged += (_, e) =>
             {
                 if (e.PropertyName == nameof(Selection.IsActive))

@@ -20,7 +20,10 @@
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                <Label Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.AppBarTitle}" />
+                <Label Text="{Binding TripName}" Style="{StaticResource Text.AppBarSubtitle}" IsVisible="{Binding TripName, Converter={StaticResource StringNotEmptyConverter}}" />
+            </VerticalStackLayout>
             <Border Grid.Column="2" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Packing_Suggest}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ShowSuggestionsCommand}" />
@@ -45,55 +48,69 @@
         <views:SelectionAppBar Grid.Row="0" IsVisible="{Binding Selection.IsActive}" />
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
-        <!-- ════════ Quick add + suggestions ════════ -->
-        <VerticalStackLayout Grid.Row="2" Spacing="12" Padding="16,16,16,4" IsVisible="{Binding Selection.IsInactive}">
-            <Border Style="{StaticResource Input}" Padding="12,0,4,0" IsVisible="{Binding CanEdit}">
-                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                    <Entry Grid.Column="0" Text="{Binding NewTaskTitle}" MaxLength="150" Placeholder="{x:Static res:AppResources.Todo_NewPlaceholder}"
+        <!-- ════════ Quick add (field + 48 accent button), progress, suggestions ════════ -->
+        <VerticalStackLayout Grid.Row="2" Spacing="12" Padding="16,16,16,12">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding ShowQuickAdd}">
+                <Border Grid.Column="0" Style="{StaticResource Input}">
+                    <Entry Text="{Binding NewTaskTitle}" MaxLength="150" Placeholder="{x:Static res:AppResources.Todo_NewPlaceholder}"
                            ReturnCommand="{Binding AddTaskCommand}" />
-                    <Border Grid.Column="1" Style="{StaticResource IconButton.Filled}" WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 8"
-                            SemanticProperties.Description="{x:Static res:AppResources.A11y_AddTask}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding AddTaskCommand}" />
-                        </Border.GestureRecognizers>
-                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-primary}" />
-                    </Border>
-                </Grid>
-            </Border>
+                </Border>
+                <Border Grid.Column="1" WidthRequest="48" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 12"
+                        BackgroundColor="{DynamicResource tp-accent}" Opacity="0.4"
+                        SemanticProperties.Description="{x:Static res:AppResources.A11y_AddTask}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding CanAddTask}" Value="True">
+                            <Setter Property="Opacity" Value="1" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding AddTaskCommand}" />
+                    </Border.GestureRecognizers>
+                    <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-accent}" />
+                </Border>
+            </Grid>
 
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" Padding="4,0" IsVisible="{Binding HasTasks}">
+                <controls:ProgressPill Grid.Column="0" Progress="{Binding DoneProgress}" Tone="success" VerticalOptions="Center" />
+                <Label Grid.Column="1" Text="{Binding DoneText}" FontFamily="InterSemiBold" FontSize="12.5" TextColor="{DynamicResource tp-text-2}" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- "Akıllı bavul önerileri" -->
             <Border IsVisible="{Binding IsSuggestionPanelVisible}" Style="{StaticResource Card}">
                 <VerticalStackLayout Spacing="12">
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                        <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" WidthRequest="32" HeightRequest="32">
-                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Star}" TextColor="{DynamicResource tp-accent-text}" />
-                        </Border>
-                        <Label Grid.Column="1" Text="{x:Static res:AppResources.Packing_SuggestionsTitle}" Style="{StaticResource Text.Title}"
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="{x:Static res:AppResources.Packing_SuggestionsTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}"
                                VerticalOptions="Center" SemanticProperties.HeadingLevel="Level2" />
-                        <Border Grid.Column="2" Style="{StaticResource IconButton}" WidthRequest="32" HeightRequest="32"
+                        <Border Grid.Column="1" Style="{StaticResource IconButton}" WidthRequest="36" HeightRequest="36"
                                 SemanticProperties.Description="{x:Static res:AppResources.Packing_Close}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding HideSuggestionsCommand}" />
                             </Border.GestureRecognizers>
-                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Close}" />
+                            <Label Style="{StaticResource Icon.Bar}" FontSize="20" Text="{StaticResource Ic.Close}" />
                         </Border>
                     </Grid>
-                    <controls:LoadingDots IsVisible="{Binding IsLoadingSuggestions}" DotSize="8" DotColor="{DynamicResource tp-primary}" />
-                    <Label Text="{Binding SuggestionHint}" Style="{StaticResource Text.Caption}" IsVisible="{Binding HasSuggestions}" />
-                    <Label Text="{x:Static res:AppResources.Packing_NoSuggestions}" Style="{StaticResource Text.Body2}" IsVisible="{Binding HasNoSuggestions}" />
-                    <ScrollView MaximumHeightRequest="260" IsVisible="{Binding HasSuggestions}">
+                    <controls:LoadingDots IsVisible="{Binding IsLoadingSuggestions}" DotSize="8" DotColor="{DynamicResource tp-accent}" />
+                    <Border Style="{StaticResource Banner.Accent}" IsVisible="{Binding HasSuggestions}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Sparkles}" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{Binding SuggestionHint}" FontSize="13" TextColor="{DynamicResource tp-accent-text}" />
+                        </Grid>
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.Packing_NoSuggestions}" FontSize="14" TextColor="{DynamicResource tp-text-3}" IsVisible="{Binding HasNoSuggestions}" />
+                    <ScrollView MaximumHeightRequest="300" IsVisible="{Binding HasSuggestions}">
                         <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding Suggestions}">
                             <BindableLayout.ItemTemplate>
                                 <DataTemplate x:DataType="models:PackingSuggestion">
-                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="4">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,10" BackgroundColor="Transparent">
                                         <Grid.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=ToggleSuggestionCommand}"
                                                 CommandParameter="{Binding .}" />
                                         </Grid.GestureRecognizers>
-                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
+                                        <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" />
                                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="1">
-                                            <Label Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" />
-                                            <Label Text="{Binding Reason}" Style="{StaticResource Text.Caption}" FontSize="11" />
+                                            <Label Text="{Binding Title}" FontFamily="InterMedium" FontSize="14.5" TextColor="{DynamicResource tp-text}" />
+                                            <Label Text="{Binding Reason}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" />
                                         </VerticalStackLayout>
                                     </Grid>
                                 </DataTemplate>
@@ -101,7 +118,7 @@
                         </VerticalStackLayout>
                     </ScrollView>
                     <Button Text="{x:Static res:AppResources.Packing_AddSelected}" Command="{Binding AddSelectedSuggestionsCommand}"
-                            IsVisible="{Binding HasSuggestions}" Style="{StaticResource Btn.Primary}" HeightRequest="44" />
+                            IsVisible="{Binding HasSuggestions}" Style="{StaticResource Btn.Primary}" />
                 </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>
@@ -109,43 +126,27 @@
         <Grid Grid.Row="3">
             <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadTasksCommand}" IsVisible="{Binding HasTasks}">
                 <CollectionView x:Name="TasksCollectionView" ItemsSource="{Binding Tasks}">
-                    <CollectionView.Header>
-                        <BoxView HeightRequest="12" Color="Transparent" />
-                    </CollectionView.Header>
                     <CollectionView.Footer>
-                        <BoxView HeightRequest="24" Color="Transparent" />
+                        <BoxView HeightRequest="40" Color="Transparent" />
                     </CollectionView.Footer>
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="6" />
-                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:TodoItem">
-                            <Border Style="{StaticResource Card}" Padding="4,2,6,2" Margin="16,0" HorizontalOptions="Fill">
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
-                                        <Setter Property="Stroke" Value="{DynamicResource tp-accent}" />
-                                    </DataTrigger>
-                                </Border.Triggers>
+                            <!-- one slice of the list card (Helpers/ListPositions) -->
+                            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                                    Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=TaskTappedCommand}"
                                         CommandParameter="{Binding .}" />
                                 </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="4" MinimumHeightRequest="44">
-                                    <!-- Selection mode: a tick instead of the completion box, and no edit button. -->
-                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsCompleted, Mode=OneWay}" CheckedChanged="OnTaskCheckedChanged"
-                                              IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=Selection.IsInactive}" />
-                                    <Label Grid.Column="0" Style="{StaticResource Icon}" Text="{StaticResource Ic.Circle}" TextColor="{DynamicResource tp-text-3}"
-                                           WidthRequest="40" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=Selection.IsActive}">
-                                        <Label.Triggers>
-                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="Text" Value="{StaticResource Ic.CheckCircle}" />
-                                                <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
-                                            </DataTrigger>
-                                        </Label.Triggers>
-                                    </Label>
-                                    <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.Body}" VerticalOptions="Center"
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="16,0,6,0" MinimumHeightRequest="54" BackgroundColor="Transparent">
+                                    <!-- Selection mode: the red select circle instead of the tick box, and no edit button. -->
+                                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsCompleted}"
+                                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=Selection.IsInactive}" />
+                                    <controls:SelectCircle Grid.Column="0" IsOn="{Binding IsSelected}"
+                                                           IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=Selection.IsActive}" />
+                                    <Label Grid.Column="1" Text="{Binding Title}" FontSize="15" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" Padding="0,12"
                                            TextDecorations="{Binding IsCompleted, Converter={StaticResource CompletedToStrikethroughConverter}}">
                                         <Label.Triggers>
                                             <DataTrigger TargetType="Label" Binding="{Binding IsCompleted}" Value="True">
@@ -153,15 +154,15 @@
                                             </DataTrigger>
                                         </Label.Triggers>
                                     </Label>
-                                    <Border Grid.Column="2" Style="{StaticResource IconButton}" WidthRequest="36" HeightRequest="36"
+                                    <Border Grid.Column="2" Style="{StaticResource IconButton}"
                                             SemanticProperties.Description="{x:Static res:AppResources.A11y_Edit}"
-                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=Selection.IsInactive}">
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=ShowRowEdit}">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer
                                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TodoListViewModel}}, Path=EditTaskCommand}"
                                                 CommandParameter="{Binding .}" />
                                         </Border.GestureRecognizers>
-                                        <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Edit}" TextColor="{DynamicResource tp-text-3}" />
+                                        <Label Style="{StaticResource Icon}" FontSize="17" Text="{StaticResource Ic.Edit}" TextColor="{DynamicResource tp-text-3}" />
                                     </Border>
                                 </Grid>
                             </Border>
@@ -172,11 +173,11 @@
 
             <controls:LoadingLogo IsVisible="{Binding IsInitialLoading}" Size="56" HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <VerticalStackLayout IsVisible="{Binding HasNoTasks}" Spacing="14" Padding="32" VerticalOptions="Center">
+            <VerticalStackLayout IsVisible="{Binding HasNoTasks}" Spacing="0" Padding="32,24" VerticalOptions="Start">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Checklist}" TextColor="{DynamicResource tp-accent-text}" />
+                    <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.ListChecks}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
-                <Label Text="{x:Static res:AppResources.Todo_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
+                <Label Text="{x:Static res:AppResources.Todo_Empty}" Style="{StaticResource Text.EmptyText}" Margin="0,16,0,0" />
             </VerticalStackLayout>
         </Grid>
     </Grid>
