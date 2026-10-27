@@ -9000,5 +9000,131 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("AiPlan_QuotaNoneNever", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahatini oluştur.
+        /// </summary>
+        public static string Onboarding_TripTitle {
+            get {
+                return ResourceManager.GetString("Onboarding_TripTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tarih, şehir ve bütçe gir..
+        /// </summary>
+        public static string Onboarding_TripText {
+            get {
+                return ResourceManager.GetString("Onboarding_TripText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to AI ile plan yap.
+        /// </summary>
+        public static string Onboarding_AiTitle {
+            get {
+                return ResourceManager.GetString("Onboarding_AiTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Gün gün rota saniyeler içinde hazır..
+        /// </summary>
+        public static string Onboarding_AiText {
+            get {
+                return ResourceManager.GetString("Onboarding_AiText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Keşfet.
+        /// </summary>
+        public static string Onboarding_ExploreTitle {
+            get {
+                return ResourceManager.GetString("Onboarding_ExploreTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hazır planları kendi seyahatine ekle..
+        /// </summary>
+        public static string Onboarding_ExploreText {
+            get {
+                return ResourceManager.GetString("Onboarding_ExploreText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Birlikte planla.
+        /// </summary>
+        public static string Onboarding_TogetherTitle {
+            get {
+                return ResourceManager.GetString("Onboarding_TogetherTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arkadaşlarını davet et, giriş yaparak verini koru..
+        /// </summary>
+        public static string Onboarding_TogetherText {
+            get {
+                return ResourceManager.GetString("Onboarding_TogetherText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to İleri.
+        /// </summary>
+        public static string Onboarding_Next {
+            get {
+                return ResourceManager.GetString("Onboarding_Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Başla.
+        /// </summary>
+        public static string Onboarding_Start {
+            get {
+                return ResourceManager.GetString("Onboarding_Start", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tanıtımı kapat.
+        /// </summary>
+        public static string Onboarding_Close {
+            get {
+                return ResourceManager.GetString("Onboarding_Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} / {1}.
+        /// </summary>
+        public static string Onboarding_PositionFormat {
+            get {
+                return ResourceManager.GetString("Onboarding_PositionFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tanıtımı tekrar göster.
+        /// </summary>
+        public static string Profile_ShowTour {
+            get {
+                return ResourceManager.GetString("Profile_ShowTour", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uygulamayı 4 kartta anlatır.
+        /// </summary>
+        public static string Profile_ShowTourHint {
+            get {
+                return ResourceManager.GetString("Profile_ShowTourHint", resourceCulture);
+            }
+        }
     }
 }

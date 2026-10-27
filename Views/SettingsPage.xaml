@@ -166,6 +166,22 @@
                                 <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                             </Grid>
                             <BoxView Style="{StaticResource Divider.Inset}" Margin="62,0,0,0" />
+                            <!-- TP-93: the first-start tour again -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="14,10" MinimumHeightRequest="60"
+                                  SemanticProperties.Description="{x:Static res:AppResources.Profile_ShowTour}">
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ShowTourCommand}" />
+                                </Grid.GestureRecognizers>
+                                <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
+                                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Layers}" TextColor="{DynamicResource tp-success}" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="{x:Static res:AppResources.Profile_ShowTour}" Style="{StaticResource Text.Title}" />
+                                    <Label Text="{x:Static res:AppResources.Profile_ShowTourHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
+                            </Grid>
+                            <BoxView Style="{StaticResource Divider.Inset}" Margin="62,0,0,0" />
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Padding="14,10" MinimumHeightRequest="60"
                                   SemanticProperties.Description="{x:Static res:AppResources.Help_ContactRow}">
                                 <Grid.GestureRecognizers>

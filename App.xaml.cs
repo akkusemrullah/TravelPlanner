@@ -81,6 +81,8 @@ namespace TravelPlanner
                     _sync.RequestRefresh();
             };
 
+            OnboardingTour.Presenter = ShowTourAsync;
+
             // G6: every page can ask whether the open trip is read-only (ViewModelBase.RefreshAccessAsync).
             TripAccess.Current = tripAccess;
 
@@ -190,7 +192,8 @@ namespace TravelPlanner
             SystemBars.Apply(Microsoft.Maui.ApplicationModel.Platform.CurrentActivity, RequestedTheme == AppTheme.Dark);
 #endif
 
-            RequestNotificationPermissionAsync().FireAndForget();
+            // TP-93: the tour first (once), then the notification question - not both on screen at the same time
+            ShowTourOnceThenAskNotificationsAsync().FireAndForget();
             PurgeTrashAsync().FireAndForget();
 
             // G7: an account deleted or banned in Supabase is signed out here, before syncing starts.
@@ -442,6 +445,32 @@ namespace TravelPlanner
         // Asked once, after the splash: by then the Activity and its native window are long up. (Asking from
         // MauiProgram/OnStart was too early - on some devices the prompt never showed or the first frame froze -
         // so the old code waited for Window.Created; the end of the splash is later still.)
+        private async Task ShowTourOnceThenAskNotificationsAsync()
+        {
+            if (OnboardingTour.ShouldShow(_preferences))
+            {
+                await Task.Delay(300); // let the first tab render under it
+                await ShowTourAsync();
+            }
+            await RequestNotificationPermissionAsync();
+        }
+
+        /// <summary>TP-93: the tour over whatever is on screen (also from Profil → "Tanıtımı tekrar göster").</summary>
+        private async Task ShowTourAsync()
+        {
+            try
+            {
+                var shell = Shell.Current;
+                var page = shell?.Navigation.ModalStack.LastOrDefault() ?? shell?.CurrentPage;
+                if (page is not null)
+                    await MainThread.InvokeOnMainThreadAsync(() => Views.OnboardingPage.ShowAsync(page.Navigation, _preferences));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Onboarding] Showing the tour failed: {ex.Message}");
+            }
+        }
+
         private async Task RequestNotificationPermissionAsync()
         {
             if (_notificationPermissionRequested)

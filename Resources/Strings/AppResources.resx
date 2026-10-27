@@ -3314,4 +3314,46 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="AiPlan_QuotaNoneNever" xml:space="preserve">
     <value>Plan hakların yenilenmiyor.</value>
   </data>
+  <data name="Onboarding_TripTitle" xml:space="preserve">
+    <value>Seyahatini oluştur</value>
+  </data>
+  <data name="Onboarding_TripText" xml:space="preserve">
+    <value>Tarih, şehir ve bütçe gir.</value>
+  </data>
+  <data name="Onboarding_AiTitle" xml:space="preserve">
+    <value>AI ile plan yap</value>
+  </data>
+  <data name="Onboarding_AiText" xml:space="preserve">
+    <value>Gün gün rota saniyeler içinde hazır.</value>
+  </data>
+  <data name="Onboarding_ExploreTitle" xml:space="preserve">
+    <value>Keşfet</value>
+  </data>
+  <data name="Onboarding_ExploreText" xml:space="preserve">
+    <value>Hazır planları kendi seyahatine ekle.</value>
+  </data>
+  <data name="Onboarding_TogetherTitle" xml:space="preserve">
+    <value>Birlikte planla</value>
+  </data>
+  <data name="Onboarding_TogetherText" xml:space="preserve">
+    <value>Arkadaşlarını davet et, giriş yaparak verini koru.</value>
+  </data>
+  <data name="Onboarding_Next" xml:space="preserve">
+    <value>İleri</value>
+  </data>
+  <data name="Onboarding_Start" xml:space="preserve">
+    <value>Başla</value>
+  </data>
+  <data name="Onboarding_Close" xml:space="preserve">
+    <value>Tanıtımı kapat</value>
+  </data>
+  <data name="Onboarding_PositionFormat" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+  <data name="Profile_ShowTour" xml:space="preserve">
+    <value>Tanıtımı tekrar göster</value>
+  </data>
+  <data name="Profile_ShowTourHint" xml:space="preserve">
+    <value>Uygulamayı 4 kartta anlatır</value>
+  </data>
 </root>
