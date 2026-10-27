@@ -1669,9 +1669,9 @@ delete from storage.objects where name like 'trips/' || :'t8' || '/%' or name li
 
 -- ------------------------------------------------------------------------------- 31: AI model from the panel
 set role service_role;
-select test.eq(public.ai_model_settings(), '{"model": null, "reasoning": null}'::jsonb, '31: no model set = the secrets decide');
+select test.eq(public.ai_model_settings() - 'max_days' - 'max_tokens', '{"model": null, "reasoning": null}'::jsonb, '31: no model set = the secrets decide');
 select public.admin_set_settings('{"ai_model": "  GPT-5-Nano ", "ai_reasoning": "Minimal"}');
-select test.eq(public.ai_model_settings(), '{"model": "gpt-5-nano", "reasoning": "minimal"}'::jsonb, '31: model and reasoning saved, lower-cased');
+select test.eq(public.ai_model_settings() - 'max_days' - 'max_tokens', '{"model": "gpt-5-nano", "reasoning": "minimal"}'::jsonb, '31: model and reasoning saved, lower-cased');
 select test.eq(public.admin_settings() ->> 'ai_model', 'gpt-5-nano', '31: the panel reads the model');
 select public.admin_set_settings('{"ai_daily_limit": 5}');
 select test.eq(public.ai_model_settings() ->> 'model', 'gpt-5-nano', '31: other changes keep the model');
@@ -1688,7 +1688,7 @@ exception when check_violation then raise notice 'ok - 31: reasoning is minimal,
 end $$;
 set role service_role;
 select public.admin_set_settings('{"ai_model": "", "ai_reasoning": ""}');
-select test.eq(public.ai_model_settings(), '{"model": null, "reasoning": null}'::jsonb, '31: empty goes back to the secrets');
+select test.eq(public.ai_model_settings() - 'max_days' - 'max_tokens', '{"model": null, "reasoning": null}'::jsonb, '31: empty goes back to the secrets');
 reset role;
 select set_config('request.jwt.claim.sub', :'ali', false);
 set role authenticated;
@@ -2114,5 +2114,112 @@ create temp table invite_codes as select private.new_invite_code() as c from gen
 select test.eq((select count(*)::int from invite_codes where c !~ '^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{8}$'), 0, '41: 8 characters from the alphabet');
 select test.eq((select count(distinct substr(c, 7, 1))::int from invite_codes), 31, '41: the 7th character uses all 31 characters (was 16)');
 select test.eq((select count(distinct c)::int from invite_codes), 4000, '41: no repeats in 4000 codes');
+
+-- ------------------------------------------------------------------------------- 42: AI reset period (TP-92)
+insert into auth.users (id, email, created_at) values
+    ('00000000-0000-0000-0000-0000000a4201', 'p42a@example.com', now() - interval '3 days'),
+    ('00000000-0000-0000-0000-0000000a4202', 'p42b@example.com', now() - interval '3 days');
+select test.eq(private.ai_period_start('2026-10-27 21:30+00'), date '2026-10-28', '42: daily at 00:00 follows Türkiye''s date');
+update private.app_settings set ai_reset_hour = 9 where id;
+select test.eq(private.ai_period_start('2026-10-28 05:00+00'), date '2026-10-27', '42: before 09:00 it is still yesterday''s period');
+select test.eq(private.ai_period_start('2026-10-28 06:00+00'), date '2026-10-28', '42: from 09:00 the new period');
+select test.eq(private.ai_period_end(date '2026-10-27'), timestamptz '2026-10-28 06:00+00', '42: a daily period ends at 09:00 next day');
+update private.app_settings set ai_reset_period = 'weekly', ai_reset_weekday = 1, ai_reset_hour = 0 where id;
+select test.eq(private.ai_period_start('2026-10-28 12:00+00'), date '2026-10-26', '42: weekly from Monday');
+select test.eq(private.ai_period_end(date '2026-10-26'), timestamptz '2026-11-01 21:00+00', '42: ...until next Monday 00:00');
+update private.app_settings set ai_reset_weekday = 5 where id;
+select test.eq(private.ai_period_start('2026-10-28 12:00+00'), date '2026-10-23', '42: weekly from Friday');
+update private.app_settings set ai_reset_period = 'monthly', ai_reset_monthday = 15 where id;
+select test.eq(private.ai_period_start('2026-10-27 12:00+00'), date '2026-10-15', '42: monthly from the 15th');
+select test.eq(private.ai_period_start('2026-10-10 12:00+00'), date '2026-09-15', '42: before the 15th: last month''s');
+select test.eq(private.ai_period_end(date '2026-10-15'), timestamptz '2026-11-14 21:00+00', '42: ...until the next 15th');
+update private.app_settings set ai_reset_period = 'days', ai_reset_days = 3, ai_reset_anchor = '2026-10-20' where id;
+select test.eq(private.ai_period_start('2026-10-27 12:00+00'), date '2026-10-26', '42: every 3 days counted from the anchor');
+select test.eq(private.ai_period_start('2026-10-19 12:00+00'), date '2026-10-17', '42: also before the anchor');
+update private.app_settings set ai_reset_period = 'never' where id;
+select test.eq(private.ai_period_start('2027-05-01 12:00+00'), date '2026-10-20', '42: never: the anchor for good');
+select test.eq(private.ai_period_end(date '2026-10-20'), null::timestamptz, '42: never ends');
+update private.app_settings set ai_reset_period = 'daily', ai_reset_hour = 0, ai_reset_anchor = null, ai_reset_weekday = 1,
+                                ai_reset_monthday = 1, ai_reset_days = 7 where id;
+
+-- a period change carries the running usage over; reset all gives it back
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a4201', false);
+set role authenticated;
+select public.ai_plan_quota(repeat('4a', 32)) from generate_series(1, 2);
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 3, '42: 2 of 5 used');
+select test.eq(public.ai_plan_quota_status(repeat('4a', 32)) ->> 'period', 'daily', '42: the app sees the period');
+select public.ai_plan_quota_status(repeat('4a', 32)) ->> 'resets_at' as r42 \gset
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'max_days')::int, 10, '42: and the day limit');
+reset role;
+select test.eq(:'r42'::timestamptz, private.ai_period_end(private.ai_period_start()), '42: and when it ends');
+-- an old count sitting on Monday's key (from the daily period) must not count once the week starts Monday
+insert into private.ai_usage (user_id, day, count)
+select '00000000-0000-0000-0000-0000000a4201', d, 4
+  from (select ((now() at time zone 'Europe/Istanbul')::date - (extract(isodow from (now() at time zone 'Europe/Istanbul')::date)::int - 1)) d) w
+ where d <> (now() at time zone 'Europe/Istanbul')::date;
+set role service_role;
+select public.admin_set_settings('{"ai_reset_period": "Weekly", "ai_reset_weekday": 1}');
+select test.eq(public.admin_settings() ->> 'ai_reset_period', 'weekly', '42: the panel sets weekly');
+select test.eq((public.admin_settings() ->> 'ai_period_users')::int >= 1, true, '42: users with plans used this period');
+reset role;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 3, '42: daily -> weekly keeps the 2 used');
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'resets_at')::timestamptz > now() + interval '1 minute', true, '42: weekly ends later');
+reset role;
+set role service_role;
+select public.admin_set_settings('{"ai_reset_period": "never"}');
+reset role;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 3, '42: weekly -> never keeps the 2 used');
+select test.eq(public.ai_plan_quota_status(repeat('4a', 32)) ->> 'resets_at', null, '42: never: no reset time');
+select (public.ai_plan_quota(repeat('4a', 32)) ->> 'ticket')::uuid as t42 \gset
+select test.eq(public.ai_plan_refund(:'t42'), true, '42: a refund in the never period');
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 3, '42: ...gives the plan back to the period');
+reset role;
+set role service_role;
+select test.eq(public.admin_reset_ai_all() >= 1, true, '42: reset all counts the accounts');
+reset role;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 5, '42: reset all gives everything back');
+select public.ai_plan_quota(repeat('4a', 32)) from generate_series(1, 5);
+reset role;
+-- the phone is full now; another account on it is blocked unless the device limit is off
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000a4202', false);
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 0, '42: a full phone blocks another account');
+reset role;
+set role service_role;
+select public.admin_set_settings('{"ai_device_limit": false, "ai_max_days": 5, "ai_max_tokens": "12000"}');
+select test.eq(public.ai_model_settings() ->> 'max_days', '5', '42: plan-trip reads max_days');
+select test.eq(public.ai_model_settings() ->> 'max_tokens', '12000', '42: and max_tokens');
+reset role;
+set role authenticated;
+select test.eq((public.ai_plan_quota_status(repeat('4a', 32)) ->> 'remaining')::int, 5, '42: device limit off: only the account counts');
+select test.eq((public.ai_plan_quota(repeat('4a', 32)) ->> 'remaining')::int, 4, '42: ...also for a plan');
+reset role;
+set role service_role;
+do $$
+begin
+    perform public.admin_set_settings('{"ai_reset_period": "yearly"}');
+    raise exception 'FAILED: 42: an unknown period was saved';
+exception when check_violation then raise notice 'ok - 42: unknown period refused';
+end $$;
+do $$
+begin
+    perform public.admin_set_settings('{"ai_max_days": 11}');
+    raise exception 'FAILED: 42: 11 days was saved';
+exception when check_violation then raise notice 'ok - 42: at most 10 days';
+end $$;
+select public.admin_set_settings('{"ai_reset_period": "daily", "ai_device_limit": true, "ai_max_days": 10, "ai_max_tokens": ""}');
+select test.eq(public.ai_model_settings() ->> 'max_tokens', null, '42: empty max_tokens = default');
+reset role;
+do $$
+begin
+    set local role authenticated;
+    perform public.admin_reset_ai_all();
+    raise exception 'FAILED: 42: a user reset everyone';
+exception when insufficient_privilege then raise notice 'ok - 42: reset all is service_role only';
+end $$;
+delete from auth.users where id in ('00000000-0000-0000-0000-0000000a4201', '00000000-0000-0000-0000-0000000a4202');
 
 \echo ALL SYNC TESTS PASSED

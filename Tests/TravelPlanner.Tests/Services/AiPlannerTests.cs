@@ -245,6 +245,19 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task Quota_ReadsThePeriod()
+        {
+            _cloud.Handler = (_, _) => """{"limit":5,"remaining":2,"paused":false,"period":"weekly","resets_at":"2026-11-02T00:00:00+03:00","max_days":7}""";
+            Assert.Equal(new AiQuota(2, 5, false, null, "weekly", new DateTimeOffset(2026, 11, 2, 0, 0, 0, TimeSpan.FromHours(3)), 7),
+                         await _service.GetQuotaAsync());
+
+            _cloud.Handler = (_, _) => """{"limit":5,"remaining":2,"period":"never","resets_at":null,"max_days":40}""";
+            var quota = await _service.GetQuotaAsync();
+            Assert.Equal(new AiQuota(2, 5, false, null, "never"), quota);
+            Assert.True(quota!.NeverResets);
+        }
+
+        [Fact]
         public async Task Quota_SaysWhenAiIsPaused()
         {
             _cloud.Handler = (_, _) => """{"limit":5,"remaining":0,"paused":true,"message":" Bakımdayız "}""";
@@ -493,6 +506,27 @@ namespace TravelPlanner.Tests
             vm = await LoadAsync();
             Assert.False(vm.IsBlocked);
             Assert.True(vm.IsAsking);
+        }
+
+        [Fact]
+        public async Task Quota_SaysWhenThePlansComeBack()
+        {
+            var next = new DateTimeOffset(2026, 11, 2, 0, 0, 0, TimeSpan.FromHours(3));
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5, false, null, "weekly", next, 2));
+            var vm = await LoadAsync();
+            var when = AiPlannerViewModel.ResetText(next);
+            Assert.Equal(string.Format(AppResources.AiPlan_QuotaRuleFormat, when), vm.QuotaRuleText);
+            Assert.Equal(string.Format(AppResources.AiPlan_QuotaNoneFormat, when), vm.BlockedText);
+            Assert.Equal(string.Format(AppResources.AiPlan_IntroFormat, Rome.City, 2), vm.IntroText);
+
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5, false, null, "never"));
+            vm = await LoadAsync();
+            Assert.Equal(AppResources.AiPlan_QuotaRuleNever, vm.QuotaRuleText);
+            Assert.Equal(AppResources.AiPlan_QuotaNoneNever, vm.BlockedText);
+
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(3, 5)); // an older server
+            vm = await LoadAsync();
+            Assert.Equal(AppResources.AiPlan_QuotaRule, vm.QuotaRuleText);
         }
 
         [Fact]

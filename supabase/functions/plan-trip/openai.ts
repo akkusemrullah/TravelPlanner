@@ -126,6 +126,28 @@ export function chooseModel(
   return { model, effort, source };
 }
 
+/**
+ * TP-92: the panel's plan limits (migration 42). maxDays: 1..maxDaysCap, else the cap. maxTokens: the panel's cap,
+ * else the AI_MAX_TOKENS secret, else the default; planTokenBudget still keeps it sane.
+ */
+export function panelLimits(
+  panel: { max_days?: unknown; max_tokens?: unknown } | null,
+  env: { maxTokens?: string },
+  maxDaysCap: number,
+  defaultTokens: number,
+): { maxDays: number; maxTokens: number } {
+  const whole = (v: unknown) => {
+    const n = typeof v === "number" ? v : typeof v === "string" && v.trim() ? Number(v) : NaN;
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  };
+  const days = whole(panel?.max_days);
+  const tokens = whole(panel?.max_tokens) ?? whole(env.maxTokens);
+  return {
+    maxDays: days !== null && days >= 1 ? Math.min(days, maxDaysCap) : maxDaysCap,
+    maxTokens: tokens !== null && tokens > 0 ? tokens : defaultTokens,
+  };
+}
+
 export class BodyTooLarge extends Error {}
 
 /**

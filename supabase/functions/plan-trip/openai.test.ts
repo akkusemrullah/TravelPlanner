@@ -2,7 +2,7 @@
 // SEC-02: which failures are billed (no refund) and the request-body guard.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, isReasoningModel, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
+import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, isReasoningModel, panelLimits, looksLikeBearerJwt, readJsonBody } from "./openai.ts";
 import { MAX_DAYS, MAX_PLAN_TOKENS, planTokenBudget } from "./planner.ts";
 
 const opts = { apiKey: "k", model: "m", messages: [], name: "trip_plan", schema: {}, maxTokens: 1000, timeoutMs: 1000, effort: "low" };
@@ -141,4 +141,12 @@ test("TP-54: the token counts are added up", async () => {
   await askOpenAi(withReasoning, { ...opts, tally }, quiet);
   await askOpenAi(answer("stop", "{}"), { ...opts, tally }, quiet);
   assert.deepEqual(tally, { prompt: 21, completion: 1032, reasoning: 20 });
+});
+
+test("TP-92: the panel's day and token limits", () => {
+  assert.deepEqual(panelLimits(null, {}, 10, 16000), { maxDays: 10, maxTokens: 16000 });
+  assert.deepEqual(panelLimits({ max_days: 5, max_tokens: 9000 }, { maxTokens: "12000" }, 10, 16000), { maxDays: 5, maxTokens: 9000 });
+  assert.deepEqual(panelLimits({ max_days: null, max_tokens: null }, { maxTokens: "12000" }, 10, 16000), { maxDays: 10, maxTokens: 12000 });
+  assert.deepEqual(panelLimits({ max_days: 40 }, { maxTokens: "x" }, 10, 16000), { maxDays: 10, maxTokens: 16000 }); // never past the cap
+  assert.deepEqual(panelLimits({ max_days: 0, max_tokens: "abc" }, {}, 10, 16000), { maxDays: 10, maxTokens: 16000 });
 });
