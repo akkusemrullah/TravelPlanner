@@ -27,8 +27,12 @@ namespace TravelPlanner.ViewModels
         private readonly ITripCoverService? _covers;
         private readonly IJoinTripFlow? _joinFlow;
         private readonly Services.Sync.ISyncService? _sync;
+        private readonly IAccountService? _account;
 
         internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
+
+        /// <summary>TP-91: the guest closed the "sign in to back up" box.</summary>
+        internal const string SignInHintClosedKey = "dashboard.signin_hint_closed";
 
         /// <summary>The notice asks to update the app (tapping it opens the store; it can't be closed).</summary>
         private bool _isUpdateNotice;
@@ -107,10 +111,11 @@ namespace TravelPlanner.ViewModels
         public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs,
                                   IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null,
                                   ITripCoverService? covers = null, IJoinTripFlow? joinFlow = null,
-                                  Services.Sync.ISyncService? sync = null)
+                                  Services.Sync.ISyncService? sync = null, IAccountService? account = null)
             : base(dialogs)
         {
             _sync = sync;
+            _account = account;
             _joinFlow = joinFlow;
             _tripService = tripService;
             _expenseService = expenseService;
@@ -122,6 +127,21 @@ namespace TravelPlanner.ViewModels
             _covers = covers;
 
             RefreshHeader();
+        }
+
+        // ---- TP-91: the app opens without the sign-in page; a guest sees a small box on Home instead ----
+
+        /// <summary>Signed out and the box wasn't closed. Signing in rebuilds the shell, so this is read once.</summary>
+        public bool ShowSignInHint => _account is { IsSignedIn: false } && _preferences?.Get(SignInHintClosedKey, false) != true;
+
+        [RelayCommand]
+        private Task OpenSignInAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Auth));
+
+        [RelayCommand]
+        private void CloseSignInHint()
+        {
+            _preferences?.Set(SignInHintClosedKey, true);
+            OnPropertyChanged(nameof(ShowSignInHint));
         }
 
         // ---- TP-78: small cloud badge in the header while offline or changes wait to be sent ----

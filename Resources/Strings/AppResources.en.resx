@@ -2854,7 +2854,7 @@ These terms are governed by the laws of the Republic of Turkey. Your statutory r
   <data name="Help_Faq" xml:space="preserve">
     <value>## Getting started
 ? Can I use Travel Planner without an account?
-Yes. Choose "Continue as guest" when you first open the app. All your data then stays only on this device. You can create an account any time with Profile → Sign in / Create account.
+Yes. The app opens without signing in. All your data then stays only on this device. You can create an account any time with Profile → Sign in / Create account.
 ? What changes when I create an account?
 Your trips are backed up to the cloud and synced to every device you sign in on. You can also share trips with friends and create plans with AI.
 ? Is the app free?
@@ -3297,5 +3297,8 @@ For access, correction, deletion and other requests, write to {email} from your 
   </data>
   <data name="AiPlan_StepFormat" xml:space="preserve">
     <value>Step {0} of {1}</value>
+  </data>
+  <data name="Dashboard_SignInHint" xml:space="preserve">
+    <value>Sign in to back up your trips and see them on all your devices.</value>
   </data>
 </root>

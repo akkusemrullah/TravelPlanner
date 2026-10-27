@@ -26,9 +26,6 @@ namespace TravelPlanner
         private DateTime _lastRemindersRefresh = DateTime.MinValue;
         private static readonly TimeSpan RemindersRefreshInterval = TimeSpan.FromHours(6);
 
-        /// <summary>Preference: the sign-in page has been offered once at start-up (G3).</summary>
-        internal const string WelcomeShownKey = "auth.welcome_shown";
-
         // Guards against asking twice - we only want the permission prompt once per process.
         private bool _notificationPermissionRequested;
 
@@ -209,8 +206,6 @@ namespace TravelPlanner
             // TP-57: an AI plan made while the app was closed
             _aiJobs.ResumeAsync().FireAndForget();
             OfferReadyAiPlanAsync().FireAndForget();
-
-            await OfferSignInOnceAsync();
         }
 
         protected override void OnResume()
@@ -320,7 +315,7 @@ namespace TravelPlanner
             _offeringAiPlan = true;
             try
             {
-                await Task.Delay(800); // after the first page (and a sign-in page offered at the first start)
+                await Task.Delay(800); // after the first page
                 if (await _trips.GetByIdAsync(job.TripId) is null)
                 {
                     _aiJobs.Dismiss(job.TripId); // the trip is gone
@@ -343,26 +338,6 @@ namespace TravelPlanner
             finally
             {
                 _offeringAiPlan = false;
-            }
-        }
-
-        // First start: offer sign-in / account creation once. "Misafir olarak devam et" simply closes it, and
-        // Profile → "Giriş yap / Hesap oluştur" opens it again later.
-        private async Task OfferSignInOnceAsync()
-        {
-            if (_account.IsSignedIn || _preferences.Get(WelcomeShownKey, false))
-                return;
-
-            _preferences.Set(WelcomeShownKey, true);
-            try
-            {
-                await Task.Delay(300); // let the first tab render
-                if (Shell.Current is not null)
-                    await Shell.Current.GoToAsync(Routes.Auth);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Opening the sign-in page failed: {ex}");
             }
         }
 
