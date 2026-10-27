@@ -64,11 +64,18 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
 * Dialogs (`AppDialogPage`): centred card with icon tile, title, message and stacked buttons; bottom sheet with handle,
   title + close button and roomy option rows
 * Android tab bar: the selected tab sits on a `tp-accent-soft` pill (`Platforms/Android/TabBarShellRenderer.cs`)
+* Controls (TP-100): `ListRow` (tinted icon tile, title, subtitle, chevron, optional trailing view), `Avatar` (initials on a
+  soft tone picked from the name, `PersonName.ToneIndex`), `Badge` (24 high pill, tone + optional icon), `CheckMark`
+  (square or round tick), `SelectCircle` (selection mode), `ProgressPill` (thin bar, `Tone` or `FillColor`)
+* Grouped list cards (TP-102): a CollectionView can't wrap rows in one Border, so every row is a slice
+  (`ListPosition` → `ListPositionShapeConverter` / `ListPositionMarginConverter`). `ListPositions.Track(collection)`
+  keeps positions right; `ListPositions.AssignCards(rows, startsCard)` splits one flat list into several cards
+  (AI plan preview, Keşfet detail: a day header starts a new card, a section title ends the one above)
 
 ## Layout rules
 
 * 4-pt grid: 4 / 8 / 12 / 16 / 20 / 24. Page gutters 16, section gap 24, card padding 16 (12 compact).
 * Radii: 22 ticket, 20 hero, 16 cards, 12 controls / buttons / icon tiles, pill tags and chips.
-* Flat surfaces with 1 px borders; the boarding pass is the only gradient, the ticket and FAB the only shadows. No emoji in UI text.
+* Flat surfaces with 1 px borders; the boarding pass and `Card.Hero` are the only gradients, the ticket and FAB the only shadows. No emoji in UI text.
 * Navigation: bottom tab bar (Home · Trips · Explore · Profile); every other page is pushed and hides the tab bar.
 * Forms end with a sticky action bar: secondary *Cancel* + primary *Save*, validation banner above.
