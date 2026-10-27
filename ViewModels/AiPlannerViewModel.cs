@@ -273,6 +273,13 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private string quotaText = string.Empty;
 
+        /// <summary>TP-92: what the allowance belongs to and when it comes back ("Yenilenme: 28 Eki 00:00").</summary>
+        [ObservableProperty]
+        private string quotaRuleText = AppResources.AiPlan_QuotaRule;
+
+        /// <summary>TP-92: the last period the server told (a plan's answer doesn't repeat it).</summary>
+        private AiQuota? _period;
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasError))]
         private string? errorText;
@@ -315,8 +322,7 @@ namespace TravelPlanner.ViewModels
             await RefreshAccessAsync(TripId);
             OnPropertyChanged(nameof(CanGenerate));
 
-            var days = Math.Min(_trip.DurationInDays, AiPlannerService.MaxDays);
-            IntroText = string.Format(AppResources.AiPlan_IntroFormat, _trip.City, days);
+            ShowIntro();
             IsSignedIn = _account.IsSignedIn;
             IsOnline = _connectivity.NetworkAccess == NetworkAccess.Internet;
 
@@ -421,10 +427,32 @@ namespace TravelPlanner.ViewModels
         // The preview must not be thrown away by a sync that reloads the page.
         protected override bool ReloadOnRemoteChanges => false;
 
+        /// <summary>The panel may plan fewer days than <see cref="AiPlannerService.MaxDays"/>.</summary>
+        private int MaxDays => _period?.MaxDays ?? AiPlannerService.MaxDays;
+
+        private void ShowIntro()
+        {
+            if (_trip is not null)
+                IntroText = string.Format(AppResources.AiPlan_IntroFormat, _trip.City, Math.Min(_trip.DurationInDays, MaxDays));
+        }
+
+        /// <summary>"28 Eki 00:00" in the phone's time and language.</summary>
+        internal static string ResetText(DateTimeOffset at) =>
+            at.ToLocalTime().ToString("d MMM HH:mm", System.Globalization.CultureInfo.CurrentCulture);
+
         private void ShowQuota(AiQuota? quota)
         {
             if (quota is null)
                 return;
+            if (quota.Period is not null)
+            {
+                _period = quota;
+                ShowIntro();
+            }
+            QuotaRuleText = _period is null ? AppResources.AiPlan_QuotaRule
+                : _period.NeverResets ? AppResources.AiPlan_QuotaRuleNever
+                : _period.ResetsAt is { } next ? string.Format(AppResources.AiPlan_QuotaRuleFormat, ResetText(next))
+                : AppResources.AiPlan_QuotaRule;
             IsPaused = quota.Paused;
             if (quota.Paused)
             {
@@ -434,7 +462,10 @@ namespace TravelPlanner.ViewModels
                 Remaining = 0;
                 return;
             }
-            BlockedText = AppResources.AiPlan_QuotaNoneText;
+            BlockedText = _period is null ? AppResources.AiPlan_QuotaNoneText
+                : _period.NeverResets ? AppResources.AiPlan_QuotaNoneNever
+                : _period.ResetsAt is { } at ? string.Format(AppResources.AiPlan_QuotaNoneFormat, ResetText(at))
+                : AppResources.AiPlan_QuotaNoneText;
             Remaining = quota.Remaining;
             QuotaText = quota.Remaining > 0
                 ? string.Format(AppResources.AiPlan_QuotaFormat, quota.Remaining, quota.Limit)
@@ -625,7 +656,7 @@ namespace TravelPlanner.ViewModels
                 Tips.Add(tip);
 
             Summary = result.Plan.Summary;
-            TruncatedText = result.TruncatedDays ? string.Format(AppResources.AiPlan_TruncatedFormat, AiPlannerService.MaxDays) : string.Empty;
+            TruncatedText = result.TruncatedDays ? string.Format(AppResources.AiPlan_TruncatedFormat, MaxDays) : string.Empty;
 
             OnPropertyChanged(nameof(HasPlaces));
             OnPropertyChanged(nameof(HasTodos));

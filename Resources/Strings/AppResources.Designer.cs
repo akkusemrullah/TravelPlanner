@@ -8964,5 +8964,41 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("AiPlan_StepFormat", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hak sayısı hesabına ve bu cihaza bağlı. Yenilenme: {0}.
+        /// </summary>
+        public static string AiPlan_QuotaRuleFormat {
+            get {
+                return ResourceManager.GetString("AiPlan_QuotaRuleFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hak sayısı hesabına ve bu cihaza bağlı; yenilenmez..
+        /// </summary>
+        public static string AiPlan_QuotaRuleNever {
+            get {
+                return ResourceManager.GetString("AiPlan_QuotaRuleNever", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yeni hakların: {0}.
+        /// </summary>
+        public static string AiPlan_QuotaNoneFormat {
+            get {
+                return ResourceManager.GetString("AiPlan_QuotaNoneFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan hakların yenilenmiyor..
+        /// </summary>
+        public static string AiPlan_QuotaNoneNever {
+            get {
+                return ResourceManager.GetString("AiPlan_QuotaNoneNever", resourceCulture);
+            }
+        }
     }
 }

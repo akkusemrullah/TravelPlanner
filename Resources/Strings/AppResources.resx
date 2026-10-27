@@ -1488,7 +1488,7 @@ Hesap açmadan kullandığında seyahatlerin, planların, harcamaların, görevl
 • Hesabını oluşturmak, giriş yapmanı sağlamak ve e-posta adresini doğrulamak.
 • Seyahat verilerini cihazların arasında eşitlemek, yedeklemek ve seçtiğin kişilerle paylaşmak.
 • İstediğinde yapay zekâ ile seyahat planı hazırlamak.
-• Hizmetin güvenliğini sağlamak, kötüye kullanımı (ör. günlük yapay zekâ kotasının aşılmasını) önlemek ve askıya alınan hesapları engellemek.
+• Hizmetin güvenliğini sağlamak, kötüye kullanımı (ör. yapay zekâ kotasının aşılmasını) önlemek ve askıya alınan hesapları engellemek.
 • Destek taleplerini yanıtlamak ve yasal yükümlülükleri yerine getirmek.
 Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
 
@@ -1497,7 +1497,7 @@ Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyah
 
 ## Yapay zekâ ile planlama
 Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır. Plan arka planda hazırlanır; hazır olan plan uygulamana ulaşana kadar sunucumuzda tutulur, ulaşınca ve en geç 1 gün içinde silinir.
-Günlük plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile günlük kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz. Hesabınla giriş yaptığında ve uygulamayı açtığında da bu özet gönderilir: kötüye kullanımı (ör. plan hakkı için aynı telefonda çok sayıda hesap açılmasını) önlemek için hangi hesapların aynı cihazda kullanıldığı, hesabın e-postası ve ilk/son görülme zamanıyla birlikte, cihaz son görüldükten sonra 1 yıl tutulur ve yalnızca yönetici tarafından görülür.
+Plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz. Hesabınla giriş yaptığında ve uygulamayı açtığında da bu özet gönderilir: kötüye kullanımı (ör. plan hakkı için aynı telefonda çok sayıda hesap açılmasını) önlemek için hangi hesapların aynı cihazda kullanıldığı, hesabın e-postası ve ilk/son görülme zamanıyla birlikte, cihaz son görüldükten sonra 1 yıl tutulur ve yalnızca yönetici tarafından görülür.
 Özel istek notuna kişisel veya hassas bilgi yazmamanı öneririz. Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları kontrol et. Uygunsuz bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
 
 ## Kullanılan dış hizmetler
@@ -2335,13 +2335,13 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
     <value>Planın hazırlanıyor</value>
   </data>
   <data name="AiPlan_QuotaFormat" xml:space="preserve">
-    <value>Bugün {0}/{1} plan hakkın var.</value>
+    <value>{0}/{1} plan hakkın var.</value>
   </data>
   <data name="AiPlan_QuotaLeftFormat" xml:space="preserve">
-    <value>Bugün {0} plan hakkın kaldı.</value>
+    <value>{0} plan hakkın kaldı.</value>
   </data>
   <data name="AiPlan_QuotaNone" xml:space="preserve">
-    <value>Bugünkü plan hakkın doldu. Yarın tekrar deneyebilirsin.</value>
+    <value>Plan hakkın doldu.</value>
   </data>
   <data name="AiPlan_DayFormat" xml:space="preserve">
     <value>{0}. gün · {1}</value>
@@ -2389,7 +2389,7 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
     <value>Eklemek için en az bir şey seç.</value>
   </data>
   <data name="AiPlan_SignInHint" xml:space="preserve">
-    <value>Yapay zekâ ile planlama için giriş yapman gerekiyor; günlük plan hakkı hesaba bağlı.</value>
+    <value>Yapay zekâ ile planlama için giriş yapman gerekiyor; plan hakkı hesaba bağlı.</value>
   </data>
   <data name="AiPlan_ReadOnly" xml:space="preserve">
     <value>Bu seyahatte düzenleme yetkin olmadığı için plan ekleyemezsin.</value>
@@ -2416,10 +2416,10 @@ Uygulamada Profil → Davet koduyla katıl'a dokunup kodu yaz. Kod {2} tarihine 
     <value>Planlayıcı açılamadı.</value>
   </data>
   <data name="AiPlan_EntrySignIn" xml:space="preserve">
-    <value>Kullanmak için giriş yap; her gün 5 plan hakkın olur.</value>
+    <value>Kullanmak için giriş yap.</value>
   </data>
   <data name="AiPlan_QuotaRule" xml:space="preserve">
-    <value>Hak sayısı hesabına ve bu cihaza bağlı; her gün yenilenir.</value>
+    <value>Hak sayısı hesabına ve bu cihaza bağlı.</value>
   </data>
   <data name="AiPlan_Cat_Landmark" xml:space="preserve">
     <value>Simge yapı</value>
@@ -2743,7 +2743,7 @@ Uygulamayı hesap açmadan kullandığında verilerin yalnızca cihazında kalı
 • İletişim: e-posta adresi.
 • Kullanıcı işlem verileri: seyahat bilgileri (ad, ülke, şehir, tarihler, bütçe, açıklama), gün gün plan, kayıtlı yerler ve konumları, harcama kayıtları (tutar, para birimi, kategori, açıklama, ödeyen), katılımcı adları, görevler, bavul şablonları, yapay zekâ planlayıcısına verdiğin cevaplar ve notlar.
 • Görsel ve belge verileri: seyahate eklediğin fotoğraflar ve belgeler (bilet, rezervasyon, vize vb.), Google ile giriş yaptıysan profil fotoğrafının adresi.
-• İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası ve kötüye kullanımı önleme için cihaz kimliğinden türetilen geri çevrilemeyen özet, günlük kullanım sayısı ve aynı cihazda kullanılan hesapların kaydı.
+• İşlem güvenliği: hesap kimliği, oturum bilgileri, IP adresi ve sunucu kayıtları, yapay zekâ kotası ve kötüye kullanımı önleme için cihaz kimliğinden türetilen geri çevrilemeyen özet, kullanım sayısı ve aynı cihazda kullanılan hesapların kaydı.
 Uygulama özel nitelikli kişisel veri talep etmez. Eklediğin belgelerde (ör. pasaport, vize) bu tür veriler bulunabilir; bu belgeler yalnızca senin talimatınla saklanır ve başka bir amaçla işlenmez. Gerekmedikçe bu tür belgeleri eklememeni öneririz.
 
 ## 3. İşleme amaçları
@@ -2807,7 +2807,7 @@ Uygulamaya eklediğin seyahatler, notlar, harcamalar, fotoğraflar ve belgeler s
 Bir seyahatin sahibi, üyeleri davet edebilir, rollerini değiştirebilir ve onları çıkarabilir. Düzenleyiciler seyahatin içeriğini değiştirebilir; görüntüleyiciler yalnızca görebilir. Bir seyahati yalnızca sahibi silebilir. Davet kodlarını yalnızca güvendiğin kişilerle paylaş.
 
 ## 5. Yapay zekâ önerileri
-Yapay zekâ ile planlama, otomatik olarak üretilen öneriler sunar. Bu öneriler hatalı, eksik veya güncelliğini yitirmiş olabilir (ör. açılış saatleri, fiyatlar, ulaşım, güvenlik koşulları). Önerileri uygulamadan önce resmî kaynaklardan kontrol etmek senin sorumluluğundadır. Özelliğin kullanımı günlük bir hakla sınırlıdır; bu sınır değiştirilebilir. Uygunsuz veya zararlı bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
+Yapay zekâ ile planlama, otomatik olarak üretilen öneriler sunar. Bu öneriler hatalı, eksik veya güncelliğini yitirmiş olabilir (ör. açılış saatleri, fiyatlar, ulaşım, güvenlik koşulları). Önerileri uygulamadan önce resmî kaynaklardan kontrol etmek senin sorumluluğundadır. Özelliğin kullanımı bir hakla sınırlıdır; bu sınır değiştirilebilir. Uygunsuz veya zararlı bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
 
 ## 6. Üçüncü taraf bilgileri
 Hava durumu, döviz kurları, harita ve yer bilgileri üçüncü taraf hizmetlerden alınır ve yalnızca bilgilendirme amaçlıdır. Bunların doğruluğunu veya kesintisiz olacağını garanti edemeyiz. Finansal, hukuki veya seyahat güvenliğiyle ilgili kararlarını yalnızca bu bilgilere dayandırma.
@@ -2881,8 +2881,8 @@ Hazır seyahat planlarını gösterir. Bir plana dokunup gün gün planı, yerle
 ## Yapay zekâ ile planlama
 ? Yapay zekâ planlayıcısı nasıl çalışır?
 Seyahat detayında "Yapay zekâ ile planla"ya dokun, 4 soruyu (ilgi alanları, tempo, bütçe, kiminle) cevapla. Hazırlanan gün gün planı, gezilecek yerleri ve görevleri incele; istediklerini seçip plana ekle. Bu özellik için giriş yapman ve internet bağlantısı gerekir.
-? Günde kaç plan oluşturabilirim?
-Her gün 5 plan hakkın var. Hak sayısı hem hesabına hem cihazına bağlıdır ve her gün yenilenir. Bir plan oluşturulamazsa hakkın geri verilir.
+? Kaç plan oluşturabilirim?
+Plan hakkın sınırlıdır; kaç hakkın kaldığını ve ne zaman yenileneceğini plan ekranında görürsün. Hak sayısı hem hesabına hem cihazına bağlıdır. Bir plan oluşturulamazsa hakkın geri verilir.
 ? Yapay zekâya hangi bilgilerim gönderiliyor?
 Yalnızca plan için gerekenler: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, cevapların, varsa yazdığın not ve seyahatte zaten kayıtlı yerlerin adları. Adın, e-postan, harcamaların ve belgelerin gönderilmez. Nota kişisel bilgi yazmamanı öneririz.
 ? Öneri yanlış ya da uygunsuz olursa ne yapmalıyım?
@@ -3177,10 +3177,10 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
     <value>Hesap ve bulut verileri silinir</value>
   </data>
   <data name="AiPlan_QuotaNoneTitle" xml:space="preserve">
-    <value>Bugünkü hakkın doldu</value>
+    <value>Plan hakkın doldu</value>
   </data>
   <data name="AiPlan_QuotaNoneText" xml:space="preserve">
-    <value>Yarın yeni plan hakların gelir.</value>
+    <value>Hakların yenilenince tekrar deneyebilirsin.</value>
   </data>
   <data name="AiPlan_PausedTitle" xml:space="preserve">
     <value>Yapay zekâ bakımda</value>
@@ -3301,5 +3301,17 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="Dashboard_SignInHint" xml:space="preserve">
     <value>Giriş yaparsan seyahatlerin yedeklenir, tüm cihazlarında görünür.</value>
+  </data>
+  <data name="AiPlan_QuotaRuleFormat" xml:space="preserve">
+    <value>Hak sayısı hesabına ve bu cihaza bağlı. Yenilenme: {0}</value>
+  </data>
+  <data name="AiPlan_QuotaRuleNever" xml:space="preserve">
+    <value>Hak sayısı hesabına ve bu cihaza bağlı; yenilenmez.</value>
+  </data>
+  <data name="AiPlan_QuotaNoneFormat" xml:space="preserve">
+    <value>Yeni hakların: {0}</value>
+  </data>
+  <data name="AiPlan_QuotaNoneNever" xml:space="preserve">
+    <value>Plan hakların yenilenmiyor.</value>
   </data>
 </root>

@@ -155,7 +155,14 @@ namespace TravelPlanner.Models
     public sealed record AiPlanJobState(AiPlanJobStatus Status, AiPlanResult? Result = null, AiPlanErrorKind? Error = null, int? Remaining = null);
 
     /// <param name="Paused">AI planning is in maintenance (admin panel); <paramref name="Message"/> is the admin's note, if any.</param>
-    public sealed record AiQuota(int Remaining, int Limit, bool Paused = false, string? Message = null);
+    /// <param name="Period">TP-92: how often the plans come back (daily, days, weekly, monthly, never); null = not told.</param>
+    /// <param name="ResetsAt">When they come back next; null for "never" or when not told.</param>
+    /// <param name="MaxDays">How many days of a trip the AI plans (admin panel); null = not told.</param>
+    public sealed record AiQuota(int Remaining, int Limit, bool Paused = false, string? Message = null,
+                                 string? Period = null, DateTimeOffset? ResetsAt = null, int? MaxDays = null)
+    {
+        public bool NeverResets => Period == "never";
+    }
 
     /// <summary>What went into the trip after "Plana ekle".</summary>
     /// <param name="UnlocatedPlaces">Ticked places that couldn't be found on the map and were left out (no wrong pins).</param>

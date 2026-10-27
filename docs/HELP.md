@@ -43,8 +43,8 @@ Hazır seyahat planlarını gösterir. Bir plana dokunup gün gün planı, yerle
 **Yapay zekâ planlayıcısı nasıl çalışır?**  
 Seyahat detayında "Yapay zekâ ile planla"ya dokun, 4 soruyu (ilgi alanları, tempo, bütçe, kiminle) cevapla. Hazırlanan gün gün planı, gezilecek yerleri ve görevleri incele; istediklerini seçip plana ekle. Bu özellik için giriş yapman ve internet bağlantısı gerekir.
 
-**Günde kaç plan oluşturabilirim?**  
-Her gün 5 plan hakkın var. Hak sayısı hem hesabına hem cihazına bağlıdır ve her gün yenilenir. Bir plan oluşturulamazsa hakkın geri verilir.
+**Kaç plan oluşturabilirim?**  
+Plan hakkın sınırlıdır; kaç hakkın kaldığını ve ne zaman yenileneceğini plan ekranında görürsün. Hak sayısı hem hesabına hem cihazına bağlıdır. Bir plan oluşturulamazsa hakkın geri verilir.
 
 **Yapay zekâya hangi bilgilerim gönderiliyor?**  
 Yalnızca plan için gerekenler: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, cevapların, varsa yazdığın not ve seyahatte zaten kayıtlı yerlerin adları. Adın, e-postan, harcamaların ve belgelerin gönderilmez. Nota kişisel bilgi yazmamanı öneririz.
@@ -152,8 +152,8 @@ It shows ready-made trip plans. Tap one to see its day plan, places and to-dos. 
 **How does the AI planner work?**  
 Tap "Plan with AI" on the trip page and answer 4 questions (interests, pace, budget, companions). Review the day-by-day plan, places and to-dos it prepares, then pick what you want and add it to your trip. You need an account and an internet connection.
 
-**How many plans can I create a day?**  
-5 plans a day. The count is tied to both your account and your device and renews daily. If a plan fails, the plan is given back.
+**How many plans can I create?**  
+Your plans are limited; the plan screen shows how many are left and when they renew. The count is tied to both your account and your device. If a plan fails, the plan is given back.
 
 **What is sent to the AI?**  
 Only what the plan needs: the destination city and country, the start date and number of days, your answers, your note (if any) and the names of places already in the trip. Your name, e-mail, expenses and documents are not sent. Please don't put personal information in the note.

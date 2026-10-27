@@ -81,8 +81,13 @@ namespace TravelPlanner.Services
                     return null;
                 var paused = result.TryGetProperty("paused", out var p) && p.ValueKind == JsonValueKind.True;
                 var message = result.TryGetProperty("message", out var m) && m.ValueKind == JsonValueKind.String ? m.GetString() : null;
+                // TP-92 (migration 42): the period and its end; older servers don't send them
+                var period = result.TryGetProperty("period", out var pr) && pr.ValueKind == JsonValueKind.String ? pr.GetString() : null;
+                DateTimeOffset? resetsAt = result.TryGetProperty("resets_at", out var ra) && ra.ValueKind == JsonValueKind.String &&
+                                           DateTimeOffset.TryParse(ra.GetString(), CultureInfo.InvariantCulture, DateTimeStyles.None, out var at) ? at : null;
+                int? maxDays = result.TryGetProperty("max_days", out var md) && md.ValueKind == JsonValueKind.Number && md.TryGetInt32(out var d) && d is >= 1 and <= MaxDays ? d : null;
                 return new AiQuota(result.GetProperty("remaining").GetInt32(), result.GetProperty("limit").GetInt32(), paused,
-                    string.IsNullOrWhiteSpace(message) ? null : message.Trim());
+                    string.IsNullOrWhiteSpace(message) ? null : message.Trim(), period, resetsAt, maxDays);
             }
             catch (Exception ex) when (ex is SyncException or KeyNotFoundException or InvalidOperationException or FormatException)
             {

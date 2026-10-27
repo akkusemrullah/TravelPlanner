@@ -33,10 +33,10 @@
 // job (migration 39), where the app picks it up. See jobs.ts.
 
 import {
-  buildMessages, buildReplacementMessages, MAX_BODY_BYTES, MAX_PLAN_TOKENS, parseRequest, PLAN_SCHEMA, planTokenBudget,
+  buildMessages, buildReplacementMessages, MAX_BODY_BYTES, MAX_DAYS, MAX_PLAN_TOKENS, parseRequest, PLAN_SCHEMA, planTokenBudget,
   REPLACEMENT_SCHEMA, RequestError, sanitizePlan, sanitizeReplacements,
 } from "./planner.ts";
-import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, looksLikeBearerJwt, readJsonBody, type TokenTally } from "./openai.ts";
+import { AiCallError, askOpenAi, BodyTooLarge, chooseModel, looksLikeBearerJwt, panelLimits, readJsonBody, type TokenTally } from "./openai.ts";
 import { beginResult, type BeginResult, finishArgs, jobIdOf, waitUntilOf } from "./jobs.ts";
 import { type PlanLog, planLogEntry, type PlanStatus, tokenSubject } from "./planlog.ts";
 import { findCenter, foodVenues, type Point, type Venue, verifyPlan } from "./places.ts";
@@ -81,7 +81,7 @@ async function useQuota(authorization: string, apikey: string, deviceId: string)
  * The panel's model choice (migration 31). Null when it can't be read (no service key, migration not run, network):
  * then the secrets decide, so a settings problem never stops the planner.
  */
-async function panelModel(): Promise<{ model?: unknown; reasoning?: unknown } | null> {
+async function panelModel(): Promise<{ model?: unknown; reasoning?: unknown; max_days?: unknown; max_tokens?: unknown } | null> {
   const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
   if (!key) return null;
   try {
@@ -228,7 +228,7 @@ Deno.serve(async (req) => {
     if (begun === "unavailable") jobId = null; // migration 39 not run: the plan comes in the answer, as before
   }
 
-  const { request, truncatedDays } = parsed;
+  const { request } = parsed;
   // the quota first: a request without plans left (or without a valid session) costs the map services nothing.
   // The panel's model choice is read at the same time.
   const [quota, panel] = await Promise.all([useQuota(authorization, apikey, request.deviceId), panelModel()]);
@@ -236,6 +236,11 @@ Deno.serve(async (req) => {
     if (jobId) await finishJob(jobId, quota.response.status, await quota.response.clone().json().catch(() => null));
     return quota.status ? await done(quota.response, quota.status) : quota.response;
   }
+
+  // TP-92: the panel may plan fewer days and cap the tokens lower (or higher) than the defaults
+  const limits = panelLimits(panel, { maxTokens: Deno.env.get("AI_MAX_TOKENS") }, MAX_DAYS, MAX_PLAN_TOKENS);
+  const truncatedDays = parsed.truncatedDays || request.days > limits.maxDays;
+  request.days = Math.min(request.days, limits.maxDays);
 
   /** Everything after the quota: the plan, or why there is none. */
   const makePlan = async (): Promise<Response> => {
@@ -247,7 +252,7 @@ Deno.serve(async (req) => {
     if (source === "panel") console.log(`model ${model}, reasoning ${planEffort} (panel)`);
     else console.warn(`model ${model}, reasoning ${planEffort} (${source}: panel ${panel ? "has no model" : "not read"})`);
 
-    const planTokens = planTokenBudget(request.days, request.pace, planEffort, Number(Deno.env.get("AI_MAX_TOKENS") ?? MAX_PLAN_TOKENS));
+    const planTokens = planTokenBudget(request.days, request.pace, planEffort, limits.maxTokens);
 
     /** One structured-output call: the parsed JSON answer; throws AiCallError on any failure. */
     const started = Date.now();

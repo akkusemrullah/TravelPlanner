@@ -157,7 +157,7 @@
                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="{Binding IntroText}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
                             <Label Text="{Binding QuotaText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-primary}" />
-                            <Label Text="{x:Static res:AppResources.AiPlan_QuotaRule}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                            <Label Text="{Binding QuotaRuleText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
                     </Grid>
 
