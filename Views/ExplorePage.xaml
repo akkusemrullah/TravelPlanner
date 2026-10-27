@@ -40,14 +40,14 @@
 
         <!-- ════════ Header ════════ -->
         <Grid Grid.Row="0" Style="{StaticResource PageHeader}">
-            <VerticalStackLayout Spacing="4" VerticalOptions="Center">
-                <Label Text="{x:Static res:AppResources.Nav_Explore}" Style="{StaticResource Text.Overline}" />
-                <Label Text="{x:Static res:AppResources.Explore_Heading}" Style="{StaticResource Text.H1}" SemanticProperties.HeadingLevel="Level1" />
+            <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                <Label Text="{x:Static res:AppResources.Nav_Explore}" Style="{StaticResource Text.H1}" FontSize="26" SemanticProperties.HeadingLevel="Level1" />
+                <Label Text="{x:Static res:AppResources.Explore_Heading}" Style="{StaticResource Text.Caption}" FontSize="13" />
             </VerticalStackLayout>
         </Grid>
 
         <!-- ════════ Search + filter button (with the number of active filters) ════════ -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10" Padding="16,0,16,14" BackgroundColor="{DynamicResource tp-surface}">
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8" Padding="16,4,16,12">
             <Border Grid.Column="0" Style="{StaticResource Input}" Padding="2,0">
                 <SearchBar Text="{Binding SearchText}" MaxLength="100" Placeholder="{x:Static res:AppResources.Explore_SearchPlaceholder}"
                            SemanticProperties.Description="{x:Static res:AppResources.Explore_SearchPlaceholder}" />
@@ -57,7 +57,7 @@
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding OpenFilterCommand}" />
                     </Border.GestureRecognizers>
-                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Sliders}" />
+                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.SlidersH}" />
                 </Border>
                 <Border IsVisible="{Binding HasActiveFilters}" BackgroundColor="{DynamicResource tp-accent}" StrokeThickness="0"
                         StrokeShape="RoundRectangle 9" HeightRequest="18" MinimumWidthRequest="18" Padding="5,0"
@@ -103,20 +103,32 @@
                                                           CommandParameter="{Binding .}" />
                                 </Border.GestureRecognizers>
                                 <Grid ColumnDefinitions="92,*,Auto" RowDefinitions="Auto,Auto,*,Auto" ColumnSpacing="12" RowSpacing="2">
-                                    <Border Grid.RowSpan="4" StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="{DynamicResource tp-surface-alt}"
+                                    <Border Grid.RowSpan="4" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-surface-alt}"
                                             WidthRequest="92" HeightRequest="92">
                                         <Grid>
                                             <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Compass}" TextColor="{DynamicResource tp-text-3}" />
                                             <Image helpers:RemoteImage.Url="{Binding ThumbUrl}" Aspect="AspectFill" />
                                         </Grid>
                                     </Border>
-                                    <Label Grid.Column="1" Grid.Row="0" Text="{Binding Title}" Style="{StaticResource Text.Title}" MaxLines="1" LineBreakMode="TailTruncation" />
-                                    <Border Grid.Column="2" Grid.Row="0" IsVisible="{Binding IsNew}" Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-accent-soft}">
-                                        <Label Text="{x:Static res:AppResources.Explore_New}" Style="{StaticResource Tag.Text}" TextColor="{DynamicResource tp-accent-text}" />
+                                    <Label Grid.Column="1" Grid.Row="0" Text="{Binding Title}" Style="{StaticResource Text.Title}" FontFamily="InterBold" MaxLines="1" LineBreakMode="TailTruncation" />
+                                    <Border Grid.Column="2" Grid.Row="0" IsVisible="{Binding IsNew}" Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-success-soft}">
+                                        <Label Text="{x:Static res:AppResources.Explore_New}" Style="{StaticResource Tag.Text}" TextColor="{DynamicResource tp-success}" />
                                     </Border>
-                                    <Label Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Text="{Binding Location}" Style="{StaticResource Text.Body2}" MaxLines="1" LineBreakMode="TailTruncation" />
-                                    <Label Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2" Text="{Binding TagText}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation" VerticalOptions="Start" />
-                                    <Label Grid.Column="1" Grid.Row="3" Text="{Binding DurationText}" Style="{StaticResource Text.Caption}" FontFamily="InterSemiBold" TextColor="{DynamicResource tp-text-2}" />
+                                    <HorizontalStackLayout Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Spacing="4">
+                                        <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                                        <Label Text="{Binding Location}" Style="{StaticResource Text.Caption}" FontSize="13" MaxLines="1" LineBreakMode="TailTruncation" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                    <!-- TP-99: the first two styles as pills, then the length -->
+                                    <HorizontalStackLayout Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="3" Spacing="6">
+                                        <Border Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-accent-soft}" IsVisible="{Binding HasTags}" VerticalOptions="Center">
+                                            <Label Text="{Binding FirstTag}" Style="{StaticResource Tag.Text}" TextColor="{DynamicResource tp-accent-text}" MaxLines="1" />
+                                        </Border>
+                                        <Border Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-accent-soft}" IsVisible="{Binding HasSecondTag}" VerticalOptions="Center">
+                                            <Label Text="{Binding SecondTag}" Style="{StaticResource Tag.Text}" TextColor="{DynamicResource tp-accent-text}" MaxLines="1" />
+                                        </Border>
+                                        <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Clock}" TextColor="{DynamicResource tp-text-2}" VerticalOptions="Center" Margin="2,0,0,0" />
+                                        <Label Text="{Binding DurationText}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
                                 </Grid>
                             </Border>
                         </DataTemplate>

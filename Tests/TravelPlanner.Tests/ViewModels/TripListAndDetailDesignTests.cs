@@ -51,6 +51,20 @@ namespace TravelPlanner.Tests
             Assert.Equal("3 dosya", TripDetailSummary.Files(3));
         }
 
+        [Fact]
+        public void ExploreCard_ShowsTheFirstTwoStylesAsPills()
+        {
+            var two = new ExploreTripCard { Tags = new() { "culture", "food", "sea" } };
+            Assert.False(string.IsNullOrEmpty(two.FirstTag));
+            Assert.True(two.HasSecondTag);
+            Assert.NotEqual(two.FirstTag, two.SecondTag);
+
+            var none = new ExploreTripCard();
+            Assert.False(none.HasTags);
+            Assert.Equal(string.Empty, none.FirstTag);
+            Assert.False(none.HasSecondTag);
+        }
+
         [Theory]
         [InlineData(50, false, false)]
         [InlineData(80, false, true)]

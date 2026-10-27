@@ -3380,4 +3380,10 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="TripDetail_PercentFormat" xml:space="preserve">
     <value>%{0}</value>
   </data>
+  <data name="Profile_App" xml:space="preserve">
+    <value>Uygulama</value>
+  </data>
+  <data name="Profile_JoinHint" xml:space="preserve">
+    <value>Paylaşılan bir seyahate katıl</value>
+  </data>
 </root>

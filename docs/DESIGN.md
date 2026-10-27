@@ -19,7 +19,11 @@ Defined three times from one table (`DesignTokens.xaml` = static light defaults,
 | `tp-primary` | #1E3A8A | #2563EB | Royal blue primary buttons |
 | `tp-accent` | #2563EB | #2F6FED | Bright blue brand accent (FAB, selected tab, highlights) |
 | `tp-success` / `warning` / `danger` / `info` (+ `-soft`) | | | Status text / tinted backgrounds (info is teal #0E7490 so it never reads as the brand blue) |
-| `tp-hero` | #1E3A8A | #172554 | Royal blue summary cards |
+| `tp-hero` | #1E3A8A | #172554 | Royal blue summary cards, boarding-pass stub |
+| `tp-ticket-start` / `tp-ticket-end` | #1E3A8A / #2F5BD3 | #172554 / #1E3170 | Boarding-pass gradient (top half) |
+
+Trip status tags (`TripTagColorConverter`): ongoing green #1B7543 on #E7F4EC (dark #4CC27E on #13281C), upcoming teal
+#0E7490 on #E3F3F6 (dark #22B8CF on #0F2A30), completed neutral #4A505C on #EEF0F3 (dark #B3B9C4 on #1C2026).
 
 Legacy `fds-*` keys still exist and map onto these values.
 
@@ -42,21 +46,29 @@ Legacy `fds-*` keys still exist and map onto these values.
 One stroke icon font (`Resources/Fonts/Lucide.ttf`, subset). Glyphs are keyed in `Icons.xaml` (`Ic.Home`,
 `Ic.Trips`, …) and drawn with the `Icon` / `Icon.Sm` / `Icon.Xs` / `Icon.Lg` label styles (20 / 16 / 14 / 24).
 The tab bar uses the same glyphs through `FontImageSource`. To add an icon: add it to `ICONS` in the generator,
-regenerate `Icons.xaml` and re-subset the font.
+regenerate `Icons.xaml` and re-subset the font. Icons added with the 2026 redesign (TP-96, `Ic.Luggage` … `Ic.ShieldCheck`)
+come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the older subset's code points;
+`DesignSystemTests` checks every `Ic.*` key has a glyph.
 
 ## Components
 
-* `Card`, `Card.Compact`, `Card.List` (rows with inset dividers), `Card.Hero` (royal blue), `Card.Flat`
-* `AppBar` (pushed pages: back/close · title · actions) and `PageHeader` (tab roots: overline + large title)
+* `Card` (16), `Card.Compact`, `Card.List` (rows with inset dividers), `Card.Hero` (royal blue, 20), `Card.Flat` (12), `Card.Ticket` (22)
+* `Views/TripTicketView` — the boarding pass (Home featured trip, Trip detail): gradient top with status pill, countdown,
+  city, departure ✈ return (the plane rides the route line with the trip's progress), perforated tear line with notches,
+  stub with duration / budget and Hava · Harita · Detaylar buttons (only those with a command show)
+* `AppBar` (pushed pages: back/close · title · actions) and `PageHeader` (tab roots: large title on the page colour)
 * `Input` / `Input.Multiline` — field chrome around transparent Entry / Picker / DatePicker / Editor
-* `Btn.Primary`, `Btn.Accent`, `Btn.Secondary`, `Btn.Ghost`, `Btn.Danger` (+ `.Sm`), `Btn.OnHero`
-* `IconButton` (+ `.Outlined`, `.Filled`), `IconTile` (+ `.Sm`, `.Accent`), `Fab`
-* `Tag` + `Tag.Text`, `Chip` (filters), `Banner.Info/Warning/Error`, `Divider`, `Divider.Inset`, `EmptyIcon`
+* `Btn.Primary`, `Btn.Accent`, `Btn.Secondary`, `Btn.Soft`, `Btn.Ghost`, `Btn.Danger` (soft red, + `.Sm`), `Btn.OnHero` (+ `.Outline`)
+* `IconButton` (round 44, + `.Outlined`, `.Filled`), `IconTile` (+ `.Sm`, `.Tint`, `.Neutral`, `.Accent`, status tones), `Fab`
+* `Tag` + `Tag.Text` (pill), `Chip` (filters, may carry a count), `Banner.Info/Warning/Error/Accent/Success`, `Divider`, `Divider.Inset`, `EmptyIcon`
+* Dialogs (`AppDialogPage`): centred card with icon tile, title, message and stacked buttons; bottom sheet with handle,
+  title + close button and roomy option rows
+* Android tab bar: the selected tab sits on a `tp-accent-soft` pill (`Platforms/Android/TabBarShellRenderer.cs`)
 
 ## Layout rules
 
 * 4-pt grid: 4 / 8 / 12 / 16 / 20 / 24. Page gutters 16, section gap 24, card padding 16 (12 compact).
-* Radii: 14 hero, 12 cards, 10 controls, 8 small controls, 6 tags.
-* Flat surfaces with 1 px borders — no gradients, no drop shadows, no emoji in UI text.
-* Navigation: bottom tab bar (Home · Trips · Profile); every other page is pushed and hides the tab bar.
+* Radii: 22 ticket, 20 hero, 16 cards, 12 controls / buttons / icon tiles, pill tags and chips.
+* Flat surfaces with 1 px borders; the boarding pass is the only gradient, the ticket and FAB the only shadows. No emoji in UI text.
+* Navigation: bottom tab bar (Home · Trips · Explore · Profile); every other page is pushed and hides the tab bar.
 * Forms end with a sticky action bar: secondary *Cancel* + primary *Save*, validation banner above.
