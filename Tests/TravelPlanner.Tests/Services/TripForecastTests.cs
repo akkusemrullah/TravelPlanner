@@ -141,5 +141,25 @@ namespace TravelPlanner.Tests
             Assert.Equal("Ortalama", day.KindLabel);
             Assert.True(day.IsClimateAverage);
         }
+
+        [Theory]
+        [InlineData(0, "warning")]
+        [InlineData(2, "warning")]
+        [InlineData(3, "neutral")]
+        [InlineData(45, "neutral")]
+        [InlineData(61, "info")]
+        [InlineData(95, "info")]
+        public void ConditionTone_FollowsTheWeatherCode(int code, string tone)
+        {
+            Assert.Equal(tone, new DailyForecast { WeatherCode = code }.ConditionTone);
+        }
+
+        [Fact]
+        public void MaxAndMinDisplay_SplitTheRange()
+        {
+            var day = new DailyForecast { TemperatureMax = 23.6, TemperatureMin = null };
+            Assert.Equal("24°", day.MaxDisplay);
+            Assert.Equal(" / –", day.MinDisplay);
+        }
     }
 }

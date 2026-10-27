@@ -3415,4 +3415,28 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="TripForm_BudgetPlaceholder" xml:space="preserve">
     <value>Optional</value>
   </data>
+  <data name="Itinerary_DayEmpty" xml:space="preserve">
+    <value>Empty</value>
+  </data>
+  <data name="PlaceList_CountFormat" xml:space="preserve">
+    <value>{0} places</value>
+  </data>
+  <data name="PlaceList_VisitedCountFormat" xml:space="preserve">
+    <value>{0} visited</value>
+  </data>
+  <data name="Place_LocationHint" xml:space="preserve">
+    <value>The location only comes from picking a suggestion.</value>
+  </data>
+  <data name="Weather_NowFormat" xml:space="preserve">
+    <value>%s · now</value>
+  </data>
+  <data name="Weather_Source" xml:space="preserve">
+    <value>Data: Open-Meteo</value>
+  </data>
+  <data name="Map_ZoomIn" xml:space="preserve">
+    <value>Zoom in</value>
+  </data>
+  <data name="Map_ZoomOut" xml:space="preserve">
+    <value>Zoom out</value>
+  </data>
 </root>

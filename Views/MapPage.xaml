@@ -10,55 +10,74 @@
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
         <!-- ════════ App bar ════════ -->
-        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="44,*,44">
             <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Map}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                <Label Text="{x:Static res:AppResources.Section_Map}" Style="{StaticResource Text.AppBarTitle}" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding Subtitle}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" LineBreakMode="TailTruncation"
+                       IsVisible="{Binding Subtitle, Converter={StaticResource StringNotEmptyConverter}}" />
+            </VerticalStackLayout>
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
-        <!-- ════════ TP-505: route of a plan day + pin legend ════════ -->
-        <VerticalStackLayout Grid.Row="2" Padding="16,10,16,12" Spacing="10" BackgroundColor="{DynamicResource tp-surface}">
-            <Border IsVisible="{Binding HasRoutes}" Style="{StaticResource Input}" MinimumHeightRequest="40">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Route}" TextColor="{DynamicResource tp-text-3}" />
-                    <Picker Grid.Column="1" ItemsSource="{Binding RouteDays}" SelectedItem="{Binding SelectedRouteDay}" FontSize="14"
-                            Title="{x:Static res:AppResources.Map_RouteLabel}" />
-                </Grid>
-            </Border>
-            <!-- Wraps onto a second line on narrow screens instead of running off the edge. -->
-            <FlexLayout Wrap="Wrap" AlignItems="Center" IsVisible="{Binding IsTripMap}">
-                <HorizontalStackLayout Spacing="6" Margin="0,2,16,2">
-                    <Ellipse Fill="{DynamicResource tp-primary}" Stroke="{DynamicResource tp-surface}" StrokeThickness="1.5" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" />
-                    <Label Text="{x:Static res:AppResources.Place_NotVisited}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" />
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Spacing="6" Margin="0,2,16,2">
-                    <Ellipse Fill="{DynamicResource tp-success}" Stroke="{DynamicResource tp-surface}" StrokeThickness="1.5" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" />
-                    <Label Text="{x:Static res:AppResources.Place_Visited}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" />
-                </HorizontalStackLayout>
-                <HorizontalStackLayout Spacing="6" Margin="0,2,16,2" IsVisible="{Binding HasRoutes}">
-                    <BoxView Color="{DynamicResource tp-accent}" WidthRequest="16" HeightRequest="3" VerticalOptions="Center" />
-                    <Label Text="{x:Static res:AppResources.Map_RouteLegend}" Style="{StaticResource Text.Caption}" TextColor="{DynamicResource tp-text-2}" />
-                </HorizontalStackLayout>
-            </FlexLayout>
-        </VerticalStackLayout>
-
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="2">
             <!-- Free map rendering: MapLibre GL JS (bundled in Resources/Raw/maplibre) + keyless OpenFreeMap
                  (OpenStreetMap) vector tiles inside a WebView, no API key or billing account required. HTML is built and
                  assigned to Source from code-behind (see MapPage.xaml.cs, RenderMap()). -->
             <WebView x:Name="MapWebView" />
 
+            <!-- TP-103: the prototype's legend pills (top left) and zoom control (top right) on the map -->
+            <FlexLayout Wrap="Wrap" AlignItems="Start" VerticalOptions="Start" Margin="12,12,64,0" IsVisible="{Binding IsTripMap}" InputTransparent="True">
+                <Border Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-surface}" Margin="0,0,6,6">
+                    <HorizontalStackLayout Spacing="5">
+                        <Ellipse Fill="{DynamicResource tp-accent}" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" />
+                        <Label Text="{x:Static res:AppResources.Place_NotVisited}" Style="{StaticResource Tag.Text}" FontFamily="InterMedium" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-surface}" Margin="0,0,6,6">
+                    <HorizontalStackLayout Spacing="5">
+                        <Ellipse Fill="{DynamicResource tp-success}" WidthRequest="10" HeightRequest="10" VerticalOptions="Center" />
+                        <Label Text="{x:Static res:AppResources.Place_Visited}" Style="{StaticResource Tag.Text}" FontFamily="InterMedium" />
+                    </HorizontalStackLayout>
+                </Border>
+                <Border Style="{StaticResource Tag}" BackgroundColor="{DynamicResource tp-surface}" Margin="0,0,6,6" IsVisible="{Binding HasRoutePlaces}">
+                    <HorizontalStackLayout Spacing="5">
+                        <BoxView Color="{DynamicResource tp-accent}" WidthRequest="12" HeightRequest="3" CornerRadius="2" VerticalOptions="Center" />
+                        <Label Text="{x:Static res:AppResources.Map_RouteLegend}" Style="{StaticResource Tag.Text}" FontFamily="InterMedium" />
+                    </HorizontalStackLayout>
+                </Border>
+            </FlexLayout>
+
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" StrokeShape="RoundRectangle 12"
+                    HorizontalOptions="End" VerticalOptions="Start" Margin="0,12,12,0" Padding="0" IsVisible="{Binding IsOffline, Converter={StaticResource InvertBoolConverter}}">
+                <VerticalStackLayout Spacing="0">
+                    <Grid WidthRequest="40" HeightRequest="40" SemanticProperties.Description="{x:Static res:AppResources.Map_ZoomIn}">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnZoomIn" />
+                        </Grid.GestureRecognizers>
+                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+                    <BoxView Style="{StaticResource Divider}" />
+                    <Grid WidthRequest="40" HeightRequest="40" SemanticProperties.Description="{x:Static res:AppResources.Map_ZoomOut}">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnZoomOut" />
+                        </Grid.GestureRecognizers>
+                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Minus}" TextColor="{DynamicResource tp-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
             <!-- TP-108: tiles need internet - say so instead of showing a silently blank map. -->
-            <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}" VerticalOptions="Start" Margin="12">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" />
+            <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}" VerticalOptions="Start" Margin="16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                    <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
                     <Label Grid.Column="1" Text="{x:Static res:AppResources.Map_Offline}" FontSize="13" TextColor="{DynamicResource tp-warning}" VerticalOptions="Center" />
                 </Grid>
             </Border>
@@ -69,56 +88,108 @@
                     <Label Text="{x:Static res:AppResources.Map_LocatingCity}" Style="{StaticResource Text.Body2}" FontSize="13" VerticalOptions="Center" />
                 </HorizontalStackLayout>
             </Border>
+
+            <!-- TP-50: the tapped place (pin or list row) + "Yol tarifi" to the phone's map app - the prototype's floating card. -->
+            <Border IsVisible="{Binding CanGetDirections}" VerticalOptions="End" Margin="16,0,16,12" Padding="16,12,8,12"
+                    BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" StrokeShape="RoundRectangle 16">
+                <Border.Shadow>
+                    <Shadow Brush="Black" Opacity="0.18" Radius="16" Offset="0,6" />
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto,*,Auto,44" ColumnSpacing="12">
+                    <Border Grid.Column="0" WidthRequest="40" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-accent-soft}">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding SelectedPlace.IsVisited, FallbackValue=False}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding SelectedPlace.IsVisited, FallbackValue=False}" Value="True">
+                                    <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                        <Label Text="{Binding SelectedPlace.Name, FallbackValue=''}" FontFamily="InterSemiBold" FontSize="15" TextColor="{DynamicResource tp-text}"
+                               LineBreakMode="TailTruncation" MaxLines="1" />
+                        <Label Text="{Binding SelectedPlace.IsVisited, Converter={StaticResource VisitedTextConverter}, FallbackValue=''}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}"
+                               IsVisible="{Binding IsTripMap}" />
+                    </VerticalStackLayout>
+                    <Button Grid.Column="2" Text="{x:Static res:AppResources.Map_Directions}" Command="{Binding OpenDirectionsCommand}"
+                            Style="{StaticResource Btn.Primary.Sm}" VerticalOptions="Center" ContentLayout="Left,6">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Navigation}" Size="16" Color="{DynamicResource tp-on-primary}" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Border Grid.Column="3" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Common_Cancel}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text-2}" />
+                    </Border>
+                </Grid>
+            </Border>
         </Grid>
 
-        <!-- ════════ Saved places sheet ════════ -->
-        <Grid Grid.Row="4" RowDefinitions="Auto,Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+        <!-- ════════ Route of a plan day + saved places (TP-505, prototype list card) ════════ -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto,Auto" BackgroundColor="{DynamicResource tp-bg}">
             <BoxView Grid.Row="0" Style="{StaticResource Divider}" />
-            <!-- TP-50: the tapped place (pin or list row) + "Yol tarifi" to the phone's map app. -->
-            <Grid Grid.Row="1" IsVisible="{Binding CanGetDirections}" Padding="20,10,12,6" ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Navigation}" TextColor="{DynamicResource tp-primary}" />
-                <Label Grid.Column="1" Text="{Binding SelectedPlace.Name, FallbackValue=''}" Style="{StaticResource Text.Title}" FontSize="14"
-                       LineBreakMode="TailTruncation" MaxLines="1" VerticalOptions="Center" />
-                <Button Grid.Column="2" Text="{x:Static res:AppResources.Map_Directions}" Command="{Binding OpenDirectionsCommand}"
-                        Style="{StaticResource Btn.Primary.Sm}" HeightRequest="38" />
-                <Border Grid.Column="3" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Common_Cancel}">
-                    <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ClearSelectionCommand}" />
-                    </Border.GestureRecognizers>
-                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text-2}" />
+            <VerticalStackLayout Grid.Row="1" Spacing="6" Padding="16,12,16,0" IsVisible="{Binding HasRoutes}">
+                <Label Text="{x:Static res:AppResources.Map_RouteLabel}" Style="{StaticResource Text.Field}" />
+                <Border Style="{StaticResource Input}">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Label Grid.Column="0" Style="{StaticResource Input.Icon}" Text="{StaticResource Ic.Route}" />
+                        <Picker Grid.Column="1" ItemsSource="{Binding RouteDays}" SelectedItem="{Binding SelectedRouteDay}" FontSize="15"
+                                Title="{x:Static res:AppResources.Map_RouteLabel}" />
+                        <Label Grid.Column="2" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.ChevronDown}" TextColor="{DynamicResource tp-text-3}"
+                               VerticalOptions="Center" Margin="0,0,12,0" InputTransparent="True" />
+                    </Grid>
                 </Border>
-            </Grid>
-            <CollectionView Grid.Row="2" ItemsSource="{Binding Pins}" HeightRequest="148" Margin="0,4"
+            </VerticalStackLayout>
+            <CollectionView Grid.Row="2" ItemsSource="{Binding Pins}" HeightRequest="196" Margin="0,12,0,0" ItemsLayout="VerticalList"
                             SelectionMode="Single" SelectedItem="{Binding SelectedPlace, Mode=TwoWay}">
                 <CollectionView.EmptyView>
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="20,16">
-                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.MapPinned}" />
-                        </Border>
-                        <Label Grid.Column="1" Text="{x:Static res:AppResources.Map_Empty}" Style="{StaticResource Text.Body2}" VerticalOptions="Center" />
-                    </Grid>
+                    <Border Style="{StaticResource Banner.Accent}" Margin="16,0" VerticalOptions="Start">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Map_Empty}" FontSize="13" TextColor="{DynamicResource tp-accent-text}" />
+                        </Grid>
+                    </Border>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Place">
-                        <Grid Padding="20,10" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" />
-                            <Label Grid.Column="1" Text="{Binding Name}" Style="{StaticResource Text.Title}" FontSize="14" VerticalOptions="Center" />
-                            <Border Grid.Column="2" Style="{StaticResource Tag}"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:MapViewModel}}, Path=IsTripMap}">
-                                <Border.Triggers>
-                                    <DataTrigger TargetType="Border" Binding="{Binding IsVisited}" Value="True">
-                                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
-                                    </DataTrigger>
-                                </Border.Triggers>
-                                <Label Text="{Binding IsVisited, Converter={StaticResource VisitedTextConverter}}" Style="{StaticResource Tag.Text}">
+                        <!-- one slice of the list card (Helpers/ListPositions); a selected row turns accent-soft -->
+                        <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                                StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                                Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup Name="CommonStates">
+                                    <VisualState Name="Normal">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                    <VisualState Name="Selected">
+                                        <VisualState.Setters>
+                                            <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
+                                        </VisualState.Setters>
+                                    </VisualState>
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+                            <Grid Padding="16,10" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" MinimumHeightRequest="48">
+                                <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-accent}" VerticalOptions="Center">
                                     <Label.Triggers>
                                         <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
                                             <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                            </Border>
-                        </Grid>
+                                <Label Grid.Column="1" Text="{Binding Name}" FontSize="14.5" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" LineBreakMode="TailTruncation" />
+                                <Label Grid.Column="2" Style="{StaticResource Icon}" FontSize="16" Text="{StaticResource Ic.CheckCircle}" TextColor="{DynamicResource tp-success}" VerticalOptions="Center"
+                                       IsVisible="{Binding IsVisited}" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

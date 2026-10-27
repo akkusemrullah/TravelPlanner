@@ -3416,4 +3416,28 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="TripForm_BudgetPlaceholder" xml:space="preserve">
     <value>İsteğe bağlı</value>
   </data>
+  <data name="Itinerary_DayEmpty" xml:space="preserve">
+    <value>Boş</value>
+  </data>
+  <data name="PlaceList_CountFormat" xml:space="preserve">
+    <value>{0} yer</value>
+  </data>
+  <data name="PlaceList_VisitedCountFormat" xml:space="preserve">
+    <value>{0} ziyaret edildi</value>
+  </data>
+  <data name="Place_LocationHint" xml:space="preserve">
+    <value>Konum yalnızca öneri listesinden seçilerek gelir.</value>
+  </data>
+  <data name="Weather_NowFormat" xml:space="preserve">
+    <value>%s · şu an</value>
+  </data>
+  <data name="Weather_Source" xml:space="preserve">
+    <value>Veriler: Open-Meteo</value>
+  </data>
+  <data name="Map_ZoomIn" xml:space="preserve">
+    <value>Yakınlaştır</value>
+  </data>
+  <data name="Map_ZoomOut" xml:space="preserve">
+    <value>Uzaklaştır</value>
+  </data>
 </root>

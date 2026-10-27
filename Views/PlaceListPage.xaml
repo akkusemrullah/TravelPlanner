@@ -13,14 +13,14 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
         <!-- ════════ App bar ════════ -->
-        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*,Auto" IsVisible="{Binding Selection.IsInactive}">
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="44,*,44" IsVisible="{Binding Selection.IsInactive}">
             <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Places}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Places}" Style="{StaticResource Text.AppBarTitle}" />
             <Border Grid.Column="2" Style="{StaticResource IconButton}" IsVisible="{Binding ShowDeleteMenu}"
                     SemanticProperties.Description="{x:Static res:AppResources.Selection_MenuA11y}">
                 <Border.GestureRecognizers>
@@ -37,84 +37,82 @@
             <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadPlacesCommand}" IsVisible="{Binding HasPlaces}">
                 <CollectionView x:Name="PlacesCollectionView" ItemsSource="{Binding Places}">
                     <CollectionView.Header>
-                        <BoxView HeightRequest="16" Color="Transparent" />
+                        <!-- "8 yer" ... "3 ziyaret edildi" -->
+                        <Grid ColumnDefinitions="*,Auto" Padding="20,16,20,12">
+                            <Label Text="{Binding CountText}" FontSize="13" TextColor="{DynamicResource tp-text-3}" />
+                            <Label Grid.Column="1" Text="{Binding VisitedCountText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-success}" />
+                        </Grid>
                     </CollectionView.Header>
                     <CollectionView.Footer>
-                        <BoxView HeightRequest="96" Color="Transparent" />
+                        <BoxView HeightRequest="112" Color="Transparent" />
                     </CollectionView.Footer>
-                    <CollectionView.ItemsLayout>
-                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
-                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Place">
-                                <Border Style="{StaticResource Card.Compact}" Margin="16,0" HorizontalOptions="Fill">
-                                    <Border.Triggers>
-                                        <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="BackgroundColor" Value="{DynamicResource tp-accent-soft}" />
-                                            <Setter Property="Stroke" Value="{DynamicResource tp-accent}" />
-                                        </DataTrigger>
-                                    </Border.Triggers>
-                                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Grid.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=PlaceTappedCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        </Grid.GestureRecognizers>
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}">
-                                            <Grid>
-                                                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Pin}"
-                                                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=Selection.IsInactive}" />
-                                                <!-- Selection mode: the tile shows the tick. -->
-                                                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Circle}" TextColor="{DynamicResource tp-text-3}"
-                                                       IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=Selection.IsActive}">
-                                                    <Label.Triggers>
-                                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Text" Value="{StaticResource Ic.CheckCircle}" />
-                                                            <Setter Property="TextColor" Value="{DynamicResource tp-accent}" />
-                                                        </DataTrigger>
-                                                    </Label.Triggers>
-                                                </Label>
-                                            </Grid>
-                                        </Border>
-                                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                                            <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" />
-                                            <Label Text="{Binding IsVisited, Converter={StaticResource VisitedTextConverter}}" Style="{StaticResource Text.Caption}">
-                                                <Label.Triggers>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
-                                                        <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
-                                                    </DataTrigger>
-                                                </Label.Triggers>
-                                            </Label>
-                                            <Label Text="{Binding Description}" Style="{StaticResource Text.Body2}" FontSize="13" LineBreakMode="TailTruncation"
-                                                   IsVisible="{Binding Description, Converter={StaticResource StringNotEmptyConverter}}" />
-                                        </VerticalStackLayout>
-                                        <!-- Visited toggle: icon only, so long place names keep the row's width.
-                                             The status is also spelled out under the name. -->
-                                        <Border Grid.Column="2" Style="{StaticResource IconButton.Outlined}" WidthRequest="40" HeightRequest="40"
-                                                SemanticProperties.Description="{Binding IsVisited, Converter={StaticResource VisitedTextConverter}}"
-                                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=Selection.IsInactive}">
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=ToggleVisitedCommand}"
-                                                    CommandParameter="{Binding .}" />
-                                            </Border.GestureRecognizers>
-                                            <Border.Triggers>
-                                                <DataTrigger TargetType="Border" Binding="{Binding IsVisited}" Value="True">
-                                                    <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
-                                                    <Setter Property="Stroke" Value="Transparent" />
+                            <!-- one slice of the list card (Helpers/ListPositions) -->
+                            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                                    Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                                <Grid ColumnDefinitions="Auto,Auto,*,Auto" Padding="16,12,8,12" BackgroundColor="Transparent">
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=PlaceTappedCommand}"
+                                            CommandParameter="{Binding .}" />
+                                    </Grid.GestureRecognizers>
+                                    <controls:SelectCircle Grid.Column="0" IsOn="{Binding IsSelected}" Margin="0,0,12,0"
+                                                           IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=Selection.IsActive}" />
+                                    <!-- pin tile: blue, green once visited -->
+                                    <Border Grid.Column="1" Style="{StaticResource IconTile.Tint}" Margin="0,0,12,0">
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsVisited}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-accent-text}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
+                                                    <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
                                                 </DataTrigger>
-                                            </Border.Triggers>
-                                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Circle}" TextColor="{DynamicResource tp-text-3}">
-                                                <Label.Triggers>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
-                                                        <Setter Property="Text" Value="{StaticResource Ic.CheckCircle}" />
-                                                        <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
-                                                    </DataTrigger>
-                                                </Label.Triggers>
-                                            </Label>
-                                        </Border>
-                                    </Grid>
-                                </Border>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="2" Spacing="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" FontFamily="InterMedium" FontSize="15" TextColor="{DynamicResource tp-text}" MaxLines="1" LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding IsVisited, Converter={StaticResource VisitedTextConverter}}" FontFamily="InterMedium" FontSize="12.5" TextColor="{DynamicResource tp-text-3}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
+                                                    <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Label Text="{Binding Description}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" MaxLines="1" LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding Description, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
+                                    <!-- Visited toggle: a 44 ring with a tick, filled green once visited -->
+                                    <Border Grid.Column="3" WidthRequest="44" HeightRequest="44" StrokeThickness="2" StrokeShape="RoundRectangle 22" Margin="12,0,0,0"
+                                            BackgroundColor="Transparent" Stroke="{DynamicResource tp-border-strong}" VerticalOptions="Center"
+                                            SemanticProperties.Description="{Binding IsVisited, Converter={StaticResource VisitedTextConverter}}"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=Selection.IsInactive}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceListViewModel}}, Path=ToggleVisitedCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Border.Triggers>
+                                            <DataTrigger TargetType="Border" Binding="{Binding IsVisited}" Value="True">
+                                                <Setter Property="BackgroundColor" Value="{DynamicResource tp-success}" />
+                                                <Setter Property="Stroke" Value="{DynamicResource tp-success}" />
+                                            </DataTrigger>
+                                        </Border.Triggers>
+                                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Check}" TextColor="{DynamicResource tp-text-3}">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label" Binding="{Binding IsVisited}" Value="True">
+                                                    <Setter Property="TextColor" Value="{StaticResource White}" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                    </Border>
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -122,21 +120,25 @@
 
             <controls:LoadingLogo IsVisible="{Binding IsInitialLoading}" Size="56" HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <VerticalStackLayout IsVisible="{Binding HasNoPlaces}" Spacing="14" Padding="32" VerticalOptions="Center">
+            <VerticalStackLayout IsVisible="{Binding HasNoPlaces}" Spacing="0" Padding="32,56" VerticalOptions="Start">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.MapPinned}" TextColor="{DynamicResource tp-accent-text}" />
+                    <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
-                <Label Text="{x:Static res:AppResources.PlaceList_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
+                <Label Text="{x:Static res:AppResources.PlaceList_Empty}" Style="{StaticResource Text.EmptyText}" Margin="0,16,0,0" />
                 <!-- TP-80: one tap to the first entry -->
-                <Button Text="{x:Static res:AppResources.PlaceList_AddFirst}" Command="{Binding GoToAddPlaceCommand}"
-                        IsVisible="{Binding CanEdit}" Style="{StaticResource Btn.Primary.Sm}" HorizontalOptions="Center" />
+                <Button Text="{x:Static res:AppResources.PlaceList_AddFirst}" Command="{Binding GoToAddPlaceCommand}" ContentLayout="Left,8"
+                        IsVisible="{Binding CanEdit}" Style="{StaticResource Btn.Primary}" HorizontalOptions="Center" Margin="0,20,0,0">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Plus}" Size="18" Color="{DynamicResource tp-on-primary}" />
+                    </Button.ImageSource>
+                </Button>
             </VerticalStackLayout>
 
         <Border Style="{StaticResource Fab}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Add}" IsVisible="{Binding ShowAddButton}">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding GoToAddPlaceCommand}" />
             </Border.GestureRecognizers>
-            <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-accent}" />
+            <Label Style="{StaticResource Icon}" FontSize="26" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-accent}" />
         </Border>
         </Grid>
     </Grid>
