@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TP-101: tab bar labels, same size whether selected or not (the prototype's 11.5 px label under the pill). -->
+    <style name="TpTabLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:letterSpacing">0</item>
+    </style>
+</resources>

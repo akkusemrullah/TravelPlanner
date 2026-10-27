@@ -9186,5 +9186,29 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Profile_JoinHint", resourceCulture);
             }
         }
+
+        public static string Auth_HaveAccount {
+            get {
+                return ResourceManager.GetString("Auth_HaveAccount", resourceCulture);
+            }
+        }
+
+        public static string Auth_PasswordHint {
+            get {
+                return ResourceManager.GetString("Auth_PasswordHint", resourceCulture);
+            }
+        }
+
+        public static string Auth_CodePlaceholder {
+            get {
+                return ResourceManager.GetString("Auth_CodePlaceholder", resourceCulture);
+            }
+        }
+
+        public static string Auth_ShowPassword {
+            get {
+                return ResourceManager.GetString("Auth_ShowPassword", resourceCulture);
+            }
+        }
     }
 }

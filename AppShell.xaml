@@ -26,7 +26,7 @@
             ContentTemplate="{DataTemplate views:TripListPage}"
             Route="TripList">
             <ShellContent.Icon>
-                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Trips}" Size="22" />
+                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Luggage}" Size="22" />
             </ShellContent.Icon>
         </ShellContent>
 
@@ -45,7 +45,7 @@
             ContentTemplate="{DataTemplate views:SettingsPage}"
             Route="Settings">
             <ShellContent.Icon>
-                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.User}" Size="22" />
+                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.UserPlain}" Size="22" />
             </ShellContent.Icon>
         </ShellContent>
     </TabBar>

@@ -3386,4 +3386,16 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Profile_JoinHint" xml:space="preserve">
     <value>Paylaşılan bir seyahate katıl</value>
   </data>
+  <data name="Auth_HaveAccount" xml:space="preserve">
+    <value>Zaten hesabın var mı?</value>
+  </data>
+  <data name="Auth_PasswordHint" xml:space="preserve">
+    <value>En az 8 karakter, en az bir harf ve bir rakam.</value>
+  </data>
+  <data name="Auth_CodePlaceholder" xml:space="preserve">
+    <value>6 haneli kod</value>
+  </data>
+  <data name="Auth_ShowPassword" xml:space="preserve">
+    <value>Şifreyi göster</value>
+  </data>
 </root>
