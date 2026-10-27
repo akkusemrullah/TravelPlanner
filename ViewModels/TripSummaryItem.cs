@@ -17,7 +17,8 @@ namespace TravelPlanner.ViewModels
             Name = trip.Name;
             Place = string.IsNullOrWhiteSpace(trip.Country) ? trip.City : $"{trip.City}, {trip.Country}";
             Dates = trip.CompactDateRangeDisplay;
-            Budget = trip.FormattedBudget;
+            // TP-97: a trip without a budget shows a dash, as in the prototype (not "₺0")
+            Budget = trip.PlannedBudget > 0 ? trip.FormattedBudget : "—";
             Status = trip.Status;
             Tag = trip.StatusTag; // single source of truth: Trip.Status / Trip.StatusTag
         }
@@ -31,5 +32,10 @@ namespace TravelPlanner.ViewModels
         public string Budget { get; }
         public string Tag { get; }
         public TripStatus Status { get; }
+
+        /// <summary>TP-97: the first row of a grouped list draws no divider above it.</summary>
+        public bool IsFirst { get; init; }
+
+        public bool HasDividerAbove => !IsFirst;
     }
 }

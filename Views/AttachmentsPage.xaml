@@ -86,7 +86,7 @@
 
             <VerticalStackLayout IsVisible="{Binding HasNoAttachments}" Spacing="14" Padding="32" VerticalOptions="Center">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Attachment}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Attachment}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Attachments_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
                 <!-- TP-80: say who can see a passport or ticket before the first one is added -->

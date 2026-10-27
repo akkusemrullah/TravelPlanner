@@ -236,7 +236,7 @@ namespace TravelPlanner.ViewModels
                 .Take(5)
                 .ToList();
             _covers?.ShowThumbnails(recent); // cover thumbnails, as on the trip list
-            RecentTrips.ReplaceAll(recent.Select(trip => new TripSummaryItem(trip)));
+            RecentTrips.ReplaceAll(recent.Select((trip, index) => new TripSummaryItem(trip) { IsFirst = index == 0 }));
         }, AppResources.Dashboard_LoadError);
 
         /// <summary>"Gezilen ülke": countries of trips that have started; "Türkiye" and "Türkiye Cumhuriyeti" are one country.</summary>

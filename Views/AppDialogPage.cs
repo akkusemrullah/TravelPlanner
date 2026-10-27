@@ -46,15 +46,15 @@ namespace TravelPlanner.Views
             _panel.SetDynamicResource(BackgroundColorProperty, "tp-surface");
             if (isSheet)
             {
-                _panel.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(24, 24, 0, 0) };
+                _panel.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(26, 26, 0, 0) };
                 _panel.Padding = new Thickness(0, 10, 0, 20);
                 _panel.VerticalOptions = LayoutOptions.End;
                 _panel.MaximumWidthRequest = 560;
             }
             else
             {
-                _panel.StrokeShape = new RoundRectangle { CornerRadius = 20 };
-                _panel.Padding = new Thickness(24, 24, 24, 20);
+                _panel.StrokeShape = new RoundRectangle { CornerRadius = 24 };
+                _panel.Padding = new Thickness(20);
                 _panel.Margin = new Thickness(24);
                 _panel.VerticalOptions = LayoutOptions.Center;
                 _panel.MaximumWidthRequest = 420;
@@ -74,11 +74,11 @@ namespace TravelPlanner.Views
             var stack = new VerticalStackLayout { Spacing = 0 };
             stack.Add(IconTile(tone));
 
-            var heading = new Label { Text = title, Style = Res<Style>("Text.H2"), LineBreakMode = LineBreakMode.WordWrap, Margin = new Thickness(0, 16, 0, 0) };
+            var heading = new Label { Text = title, Style = Res<Style>("Text.H2"), FontSize = 17, LineBreakMode = LineBreakMode.WordWrap, Margin = new Thickness(0, 12, 0, 0) };
             SemanticProperties.SetHeadingLevel(heading, SemanticHeadingLevel.Level1);
             stack.Add(heading);
             if (!string.IsNullOrWhiteSpace(message))
-                stack.Add(new Label { Text = message, Style = Res<Style>("Text.Body2"), LineBreakMode = LineBreakMode.WordWrap, LineHeight = 1.3, Margin = new Thickness(0, 8, 0, 0) });
+                stack.Add(new Label { Text = message, Style = Res<Style>("Text.Body2"), LineBreakMode = LineBreakMode.WordWrap, LineHeight = 1.35, Margin = new Thickness(0, 8, 0, 0) });
 
             Entry? entry = null;
             if (withInput)
@@ -89,7 +89,7 @@ namespace TravelPlanner.Views
 
             var page = new AppDialogPage(stack, isSheet: false) { _entry = entry };
 
-            var buttons = new VerticalStackLayout { Spacing = 10, Margin = new Thickness(0, 24, 0, 0) };
+            var buttons = new VerticalStackLayout { Spacing = 8, Margin = new Thickness(0, 20, 0, 0) };
             var main = new Button { Text = accept, Style = Res<Style>("Btn.Primary") };
             if (tone == Tone.Danger)
             {
@@ -102,7 +102,8 @@ namespace TravelPlanner.Views
             buttons.Add(main);
             if (cancel is not null)
             {
-                var back = new Button { Text = cancel, Style = Res<Style>("Btn.Secondary") };
+                // TP-96: the way out is a quiet text button under the main one, as in the prototype
+                var back = new Button { Text = cancel, Style = Res<Style>("Btn.Ghost") };
                 back.Clicked += (_, _) => page.Close(null);
                 buttons.Add(back);
             }
@@ -111,50 +112,53 @@ namespace TravelPlanner.Views
             return page.PresentAsync(navigation);
         }
 
-        /// <summary>A choice from the bottom: title, one row per option and Vazgeç.</summary>
+        /// <summary>A choice from the bottom: grab handle, title with a close (X) button, one row per option.</summary>
         public static Task<string?> ShowSheetAsync(INavigation navigation, string title, IReadOnlyList<string> options, string cancel)
         {
             var stack = new VerticalStackLayout { Spacing = 0 };
-            var handle = new BoxView { WidthRequest = 40, HeightRequest = 4, CornerRadius = 2, HorizontalOptions = LayoutOptions.Center, Margin = new Thickness(0, 0, 0, 14) };
+            var handle = new BoxView { WidthRequest = 40, HeightRequest = 5, CornerRadius = 3, HorizontalOptions = LayoutOptions.Center, Margin = new Thickness(0, 0, 0, 6) };
             handle.SetDynamicResource(BoxView.ColorProperty, "tp-border-strong");
             stack.Add(handle);
 
-            if (!string.IsNullOrWhiteSpace(title))
-            {
-                var heading = new Label { Text = title, Style = Res<Style>("Text.H3"), LineBreakMode = LineBreakMode.WordWrap, Margin = new Thickness(20, 0, 20, 10) };
-                SemanticProperties.SetHeadingLevel(heading, SemanticHeadingLevel.Level1);
-                stack.Add(heading);
-            }
-
             var page = new AppDialogPage(stack, isSheet: true); // no ScrollView: it would stretch the sheet to the whole screen
 
-            var list = new VerticalStackLayout { Spacing = 0, Margin = new Thickness(12, 0) };
-            for (var i = 0; i < options.Count; i++)
+            // Title row: the title and an X (the prototype's sheet has no Vazgeç button; X, the back button and a
+            // tap on the dimmed area all cancel).
+            var header = new Grid
             {
-                var option = options[i];
-                if (i > 0)
-                    list.Add(new BoxView { Style = Res<Style>("Divider"), Margin = new Thickness(12, 0) });
+                ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
+                Padding = new Thickness(20, 0, 8, 6),
+            };
+            var heading = new Label { Text = title, Style = Res<Style>("Text.H2"), FontSize = 17, LineBreakMode = LineBreakMode.WordWrap, VerticalOptions = LayoutOptions.Center };
+            SemanticProperties.SetHeadingLevel(heading, SemanticHeadingLevel.Level1);
+            header.Add(heading);
+            var closeIcon = new Label { Text = Res<string>("Ic.Close"), Style = Res<Style>("Icon") };
+            closeIcon.SetDynamicResource(Label.TextColorProperty, "tp-text");
+            var close = new Border { Style = Res<Style>("IconButton"), Content = closeIcon };
+            close.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => page.Close(null)) });
+            SemanticProperties.SetDescription(close, cancel);
+            AutomationProperties.SetIsInAccessibleTree(close, true);
+            header.Add(close, 1);
+            stack.Add(header);
 
-                var row = new Grid
+            var list = new VerticalStackLayout { Spacing = 0, Margin = new Thickness(12, 0) };
+            foreach (var option in options)
+            {
+                var row = new Border
                 {
-                    ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) },
-                    Padding = new Thickness(12, 15),
+                    StrokeThickness = 0,
+                    StrokeShape = new RoundRectangle { CornerRadius = 12 },
+                    Padding = new Thickness(12, 14),
+                    MinimumHeightRequest = 52,
                     BackgroundColor = Colors.Transparent,
+                    Content = new Label { Text = option, Style = Res<Style>("Text.Body"), LineBreakMode = LineBreakMode.WordWrap, VerticalOptions = LayoutOptions.Center },
                 };
-                row.Add(new Label { Text = option, Style = Res<Style>("Text.Body"), LineBreakMode = LineBreakMode.WordWrap, VerticalOptions = LayoutOptions.Center });
-                var chevron = new Label { Text = Res<string>("Ic.ChevronRight"), Style = Res<Style>("Icon.Sm"), VerticalOptions = LayoutOptions.Center };
-                chevron.SetDynamicResource(Label.TextColorProperty, "tp-text-3");
-                row.Add(chevron, 1);
                 row.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => page.Close(option)) });
                 SemanticProperties.SetDescription(row, option);
                 AutomationProperties.SetIsInAccessibleTree(row, true);
                 list.Add(row);
             }
             stack.Add(list);
-
-            var back = new Button { Text = cancel, Style = Res<Style>("Btn.Secondary"), Margin = new Thickness(20, 14, 20, 0) };
-            back.Clicked += (_, _) => page.Close(null);
-            stack.Add(back);
 
             return page.PresentAsync(navigation);
         }
@@ -227,7 +231,7 @@ namespace TravelPlanner.Views
         {
             var (glyph, fill, color) = tone switch
             {
-                Tone.Danger => ("Ic.Alert", "tp-danger-soft", "tp-danger"),
+                Tone.Danger => ("Ic.Delete", "tp-danger-soft", "tp-danger"),
                 Tone.Error => ("Ic.Alert", "tp-danger-soft", "tp-danger"),
                 _ => ("Ic.Info", "tp-accent-soft", "tp-accent-text"),
             };
@@ -238,7 +242,7 @@ namespace TravelPlanner.Views
                 WidthRequest = 48,
                 HeightRequest = 48,
                 StrokeThickness = 0,
-                StrokeShape = new RoundRectangle { CornerRadius = 14 },
+                StrokeShape = new RoundRectangle { CornerRadius = 16 },
                 HorizontalOptions = LayoutOptions.Start,
                 Content = icon,
             };

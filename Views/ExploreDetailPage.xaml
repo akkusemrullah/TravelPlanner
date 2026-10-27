@@ -130,7 +130,7 @@
 
         <VerticalStackLayout Grid.Row="2" IsVisible="{Binding IsOffline}" Spacing="16" Padding="32" VerticalOptions="Center">
             <Border Style="{StaticResource EmptyIcon}">
-                <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-text-2}" />
+                <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-accent-text}" />
             </Border>
             <Label Text="{x:Static res:AppResources.Explore_OfflineEmpty}" Style="{StaticResource EmptyStateTextLabel}" />
             <Button Text="{x:Static res:AppResources.Explore_Retry}" Command="{Binding RetryCommand}" Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />

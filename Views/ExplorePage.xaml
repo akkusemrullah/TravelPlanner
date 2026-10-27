@@ -143,7 +143,7 @@
             <!-- Search / filters match nothing -->
             <VerticalStackLayout IsVisible="{Binding HasNoResults}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Explore_NoResults}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
                 <Button Text="{x:Static res:AppResources.Explore_ClearFilters}" Command="{Binding ClearAllCommand}"
@@ -153,7 +153,7 @@
             <!-- Nothing published yet -->
             <VerticalStackLayout IsVisible="{Binding IsEmptyCatalog}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Compass}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Compass}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Explore_Empty}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
@@ -161,7 +161,7 @@
             <!-- Failed (no cached cards) -->
             <VerticalStackLayout IsVisible="{Binding HasError}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Explore_LoadError}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
                 <Button Text="{x:Static res:AppResources.Explore_Retry}" Command="{Binding RetryCommand}" Style="{StaticResource Btn.Primary}" HorizontalOptions="Center" />
@@ -170,7 +170,7 @@
             <!-- Offline (no cached cards) -->
             <VerticalStackLayout IsVisible="{Binding IsOfflineEmpty}" Spacing="16" Padding="32" VerticalOptions="Center" BackgroundColor="{DynamicResource tp-bg}">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Explore_OfflineEmpty}" Style="{StaticResource EmptyStateTextLabel}" />
                 <Button Text="{x:Static res:AppResources.Explore_Retry}" Command="{Binding RetryCommand}" Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />

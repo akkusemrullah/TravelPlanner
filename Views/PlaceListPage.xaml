@@ -124,7 +124,7 @@
 
             <VerticalStackLayout IsVisible="{Binding HasNoPlaces}" Spacing="14" Padding="32" VerticalOptions="Center">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.MapPinned}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.MapPinned}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.PlaceList_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
                 <!-- TP-80: one tap to the first entry -->

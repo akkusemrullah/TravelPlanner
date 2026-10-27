@@ -94,7 +94,7 @@
                 <!-- Nothing matched the search -->
                 <VerticalStackLayout IsVisible="{Binding NoResults}" Spacing="12" Padding="16,8">
                     <Border Style="{StaticResource EmptyIcon}">
-                        <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-2}" />
+                        <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-accent-text}" />
                     </Border>
                     <Label Text="{x:Static res:AppResources.Help_NoResults}" Style="{StaticResource EmptyStateTextLabel}" />
                     <Button Text="{x:Static res:AppResources.Help_ClearSearch}" Command="{Binding ClearSearchCommand}"

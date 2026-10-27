@@ -104,5 +104,27 @@ namespace TravelPlanner.Tests
             sameName.Name = "roma";
             Assert.False(new TripTicket(sameName, today: Start).ShowName);
         }
+
+        [Fact]
+        public void SubLine_JoinsCountryAndName_PlaneStaysOffTheEndDots()
+        {
+            // TP-97: "İtalya · Roma Tatili" under the city; only the country when the name says nothing more
+            var ticket = new TripTicket(Roma(), today: Start.AddDays(-3));
+            Assert.Equal("İtalya · Roma Tatili", ticket.SubLine);
+            Assert.True(ticket.HasSubLine);
+
+            var sameName = Roma();
+            sameName.Name = "Roma";
+            Assert.Equal("İtalya", new TripTicket(sameName, today: Start).SubLine);
+
+            var bare = new Trip { Name = "Roma", City = "Roma", StartDate = Start, EndDate = Start };
+            Assert.False(new TripTicket(bare, today: Start).HasSubLine);
+
+            // the solid route part follows the progress; the plane is clamped so it never covers the dots
+            Assert.Equal(0d, ticket.ProgressBounds.Width);
+            Assert.Equal(0.05, ticket.PlaneBounds.X);
+            Assert.Equal(0.95, new TripTicket(Roma(), today: Start.AddDays(30)).PlaneBounds.X);
+            Assert.Equal(1d, new TripTicket(Roma(), today: Start.AddDays(30)).ProgressBounds.Width);
+        }
     }
 }
