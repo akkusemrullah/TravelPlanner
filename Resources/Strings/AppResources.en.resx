@@ -3227,7 +3227,7 @@ For access, correction, deletion and other requests, write to {email} from your 
     <value>Usually takes 1-3 min</value>
   </data>
   <data name="Join_Short" xml:space="preserve">
-    <value>Join with code</value>
+    <value>Join by invite</value>
   </data>
   <data name="AiPlan_CanLeave" xml:space="preserve">
     <value>You can leave, it keeps going</value>
