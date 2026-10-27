@@ -65,7 +65,7 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsSignIn), nameof(IsSignUp), nameof(IsVerifySignUp), nameof(IsForgotPassword),
                                   nameof(IsResetPassword), nameof(IsCodeMode), nameof(ShowEmailField), nameof(ShowPasswordField),
-                                  nameof(ShowGoogle), nameof(Title), nameof(Subtitle))]
+                                  nameof(ShowGoogle), nameof(Title), nameof(Subtitle), nameof(ShowClose), nameof(ShowBack))]
         private AuthMode mode = AuthMode.SignIn;
 
         [ObservableProperty]
@@ -103,6 +103,18 @@ namespace TravelPlanner.ViewModels
         public bool ShowEmailField => Mode is AuthMode.SignIn or AuthMode.SignUp or AuthMode.ForgotPassword;
         public bool ShowPasswordField => Mode is AuthMode.SignIn or AuthMode.SignUp;
         public bool ShowGoogle => Mode is AuthMode.SignIn or AuthMode.SignUp;
+        /// <summary>TP-101: sign in / create account close the page (✕); the code and reset steps go back (←).</summary>
+        public bool ShowClose => Mode is AuthMode.SignIn or AuthMode.SignUp;
+
+        public bool ShowBack => !ShowClose;
+
+        /// <summary>TP-101: the eye button in the password field.</summary>
+        [ObservableProperty]
+        private bool isPasswordHidden = true;
+
+        [RelayCommand]
+        private void TogglePassword() => IsPasswordHidden = !IsPasswordHidden;
+
         public bool HasError => !string.IsNullOrEmpty(ErrorMessage);
         public bool HasInfo => !string.IsNullOrEmpty(InfoMessage);
 

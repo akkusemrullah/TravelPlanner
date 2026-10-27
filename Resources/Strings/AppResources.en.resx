@@ -3385,4 +3385,16 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Profile_JoinHint" xml:space="preserve">
     <value>Join a shared trip</value>
   </data>
+  <data name="Auth_HaveAccount" xml:space="preserve">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Auth_PasswordHint" xml:space="preserve">
+    <value>At least 8 characters, with a letter and a digit.</value>
+  </data>
+  <data name="Auth_CodePlaceholder" xml:space="preserve">
+    <value>6-digit code</value>
+  </data>
+  <data name="Auth_ShowPassword" xml:space="preserve">
+    <value>Show password</value>
+  </data>
 </root>

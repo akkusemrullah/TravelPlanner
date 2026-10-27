@@ -137,4 +137,27 @@
     <x:String x:Key="Ic.LogOut">&#xe910;</x:String>  <!-- log-out -->
     <x:String x:Key="Ic.ShieldCheck">&#xe911;</x:String>  <!-- shield-check -->
 
+    <x:String x:Key="Ic.Bed">&#xe912;</x:String>  <!-- bed-double -->
+    <x:String x:Key="Ic.BookOpen">&#xe913;</x:String>  <!-- book-open -->
+    <x:String x:Key="Ic.CalendarClock">&#xe914;</x:String>  <!-- calendar-clock -->
+    <x:String x:Key="Ic.Crown">&#xe915;</x:String>  <!-- crown -->
+    <x:String x:Key="Ic.Hourglass">&#xe916;</x:String>  <!-- hourglass -->
+    <x:String x:Key="Ic.ImagePlus">&#xe917;</x:String>  <!-- image-plus -->
+    <x:String x:Key="Ic.KeyRound">&#xe918;</x:String>  <!-- key-round -->
+    <x:String x:Key="Ic.Lightbulb">&#xe919;</x:String>  <!-- lightbulb -->
+    <x:String x:Key="Ic.LogIn">&#xe91a;</x:String>  <!-- log-in -->
+    <x:String x:Key="Ic.Mail">&#xe91b;</x:String>  <!-- mail -->
+    <x:String x:Key="Ic.Minus">&#xe91c;</x:String>  <!-- minus -->
+    <x:String x:Key="Ic.Monitor">&#xe91d;</x:String>  <!-- monitor -->
+    <x:String x:Key="Ic.Music">&#xe91e;</x:String>  <!-- music -->
+    <x:String x:Key="Ic.RotateCcw">&#xe91f;</x:String>  <!-- rotate-ccw -->
+    <x:String x:Key="Ic.Save">&#xe920;</x:String>  <!-- save -->
+    <x:String x:Key="Ic.SearchX">&#xe921;</x:String>  <!-- search-x -->
+    <x:String x:Key="Ic.Settings2">&#xe922;</x:String>  <!-- settings-2 -->
+    <x:String x:Key="Ic.UserPlain">&#xe923;</x:String>  <!-- user -->
+    <x:String x:Key="Ic.UserPlus">&#xe924;</x:String>  <!-- user-plus -->
+    <x:String x:Key="Ic.UserX">&#xe925;</x:String>  <!-- user-x -->
+    <x:String x:Key="Ic.ShieldPlain">&#xe926;</x:String>  <!-- shield -->
+    <x:String x:Key="Ic.Ellipsis">&#xe927;</x:String>  <!-- ellipsis -->
+    <x:String x:Key="Ic.EyeOff">&#xe928;</x:String>  <!-- eye-off -->
 </ResourceDictionary>
