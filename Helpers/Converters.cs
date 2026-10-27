@@ -171,13 +171,40 @@ namespace TravelPlanner.Helpers
 
         public static string ToGlyph(string? category) => category switch
         {
-            nameof(ExpenseCategory.Transportation) => "\ue1d5",
-            nameof(ExpenseCategory.Accommodation) => "\ue3e6",
+            // TP-104: the prototype's set - bus, bed-double, utensils, music, shopping-bag, ellipsis
+            nameof(ExpenseCategory.Transportation) => "\ue1d4",
+            nameof(ExpenseCategory.Accommodation) => "\ue912",
             nameof(ExpenseCategory.Food) => "\ue2f6",
-            nameof(ExpenseCategory.Entertainment) => "\ue20f",
+            nameof(ExpenseCategory.Entertainment) => "\ue91e",
             nameof(ExpenseCategory.Shopping) => "\ue15f",
             "All" => "\ue104",
-            _ => "\ue3d7",
+            _ => "\ue927",
+        };
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// TP-104: the prototype's category colours (the same in both themes). ConverterParameter "Soft" gives the tile
+    /// background (the colour at 13 % opacity), anything else the icon colour.
+    /// </summary>
+    public class CategoryColorConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var color = Color.FromArgb(ToHex(value?.ToString()));
+            return string.Equals(parameter as string, "Soft", StringComparison.OrdinalIgnoreCase) ? color.WithAlpha(0.13f) : color;
+        }
+
+        public static string ToHex(string? category) => category switch
+        {
+            nameof(ExpenseCategory.Transportation) => "#2F6FED",
+            nameof(ExpenseCategory.Accommodation) => "#0E9F8E",
+            nameof(ExpenseCategory.Food) => "#E08A1E",
+            nameof(ExpenseCategory.Entertainment) => "#D9467A",
+            nameof(ExpenseCategory.Shopping) => "#7A5AF8",
+            _ => "#8A94A6",
         };
 
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>

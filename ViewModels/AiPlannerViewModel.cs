@@ -28,8 +28,12 @@ namespace TravelPlanner.ViewModels
         private bool isSelected;
     }
 
-    public partial class AiPreviewActivity : ObservableObject
+    public partial class AiPreviewActivity : ObservableObject, IListPositioned
     {
+        /// <summary>TP-104: its slice of the day card (see <see cref="ListPositions"/>).</summary>
+        [ObservableProperty]
+        private ListPosition listPosition;
+
         public AiPreviewActivity(int day, AiPlanActivity activity, string? placeName = null)
         {
             Day = day;
@@ -63,8 +67,11 @@ namespace TravelPlanner.ViewModels
         private bool isSelected = true;
     }
 
-    public sealed class AiPreviewDay
+    public sealed class AiPreviewDay : IListPositioned
     {
+        /// <summary>TP-104: the card's header slice.</summary>
+        public ListPosition ListPosition { get; set; }
+
         public AiPreviewDay(string header, string title, IReadOnlyList<AiPreviewActivity> activities)
         {
             Header = header;
@@ -78,8 +85,11 @@ namespace TravelPlanner.ViewModels
         public IReadOnlyList<AiPreviewActivity> Activities { get; }
     }
 
-    public partial class AiPreviewPlace : ObservableObject
+    public partial class AiPreviewPlace : ObservableObject, IListPositioned
     {
+        [ObservableProperty]
+        private ListPosition listPosition;
+
         public AiPreviewPlace(AiPlanPlace place) => Place = place;
 
         public AiPlanPlace Place { get; }
@@ -102,17 +112,28 @@ namespace TravelPlanner.ViewModels
         private bool isSelected = true;
     }
 
-    /// <summary>A section title in the preview list ("GÜN GÜN PLAN"), with an optional caption under it.</summary>
-    public sealed record AiPreviewSection(string Title, string? Hint = null)
+    /// <summary>
+    /// A section title in the preview list ("Gün gün plan"), with an optional caption under it. TP-104: the
+    /// prototype puts an icon (<see cref="IconKey"/>, an Ic.* resource) before it; tips get the warning colour.
+    /// </summary>
+    public sealed record AiPreviewSection(string Title, string? Hint = null, string IconKey = "Ic.Calendar", bool IsWarning = false)
     {
         public bool HasHint => !string.IsNullOrEmpty(Hint);
+
+        public string Glyph => Application.Current?.Resources.TryGetValue(IconKey, out var value) == true ? value as string ?? string.Empty : string.Empty;
     }
 
     /// <summary>A read-only local tip in the preview list.</summary>
-    public sealed record AiPreviewTip(string Text);
-
-    public partial class AiPreviewTodo : ObservableObject
+    public sealed record AiPreviewTip(string Text) : IListPositioned
     {
+        public ListPosition ListPosition { get; set; }
+    }
+
+    public partial class AiPreviewTodo : ObservableObject, IListPositioned
+    {
+        [ObservableProperty]
+        private ListPosition listPosition;
+
         public AiPreviewTodo(string title) => Title = title;
 
         public string Title { get; }
@@ -184,6 +205,12 @@ namespace TravelPlanner.ViewModels
                 Choice(GroupInterest, "adventure", AppResources.AiPlan_I_Adventure),
                 Choice(GroupInterest, "relax", AppResources.AiPlan_I_Relax),
             });
+            foreach (var interest in Interests)
+                interest.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(AiChoice.IsSelected))
+                        OnPropertyChanged(nameof(InterestCountText));
+                };
             Paces = new ObservableCollection<AiChoice>(new[]
             {
                 Choice(GroupPace, "relaxed", AppResources.AiPlan_Pace_Relaxed),
@@ -208,6 +235,9 @@ namespace TravelPlanner.ViewModels
         private static AiChoice Choice(string group, string key, string label, bool selected = false) => new(group, key, label, selected);
 
         public ObservableCollection<AiChoice> Interests { get; }
+
+        /// <summary>TP-104: "2/4" next to the interests question.</summary>
+        public string InterestCountText => $"{Interests.Count(i => i.IsSelected)}/{MaxInterests}";
         public ObservableCollection<AiChoice> Paces { get; }
         public ObservableCollection<AiChoice> Budgets { get; }
         public ObservableCollection<AiChoice> Companions { get; }
@@ -309,6 +339,36 @@ namespace TravelPlanner.ViewModels
         public bool HasSummary => !string.IsNullOrWhiteSpace(Summary);
         public bool CanGenerate => IsSignedIn && IsOnline && !IsGenerating && !IsBusyElsewhere && CanEdit && Remaining is not 0;
 
+        // TP-104: the prototype shows one status card instead of the questions when no plan can be asked for.
+        private bool CanAsk => !IsGenerating && !IsPreview;
+        public bool ShowGuestGate => CanAsk && IsGuest;
+        public bool ShowOfflineGate => CanAsk && IsSignedIn && IsOffline;
+        public bool ShowReadOnlyGate => CanAsk && IsSignedIn && IsOnline && IsReadOnly;
+        public bool ShowBusyGate => CanAsk && IsSignedIn && IsOnline && !IsReadOnly && IsBusyElsewhere;
+        public bool ShowBlockedGate => IsBlocked && IsSignedIn && IsOnline && !IsReadOnly && !IsBusyElsewhere;
+        public bool ShowQuestions => IsAsking && IsSignedIn && IsOnline && !IsReadOnly && !IsBusyElsewhere;
+        public bool ShowErrorBanner => HasError && !ShowBusyGate;
+        public bool ShowBackButton => ShowGuestGate || ShowOfflineGate || ShowReadOnlyGate || ShowBusyGate || ShowBlockedGate;
+
+        /// <summary>TP-104: the app bar's second line.</summary>
+        [ObservableProperty]
+        private string tripName = string.Empty;
+
+        private static readonly HashSet<string> GateInputs = new()
+        {
+            nameof(IsSignedIn), nameof(IsOnline), nameof(IsGenerating), nameof(IsPreview), nameof(Remaining), nameof(CanEdit), nameof(IsBusyElsewhere), nameof(ErrorText),
+        };
+
+        protected override void OnPropertyChanged(System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+            if (e.PropertyName is null || !GateInputs.Contains(e.PropertyName))
+                return;
+            foreach (var name in new[] { nameof(ShowGuestGate), nameof(ShowOfflineGate), nameof(ShowReadOnlyGate), nameof(ShowBusyGate),
+                                         nameof(ShowBlockedGate), nameof(ShowQuestions), nameof(ShowBackButton), nameof(ShowErrorBanner) })
+                base.OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(name));
+        }
+
         partial void OnSummaryChanged(string value) => OnPropertyChanged(nameof(HasSummary));
 
         [RelayCommand]
@@ -318,6 +378,7 @@ namespace TravelPlanner.ViewModels
 
             _trip = await _trips.GetByIdAsync(TripId);
             if (_trip is null) return;
+            TripName = _trip.Name;
 
             await RefreshAccessAsync(TripId);
             OnPropertyChanged(nameof(CanGenerate));
@@ -661,7 +722,9 @@ namespace TravelPlanner.ViewModels
             OnPropertyChanged(nameof(HasPlaces));
             OnPropertyChanged(nameof(HasTodos));
             OnPropertyChanged(nameof(HasTips));
-            PreviewRows.ReplaceAll(BuildPreviewRows());
+            var rows = BuildPreviewRows().ToList();
+            AssignCardPositions(rows);
+            PreviewRows.ReplaceAll(rows);
             IsPreview = true;
         }
 
@@ -669,7 +732,7 @@ namespace TravelPlanner.ViewModels
         {
             if (Days.Count > 0)
             {
-                yield return new AiPreviewSection(AppResources.AiPlan_PreviewDays);
+                yield return new AiPreviewSection(AppResources.AiPlan_PreviewDays, IconKey: "Ic.Calendar");
                 foreach (var day in Days)
                 {
                     yield return day;
@@ -679,22 +742,48 @@ namespace TravelPlanner.ViewModels
             }
             if (HasPlaces)
             {
-                yield return new AiPreviewSection(AppResources.AiPlan_PreviewPlaces);
+                yield return new AiPreviewSection(AppResources.AiPlan_PreviewPlaces, IconKey: "Ic.Pin");
                 foreach (var place in Places)
                     yield return place;
             }
             if (HasTodos)
             {
-                yield return new AiPreviewSection(AppResources.AiPlan_PreviewTodos, AppResources.AiPlan_PackingHint);
+                yield return new AiPreviewSection(AppResources.AiPlan_PreviewTodos, AppResources.AiPlan_PackingHint, "Ic.ListChecks");
                 foreach (var todo in Todos)
                     yield return todo;
             }
             if (HasTips)
             {
-                yield return new AiPreviewSection(AppResources.AiPlan_PreviewTips);
+                yield return new AiPreviewSection(AppResources.AiPlan_PreviewTips, IconKey: "Ic.Lightbulb", IsWarning: true);
                 foreach (var tip in Tips)
                     yield return new AiPreviewTip(tip);
             }
+        }
+
+        /// <summary>
+        /// TP-104: the preview is one flat list, drawn as the prototype's cards - each day (its header and activities),
+        /// and the places, tasks and tips under their section title, become one card of slices.
+        /// </summary>
+        internal static void AssignCardPositions(IEnumerable<object> rows)
+        {
+            var cards = new List<List<IListPositioned>>();
+            List<IListPositioned>? card = null;
+            foreach (var row in rows)
+            {
+                if (row is not IListPositioned slice)
+                {
+                    card = null; // a section title ends the card above it
+                    continue;
+                }
+                if (row is AiPreviewDay || card is null)
+                {
+                    card = new List<IListPositioned>();
+                    cards.Add(card);
+                }
+                card.Add(slice);
+            }
+            foreach (var each in cards)
+                ListPositions.Update(each);
         }
 
         [RelayCommand]

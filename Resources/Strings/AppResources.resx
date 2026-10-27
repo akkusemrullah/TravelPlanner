@@ -3440,4 +3440,67 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Map_ZoomOut" xml:space="preserve">
     <value>Uzaklaştır</value>
   </data>
+  <data name="Expense_PaidByFormat" xml:space="preserve">
+    <value>{0} ödedi</value>
+  </data>
+  <data name="ExpenseList_Mine" xml:space="preserve">
+    <value>Harcamalarım</value>
+  </data>
+  <data name="ExpenseList_AllTotal" xml:space="preserve">
+    <value>Toplam harcama</value>
+  </data>
+  <data name="Expense_AddTitle" xml:space="preserve">
+    <value>Harcama Ekle</value>
+  </data>
+  <data name="Expense_EditTitle" xml:space="preserve">
+    <value>Harcamayı Düzenle</value>
+  </data>
+  <data name="Expense_DescriptionPlaceholder" xml:space="preserve">
+    <value>ör. Kolezyum biletleri</value>
+  </data>
+  <data name="Analysis_DayShortFormat" xml:space="preserve">
+    <value>{0}.g</value>
+  </data>
+  <data name="Split_PaidShareFormat" xml:space="preserve">
+    <value>Ödediği {0} · Payı {1}</value>
+  </data>
+  <data name="Split_Linked" xml:space="preserve">
+    <value>· hesap bağlı</value>
+  </data>
+  <data name="Split_TotalLabel" xml:space="preserve">
+    <value>Bölüşülen toplam</value>
+  </data>
+  <data name="Split_RoundingNote" xml:space="preserve">
+    <value>Eşit bölüşümde kuruş artıkları ilk paylara birer birer dağıtılır; toplam hep tam tutardır.</value>
+  </data>
+  <data name="Members_SignInTitle" xml:space="preserve">
+    <value>Giriş gerekli</value>
+  </data>
+  <data name="Members_OfflineTitle" xml:space="preserve">
+    <value>İnternet yok</value>
+  </data>
+  <data name="Members_InviteCodeLabel" xml:space="preserve">
+    <value>Davet kodu</value>
+  </data>
+  <data name="Members_CodeCopied" xml:space="preserve">
+    <value>Kod kopyalandı</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>Kopyala</value>
+  </data>
+  <data name="AiPlan_SignInTitle" xml:space="preserve">
+    <value>Giriş gerekli</value>
+  </data>
+  <data name="AiPlan_OfflineTitle" xml:space="preserve">
+    <value>İnternet yok</value>
+  </data>
+  <data name="AiPlan_ReadOnlyTitle" xml:space="preserve">
+    <value>Salt okunur seyahat</value>
+  </data>
+  <data name="AiPlan_BusyText" xml:space="preserve">
+    <value>Aynı anda tek plan hazırlanabilir. O plan bitince tekrar dene.</value>
+  </data>
+  <data name="AiPlan_SummaryTitle" xml:space="preserve">
+    <value>Plan özeti</value>
+  </data>
 </root>

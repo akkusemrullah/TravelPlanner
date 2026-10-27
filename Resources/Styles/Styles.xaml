@@ -392,6 +392,15 @@
     <!-- Royal-blue hero card (featured trip, budget summary). Flat, no gradient. -->
     <Style x:Key="Card.Hero" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{DynamicResource tp-hero}" />
+        <!-- TP-104: the prototype's hero gradient (135°, the ticket's colours) -->
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{DynamicResource tp-ticket-start}" Offset="0" />
+                    <GradientStop Color="{DynamicResource tp-ticket-end}" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
         <Setter Property="Stroke" Value="{DynamicResource tp-hero-line}" />
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="StrokeShape" Value="RoundRectangle 20" />

@@ -19,6 +19,9 @@ namespace TravelPlanner.ViewModels
             Email = member.Email ?? string.Empty;
             HasEmail = !string.IsNullOrEmpty(member.Email) && member.Email != member.Name;
             RoleText = SharingTexts.RoleName(member.Role);
+            AvatarName = member.Name;
+            RoleTone = RoleToneOf(member.Role);
+            IsOwnerRole = member.Role == TripRole.Owner;
             Initials = PersonName.Initials(member.Name);
             if (Initials.Length == 0)
                 Initials = "?";
@@ -43,6 +46,21 @@ namespace TravelPlanner.ViewModels
         public string JoinedText { get; }
 
         public bool HasJoinedText => JoinedText.Length > 0;
+
+        /// <summary>TP-104: the name without "(sen)", for the avatar's initials and colour.</summary>
+        public string AvatarName { get; }
+
+        /// <summary>TP-104: the role badge's tone - owner accent (with a crown), editor success, viewer neutral.</summary>
+        public string RoleTone { get; }
+
+        public bool IsOwnerRole { get; }
+
+        internal static string RoleToneOf(TripRole role) => role switch
+        {
+            TripRole.Owner => "accent",
+            TripRole.Editor => "success",
+            _ => "neutral",
+        };
     }
 
     /// <summary>
@@ -96,6 +114,14 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private string myRoleText = string.Empty;
 
+        /// <summary>TP-104: the tone of the "Rolün" badge.</summary>
+        [ObservableProperty]
+        private string myRoleTone = "neutral";
+
+        /// <summary>TP-104: the invite card's copy button just copied the code.</summary>
+        [ObservableProperty]
+        private bool codeCopied;
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(CanInvite))]
         private bool isOwner;
@@ -137,6 +163,23 @@ namespace TravelPlanner.ViewModels
 
         public ObservableCollection<MemberItem> Members { get; } = new RangeObservableCollection<MemberItem>();
 
+        /// <summary>TP-104: the prototype's "Kopyala" under the invite code.</summary>
+        [RelayCommand]
+        private async Task CopyInviteAsync()
+        {
+            if (string.IsNullOrEmpty(LastInviteCode))
+                return;
+            try
+            {
+                await Clipboard.Default.SetTextAsync(LastInviteCode.Replace(" ", string.Empty));
+                CodeCopied = true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Members] Clipboard failed: {ex.Message}");
+            }
+        }
+
         [RelayCommand]
         private Task LoadAsync() => RunLoadAsync(async () =>
         {
@@ -148,6 +191,7 @@ namespace TravelPlanner.ViewModels
             var access = await _access.GetAccessAsync(TripId);
             IsOwner = access.IsOwner;
             MyRoleText = string.Format(AppResources.Members_MyRoleFormat, SharingTexts.RoleName(access.Role));
+            MyRoleTone = MemberItem.RoleToneOf(access.Role);
             IsSignedIn = _account.IsSignedIn;
             IsOnline = _connectivity.NetworkAccess == NetworkAccess.Internet;
             ErrorText = null;
@@ -216,6 +260,7 @@ namespace TravelPlanner.ViewModels
                 ? string.Format(AppResources.Members_InviteUsesGroupFormat, invite.MaxUses)
                 : AppResources.Members_InviteUsesSingle;
             LastInviteCode = SharingTexts.FormatCode(invite.Code);
+            CodeCopied = false;
             LastInviteText = string.Format(AppResources.Members_InviteInfoFormat, uses, until);
 
             await _share.RequestAsync(new ShareTextRequest

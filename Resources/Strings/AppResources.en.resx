@@ -3439,4 +3439,67 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Map_ZoomOut" xml:space="preserve">
     <value>Zoom out</value>
   </data>
+  <data name="Expense_PaidByFormat" xml:space="preserve">
+    <value>{0} paid</value>
+  </data>
+  <data name="ExpenseList_Mine" xml:space="preserve">
+    <value>My spending</value>
+  </data>
+  <data name="ExpenseList_AllTotal" xml:space="preserve">
+    <value>Total spent</value>
+  </data>
+  <data name="Expense_AddTitle" xml:space="preserve">
+    <value>Add Expense</value>
+  </data>
+  <data name="Expense_EditTitle" xml:space="preserve">
+    <value>Edit Expense</value>
+  </data>
+  <data name="Expense_DescriptionPlaceholder" xml:space="preserve">
+    <value>e.g. Colosseum tickets</value>
+  </data>
+  <data name="Analysis_DayShortFormat" xml:space="preserve">
+    <value>D{0}</value>
+  </data>
+  <data name="Split_PaidShareFormat" xml:space="preserve">
+    <value>Paid {0} · Share {1}</value>
+  </data>
+  <data name="Split_Linked" xml:space="preserve">
+    <value>· linked account</value>
+  </data>
+  <data name="Split_TotalLabel" xml:space="preserve">
+    <value>Split total</value>
+  </data>
+  <data name="Split_RoundingNote" xml:space="preserve">
+    <value>In an equal split, leftover cents go to the first shares one by one; the total is always exact.</value>
+  </data>
+  <data name="Members_SignInTitle" xml:space="preserve">
+    <value>Sign-in needed</value>
+  </data>
+  <data name="Members_OfflineTitle" xml:space="preserve">
+    <value>No internet</value>
+  </data>
+  <data name="Members_InviteCodeLabel" xml:space="preserve">
+    <value>Invite code</value>
+  </data>
+  <data name="Members_CodeCopied" xml:space="preserve">
+    <value>Code copied</value>
+  </data>
+  <data name="Common_Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="AiPlan_SignInTitle" xml:space="preserve">
+    <value>Sign-in needed</value>
+  </data>
+  <data name="AiPlan_OfflineTitle" xml:space="preserve">
+    <value>No internet</value>
+  </data>
+  <data name="AiPlan_ReadOnlyTitle" xml:space="preserve">
+    <value>Read-only trip</value>
+  </data>
+  <data name="AiPlan_BusyText" xml:space="preserve">
+    <value>One plan at a time. Try again when that one is done.</value>
+  </data>
+  <data name="AiPlan_SummaryTitle" xml:space="preserve">
+    <value>Plan summary</value>
+  </data>
 </root>

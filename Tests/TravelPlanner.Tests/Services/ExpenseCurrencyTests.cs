@@ -80,6 +80,19 @@ namespace TravelPlanner.Tests
             Assert.Equal(100m, (await _expenses.GetMyTotalsByCurrencyAsync(null))["TRY"]);
         }
 
+        [Fact]
+        public async Task TP104_MyTotalForTrip_CountsOnlyThatTrip()
+        {
+            var lira = await NewTripAsync("TRY");
+            var other = await NewTripAsync("TRY");
+            await _expenses.SaveAsync(new Expense { TripId = lira.Id, Amount = 100m });
+            await _expenses.SaveAsync(new Expense { TripId = lira.Id, Amount = 25.5m });
+            await _expenses.SaveAsync(new Expense { TripId = other.Id, Amount = 40m });
+
+            Assert.Equal(125.5m, await _expenses.GetMyTotalForTripAsync(lira.Id, null));
+            Assert.Equal(0m, await _expenses.GetMyTotalForTripAsync(999, null));
+        }
+
         [Theory]
         [InlineData(new[] { 1, 2, 3 }, 1, 334)]   // my share of 10,00 split three ways (the first gets the extra kuruş)
         [InlineData(new[] { 1, 2, 3 }, 2, 333)]

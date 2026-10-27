@@ -9294,5 +9294,131 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Map_ZoomOut", resourceCulture);
             }
         }
+
+        public static string Expense_PaidByFormat {
+            get {
+                return ResourceManager.GetString("Expense_PaidByFormat", resourceCulture);
+            }
+        }
+
+        public static string ExpenseList_Mine {
+            get {
+                return ResourceManager.GetString("ExpenseList_Mine", resourceCulture);
+            }
+        }
+
+        public static string ExpenseList_AllTotal {
+            get {
+                return ResourceManager.GetString("ExpenseList_AllTotal", resourceCulture);
+            }
+        }
+
+        public static string Expense_AddTitle {
+            get {
+                return ResourceManager.GetString("Expense_AddTitle", resourceCulture);
+            }
+        }
+
+        public static string Expense_EditTitle {
+            get {
+                return ResourceManager.GetString("Expense_EditTitle", resourceCulture);
+            }
+        }
+
+        public static string Expense_DescriptionPlaceholder {
+            get {
+                return ResourceManager.GetString("Expense_DescriptionPlaceholder", resourceCulture);
+            }
+        }
+
+        public static string Analysis_DayShortFormat {
+            get {
+                return ResourceManager.GetString("Analysis_DayShortFormat", resourceCulture);
+            }
+        }
+
+        public static string Split_PaidShareFormat {
+            get {
+                return ResourceManager.GetString("Split_PaidShareFormat", resourceCulture);
+            }
+        }
+
+        public static string Split_Linked {
+            get {
+                return ResourceManager.GetString("Split_Linked", resourceCulture);
+            }
+        }
+
+        public static string Split_TotalLabel {
+            get {
+                return ResourceManager.GetString("Split_TotalLabel", resourceCulture);
+            }
+        }
+
+        public static string Split_RoundingNote {
+            get {
+                return ResourceManager.GetString("Split_RoundingNote", resourceCulture);
+            }
+        }
+
+        public static string Members_SignInTitle {
+            get {
+                return ResourceManager.GetString("Members_SignInTitle", resourceCulture);
+            }
+        }
+
+        public static string Members_OfflineTitle {
+            get {
+                return ResourceManager.GetString("Members_OfflineTitle", resourceCulture);
+            }
+        }
+
+        public static string Members_InviteCodeLabel {
+            get {
+                return ResourceManager.GetString("Members_InviteCodeLabel", resourceCulture);
+            }
+        }
+
+        public static string Members_CodeCopied {
+            get {
+                return ResourceManager.GetString("Members_CodeCopied", resourceCulture);
+            }
+        }
+
+        public static string Common_Copy {
+            get {
+                return ResourceManager.GetString("Common_Copy", resourceCulture);
+            }
+        }
+
+        public static string AiPlan_SignInTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_SignInTitle", resourceCulture);
+            }
+        }
+
+        public static string AiPlan_OfflineTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_OfflineTitle", resourceCulture);
+            }
+        }
+
+        public static string AiPlan_ReadOnlyTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_ReadOnlyTitle", resourceCulture);
+            }
+        }
+
+        public static string AiPlan_BusyText {
+            get {
+                return ResourceManager.GetString("AiPlan_BusyText", resourceCulture);
+            }
+        }
+
+        public static string AiPlan_SummaryTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_SummaryTitle", resourceCulture);
+            }
+        }
     }
 }

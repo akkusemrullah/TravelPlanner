@@ -149,6 +149,27 @@ namespace TravelPlanner.Services
             return totals;
         }
 
+        public async Task<decimal> GetMyTotalForTripAsync(int tripId, string? userId)
+        {
+            var db = await _databaseService.Connection;
+            var expenses = await db.Table<Expense>().Where(e => e.TripId == tripId).ToListAsync();
+            if (expenses.Count == 0)
+                return 0m;
+
+            var ids = expenses.Select(e => e.Id).ToHashSet();
+            var sharesByExpense = (await db.Table<ExpenseShare>().ToListAsync())
+                .Where(s => ids.Contains(s.ExpenseId))
+                .GroupBy(s => s.ExpenseId)
+                .ToDictionary(g => g.Key, g => g.Select(s => s.ParticipantId).Distinct().OrderBy(id => id).ToList());
+            int? me = userId is null
+                ? null
+                : (await db.Table<Participant>().Where(p => p.TripId == tripId).ToListAsync())
+                    .FirstOrDefault(p => string.Equals(p.UserId, userId, StringComparison.OrdinalIgnoreCase))?.Id;
+
+            var total = expenses.Sum(e => MyPartMinor(e, sharesByExpense.GetValueOrDefault(e.Id), me, userId));
+            return MoneyConverter.FromMinor(total);
+        }
+
         /// <summary>
         /// TP-69: the user's part of one expense. Split, with the user among the trip's participants: their equal share
         /// (0 if they are not in it). Otherwise the whole amount if they entered it (or it was entered without an

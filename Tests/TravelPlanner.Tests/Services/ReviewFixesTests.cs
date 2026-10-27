@@ -202,5 +202,37 @@ namespace TravelPlanner.Tests
             Assert.Contains("€", vm.TotalExpensesFormatted);
             Assert.False(vm.ShowExport);
         }
+    
+        [Fact]
+        public async Task TP104_ExpenseList_CardsChipsAndPayerNames()
+        {
+            var expenses = new Mock<IExpenseService>();
+            expenses.Setup(e => e.GetByTripIdAsync(4)).ReturnsAsync(new List<Expense>
+            {
+                new() { Id = 1, TripId = 4, Amount = 80m, Category = ExpenseCategory.Food, PaidByParticipantId = 9 },
+                new() { Id = 2, TripId = 4, Amount = 40m, Category = ExpenseCategory.Shopping, Description = "Hediye" },
+            });
+            expenses.Setup(e => e.GetMyTotalForTripAsync(4, It.IsAny<string?>())).ReturnsAsync(60m);
+            var trips = new Mock<ITripService>();
+            trips.Setup(t => t.GetByIdAsync(4)).ReturnsAsync(new Trip { Id = 4, Name = "Paris", City = "Paris", CurrencyCode = "EUR", PlannedBudget = 100m });
+            var split = Fakes.Split();
+            split.Setup(s => s.GetParticipantsAsync(4)).ReturnsAsync(new List<Participant> { new() { Id = 9, TripId = 4, Name = "Ali" } });
+
+            var vm = new ExpenseListViewModel(expenses.Object, new Mock<IBudgetAlertService>().Object, Fakes.Dialogs().Object, trips.Object, split.Object) { TripId = 4 };
+            await vm.LoadExpensesCommand.ExecuteAsync(null);
+
+            Assert.Equal(120m, vm.AllTotal);
+            Assert.Equal(60m, vm.MyTotal);
+            Assert.True(vm.IsOverBudget);
+            Assert.Equal("Paris", vm.TripName);
+            Assert.Equal("Ali", vm.Expenses.Single(e => e.Id == 1).PaidByName);
+            Assert.Equal("Hediye", vm.Expenses.Single(e => e.Id == 2).DisplayTitle);
+
+            vm.SelectCategoryFilterCommand.Execute(vm.CategoryFilters.Single(c => c.Key == nameof(ExpenseCategory.Shopping)));
+
+            Assert.Single(vm.Expenses);
+            Assert.Single(vm.CategoryFilters, c => c.IsSelected);
+            Assert.Equal(120m, vm.AllTotal); // the card keeps the whole trip
+        }
     }
 }

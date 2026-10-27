@@ -18,84 +18,91 @@
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.Analysis_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="0,0,44,0" />
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" Margin="0,0,44,0">
+                <Label Text="{x:Static res:AppResources.Analysis_Title}" Style="{StaticResource Text.AppBarTitle}" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding Trip.Name, FallbackValue=''}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" LineBreakMode="TailTruncation" />
+            </VerticalStackLayout>
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <Grid Grid.Row="2">
             <controls:LoadingLogo IsVisible="{Binding IsInitialLoading}" Size="56" HorizontalOptions="Center" VerticalOptions="Center" />
 
-            <VerticalStackLayout IsVisible="{Binding HasNoData}" Spacing="14" Padding="32" VerticalOptions="Center">
+            <VerticalStackLayout IsVisible="{Binding HasNoData}" Spacing="12" Padding="32" VerticalOptions="Center">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.BarChart}" TextColor="{DynamicResource tp-accent-text}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.PieChart}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
-                <Label Text="{x:Static res:AppResources.Analysis_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
+                <Label Text="{x:Static res:AppResources.Analysis_Empty}" Style="{StaticResource Text.EmptyText}" />
             </VerticalStackLayout>
 
             <RefreshView IsVisible="{Binding HasData}" IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadCommand}">
                 <ScrollView>
-                    <VerticalStackLayout Padding="16,20,16,28" Spacing="20">
+                    <!-- TP-104: the prototype's analysis - three summary cards, the donut with its legend, the daily bars -->
+                    <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
 
-                        <!-- Summary figures as label/value rows: amounts (and "highest day" with its date) get the full width. -->
-                        <Border Style="{StaticResource Card.List}">
-                            <VerticalStackLayout Spacing="0">
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" Padding="16,12">
-                                    <Label Grid.Column="0" Text="{x:Static res:AppResources.Analysis_Total}" Style="{StaticResource Text.Body2}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" Text="{Binding TotalFormatted}" Style="{StaticResource Text.Value}" HorizontalTextAlignment="End" VerticalOptions="Center" />
-                                </Grid>
-                                <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" Padding="16,12">
-                                    <Label Grid.Column="0" Text="{x:Static res:AppResources.Analysis_DailyAverage}" Style="{StaticResource Text.Body2}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" Text="{Binding DailyAverageFormatted}" Style="{StaticResource Text.Value}" HorizontalTextAlignment="End" VerticalOptions="Center" />
-                                </Grid>
-                                <BoxView Style="{StaticResource Divider.Inset}" Margin="16,0,0,0" />
-                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" Padding="16,12">
-                                    <Label Grid.Column="0" Text="{x:Static res:AppResources.Analysis_HighestDay}" Style="{StaticResource Text.Body2}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" Text="{Binding HighestDayFormatted}" Style="{StaticResource Text.Value}" HorizontalTextAlignment="End" VerticalOptions="Center" />
-                                </Grid>
+                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                            <Border Grid.Column="0" Style="{StaticResource Card}" Padding="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{x:Static res:AppResources.Analysis_Total}" FontSize="11.5" TextColor="{DynamicResource tp-text-3}" />
+                                    <Label Text="{Binding TotalFormatted}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Style="{StaticResource Card}" Padding="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{x:Static res:AppResources.Analysis_DailyAverage}" FontSize="11.5" TextColor="{DynamicResource tp-text-3}" />
+                                    <Label Text="{Binding DailyAverageFormatted}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                                </VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource Card}" Padding="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{x:Static res:AppResources.Analysis_HighestDay}" FontSize="11.5" TextColor="{DynamicResource tp-text-3}" />
+                                    <Label Text="{Binding HighestDayAmount}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                                    <Label Text="{Binding HighestDayDate}" FontSize="11" TextColor="{DynamicResource tp-text-3}" Margin="0,-2,0,0"
+                                           IsVisible="{Binding HighestDayDate, Converter={StaticResource StringNotEmptyConverter}}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </Grid>
+
+                        <!-- ════════ By category ════════ -->
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="12">
+                                <Label Text="{x:Static res:AppResources.Analysis_ByCategory}" FontFamily="InterSemiBold" FontSize="15" TextColor="{DynamicResource tp-text}"
+                                       SemanticProperties.HeadingLevel="Level2" />
+                                <GraphicsView x:Name="CategoryChartView" Drawable="{Binding CategoryChart}" HeightRequest="180" WidthRequest="180" HorizontalOptions="Center"
+                                              SemanticProperties.Description="{x:Static res:AppResources.Analysis_ByCategory}" />
+                                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Categories}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CategoryBreakdownItem">
+                                            <VerticalStackLayout Spacing="6">
+                                                <Grid ColumnDefinitions="Auto,*,Auto,92" ColumnSpacing="8">
+                                                    <Ellipse Grid.Column="0" WidthRequest="10" HeightRequest="10" Fill="{Binding Brush}" VerticalOptions="Center" />
+                                                    <Label Grid.Column="1" Text="{Binding Label}" FontSize="13.5" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" />
+                                                    <Label Grid.Column="2" Text="{Binding PercentText}" FontSize="13.5" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                                                    <Label Grid.Column="3" Text="{Binding FormattedTotal}" FontFamily="InterSemiBold" FontSize="13.5" TextColor="{DynamicResource tp-text}"
+                                                           HorizontalTextAlignment="End" VerticalOptions="Center" />
+                                                </Grid>
+                                                <controls:ProgressPill Progress="{Binding Fraction}" BarHeight="6" FillColor="{Binding Color}" />
+                                            </VerticalStackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </VerticalStackLayout>
                             </VerticalStackLayout>
                         </Border>
 
-                        <!-- ════════ By category ════════ -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="{x:Static res:AppResources.Analysis_ByCategory}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
-                            <Border Style="{StaticResource Card}">
-                                <VerticalStackLayout Spacing="16">
-                                    <GraphicsView x:Name="CategoryChartView" Drawable="{Binding CategoryChart}" HeightRequest="16"
-                                                  SemanticProperties.Description="{x:Static res:AppResources.Analysis_ByCategory}" />
-                                    <VerticalStackLayout Spacing="14" BindableLayout.ItemsSource="{Binding Categories}">
-                                        <BindableLayout.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:CategoryBreakdownItem">
-                                                <VerticalStackLayout Spacing="6">
-                                                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
-                                                        <BoxView Grid.Column="0" WidthRequest="10" HeightRequest="10" CornerRadius="2" Color="{Binding Color}" VerticalOptions="Center" />
-                                                        <Label Grid.Column="1" Text="{Binding Label}" Style="{StaticResource Text.Body}" FontSize="14" VerticalOptions="Center" />
-                                                        <Label Grid.Column="2" Text="{Binding PercentText}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
-                                                        <Label Grid.Column="3" Text="{Binding FormattedTotal}" Style="{StaticResource Text.Value}" FontSize="14" VerticalOptions="Center" />
-                                                    </Grid>
-                                                    <ProgressBar Progress="{Binding Fraction}" ProgressColor="{Binding Color}" HeightRequest="4" />
-                                                </VerticalStackLayout>
-                                            </DataTemplate>
-                                        </BindableLayout.ItemTemplate>
-                                    </VerticalStackLayout>
-                                </VerticalStackLayout>
-                            </Border>
-                        </VerticalStackLayout>
-
                         <!-- ════════ By day ════════ -->
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="{x:Static res:AppResources.Analysis_ByDay}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
-                            <Border Style="{StaticResource Card}">
-                                <VerticalStackLayout Spacing="12">
-                                    <GraphicsView x:Name="DailyChartView" Drawable="{Binding DailyChart}" HeightRequest="200"
-                                                  SemanticProperties.Description="{Binding DailyChartDescription}" />
-                                    <Grid IsVisible="{Binding HasDailyBudget}" ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                        <BoxView Grid.Column="0" WidthRequest="14" HeightRequest="2" Color="{DynamicResource tp-accent}" VerticalOptions="Center" />
-                                        <Label Grid.Column="1" Text="{Binding DailyBudgetText}" Style="{StaticResource Text.Caption}" />
-                                    </Grid>
-                                </VerticalStackLayout>
-                            </Border>
-                        </VerticalStackLayout>
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{x:Static res:AppResources.Analysis_ByDay}" FontFamily="InterSemiBold" FontSize="15" TextColor="{DynamicResource tp-text}"
+                                       SemanticProperties.HeadingLevel="Level2" />
+                                <GraphicsView x:Name="DailyChartView" Drawable="{Binding DailyChart}" HeightRequest="170"
+                                              SemanticProperties.Description="{Binding DailyChartDescription}" />
+                                <Grid IsVisible="{Binding HasDailyBudget}" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                    <Line Grid.Column="0" X1="0" Y1="1" X2="20" Y2="1" Stroke="{DynamicResource tp-warning}" StrokeThickness="2" StrokeDashArray="2.5,2"
+                                          WidthRequest="20" HeightRequest="2" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" Text="{Binding DailyBudgetText}" FontSize="12" TextColor="{DynamicResource tp-text-3}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
                     </VerticalStackLayout>
                 </ScrollView>
             </RefreshView>

@@ -18,6 +18,10 @@ namespace TravelPlanner.Controls
         public static readonly BindableProperty BarHeightProperty = BindableProperty.Create(
             nameof(BarHeight), typeof(double), typeof(ProgressPill), 8d, propertyChanged: (b, _, _) => ((ProgressPill)b).UpdateHeight());
 
+        /// <summary>TP-104: a fixed fill colour (e.g. a category's) instead of a <see cref="Tone"/>.</summary>
+        public static readonly BindableProperty FillColorProperty = BindableProperty.Create(
+            nameof(FillColor), typeof(Color), typeof(ProgressPill), null, propertyChanged: (b, _, _) => ((ProgressPill)b).UpdateTone());
+
         private readonly Border _track;
         private readonly Border _fill;
 
@@ -45,6 +49,7 @@ namespace TravelPlanner.Controls
         public double Progress { get => (double)GetValue(ProgressProperty); set => SetValue(ProgressProperty, value); }
         public string Tone { get => (string)GetValue(ToneProperty); set => SetValue(ToneProperty, value); }
         public double BarHeight { get => (double)GetValue(BarHeightProperty); set => SetValue(BarHeightProperty, value); }
+        public Color? FillColor { get => (Color?)GetValue(FillColorProperty); set => SetValue(FillColorProperty, value); }
 
         private void UpdateHeight()
         {
@@ -67,6 +72,13 @@ namespace TravelPlanner.Controls
 
         private void UpdateTone()
         {
+            if (FillColor is { } fixedColor)
+            {
+                _fill.RemoveDynamicResource(BackgroundColorProperty);
+                _fill.BackgroundColor = fixedColor;
+                return;
+            }
+
             var key = Tone?.ToLowerInvariant() switch
             {
                 "success" => "tp-success",

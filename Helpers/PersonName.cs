@@ -28,5 +28,21 @@ namespace TravelPlanner.Helpers
             var first = parts[0][..1].ToUpper(culture);
             return parts.Length == 1 ? first : first + parts[^1][..1].ToUpper(culture);
         }
+
+        /// <summary>The prototype's avatar tones, picked by <see cref="ToneIndex"/>.</summary>
+        public static readonly string[] AvatarTones = { "accent", "success", "warning", "info", "danger" };
+
+        /// <summary>
+        /// TP-104: the prototype's avatar colour - the sum of the name's character codes modulo the five tones, so
+        /// a name always gets the same colour.
+        /// </summary>
+        public static int ToneIndex(string? name)
+        {
+            var text = string.IsNullOrEmpty(name) ? "?" : name;
+            var sum = 0;
+            foreach (var c in text)
+                sum += c;
+            return sum % AvatarTones.Length;
+        }
     }
 }

@@ -12,7 +12,7 @@
 
     <!-- AI trip planner: questions → plan preview (everything can be unticked) → add to the trip. -->
     <ContentPage.Resources>
-        <!-- One answer chip; tapping it runs ToggleChoiceCommand (multi-select for interests, single for the rest). -->
+        <!-- One answer chip; tapping it runs ToggleChoiceCommand (multi-select for interests). -->
         <DataTemplate x:Key="ChoiceChip" x:DataType="vm:AiChoice">
             <Border Style="{StaticResource Chip}" Margin="0,0,8,8" SemanticProperties.Description="{Binding Label}">
                 <Border.Triggers>
@@ -35,52 +35,124 @@
             </Border>
         </DataTemplate>
 
-        <!-- Preview rows (one virtualized list, see AiPlannerViewModel.PreviewRows) -->
+        <!-- TP-104: the prototype's Segmented control - one equal-width segment per answer (single choice). -->
+        <DataTemplate x:Key="Segment" x:DataType="vm:AiChoice">
+            <Border FlexLayout.Grow="1" FlexLayout.Basis="0" HeightRequest="36" StrokeThickness="0" StrokeShape="RoundRectangle 9" BackgroundColor="Transparent"
+                    SemanticProperties.Description="{Binding Label}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                        <Setter Property="BackgroundColor" Value="{DynamicResource tp-surface}" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AiPlannerViewModel}}, Path=ToggleChoiceCommand}"
+                                          CommandParameter="{Binding .}" />
+                </Border.GestureRecognizers>
+                <Label Text="{Binding Label}" FontFamily="InterMedium" FontSize="13.5" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center" VerticalOptions="Center"
+                       LineBreakMode="TailTruncation">
+                    <Label.Triggers>
+                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="TextColor" Value="{DynamicResource tp-text}" />
+                            <Setter Property="FontFamily" Value="InterSemiBold" />
+                        </DataTrigger>
+                    </Label.Triggers>
+                </Label>
+            </Border>
+        </DataTemplate>
+
+        <!-- Preview rows (one virtualized list, see AiPlannerViewModel.PreviewRows); TP-104: drawn as the prototype's cards -->
         <DataTemplate x:Key="PreviewSection" x:DataType="vm:AiPreviewSection">
-            <VerticalStackLayout Spacing="4" Padding="20,20,20,6">
-                <Label Text="{Binding Title}" Style="{StaticResource Text.Overline}" />
-                <Label Text="{Binding Hint}" IsVisible="{Binding HasHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+            <VerticalStackLayout Spacing="4" Padding="20,20,20,8">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Style="{StaticResource Icon}" FontSize="18" Text="{Binding Glyph}" TextColor="{DynamicResource tp-accent}" VerticalOptions="Center">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsWarning}" Value="True">
+                                <Setter Property="TextColor" Value="{DynamicResource tp-warning}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <Label Text="{Binding Title}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <Label Text="{Binding Hint}" IsVisible="{Binding HasHint}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" LineBreakMode="WordWrap" />
             </VerticalStackLayout>
         </DataTemplate>
         <DataTemplate x:Key="PreviewDay" x:DataType="vm:AiPreviewDay">
-            <VerticalStackLayout Spacing="2" Padding="20,12,20,2">
-                <Label Text="{Binding Header}" Style="{StaticResource Text.Title}" />
-                <Label Text="{Binding Title}" IsVisible="{Binding HasTitle}" Style="{StaticResource Text.Caption}" />
-            </VerticalStackLayout>
+            <Grid Padding="0,12,0,0">
+                <Border BackgroundColor="{DynamicResource tp-surface-alt}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="16,10"
+                        StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                        Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                    <VerticalStackLayout Spacing="1">
+                        <Label Text="{Binding Header}" FontFamily="InterBold" FontSize="13" TextColor="{DynamicResource tp-text-2}" />
+                        <Label Text="{Binding Title}" IsVisible="{Binding HasTitle}" FontSize="12" TextColor="{DynamicResource tp-text-3}" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
         </DataTemplate>
         <DataTemplate x:Key="PreviewActivity" x:DataType="vm:AiPreviewActivity">
-            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="6" Padding="12,0,16,0">
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" />
-                <VerticalStackLayout Grid.Column="1" Spacing="0" WidthRequest="42" VerticalOptions="Start" Margin="0,11,0,0">
-                    <Label Text="{Binding TimeText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-text}" />
-                    <Label Text="{Binding EndText}" IsVisible="{Binding HasEnd}" Style="{StaticResource Text.Caption}" FontSize="12" />
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="2" Spacing="1" Padding="0,10,0,8">
-                    <Label Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" LineBreakMode="WordWrap" />
-                    <Label Text="{Binding Detail}" IsVisible="{Binding HasDetail}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                </VerticalStackLayout>
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                    Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                <Grid ColumnDefinitions="Auto,44,*" ColumnSpacing="10" Padding="16,10" BackgroundColor="Transparent">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnPreviewRowTapped" />
+                    </Grid.GestureRecognizers>
+                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" Margin="0,1,0,0" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Start" Margin="0,2,0,0">
+                        <Label Text="{Binding TimeText}" FontFamily="InterBold" FontSize="13" TextColor="{DynamicResource tp-text}" />
+                        <Label Text="{Binding EndText}" IsVisible="{Binding HasEnd}" FontSize="12" TextColor="{DynamicResource tp-text-3}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" Spacing="1">
+                        <Label Text="{Binding Title}" FontFamily="InterMedium" FontSize="14.5" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="TextColor" Value="{DynamicResource tp-text-3}" />
+                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="{Binding Detail}" IsVisible="{Binding HasDetail}" FontSize="12" TextColor="{DynamicResource tp-text-3}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="PreviewPlace" x:DataType="vm:AiPreviewPlace">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" Padding="12,0,16,0">
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" />
-                <VerticalStackLayout Grid.Column="1" Spacing="1" Padding="0,10,0,8">
-                    <Label Text="{Binding Name}" Style="{StaticResource Text.Body}" FontSize="14" />
-                    <Label Text="{Binding Description}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                </VerticalStackLayout>
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                    Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="16,10" BackgroundColor="Transparent">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnPreviewRowTapped" />
+                    </Grid.GestureRecognizers>
+                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" Margin="0,1,0,0" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="1">
+                        <Label Text="{Binding Name}" FontFamily="InterMedium" FontSize="14.5" TextColor="{DynamicResource tp-text}" />
+                        <Label Text="{Binding Description}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="PreviewTodo" x:DataType="vm:AiPreviewTodo">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6" Padding="12,0,16,0">
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
-                <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" VerticalOptions="Center" LineBreakMode="WordWrap" />
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                    Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="44" BackgroundColor="Transparent">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnPreviewRowTapped" />
+                    </Grid.GestureRecognizers>
+                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center" />
+                    <Label Grid.Column="1" Text="{Binding Title}" FontSize="14.5" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" LineBreakMode="WordWrap" />
+                </Grid>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="PreviewTip" x:DataType="vm:AiPreviewTip">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="22,4,20,4">
-                <Label Grid.Column="0" Text="•" Style="{StaticResource Text.Body}" />
-                <Label Grid.Column="1" Text="{Binding Text}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}"
+                    Margin="{Binding ListPosition, Converter={StaticResource ListPositionMarginConverter}}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="16,8">
+                    <Label Grid.Column="0" Text="•" FontSize="13.5" TextColor="{DynamicResource tp-warning}" />
+                    <Label Grid.Column="1" Text="{Binding Text}" FontSize="13.5" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap" />
+                </Grid>
+            </Border>
         </DataTemplate>
         <views:AiPreviewTemplateSelector x:Key="PreviewRowTemplate"
                                          Section="{StaticResource PreviewSection}" Day="{StaticResource PreviewDay}"
@@ -91,120 +163,140 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!-- ════════ App bar ════════ -->
-        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="Auto,*">
+        <Grid Grid.Row="0" Style="{StaticResource AppBar}" ColumnDefinitions="44,*,44">
             <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="0,0,44,0" />
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                <Label Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.AppBarTitle}" HorizontalTextAlignment="Center" />
+                <Label Text="{Binding TripName}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" LineBreakMode="TailTruncation"
+                       IsVisible="{Binding TripName, Converter={StaticResource StringNotEmptyConverter}}" />
+            </VerticalStackLayout>
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <ScrollView Grid.Row="2" IsVisible="{Binding IsFormVisible}">
-            <VerticalStackLayout Padding="16,20,16,28" Spacing="20">
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="20">
 
-                <!-- ════════ Guest / offline / read-only / error ════════ -->
-                <Border IsVisible="{Binding IsGuest}" Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="12">
-                        <Label Text="{x:Static res:AppResources.AiPlan_SignInHint}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
-                        <Button Text="{x:Static res:AppResources.Account_SignInOrCreate}" Command="{Binding OpenSignInCommand}" Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40" />
-                    </VerticalStackLayout>
-                </Border>
-
-                <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
-                        <Label Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_ErrorOffline}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
-                    </Grid>
-                </Border>
-
-                <Border IsVisible="{Binding IsReadOnly}" Style="{StaticResource Banner.Warning}">
-                    <Label Text="{x:Static res:AppResources.AiPlan_ReadOnly}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
-                </Border>
-
-                <Border IsVisible="{Binding HasError}" Style="{StaticResource Banner.Error}">
+                <!-- ════════ TP-104: the prototype's status cards instead of the questions ════════ -->
+                <VerticalStackLayout IsVisible="{Binding ShowGuestGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
+                    <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.LogIn}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.AiPlan_SignInTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_SignInHint}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
+                    <Button Text="{x:Static res:AppResources.Account_SignInOrCreate}" Command="{Binding OpenSignInCommand}" Style="{StaticResource Btn.Primary}" Margin="0,24,0,0" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding ShowOfflineGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
+                    <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-warning-soft}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.AiPlan_OfflineTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_ErrorOffline}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding ShowReadOnlyGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
+                    <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-warning-soft}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Eye}" TextColor="{DynamicResource tp-warning}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.AiPlan_ReadOnlyTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_ReadOnly}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding ShowBusyGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
+                    <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Hourglass}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.AiPlan_Busy}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_BusyText}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding ShowBlockedGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
+                    <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-warning-soft}" HorizontalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Hourglass}" TextColor="{DynamicResource tp-warning}" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsPaused}" Value="True">
+                                    <Setter Property="Text" Value="{StaticResource Ic.Wrench}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                    </Border>
+                    <Label Text="{Binding BlockedTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
+                    <Label Text="{Binding BlockedText}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
+                </VerticalStackLayout>
+                <Border IsVisible="{Binding ShowErrorBanner}" Style="{StaticResource Banner.Error}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                         <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
                         <Label Grid.Column="1" Text="{Binding ErrorText}" FontSize="13" TextColor="{DynamicResource tp-danger}" LineBreakMode="WordWrap" />
                     </Grid>
                 </Border>
 
-                <!-- ════════ No plan can be asked for: daily limit or maintenance ════════ -->
-                <Border IsVisible="{Binding IsBlocked}" Style="{StaticResource Card}" Margin="0,24,0,0">
-                    <VerticalStackLayout Spacing="10" Padding="8,16">
-                        <Border Style="{StaticResource IconTile.Warning}" WidthRequest="56" HeightRequest="56" HorizontalOptions="Center">
-                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Clock}" TextColor="{DynamicResource tp-warning}">
-                                <Label.Triggers>
-                                    <DataTrigger TargetType="Label" Binding="{Binding IsPaused}" Value="True">
-                                        <Setter Property="Text" Value="{StaticResource Ic.Settings}" />
-                                    </DataTrigger>
-                                </Label.Triggers>
-                            </Label>
-                        </Border>
-                        <Label Text="{Binding BlockedTitle}" Style="{StaticResource Text.Title}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
-                        <Label Text="{Binding BlockedText}" Style="{StaticResource EmptyStateTextLabel}" LineBreakMode="WordWrap" />
-                    </VerticalStackLayout>
-                </Border>
-
                 <!-- ════════ Questions ════════ -->
-                <VerticalStackLayout IsVisible="{Binding IsAsking}" Spacing="20">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" WidthRequest="40" HeightRequest="40" VerticalOptions="Start">
-                            <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Star}" TextColor="{DynamicResource tp-accent-text}" />
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                            <Label Text="{Binding IntroText}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap" />
-                            <Label Text="{Binding QuotaText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-primary}" />
-                            <Label Text="{Binding QuotaRuleText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
+                <VerticalStackLayout IsVisible="{Binding ShowQuestions}" Spacing="20">
+                    <Border Style="{StaticResource Card.Hero}" StrokeThickness="0" StrokeShape="RoundRectangle 22" Padding="20">
+                        <VerticalStackLayout Spacing="0">
+                            <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Sparkles}" TextColor="{DynamicResource tp-hero-muted}" HorizontalOptions="Start" />
+                            <Label Text="{Binding IntroText}" FontFamily="InterBold" FontSize="19" TextColor="{DynamicResource tp-on-hero}" LineBreakMode="WordWrap" Margin="0,8,0,0" />
+                            <Label Text="{Binding QuotaText}" FontSize="13.5" TextColor="{DynamicResource tp-hero-muted}" Margin="0,8,0,0" />
+                            <Label Text="{Binding QuotaRuleText}" FontSize="12" TextColor="{DynamicResource tp-hero-muted}" Opacity="0.8" LineBreakMode="WordWrap" Margin="0,4,0,0" />
                         </VerticalStackLayout>
-                    </Grid>
+                    </Border>
 
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.AiPlan_QInterests}" Style="{StaticResource Text.Field}" />
-                        <Label Text="{x:Static res:AppResources.AiPlan_QInterestsHint}" Style="{StaticResource Text.Caption}" />
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="{x:Static res:AppResources.AiPlan_QInterests}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                            <Label Grid.Column="1" Text="{Binding InterestCountText}" Style="{StaticResource Text.Counter}" VerticalOptions="End" />
+                        </Grid>
                         <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Interests}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.AiPlan_QPace}" Style="{StaticResource Text.Field}" />
-                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Paces}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_QPace}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="3" BackgroundColor="{DynamicResource tp-surface-sunken}">
+                            <FlexLayout Direction="Row" BindableLayout.ItemsSource="{Binding Paces}" BindableLayout.ItemTemplate="{StaticResource Segment}" />
+                        </Border>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.AiPlan_QBudget}" Style="{StaticResource Text.Field}" />
-                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Budgets}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_QBudget}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="3" BackgroundColor="{DynamicResource tp-surface-sunken}">
+                            <FlexLayout Direction="Row" BindableLayout.ItemsSource="{Binding Budgets}" BindableLayout.ItemTemplate="{StaticResource Segment}" />
+                        </Border>
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.AiPlan_QCompanions}" Style="{StaticResource Text.Field}" />
-                        <FlexLayout Wrap="Wrap" BindableLayout.ItemsSource="{Binding Companions}" BindableLayout.ItemTemplate="{StaticResource ChoiceChip}" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_QCompanions}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                        <Border StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="3" BackgroundColor="{DynamicResource tp-surface-sunken}">
+                            <FlexLayout Direction="Row" BindableLayout.ItemsSource="{Binding Companions}" BindableLayout.ItemTemplate="{StaticResource Segment}" />
+                        </Border>
                     </VerticalStackLayout>
 
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.AiPlan_QNotes}" Style="{StaticResource Text.Field}" />
-                        <Border Style="{StaticResource Input.Multiline}">
-                            <Editor Text="{Binding Notes}" MaxLength="200" AutoSize="TextChanges" MinimumHeightRequest="64"
-                                    Placeholder="{x:Static res:AppResources.AiPlan_NotesPlaceholder}" />
+                    <VerticalStackLayout Spacing="6">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="{x:Static res:AppResources.AiPlan_QNotes}" Style="{StaticResource Text.Field}" />
+                            <Label Grid.Column="1" Text="{Binding Notes.Length, StringFormat='{0}/200', FallbackValue='0/200', TargetNullValue='0/200'}" Style="{StaticResource Text.Counter}" />
+                        </Grid>
+                        <Border Style="{StaticResource Input.Multiline}" MinimumHeightRequest="88">
+                            <Editor Text="{Binding Notes}" MaxLength="200" AutoSize="TextChanges" Placeholder="{x:Static res:AppResources.AiPlan_NotesPlaceholder}" />
                         </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
 
                 <!-- ════════ Working: animated, with what the planner is doing and a rough duration (TP-45) ════════ -->
-                <VerticalStackLayout IsVisible="{Binding IsGenerating}" Spacing="16" Padding="0,32,0,0">
-                    <controls:LoadingLogo IsVisible="{Binding IsGenerating}" Size="96" />
-                    <Label Text="{x:Static res:AppResources.AiPlan_Generating}" Style="{StaticResource Text.Title}" HorizontalTextAlignment="Center" />
-                    <Label Text="{Binding GeneratingStatus}" Style="{StaticResource Text.Body2}" HorizontalTextAlignment="Center"
-                           LineBreakMode="WordWrap" MinimumHeightRequest="40" />
+                <VerticalStackLayout IsVisible="{Binding IsGenerating}" Spacing="0" Padding="16,48,16,0">
+                    <controls:LoadingLogo IsVisible="{Binding IsGenerating}" Size="84" />
+                    <Label Text="{x:Static res:AppResources.AiPlan_Generating}" FontFamily="InterBold" FontSize="20" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,24,0,0" />
+                    <Label Text="{Binding GeneratingStatus}" FontSize="14.5" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center"
+                           LineBreakMode="WordWrap" MinimumHeightRequest="22" Margin="0,8,0,0" />
                     <!-- TP-77: which step of how many -->
-                    <ProgressBar Progress="{Binding GeneratingProgress}" ProgressColor="{DynamicResource tp-accent}" Margin="32,0" />
-                    <Label Text="{Binding GeneratingStepText}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center" />
-                    <Label Text="{x:Static res:AppResources.AiPlan_Duration}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="Center"
-                           LineBreakMode="WordWrap" />
+                    <VerticalStackLayout Spacing="8" WidthRequest="260" HorizontalOptions="Center" Margin="0,24,0,0">
+                        <controls:ProgressPill Progress="{Binding GeneratingProgress}" />
+                        <Label Text="{Binding GeneratingStepText}" FontSize="12" TextColor="{DynamicResource tp-text-3}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                    <Label Text="{x:Static res:AppResources.AiPlan_Duration}" FontSize="13" TextColor="{DynamicResource tp-text-3}" HorizontalTextAlignment="Center" Margin="0,32,0,0" />
                     <!-- TP-57: the plan is made in the background -->
-                    <Label Text="{x:Static res:AppResources.AiPlan_CanLeave}" Style="{StaticResource Text.Caption}" FontAttributes="Bold"
-                           HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                    <Button Text="{x:Static res:AppResources.AiPlan_CanLeave}" Command="{Binding GoBackCommand}" Style="{StaticResource Btn.Secondary}"
+                            HorizontalOptions="Center" Margin="0,12,0,0" />
                 </VerticalStackLayout>
             </VerticalStackLayout>
         </ScrollView>
@@ -213,40 +305,61 @@
         <CollectionView Grid.Row="2" IsVisible="{Binding IsPreview}" ItemsSource="{Binding PreviewRows}"
                         ItemTemplate="{StaticResource PreviewRowTemplate}" SelectionMode="None">
             <CollectionView.Header>
-                <Border Style="{StaticResource Banner.Info}" Margin="16,20,16,0">
+                <Border Margin="16,16,16,0" Padding="16" StrokeShape="RoundRectangle 16" StrokeThickness="1" Stroke="{DynamicResource tp-accent-soft}"
+                        BackgroundColor="{DynamicResource tp-accent-soft}">
                     <VerticalStackLayout Spacing="6">
-                        <Label Text="{Binding Summary}" IsVisible="{Binding HasSummary}" Style="{StaticResource Text.Body}" FontSize="14" LineBreakMode="WordWrap" />
-                        <Label Text="{Binding TruncatedText}" IsVisible="{Binding HasTruncatedText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                        <Label Text="{x:Static res:AppResources.AiPlan_Disclaimer}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                        <!-- Google Play AI-generated content policy: report an offensive / harmful suggestion. -->
-                        <Label Text="{x:Static res:AppResources.AiPlan_Report}" Style="{StaticResource Text.Link}" FontSize="13"
-                               SemanticProperties.Description="{x:Static res:AppResources.AiPlan_Report}">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding ReportContentCommand}" />
-                            </Label.GestureRecognizers>
-                        </Label>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Sparkles}" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Center" />
+                            <Label Text="{x:Static res:AppResources.AiPlan_SummaryTitle}" FontFamily="InterBold" FontSize="14" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Text="{Binding Summary}" IsVisible="{Binding HasSummary}" FontSize="14" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap" />
+                        <Label Text="{Binding TruncatedText}" IsVisible="{Binding HasTruncatedText}" FontSize="12.5" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap" />
                     </VerticalStackLayout>
                 </Border>
             </CollectionView.Header>
             <CollectionView.Footer>
-                <BoxView HeightRequest="20" Color="Transparent" />
+                <VerticalStackLayout Spacing="8" Padding="24,20,24,24">
+                    <Label Text="{x:Static res:AppResources.AiPlan_Disclaimer}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                    <!-- Google Play AI-generated content policy: report an offensive / harmful suggestion. -->
+                    <HorizontalStackLayout Spacing="4" HorizontalOptions="Center" SemanticProperties.Description="{x:Static res:AppResources.AiPlan_Report}">
+                        <HorizontalStackLayout.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ReportContentCommand}" />
+                        </HorizontalStackLayout.GestureRecognizers>
+                        <Label Style="{StaticResource Icon}" FontSize="13" Text="{StaticResource Ic.Flag}" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Center" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_Report}" FontFamily="InterMedium" FontSize="12.5" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Center"
+                               LineBreakMode="WordWrap" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
             </CollectionView.Footer>
         </CollectionView>
 
         <!-- ════════ Bottom actions ════════ -->
-        <Grid Grid.Row="3" Padding="16,10,16,16" BackgroundColor="{DynamicResource tp-surface}">
-            <Button IsVisible="{Binding IsAsking}" Text="{x:Static res:AppResources.AiPlan_Generate}" Command="{Binding GenerateCommand}"
-                    IsEnabled="{Binding CanGenerate}" Style="{StaticResource Btn.Primary}" />
-            <Button IsVisible="{Binding IsBlocked}" Text="{x:Static res:AppResources.AiPlan_BackToTrip}" Command="{Binding GoBackCommand}"
-                    Style="{StaticResource Btn.Secondary}" />
-            <VerticalStackLayout IsVisible="{Binding IsPreview}" Spacing="8">
-                <HorizontalStackLayout IsVisible="{Binding IsApplying}" Spacing="8" HorizontalOptions="Center">
-                    <controls:LoadingDots IsVisible="{Binding IsApplying}" DotSize="6" DotColor="{DynamicResource tp-primary}" />
-                    <Label Text="{x:Static res:AppResources.AiPlan_Adding}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
-                </HorizontalStackLayout>
-                <Button Text="{x:Static res:AppResources.AiPlan_AddSelected}" Command="{Binding AddSelectedCommand}" Style="{StaticResource Btn.Primary}" />
-                <Button Text="{x:Static res:AppResources.AiPlan_StartOver}" Command="{Binding StartOverCommand}" Style="{StaticResource Btn.Ghost}" />
-            </VerticalStackLayout>
+        <Grid Grid.Row="3" RowDefinitions="Auto,Auto" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Grid.Row="0" Style="{StaticResource Divider}" IsVisible="{Binding IsGenerating, Converter={StaticResource InvertBoolConverter}}" />
+            <Grid Grid.Row="1" Padding="16,12">
+                <Button IsVisible="{Binding ShowQuestions}" Text="{x:Static res:AppResources.AiPlan_Generate}" Command="{Binding GenerateCommand}"
+                        IsEnabled="{Binding CanGenerate}" Style="{StaticResource Btn.Primary.Lg}" ContentLayout="Left,8">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Sparkles}" Size="18" Color="{DynamicResource tp-on-primary}" />
+                    </Button.ImageSource>
+                </Button>
+                <Button IsVisible="{Binding ShowBackButton}" Text="{x:Static res:AppResources.AiPlan_BackToTrip}" Command="{Binding GoBackCommand}"
+                        Style="{StaticResource Btn.Secondary}" />
+                <VerticalStackLayout IsVisible="{Binding IsPreview}" Spacing="8">
+                    <HorizontalStackLayout IsVisible="{Binding IsApplying}" Spacing="8" HorizontalOptions="Center">
+                        <controls:LoadingDots IsVisible="{Binding IsApplying}" DotSize="6" DotColor="{DynamicResource tp-primary}" />
+                        <Label Text="{x:Static res:AppResources.AiPlan_Adding}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Button Grid.Column="0" Text="{x:Static res:AppResources.AiPlan_StartOver}" Command="{Binding StartOverCommand}" Style="{StaticResource Btn.Secondary}" ContentLayout="Left,6">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.RotateCcw}" Size="16" Color="{DynamicResource tp-text}" />
+                            </Button.ImageSource>
+                        </Button>
+                        <Button Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_AddSelected}" Command="{Binding AddSelectedCommand}" Style="{StaticResource Btn.Primary}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Grid>
         </Grid>
     </Grid>
 </ContentPage>

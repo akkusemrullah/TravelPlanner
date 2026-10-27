@@ -22,6 +22,28 @@ namespace TravelPlanner.ViewModels
 
         [ObservableProperty]
         private bool isSelected;
+
+        /// <summary>TP-104: "₺120,00" - this person's equal part, shown next to a ticked name.</summary>
+        [ObservableProperty]
+        private string shareText = string.Empty;
+    }
+
+    /// <summary>TP-104: one tile of the prototype's 3x2 category grid.</summary>
+    public partial class ExpenseCategoryOption : ObservableObject
+    {
+        public ExpenseCategoryOption(ExpenseCategory category)
+        {
+            Category = category;
+            Label = ExpenseCategoryDisplayConverter.ToDisplayText(category.ToString());
+            Glyph = CategoryGlyphConverter.ToGlyph(category.ToString());
+        }
+
+        public ExpenseCategory Category { get; }
+        public string Label { get; }
+        public string Glyph { get; }
+
+        [ObservableProperty]
+        private bool isSelected;
     }
 
     [QueryProperty(nameof(TripId), "TripId")]
@@ -91,6 +113,16 @@ namespace TravelPlanner.ViewModels
 
         public List<ExpenseCategory> Categories { get; } = Enum.GetValues<ExpenseCategory>().ToList();
 
+        /// <summary>TP-104: the category tiles (the selected one is highlighted).</summary>
+        public List<ExpenseCategoryOption> CategoryOptions { get; }
+
+        /// <summary>TP-104: "Harcama Ekle" or "Harcamayı Düzenle".</summary>
+        public string PageTitle => ExpenseId > 0 ? AppResources.Expense_EditTitle : AppResources.Expense_AddTitle;
+
+        /// <summary>TP-104: the app bar's second line.</summary>
+        [ObservableProperty]
+        private string tripName = string.Empty;
+
         // ---- Cost split (TP-504) ----
 
         /// <summary>"Bölüşülmesin" followed by the trip's participants.</summary>
@@ -124,7 +156,30 @@ namespace TravelPlanner.ViewModels
             _budgetAlerts = budgetAlerts;
             _splitService = splitService;
 
+            CategoryOptions = Categories.Select(c => new ExpenseCategoryOption(c) { IsSelected = c == Category }).ToList();
             SelectedCurrency = FindCurrency(MoneyFormatter.CurrencyCode);
+        }
+
+        partial void OnCategoryChanged(ExpenseCategory value)
+        {
+            foreach (var option in CategoryOptions ?? new())
+                option.IsSelected = option.Category == value;
+        }
+
+        [RelayCommand]
+        private void SelectCategory(ExpenseCategoryOption? option)
+        {
+            if (option is not null)
+                Category = option.Category;
+        }
+
+        /// <summary>TP-104: each ticked person's equal part of the amount, in the currency it is typed in.</summary>
+        private void UpdateShares()
+        {
+            var selected = SplitParticipants.Where(p => p.IsSelected).ToList();
+            var part = selected.Count > 0 && Amount > 0 ? Amount / selected.Count : 0m;
+            foreach (var option in SplitParticipants)
+                option.ShareText = option.IsSelected && part > 0 ? MoneyFormatter.FormatIn(part, EnteredCurrency) : string.Empty;
         }
 
         /// <summary>The trip's budget currency - every stored amount is in this currency.</summary>
@@ -149,11 +204,16 @@ namespace TravelPlanner.ViewModels
             UpdateConversionPreview();
         }
 
-        partial void OnSelectedCurrencyChanged(SettingsOption<string>? value) => UpdateConversionPreview();
+        partial void OnSelectedCurrencyChanged(SettingsOption<string>? value)
+        {
+            UpdateConversionPreview();
+            UpdateShares();
+        }
 
         private async Task LoadTripAsync(int tripId)
         {
             _trip = await _tripService.GetByIdAsync(tripId);
+            TripName = _trip?.Name ?? string.Empty;
 
             // A new expense defaults to today; for a trip that hasn't started yet (or is already over)
             // the trip's first day is a better starting point.
@@ -180,7 +240,13 @@ namespace TravelPlanner.ViewModels
             foreach (var participant in participants)
             {
                 PayerOptions.Add(new SettingsOption<int?>(participant.Id, participant.Name));
-                SplitParticipants.Add(new SplitParticipantOption(participant));
+                var option = new SplitParticipantOption(participant);
+                option.PropertyChanged += (_, e) =>
+                {
+                    if (e.PropertyName == nameof(SplitParticipantOption.IsSelected))
+                        UpdateShares();
+                };
+                SplitParticipants.Add(option);
             }
 
             HasParticipants = participants.Count > 0;
@@ -227,6 +293,7 @@ namespace TravelPlanner.ViewModels
 
         partial void OnExpenseIdChanged(int value)
         {
+            OnPropertyChanged(nameof(PageTitle));
             if (value > 0)
                 RunSafeAsync(() => LoadExpenseAsync(value), AppResources.Expense_LoadError).FireAndForget();
         }
@@ -237,6 +304,7 @@ namespace TravelPlanner.ViewModels
                 ValidationMessage = string.Empty;
 
             UpdateConversionPreview();
+            UpdateShares();
         }
 
         private async Task LoadExpenseAsync(int id)

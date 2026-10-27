@@ -23,7 +23,9 @@ namespace TravelPlanner.Helpers.Charts
         {
             canvas.SaveState();
 
-            const float leftAxis = 56f;
+            // TP-104: the prototype's chart - no value axis (the bars' amounts are in the description), two light grid
+            // lines and a firmer base line, day numbers ("1.g") under the bars.
+            const float leftAxis = 8f;
             const float bottomAxis = 22f;
             const float topPadding = 10f;
 
@@ -38,16 +40,15 @@ namespace TravelPlanner.Helpers.Charts
             canvas.FontSize = 10;
             canvas.FontColor = ChartPalette.Text;
 
-            // Horizontal grid lines with labels (0, 50%, 100% of the scale).
-            canvas.StrokeColor = ChartPalette.Grid;
             canvas.StrokeSize = 1;
-            foreach (var fraction in new[] { 0m, 0.5m, 1m })
+            canvas.StrokeColor = ChartPalette.Grid;
+            foreach (var fraction in new[] { 0.5f, 1f })
             {
-                var y = plot.Bottom - (float)fraction * plot.Height;
+                var y = plot.Bottom - fraction / 1.1f * plot.Height;
                 canvas.DrawLine(plot.Left, y, plot.Right, y);
-                canvas.DrawString(FormatValue(max * fraction), dirtyRect.Left, y - 7, leftAxis - 6, 14,
-                    Microsoft.Maui.Graphics.HorizontalAlignment.Right, Microsoft.Maui.Graphics.VerticalAlignment.Center);
             }
+            canvas.StrokeColor = ChartPalette.Axis;
+            canvas.DrawLine(plot.Left, plot.Bottom, plot.Right, plot.Bottom);
 
             if (Bars.Count > 0)
             {
@@ -73,8 +74,8 @@ namespace TravelPlanner.Helpers.Charts
                     {
                         // On long trips a slot is only a few pixels wide - centre a fixed-width label on the bar
                         // instead of squeezing (and clipping) the day number into the slot.
-                        const float labelWidth = 24f;
-                        canvas.DrawString(bar.Date.Day.ToString(CultureInfo.CurrentCulture),
+                        const float labelWidth = 28f;
+                        canvas.DrawString(DayLabel(i, Bars.Count),
                             plot.Left + i * slot + slot / 2f - labelWidth / 2f, plot.Bottom + 4, labelWidth, 14,
                             Microsoft.Maui.Graphics.HorizontalAlignment.Center, Microsoft.Maui.Graphics.VerticalAlignment.Top);
                     }
@@ -92,5 +93,9 @@ namespace TravelPlanner.Helpers.Charts
 
             canvas.RestoreState();
         }
+
+        /// <summary>"3.g" (the trip's day number) on short trips, just "3" on long ones.</summary>
+        internal static string DayLabel(int index, int count) =>
+            count > 10 ? (index + 1).ToString(CultureInfo.CurrentCulture) : string.Format(CultureInfo.CurrentCulture, Resources.Strings.AppResources.Analysis_DayShortFormat, index + 1);
     }
 }

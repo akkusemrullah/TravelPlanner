@@ -27,6 +27,9 @@ namespace TravelPlanner.Services
         /// </summary>
         Task<Dictionary<string, decimal>> GetMyTotalsByCurrencyAsync(string? userId);
 
+        /// <summary>TP-104: the same "my part" for one trip, in its currency (the Harcamalarım card of the expense list).</summary>
+        Task<decimal> GetMyTotalForTripAsync(int tripId, string? userId);
+
         /// <summary>
         /// Switches a trip to <paramref name="toCurrency"/>: re-expresses every expense in it and updates the trip's
         /// CurrencyCode, all in one transaction. Amounts originally typed in <paramref name="toCurrency"/> get their
