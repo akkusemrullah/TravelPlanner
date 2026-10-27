@@ -9174,5 +9174,17 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("TripDetail_PercentFormat", resourceCulture);
             }
         }
+
+        public static string Profile_App {
+            get {
+                return ResourceManager.GetString("Profile_App", resourceCulture);
+            }
+        }
+
+        public static string Profile_JoinHint {
+            get {
+                return ResourceManager.GetString("Profile_JoinHint", resourceCulture);
+            }
+        }
     }
 }

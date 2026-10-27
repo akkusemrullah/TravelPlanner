@@ -36,6 +36,8 @@ namespace TravelPlanner
 #if ANDROID
                     // Day plan: reorder by dragging the grip (tracks the touch natively, see DragHandleHandler).
                     handlers.AddHandler<Controls.DragHandle, DragHandleHandler>();
+                    // TP-99: pill behind the selected tab (TabBarShellRenderer).
+                    handlers.AddHandler<Shell, TabBarShellRenderer>();
 #endif
                 });
 

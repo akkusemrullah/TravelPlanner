@@ -62,6 +62,16 @@ namespace TravelPlanner.Models
         [JsonIgnore]
         public bool HasTags => TagLabels.Count > 0;
 
+        /// <summary>TP-99: the card shows the first two styles as pills.</summary>
+        [JsonIgnore]
+        public string FirstTag => TagLabels.Count > 0 ? TagLabels[0] : string.Empty;
+
+        [JsonIgnore]
+        public string SecondTag => TagLabels.Count > 1 ? TagLabels[1] : string.Empty;
+
+        [JsonIgnore]
+        public bool HasSecondTag => TagLabels.Count > 1;
+
         [JsonIgnore]
         public bool IsNew => PublishedAt is { } published && DateTimeOffset.UtcNow - published < TimeSpan.FromDays(NewForDays);
     }

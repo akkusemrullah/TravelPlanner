@@ -325,6 +325,9 @@ namespace TravelPlanner.ViewModels
 
         public bool IsSyncing => _sync.Status == SyncStatus.Syncing;
 
+        /// <summary>TP-99: the coloured dot of the sync line (green up to date, red error, amber offline, blue busy/pending).</summary>
+        public SyncStatus SyncState => _sync.Status;
+
         /// <summary>SettingsPage calls this in OnAppearing / OnDisappearing so the status line stays live.</summary>
         public void AttachSyncStatus(bool attach)
         {
@@ -340,6 +343,7 @@ namespace TravelPlanner.ViewModels
         {
             OnPropertyChanged(nameof(SyncStatusText));
             OnPropertyChanged(nameof(IsSyncing));
+            OnPropertyChanged(nameof(SyncState));
         });
 
         [RelayCommand]

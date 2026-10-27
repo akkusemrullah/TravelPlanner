@@ -3379,4 +3379,10 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="TripDetail_PercentFormat" xml:space="preserve">
     <value>{0}%</value>
   </data>
+  <data name="Profile_App" xml:space="preserve">
+    <value>App</value>
+  </data>
+  <data name="Profile_JoinHint" xml:space="preserve">
+    <value>Join a shared trip</value>
+  </data>
 </root>
