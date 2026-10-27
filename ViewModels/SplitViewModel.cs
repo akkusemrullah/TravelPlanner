@@ -21,7 +21,23 @@ namespace TravelPlanner.ViewModels
             IsCreditor = balance.NetMinor > 0;
             IsDebtor = balance.NetMinor < 0;
             StatusText = IsCreditor ? AppResources.Split_GetsBack : IsDebtor ? AppResources.Split_Owes : AppResources.Split_Settled;
+            PaidShareText = string.Format(AppResources.Split_PaidShareFormat,
+                MoneyFormatter.FormatIn(MoneyConverter.FromMinor(balance.PaidMinor), currencyCode, 0),
+                MoneyFormatter.FormatIn(MoneyConverter.FromMinor(balance.ShareMinor), currencyCode, 0));
+            SignedNetText = (IsCreditor ? "+" : IsDebtor ? "-" : string.Empty) + NetText;
+            IsLinked = !string.IsNullOrEmpty(balance.Participant.UserId);
         }
+
+        /// <summary>TP-104: "Ödediği ₺1.200 · Payı ₺900" on one line, like the prototype.</summary>
+        public string PaidShareText { get; }
+
+        /// <summary>TP-104: "+₺300,00" / "-₺300,00" next to the status badge.</summary>
+        public string SignedNetText { get; }
+
+        /// <summary>The participant is a trip member with an account ("· hesap bağlı").</summary>
+        public bool IsLinked { get; }
+
+        public bool IsSettled => !IsCreditor && !IsDebtor;
 
         public Participant Participant { get; }
         public string Name { get; }
@@ -32,6 +48,9 @@ namespace TravelPlanner.ViewModels
         public bool IsCreditor { get; }
         public bool IsDebtor { get; }
     }
+
+    /// <summary>TP-104: one "who pays whom" row - two avatars and the sentence.</summary>
+    public sealed record SettlementItem(string FromName, string ToName, string Text);
 
     /// <summary>
     /// Cost splitting for a trip (TP-504): manage participants, see what each paid vs. their share, and the
@@ -77,6 +96,15 @@ namespace TravelPlanner.ViewModels
 
         public ObservableCollection<string> Settlements { get; } = new RangeObservableCollection<string>();
 
+        public ObservableCollection<SettlementItem> SettlementRows { get; } = new RangeObservableCollection<SettlementItem>();
+
+        /// <summary>TP-104: the amount on the "Bölüşülen toplam" row.</summary>
+        [ObservableProperty]
+        private string splitTotalAmount = string.Empty;
+
+        [ObservableProperty]
+        private string tripName = string.Empty;
+
         /// <param name="sharing">G6: for "add the trip's members" (optional so older call sites keep working).</param>
         public SplitViewModel(ITripService tripService, ISplitService splitService, IDialogService dialogs, ISharingService? sharing = null)
             : base(dialogs)
@@ -107,6 +135,10 @@ namespace TravelPlanner.ViewModels
             Balances.ReplaceAll(summary.Balances.Select(balance => new BalanceItem(balance, currency)));
 
             Settlements.ReplaceAll(summary.Settlements.Select(settlement => TripReportService.SettlementLine(settlement, currency)));
+            SettlementRows.ReplaceAll(summary.Settlements.Select(settlement =>
+                new SettlementItem(settlement.From.Name, settlement.To.Name, TripReportService.SettlementLine(settlement, currency))));
+            SplitTotalAmount = MoneyFormatter.FormatIn(MoneyConverter.FromMinor(summary.SplitTotalMinor), currency);
+            TripName = trip.Name;
 
             HasParticipants = Balances.Count > 0;
             HasNoParticipants = !HasParticipants;

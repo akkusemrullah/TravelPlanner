@@ -126,5 +126,23 @@ namespace TravelPlanner.Tests
             Assert.Equal(0.95, new TripTicket(Roma(), today: Start.AddDays(30)).PlaneBounds.X);
             Assert.Equal(1d, new TripTicket(Roma(), today: Start.AddDays(30)).ProgressBounds.Width);
         }
+
+        [Theory]
+        [InlineData("Ali")]
+        [InlineData("")]
+        [InlineData(null)]
+        public void TP104_AvatarTone_IsStableAndInRange(string? name)
+        {
+            var index = TravelPlanner.Helpers.PersonName.ToneIndex(name);
+            Assert.InRange(index, 0, TravelPlanner.Helpers.PersonName.AvatarTones.Length - 1);
+            Assert.Equal(index, TravelPlanner.Helpers.PersonName.ToneIndex(name));
+        }
+
+        [Fact]
+        public void TP104_AvatarTone_FollowsThePrototypeSum()
+        {
+            // 'A' 65 + 'l' 108 + 'i' 105 = 278 -> 278 % 5 = 3 (info)
+            Assert.Equal(3, TravelPlanner.Helpers.PersonName.ToneIndex("Ali"));
+        }
     }
 }

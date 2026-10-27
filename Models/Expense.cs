@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using SQLite;
 using System.ComponentModel.DataAnnotations;
 using TravelPlanner.Helpers;
@@ -81,5 +82,28 @@ namespace TravelPlanner.Models
         /// <summary>"€50,00" - the amount as entered, shown under the converted amount when they differ.</summary>
         [Ignore]
         public string FormattedOriginalAmount => MoneyFormatter.FormatIn(OriginalAmount, OriginalCurrencyCode);
+
+        /// <summary>TP-104: who paid it (split trips) - filled in by the expense list, not stored.</summary>
+        [Ignore, JsonIgnore]
+        public string? PaidByName { get; set; }
+
+        /// <summary>TP-104: the row title - the description, or the category when there is none.</summary>
+        [Ignore, JsonIgnore]
+        public string DisplayTitle => string.IsNullOrWhiteSpace(Description) ? CategoryName : Description.Trim();
+
+        /// <summary>TP-104: "Yemek · 25 Eki · Ali ödedi" under the row title.</summary>
+        [Ignore, JsonIgnore]
+        public string MetaLine
+        {
+            get
+            {
+                var line = $"{CategoryName} · {Date.ToString("d MMM", System.Globalization.CultureInfo.CurrentCulture)}";
+                return string.IsNullOrWhiteSpace(PaidByName)
+                    ? line
+                    : $"{line} · {string.Format(Resources.Strings.AppResources.Expense_PaidByFormat, PaidByName)}";
+            }
+        }
+
+        private string CategoryName => ExpenseCategoryDisplayConverter.ToDisplayText(Category.ToString());
     }
 }

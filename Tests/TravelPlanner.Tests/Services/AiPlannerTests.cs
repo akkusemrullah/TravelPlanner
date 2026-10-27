@@ -1,3 +1,4 @@
+using TravelPlanner.Helpers;
 using System.Text.Json.Nodes;
 using Moq;
 using Xunit;
@@ -617,6 +618,33 @@ namespace TravelPlanner.Tests
             }, vm.PreviewRows.Select(r => r.GetType()));
             Assert.Same(day.Activities[0], vm.PreviewRows[2]); // the same rows the add button reads
             Assert.True(vm.IsPreview && !vm.IsFormVisible);
+
+            // TP-104: drawn as cards - the day header on top, its last activity at the bottom, lone rows whole
+            Assert.Equal(ListPosition.First, day.ListPosition);
+            Assert.Equal(ListPosition.Middle, day.Activities[0].ListPosition);
+            Assert.Equal(ListPosition.Last, day.Activities[1].ListPosition);
+            Assert.Equal(ListPosition.Only, place.ListPosition);
+            Assert.False(vm.ShowQuestions);
+        }
+
+        [Fact]
+        public async Task TP104_Gates_ShowOneStatusCard()
+        {
+            var vm = await LoadAsync();
+            Assert.Equal(vm.CanEdit, vm.ShowQuestions);
+            Assert.False(vm.ShowGuestGate || vm.ShowOfflineGate || vm.ShowBlockedGate || vm.ShowBusyGate);
+            Assert.Equal("0/4".Replace("0", vm.Interests.Count(i => i.IsSelected).ToString()), vm.InterestCountText);
+
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(0, 5));
+            vm = await LoadAsync();
+            Assert.False(vm.ShowQuestions);
+            Assert.Equal(vm.CanEdit, vm.ShowBlockedGate);
+
+            _account.SetupGet(a => a.IsSignedIn).Returns(false);
+            vm = await LoadAsync();
+            Assert.True(vm.ShowGuestGate);
+            Assert.False(vm.ShowQuestions || vm.ShowBlockedGate);
+            Assert.True(vm.ShowBackButton);
         }
 
         [Fact]

@@ -66,6 +66,13 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private string highestDayFormatted = string.Empty;
 
+        /// <summary>TP-104: the third summary card - the amount, and the date on its own line.</summary>
+        [ObservableProperty]
+        private string highestDayAmount = "–";
+
+        [ObservableProperty]
+        private string highestDayDate = string.Empty;
+
         /// <summary>"Günlük bütçe: ₺1.250" - empty when the trip has no budget.</summary>
         [ObservableProperty]
         private string dailyBudgetText = string.Empty;
@@ -79,7 +86,7 @@ namespace TravelPlanner.ViewModels
 
         public ObservableCollection<CategoryBreakdownItem> Categories { get; } = new RangeObservableCollection<CategoryBreakdownItem>();
 
-        public CategoryBarDrawable CategoryChart { get; } = new();
+        public CategoryDonutDrawable CategoryChart { get; } = new();
 
         public DailySpendingDrawable DailyChart { get; } = new();
 
@@ -112,6 +119,8 @@ namespace TravelPlanner.ViewModels
             Categories.ReplaceAll(summaries.Where(s => s.Total > 0).Select(summary => new CategoryBreakdownItem(summary.Category, summary.Total, summary.Count, (double)(summary.Total / total), currency)));
 
             CategoryChart.Shares = Categories.Select(c => new CategoryShare(c.Category, c.Fraction)).ToList();
+            CategoryChart.CenterTitle = AppResources.Analysis_Total;
+            CategoryChart.CenterValue = MoneyFormatter.FormatIn(total, currency, 0);
 
             var bars = BuildDailyBars(Trip, daily);
             var dailyBudget = Trip.PlannedBudget > 0 ? Math.Round(Trip.PlannedBudget / Math.Max(Trip.DurationInDays, 1), 2) : 0m;
@@ -128,6 +137,8 @@ namespace TravelPlanner.ViewModels
             HighestDayFormatted = highest is null || highest.Total <= 0
                 ? "–"
                 : $"{MoneyFormatter.FormatIn(highest.Total, currency)} · {highest.Date:d MMM}";
+            HighestDayAmount = highest is null || highest.Total <= 0 ? "–" : MoneyFormatter.FormatIn(highest.Total, currency, 0);
+            HighestDayDate = highest is null || highest.Total <= 0 ? string.Empty : highest.Date.ToString("d MMM", System.Globalization.CultureInfo.CurrentCulture);
 
             HasDailyBudget = dailyBudget > 0;
             DailyBudgetText = HasDailyBudget

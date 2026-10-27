@@ -45,6 +45,31 @@ namespace TravelPlanner.ViewModels
         public List<string> CategoryFilterOptions { get; } =
             new[] { AllCategoriesFilter }.Concat(Enum.GetNames<ExpenseCategory>()).ToList();
 
+        /// <summary>TP-104: the prototype's category chips (Tümü + one per category, with its icon).</summary>
+        public List<ExpenseCategoryFilterOption> CategoryFilters { get; }
+
+        /// <summary>TP-104: the "Harcamalarım" card - the user's own part of the trip's expenses.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(MyTotalFormatted))]
+        private decimal myTotal;
+
+        public string MyTotalFormatted => MoneyFormatter.FormatIn(MyTotal, CurrencyCode);
+
+        /// <summary>TP-104: the "Toplam harcama" card - every expense of the trip, whatever the filter.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(AllTotalFormatted))]
+        private decimal allTotal;
+
+        public string AllTotalFormatted => MoneyFormatter.FormatIn(AllTotal, CurrencyCode);
+
+        /// <summary>TP-104: the app bar's second line.</summary>
+        [ObservableProperty]
+        private string tripName = string.Empty;
+
+        /// <summary>The trip total is over a set budget - the card's amount turns red.</summary>
+        [ObservableProperty]
+        private bool isOverBudget;
+
         public ObservableCollection<Expense> Expenses { get; } = new RangeObservableCollection<Expense>();
 
         /// <summary>"Seçerek sil" mode of the list (works on the expenses shown - i.e. within the category filter).</summary>
@@ -76,6 +101,8 @@ namespace TravelPlanner.ViewModels
             _trips = trips;
             _split = split;
             _share = share;
+            CategoryFilters = CategoryFilterOptions.Select(key => new ExpenseCategoryFilterOption(key) { IsSelected = key == AllCategoriesFilter }).ToList();
+            ListPositions.Track(Expenses);
             Selection = new ListSelection<Expense>(() => Expenses);
             Selection.PropertyChanged += (_, e) =>
             {
@@ -107,7 +134,25 @@ namespace TravelPlanner.ViewModels
         // LoadExpensesCommand (Shell applies the TripId query before the page appears), and doing it from
         // both places raced and could show every expense twice.
 
-        partial void OnSelectedCategoryFilterChanged(string value) => ApplyFilter();
+        partial void OnSelectedCategoryFilterChanged(string value)
+        {
+            foreach (var option in CategoryFilters ?? new())
+                option.IsSelected = option.Key == value;
+            ApplyFilter();
+        }
+
+        partial void OnCurrencyCodeChanged(string value)
+        {
+            OnPropertyChanged(nameof(MyTotalFormatted));
+            OnPropertyChanged(nameof(AllTotalFormatted));
+        }
+
+        [RelayCommand]
+        private void SelectCategoryFilter(ExpenseCategoryFilterOption? option)
+        {
+            if (option is not null)
+                SelectedCategoryFilter = option.Key;
+        }
 
         [RelayCommand]
         private Task LoadExpensesAsync() => RunLoadAsync(async () =>
@@ -119,8 +164,21 @@ namespace TravelPlanner.ViewModels
             _allExpenses = await _expenseService.GetByTripIdAsync(TripId);
 
             // The trip's own currency - also when it has no expenses yet (the total then reads "€0,00", not "₺0,00").
-            var tripCurrency = _trips is null ? null : (await _trips.GetByIdAsync(TripId))?.EffectiveCurrencyCode;
-            CurrencyCode = tripCurrency ?? _allExpenses.FirstOrDefault()?.TripCurrencyCode ?? CurrencyCode;
+            var trip = _trips is null ? null : await _trips.GetByIdAsync(TripId);
+            CurrencyCode = trip?.EffectiveCurrencyCode ?? _allExpenses.FirstOrDefault()?.TripCurrencyCode ?? CurrencyCode;
+
+            TripName = trip?.Name ?? string.Empty;
+
+            // TP-104: payer names on the rows, and the two summary cards.
+            if (_split is not null)
+            {
+                var names = (await _split.GetParticipantsAsync(TripId)).GroupBy(p => p.Id).ToDictionary(g => g.Key, g => g.First().Name);
+                foreach (var expense in _allExpenses)
+                    expense.PaidByName = expense.PaidByParticipantId is int id && names.TryGetValue(id, out var name) ? name : null;
+            }
+            AllTotal = _allExpenses.Sum(e => e.Amount);
+            MyTotal = await _expenseService.GetMyTotalForTripAsync(TripId, Services.Sync.ChangeTracker.CurrentUserId);
+            IsOverBudget = trip is { PlannedBudget: > 0 } && AllTotal > trip.PlannedBudget;
             ApplyFilter();
         }, AppResources.ExpenseList_LoadError);
 
@@ -257,5 +315,24 @@ namespace TravelPlanner.ViewModels
             if (deletedAny)
                 await _budgetAlerts.CheckAsync(TripId);
         }
+    }
+
+    /// <summary>TP-104: one category chip of the expense list.</summary>
+    public partial class ExpenseCategoryFilterOption : ObservableObject
+    {
+        public ExpenseCategoryFilterOption(string key)
+        {
+            Key = key;
+            Label = ExpenseCategoryDisplayConverter.ToDisplayText(key);
+            Glyph = CategoryGlyphConverter.ToGlyph(key);
+        }
+
+        public string Key { get; }
+        public string Label { get; }
+        public string Glyph { get; }
+        public bool IsAll => Key == "All";
+
+        [ObservableProperty]
+        private bool isSelected;
     }
 }

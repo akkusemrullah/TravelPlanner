@@ -68,6 +68,7 @@ namespace TravelPlanner.ViewModels
             _mediaPicker = mediaPicker;
             _filePicker = filePicker;
             _launcher = launcher;
+            ListPositions.Track(Attachments);
             Selection = new ListSelection<TripAttachment>(() => Attachments);
             Selection.PropertyChanged += (_, e) =>
             {

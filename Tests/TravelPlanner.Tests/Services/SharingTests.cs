@@ -782,5 +782,18 @@ namespace TravelPlanner.Tests
             Assert.Equal("3 sa önce", SharingTexts.RelativeTime(now.AddHours(-3), now));
             Assert.Equal("2 gün önce", SharingTexts.RelativeTime(now.AddDays(-2), now));
         }
+
+        [Theory]
+        [InlineData(TripRole.Owner, "accent", true)]
+        [InlineData(TripRole.Editor, "success", false)]
+        [InlineData(TripRole.Viewer, "neutral", false)]
+        public void TP104_MemberRow_RoleBadgeTone(TripRole role, string tone, bool crown)
+        {
+            var item = new MemberItem(new TripMember("u1", role, "Ayşe Yılmaz", null, DateTime.UtcNow, true), viewerIsOwner: true);
+
+            Assert.Equal(tone, item.RoleTone);
+            Assert.Equal(crown, item.IsOwnerRole);
+            Assert.Equal("Ayşe Yılmaz", item.AvatarName); // without "(sen)"
+        }
     }
 }

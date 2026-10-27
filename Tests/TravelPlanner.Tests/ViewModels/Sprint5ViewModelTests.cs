@@ -36,6 +36,37 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP104_TickedPeople_ShowTheirEqualPart()
+        {
+            var vm = await CreateAsync();
+            vm.SelectedPayer = vm.PayerOptions.First(p => p.Value == 5);
+            vm.Amount = 100m;
+
+            Assert.All(vm.SplitParticipants, p => Assert.False(string.IsNullOrEmpty(p.ShareText)));
+            var shareOfTwo = vm.SplitParticipants[0].ShareText;
+
+            vm.SplitParticipants[1].IsSelected = false;
+
+            Assert.Equal(string.Empty, vm.SplitParticipants[1].ShareText);
+            Assert.NotEqual(shareOfTwo, vm.SplitParticipants[0].ShareText);
+            Assert.Equal("Roma", vm.TripName);
+        }
+
+        [Fact]
+        public async Task TP104_CategoryTile_SelectsTheCategory()
+        {
+            var vm = await CreateAsync();
+            var food = vm.CategoryOptions.Single(o => o.Category == ExpenseCategory.Food);
+
+            vm.SelectCategoryCommand.Execute(food);
+
+            Assert.Equal(ExpenseCategory.Food, vm.Category);
+            Assert.Single(vm.CategoryOptions, o => o.IsSelected);
+            Assert.True(food.IsSelected);
+            Assert.Equal(AppResources.Expense_AddTitle, vm.PageTitle);
+        }
+
+        [Fact]
         public async Task ChoosingAPayer_SelectsEveryone_AndSavesTheSplit()
         {
             var vm = await CreateAsync();
@@ -102,6 +133,15 @@ namespace TravelPlanner.Tests
             Assert.Contains("Can, Ali için", Assert.Single(vm.Settlements));
             Assert.True(vm.HasUnsplit);
             Assert.Contains("2", vm.UnsplitText);
+
+            // TP-104: the prototype's rows
+            var row = Assert.Single(vm.SettlementRows);
+            Assert.Equal(("Can", "Ali"), (row.FromName, row.ToName));
+            Assert.StartsWith("+", vm.Balances[0].SignedNetText);
+            Assert.StartsWith("-", vm.Balances[1].SignedNetText);
+            Assert.False(vm.Balances[0].IsLinked);
+            Assert.Equal("Roma", vm.TripName);
+            Assert.False(string.IsNullOrEmpty(vm.SplitTotalAmount));
         }
 
         [Fact]
