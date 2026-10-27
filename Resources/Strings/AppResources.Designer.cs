@@ -8750,7 +8750,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Davetle katıl.
+        ///   Looks up a localized string similar to Seyahate katıl.
         /// </summary>
         public static string Join_Short {
             get {

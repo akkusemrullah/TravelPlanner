@@ -8,7 +8,7 @@ using TravelPlanner.ViewModels;
 
 namespace TravelPlanner.Tests
 {
-    /// <summary>TP-48: "Davetle katıl" on the home screen, the trip list and Settings share one flow.</summary>
+    /// <summary>TP-48: "Seyahate katıl" on the home screen, the trip list and Settings share one flow.</summary>
     public class JoinTripFlowTests
     {
         private readonly Mock<ISharingService> _sharing = new();
