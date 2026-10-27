@@ -132,7 +132,7 @@
 
             <VerticalStackLayout IsVisible="{Binding IsEmpty}" Spacing="14" Padding="32" VerticalOptions="Center">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Delete}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Delete}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.Trash_Empty}" Style="{StaticResource EmptyStateTextLabel}" />
             </VerticalStackLayout>

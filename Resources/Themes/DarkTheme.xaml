@@ -38,6 +38,8 @@
     <Color x:Key="tp-hero-line">#24377A</Color>
     <Color x:Key="tp-hero-muted">#A9B8DD</Color>
     <Color x:Key="tp-on-hero">#FFFFFF</Color>
+    <Color x:Key="tp-ticket-start">#172554</Color>  <!-- trip ticket gradient (TP-97) -->
+    <Color x:Key="tp-ticket-end">#1E3170</Color>
     <Color x:Key="tp-overlay">#000000</Color>
 
     <!-- Legacy Frame Design System keys, remapped onto the TravelPlanner palette. -->

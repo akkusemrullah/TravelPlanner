@@ -175,7 +175,7 @@
             <!-- No trips at all -->
             <VerticalStackLayout IsVisible="{Binding HasNoTrips}" Spacing="16" Padding="32" VerticalOptions="Center">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Trips}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Trips}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <VerticalStackLayout Spacing="6">
                     <Label Text="{x:Static res:AppResources.TripList_Empty}" Style="{StaticResource Text.H3}" HorizontalTextAlignment="Center" />
@@ -194,7 +194,7 @@
             <!-- Filters match nothing -->
             <VerticalStackLayout IsVisible="{Binding HasNoResults}" Spacing="16" Padding="32" VerticalOptions="Center">
                 <Border Style="{StaticResource EmptyIcon}">
-                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-2}" />
+                    <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-accent-text}" />
                 </Border>
                 <Label Text="{x:Static res:AppResources.TripList_NoResults}" Style="{StaticResource EmptyStateTextLabel}" />
                 <Button Text="{x:Static res:AppResources.TripList_ClearFilters}" Command="{Binding ClearFiltersCommand}"

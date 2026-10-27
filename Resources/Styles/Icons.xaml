@@ -115,4 +115,26 @@
     <x:String x:Key="Ic.Layers">&#xe104;</x:String>  <!-- layers -->
     <x:String x:Key="Ic.Gauge">&#xe1bf;</x:String>  <!-- gauge -->
 
+
+    <!-- TP-96: icons of the 2026-10 prototype, added to the subset from lucide-static 1.62.0 at private code points
+         U+E900.. (the older glyphs above keep their code points). -->
+    <x:String x:Key="Ic.Luggage">&#xe900;</x:String>  <!-- luggage -->
+    <x:String x:Key="Ic.Sparkles">&#xe901;</x:String>  <!-- sparkles -->
+    <x:String x:Key="Ic.CloudSun">&#xe902;</x:String>  <!-- cloud-sun -->
+    <x:String x:Key="Ic.Trash">&#xe903;</x:String>  <!-- trash-2 -->
+    <x:String x:Key="Ic.ListChecks">&#xe904;</x:String>  <!-- list-checks -->
+    <x:String x:Key="Ic.ArrowLeftRight">&#xe905;</x:String>  <!-- arrow-left-right -->
+    <x:String x:Key="Ic.Megaphone">&#xe906;</x:String>  <!-- megaphone -->
+    <x:String x:Key="Ic.ArrowDownUp">&#xe907;</x:String>  <!-- arrow-down-up -->
+    <x:String x:Key="Ic.Copy">&#xe908;</x:String>  <!-- copy -->
+    <x:String x:Key="Ic.Pencil">&#xe909;</x:String>  <!-- pencil -->
+    <x:String x:Key="Ic.Wrench">&#xe90a;</x:String>  <!-- wrench -->
+    <x:String x:Key="Ic.MessageText">&#xe90b;</x:String>  <!-- message-square-text -->
+    <x:String x:Key="Ic.UserRound">&#xe90c;</x:String>  <!-- user-round -->
+    <x:String x:Key="Ic.SlidersH">&#xe90d;</x:String>  <!-- sliders-horizontal -->
+    <x:String x:Key="Ic.Archive">&#xe90e;</x:String>  <!-- archive -->
+    <x:String x:Key="Ic.LifeBuoy">&#xe90f;</x:String>  <!-- life-buoy -->
+    <x:String x:Key="Ic.LogOut">&#xe910;</x:String>  <!-- log-out -->
+    <x:String x:Key="Ic.ShieldCheck">&#xe911;</x:String>  <!-- shield-check -->
+
 </ResourceDictionary>
