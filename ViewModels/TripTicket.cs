@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Maui.Graphics;
 using TravelPlanner.Models;
 using TravelPlanner.Resources.Strings;
 
@@ -70,6 +71,9 @@ namespace TravelPlanner.ViewModels
             };
 
             BudgetText = trip.PlannedBudget > 0 ? trip.FormattedBudget : AppResources.Ticket_NoBudget;
+
+            // TP-97: one line under the city - "Türkiye · Kapadokya Balon Turu"
+            SubLine = string.Join(" · ", new[] { Country, ShowName ? Name.Trim() : string.Empty }.Where(part => part.Length > 0));
         }
 
         public string Name { get; }
@@ -96,5 +100,19 @@ namespace TravelPlanner.ViewModels
         public double Progress { get; }
 
         public string BudgetText { get; }
+
+        /// <summary>Country and (when it adds something) the trip's name, joined: the line under the city.</summary>
+        public string SubLine { get; }
+
+        public bool HasSubLine => SubLine.Length > 0;
+
+        /// <summary>
+        /// TP-97: AbsoluteLayout bounds of the route line's filled part (proportional x/y/width): from the departure
+        /// dot to the plane.
+        /// </summary>
+        public Rect ProgressBounds => new(0, 0.5, Progress, 2);
+
+        /// <summary>TP-97: AbsoluteLayout bounds of the plane on the route line (proportional position, natural size; kept off the end dots).</summary>
+        public Rect PlaneBounds => new(Math.Clamp(Progress, 0.05, 0.95), 0.5, -1, -1);
     }
 }

@@ -4,6 +4,7 @@
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
              xmlns:models="clr-namespace:TravelPlanner.Models"
+             xmlns:views="clr-namespace:TravelPlanner.Views"
              x:Class="TravelPlanner.Views.TripDetailPage"
              x:DataType="vm:TripDetailViewModel"
              Shell.NavBarIsVisible="False"
@@ -54,100 +55,14 @@
                         <Image Source="{Binding CoverFile}" Aspect="AspectFill" />
                     </Border>
 
-                    <!-- ════════ Summary (boarding-pass ticket, see Card.Ticket in Styles.xaml) ════════ -->
-                    <Border Style="{StaticResource Card.Ticket}" IsVisible="{Binding Ticket, Converter={StaticResource ObjectNotNullConverter}}">
-                        <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="24" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <!-- Top: royal-blue gradient - status, countdown, destination, departure ✈ return. -->
-                        <!-- BindingContext is set on a wrapper so the inner x:DataType (TripTicket) doesn't apply to it. -->
-                        <ContentView Grid.Row="0" BindingContext="{Binding Ticket}">
-                        <Grid Padding="20,18,20,18" RowSpacing="16" RowDefinitions="Auto,Auto,Auto" x:DataType="vm:TripTicket">
-                            <Grid.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{StaticResource TicketStart}" Offset="0" />
-                                    <GradientStop Color="{StaticResource TicketEnd}" Offset="1" />
-                                </LinearGradientBrush>
-                            </Grid.Background>
-
-                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                <Border Grid.Column="0" Style="{StaticResource Ticket.Pill}">
-                                    <HorizontalStackLayout Spacing="6">
-                                        <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Plane}" TextColor="{StaticResource White}" VerticalOptions="Center" />
-                                        <Label Text="{Binding StatusText}" Style="{StaticResource Ticket.PillText}" />
-                                    </HorizontalStackLayout>
-                                </Border>
-                                <VerticalStackLayout Grid.Column="1" Spacing="0" HorizontalOptions="End">
-                                    <Label Text="{Binding CountdownValue}" Style="{StaticResource Ticket.Countdown}" />
-                                    <Label Text="{Binding CountdownLabel}" IsVisible="{Binding HasCountdownLabel}" Style="{StaticResource Ticket.Muted}"
-                                           HorizontalTextAlignment="End" />
-                                </VerticalStackLayout>
-                            </Grid>
-
-                            <VerticalStackLayout Grid.Row="1" Spacing="2">
-                                <Label Text="{Binding City}" Style="{StaticResource Ticket.City}" SemanticProperties.HeadingLevel="Level2" />
-                                <Label Text="{Binding Country}" IsVisible="{Binding HasCountry}" Style="{StaticResource Ticket.Sub}" />
-                                <Label Text="{Binding Name}" IsVisible="{Binding ShowName}" Style="{StaticResource Ticket.Muted}" Margin="0,2,0,0" />
-                            </VerticalStackLayout>
-
-                            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
-                                <VerticalStackLayout Grid.Column="0" Spacing="0">
-                                    <Label Text="{x:Static res:AppResources.Ticket_Departure}" Style="{StaticResource Ticket.Caption}" />
-                                    <Label Text="{Binding StartDay}" Style="{StaticResource Ticket.Day}" />
-                                    <Label Text="{Binding StartMonth}" Style="{StaticResource Ticket.Muted}" />
-                                </VerticalStackLayout>
-                                <!-- Route line: fills as the trip goes by; the plane rides above it. -->
-                                <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
-                                    <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Plane}" Rotation="45"
-                                           TextColor="{StaticResource White}" HorizontalOptions="Center" />
-                                    <ProgressBar Progress="{Binding Progress}" ProgressColor="{StaticResource White}"
-                                                 BackgroundColor="Transparent" HeightRequest="4" />
-                                    <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.Muted}" HorizontalOptions="Center" />
-                                </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="2" Spacing="0">
-                                    <Label Text="{x:Static res:AppResources.Ticket_Return}" Style="{StaticResource Ticket.Caption}" HorizontalTextAlignment="End" />
-                                    <Label Text="{Binding EndDay}" Style="{StaticResource Ticket.Day}" HorizontalTextAlignment="End" />
-                                    <Label Text="{Binding EndMonth}" Style="{StaticResource Ticket.Muted}" HorizontalTextAlignment="End" />
-                                </VerticalStackLayout>
-                            </Grid>
-                        </Grid>
-                        </ContentView>
-
-                        <!-- Tear line: dashed rule between two page-coloured notches (clipped into half circles). -->
-                        <Grid Grid.Row="1">
-                            <Grid IsClippedToBounds="True" Margin="24,0" HeightRequest="2" VerticalOptions="Center">
-                                <Line X1="0" Y1="1" X2="3000" Y2="1" Stroke="{DynamicResource tp-border-strong}"
-                                      StrokeThickness="1.5" StrokeDashArray="3,3" />
-                            </Grid>
-                            <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="Start" Margin="-12,0,0,0" />
-                            <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="End" Margin="0,0,-12,0" />
-                        </Grid>
-
-                        <!-- Bottom: duration and budget. -->
-                        <ContentView Grid.Row="2" BindingContext="{Binding Ticket}">
-                        <Grid Padding="20,4,20,16" ColumnDefinitions="*,1,*" ColumnSpacing="16" x:DataType="vm:TripTicket">
-                            <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                <Label Text="{x:Static res:AppResources.Ticket_Duration}" Style="{StaticResource Ticket.StatLabel}" />
-                                <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.StatValue}" />
-                            </VerticalStackLayout>
-                            <BoxView Grid.Column="1" WidthRequest="1" Color="{DynamicResource tp-divider}" />
-                            <VerticalStackLayout Grid.Column="2" Spacing="4">
-                                <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Ticket.StatLabel}" />
-                                <Label Text="{Binding BudgetText}" Style="{StaticResource Ticket.StatValue}" />
-                            </VerticalStackLayout>
-                        </Grid>
-                        </ContentView>
-
-                        <!-- The trip's own note, when there is one. -->
-                        <Label Grid.Row="3" Text="{Binding Trip.Description}" Style="{StaticResource Text.Body2}" Margin="20,0,20,18"
+                    <!-- ════════ Summary: the boarding pass (Views/TripTicketView) and the trip's own note ════════ -->
+                    <VerticalStackLayout Spacing="12" IsVisible="{Binding Ticket, Converter={StaticResource ObjectNotNullConverter}}">
+                        <views:TripTicketView Ticket="{Binding Ticket}"
+                                              WeatherCommand="{Binding GoToWeatherCommand}"
+                                              MapCommand="{Binding GoToMapCommand}" />
+                        <Label Text="{Binding Trip.Description}" Style="{StaticResource Text.Body2}" LineHeight="1.3" Margin="4,0"
                                IsVisible="{Binding Trip.Description, Converter={StaticResource StringNotEmptyConverter}}" />
-                        </Grid>
-                    </Border>
+                    </VerticalStackLayout>
 
                     <!-- ════════ Today (ongoing trips) ════════ -->
                     <Border IsVisible="{Binding IsTripOngoing}" Style="{StaticResource Card}">

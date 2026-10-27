@@ -112,22 +112,18 @@ namespace TravelPlanner.Helpers
             var wantForeground = string.Equals(parameter as string, "Foreground", StringComparison.OrdinalIgnoreCase);
             var dark = Application.Current?.RequestedTheme == AppTheme.Dark;
 
-            // Corporate tag tones (graphite + coral palette): planned/ongoing = info blue, completed = green,
-            // anything else neutral. Kept in step with the tp- tokens in Resources/Themes.
+            // TP-97 (prototype): upcoming = info teal, ongoing = success green, completed = neutral grey - the
+            // tp-info / tp-success / tp-surface-alt (+ their text colours) tokens of Resources/Themes.
             var hex = (status, wantForeground, dark) switch
             {
-                (TripStatus.Ongoing, true, false) => "#C23E2A",
-                (TripStatus.Ongoing, false, false) => "#FDEDEA",
-                (TripStatus.Ongoing, true, true) => "#FF8670",
-                (TripStatus.Ongoing, false, true) => "#3A1C17",
-                (TripStatus.Upcoming, true, false) => "#2E5A88",
-                (TripStatus.Upcoming, false, false) => "#E9F0F8",
-                (TripStatus.Upcoming, true, true) => "#7EAEE0",
-                (TripStatus.Upcoming, false, true) => "#162331",
-                (TripStatus.Completed, true, false) => "#1B7543",
-                (TripStatus.Completed, false, false) => "#E7F4EC",
-                (TripStatus.Completed, true, true) => "#4CC27E",
-                (TripStatus.Completed, false, true) => "#13281C",
+                (TripStatus.Ongoing, true, false) => "#1B7543",
+                (TripStatus.Ongoing, false, false) => "#E7F4EC",
+                (TripStatus.Ongoing, true, true) => "#4CC27E",
+                (TripStatus.Ongoing, false, true) => "#13281C",
+                (TripStatus.Upcoming, true, false) => "#0E7490",
+                (TripStatus.Upcoming, false, false) => "#E3F3F6",
+                (TripStatus.Upcoming, true, true) => "#22B8CF",
+                (TripStatus.Upcoming, false, true) => "#0F2A30",
                 (_, true, false) => "#4A505C",
                 (_, false, false) => "#EEF0F3",
                 (_, true, true) => "#B3B9C4",

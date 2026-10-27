@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- TP-97: the boarding-pass trip card of the prototype (Dashboard featured trip, Trip detail header).
+     Royal-blue gradient top (status, countdown, destination, departure ✈ return with the plane riding the route
+     line), a perforated tear line with page-coloured notches, a deeper blue stub (duration, budget) and the hero
+     buttons. Set Ticket; the buttons show for the commands that are set (Hava, Harita, Detaylar). -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
+             xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:views="clr-namespace:TravelPlanner.Views"
+             x:Class="TravelPlanner.Views.TripTicketView"
+             x:Name="Root">
+
+    <Border Style="{StaticResource Card.Ticket}">
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Command="{Binding TapCommand, Source={x:Reference Root}, x:DataType=views:TripTicketView}" />
+        </Border.GestureRecognizers>
+
+        <Grid x:Name="Body" x:DataType="vm:TripTicket" RowDefinitions="Auto,22,Auto">
+
+            <!-- ════════ Top: gradient ════════ -->
+            <Grid Grid.Row="0" Padding="20,16,20,18" RowDefinitions="Auto,Auto,Auto">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{DynamicResource tp-ticket-start}" Offset="0" />
+                        <GradientStop Color="{DynamicResource tp-ticket-end}" Offset="1" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <!-- Status pill · countdown -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <Border Grid.Column="0" Style="{StaticResource Ticket.Pill}" VerticalOptions="Center">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.Plane}" TextColor="{StaticResource White}" VerticalOptions="Center" />
+                            <Label Text="{Binding StatusText}" Style="{StaticResource Ticket.PillText}" />
+                        </HorizontalStackLayout>
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="1" HorizontalOptions="End" VerticalOptions="Center">
+                        <Label Text="{Binding CountdownLabel}" IsVisible="{Binding HasCountdownLabel}" Style="{StaticResource Ticket.Caption}"
+                               HorizontalTextAlignment="End" />
+                        <Label Text="{Binding CountdownValue}" Style="{StaticResource Ticket.Countdown}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- Destination -->
+                <VerticalStackLayout Grid.Row="1" Spacing="6" Margin="0,16,0,0">
+                    <Label Text="{Binding City}" Style="{StaticResource Ticket.City}" SemanticProperties.HeadingLevel="Level2" />
+                    <Label Text="{Binding SubLine}" IsVisible="{Binding HasSubLine}" Style="{StaticResource Ticket.Sub}" />
+                </VerticalStackLayout>
+
+                <!-- Departure ✈ return -->
+                <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Margin="0,20,0,0">
+                    <VerticalStackLayout Grid.Column="0" Spacing="0" VerticalOptions="End">
+                        <Label Text="{x:Static res:AppResources.Ticket_Departure}" Style="{StaticResource Ticket.Caption}" />
+                        <Label Text="{Binding StartDay}" Style="{StaticResource Ticket.Day}" />
+                        <Label Text="{Binding StartMonth}" Style="{StaticResource Ticket.Muted}" />
+                    </VerticalStackLayout>
+
+                    <!-- Route: dashed line, the travelled part solid, the plane where the trip is today -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="End" Margin="0,0,0,12">
+                        <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.Muted}" FontFamily="InterSemiBold"
+                               HorizontalOptions="Center" />
+                        <AbsoluteLayout HeightRequest="26">
+                            <Grid AbsoluteLayout.LayoutBounds="0,0.5,1,2" AbsoluteLayout.LayoutFlags="XProportional,YProportional,WidthProportional"
+                                  IsClippedToBounds="True">
+                                <Line X1="0" Y1="1" X2="3000" Y2="1" Stroke="#4DFFFFFF" StrokeThickness="2" StrokeDashArray="3,2" />
+                            </Grid>
+                            <BoxView AbsoluteLayout.LayoutBounds="{Binding ProgressBounds}" AbsoluteLayout.LayoutFlags="XProportional,YProportional,WidthProportional"
+                                     Color="{StaticResource White}" CornerRadius="1" />
+                            <BoxView AbsoluteLayout.LayoutBounds="0,0.5,12,12" AbsoluteLayout.LayoutFlags="PositionProportional"
+                                     Color="{StaticResource White}" CornerRadius="6" />
+                            <Border AbsoluteLayout.LayoutBounds="1,0.5,12,12" AbsoluteLayout.LayoutFlags="PositionProportional"
+                                    Stroke="{StaticResource White}" StrokeThickness="2" StrokeShape="RoundRectangle 6"
+                                    BackgroundColor="{DynamicResource tp-hero}" Padding="0" />
+                            <Label AbsoluteLayout.LayoutBounds="{Binding PlaneBounds}" AbsoluteLayout.LayoutFlags="PositionProportional"
+                                   Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Plane}" Rotation="45"
+                                   TextColor="{StaticResource White}" />
+                        </AbsoluteLayout>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="End">
+                        <Label Text="{x:Static res:AppResources.Ticket_Return}" Style="{StaticResource Ticket.Caption}" HorizontalTextAlignment="End" />
+                        <Label Text="{Binding EndDay}" Style="{StaticResource Ticket.Day}" HorizontalTextAlignment="End" />
+                        <Label Text="{Binding EndMonth}" Style="{StaticResource Ticket.Muted}" HorizontalTextAlignment="End" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Grid>
+
+            <!-- ════════ Tear line: perforation between two page-coloured notches ════════ -->
+            <Grid Grid.Row="1">
+                <Grid IsClippedToBounds="True" Margin="16,0" HeightRequest="2" VerticalOptions="Center">
+                    <Line X1="0" Y1="1" X2="3000" Y2="1" Stroke="{DynamicResource tp-hero-line}" StrokeThickness="2" StrokeDashArray="3.5,2.5" />
+                </Grid>
+                <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="Start" Margin="-11,0,0,0" />
+                <BoxView Style="{StaticResource Ticket.Notch}" HorizontalOptions="End" Margin="0,0,-11,0" />
+            </Grid>
+
+            <!-- ════════ Stub: duration, budget, buttons ════════ -->
+            <VerticalStackLayout Grid.Row="2" Padding="20,2,20,18" Spacing="16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label Text="{x:Static res:AppResources.Ticket_Duration}" Style="{StaticResource Ticket.StatLabel}" />
+                        <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.StatValue}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                        <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Ticket.StatLabel}" />
+                        <Label Text="{Binding BudgetText}" Style="{StaticResource Ticket.StatValue}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Grid x:Name="Buttons" ColumnSpacing="8" IsVisible="False">
+                    <Button x:Name="WeatherButton" Text="{x:Static res:AppResources.Dashboard_WeatherShort}" Style="{StaticResource Btn.OnHero.Outline}"
+                            ContentLayout="Left,6" Padding="8,0"
+                            Command="{Binding WeatherCommand, Source={x:Reference Root}, x:DataType=views:TripTicketView}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.CloudSun}" Size="16" Color="{StaticResource White}" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button x:Name="MapButton" Text="{x:Static res:AppResources.Section_Map}" Style="{StaticResource Btn.OnHero.Outline}"
+                            ContentLayout="Left,6" Padding="8,0"
+                            Command="{Binding MapCommand, Source={x:Reference Root}, x:DataType=views:TripTicketView}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Map}" Size="16" Color="{StaticResource White}" />
+                        </Button.ImageSource>
+                    </Button>
+                    <Button x:Name="DetailsButton" Text="{x:Static res:AppResources.Dashboard_Details}" Style="{StaticResource Btn.OnHero}"
+                            ContentLayout="Left,6" Padding="8,0"
+                            Command="{Binding DetailsCommand, Source={x:Reference Root}, x:DataType=views:TripTicketView}">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.ArrowRight}" Size="16" Color="{StaticResource Graphite}" />
+                        </Button.ImageSource>
+                    </Button>
+                </Grid>
+            </VerticalStackLayout>
+        </Grid>
+    </Border>
+</ContentView>
