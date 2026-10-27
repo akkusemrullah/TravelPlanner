@@ -118,6 +118,35 @@ namespace TravelPlanner.Tests
             Assert.Equal(text, vm.SyncBadgeText);
         }
 
+        [Theory]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        public void TP91_Dashboard_SignInHint_OnlyForGuests(bool signedIn, bool shown)
+        {
+            var account = new Mock<IAccountService>();
+            account.SetupGet(a => a.IsSignedIn).Returns(signedIn);
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+                Mock.Of<IDialogService>(), preferences: _preferences, account: account.Object);
+
+            Assert.Equal(shown, vm.ShowSignInHint);
+        }
+
+        [Fact]
+        public void TP91_Dashboard_SignInHint_StaysClosed()
+        {
+            var account = new Mock<IAccountService>();
+            account.SetupGet(a => a.IsSignedIn).Returns(false);
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+                Mock.Of<IDialogService>(), preferences: _preferences, account: account.Object);
+
+            vm.CloseSignInHintCommand.Execute(null);
+
+            Assert.False(vm.ShowSignInHint);
+            var again = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+                Mock.Of<IDialogService>(), preferences: _preferences, account: account.Object);
+            Assert.False(again.ShowSignInHint);
+        }
+
         [Fact]
         public void Dashboard_ShowsTheNotice_UntilItIsClosed()
         {

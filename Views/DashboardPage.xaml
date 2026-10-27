@@ -70,6 +70,23 @@
                         </Grid>
                     </Border>
 
+                    <!-- ════════ TP-91: a guest can sign in to back up their trips (Profil has it too) ════════ -->
+                    <Border IsVisible="{Binding ShowSignInHint}" Style="{StaticResource Banner.Info}">
+                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Cloud}" TextColor="{DynamicResource tp-info}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.Dashboard_SignInHint}" FontSize="13" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Close}"
+                                   TextColor="{DynamicResource tp-text-3}" VerticalOptions="Start" Padding="8,0,0,8"
+                                   SemanticProperties.Description="{x:Static res:AppResources.A11y_CloseNotice}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding CloseSignInHintCommand}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Button Grid.Row="1" Grid.Column="1" Text="{x:Static res:AppResources.Account_SignInOrCreate}" Style="{StaticResource Btn.Primary.Sm}" HeightRequest="40"
+                                    HorizontalOptions="Start" Command="{Binding OpenSignInCommand}" />
+                        </Grid>
+                    </Border>
+
                     <!-- ════════ Featured trip (boarding-pass ticket, see Card.Ticket in Styles.xaml) ════════ -->
                     <Border IsVisible="{Binding HasFeaturedTrip}" Style="{StaticResource Card.Ticket}">
                         <Border.GestureRecognizers>

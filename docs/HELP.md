@@ -7,7 +7,7 @@
 ### Başlarken
 
 **Travel Planner'ı hesap açmadan kullanabilir miyim?**  
-Evet. İlk açılışta "Misafir olarak devam et"i seçebilirsin. Bu durumda tüm verilerin yalnızca bu cihazda kalır. İstediğin zaman Profil → Giriş yap / Hesap oluştur ile hesap açabilirsin.
+Evet. Uygulama giriş yapmadan açılır. Bu durumda tüm verilerin yalnızca bu cihazda kalır. İstediğin zaman Profil → Giriş yap / Hesap oluştur ile hesap açabilirsin.
 
 **Hesap açınca ne değişir?**  
 Seyahatlerin buluta yedeklenir ve aynı hesapla giriş yaptığın tüm cihazlarında eşitlenir. Ayrıca seyahatlerini arkadaşlarınla paylaşabilir ve yapay zekâ ile plan oluşturabilirsin.

@@ -8660,6 +8660,15 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Giriş yaparsan seyahatlerin yedeklenir, tüm cihazlarında görünür.
+        /// </summary>
+        public static string Dashboard_SignInHint {
+            get {
+                return ResourceManager.GetString("Dashboard_SignInHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Kapak fotoğrafı.
         /// </summary>
         public static string TripForm_CoverLabel {
