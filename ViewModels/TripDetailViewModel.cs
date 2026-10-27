@@ -108,9 +108,13 @@ namespace TravelPlanner.ViewModels
             IDialogService dialogs,
             IAiPlannerService? aiPlanner = null,
             ITripCoverService? covers = null,
-            IAiPlanJobs? aiJobs = null)
+            IAiPlanJobs? aiJobs = null,
+            ITodoService? todos = null,
+            IAttachmentService? attachments = null)
             : base(dialogs)
         {
+            _todos = todos;
+            _attachments = attachments;
             _aiJobs = aiJobs;
             _covers = covers;
             _aiPlanner = aiPlanner;
@@ -127,6 +131,48 @@ namespace TravelPlanner.ViewModels
 
         private readonly ITripCoverService? _covers;
         private readonly IAiPlanJobs? _aiJobs;
+        private readonly ITodoService? _todos;
+        private readonly IAttachmentService? _attachments;
+
+        // ---- TP-98: the grey line under each row (TripDetailSummary) ----
+
+        [ObservableProperty]
+        private string activitiesSummary = string.Empty;
+
+        [ObservableProperty]
+        private string tasksSummary = string.Empty;
+
+        [ObservableProperty]
+        private string placesSummary = string.Empty;
+
+        [ObservableProperty]
+        private string expensesSummary = string.Empty;
+
+        [ObservableProperty]
+        private string filesSummary = string.Empty;
+
+        /// <summary>TP-98: the budget bar turns amber from 80 % (red once over the budget).</summary>
+        public bool IsBudgetWarning => HasBudget && TripDetailSummary.IsBudgetWarning(BudgetUsagePercentage, IsOverBudget);
+
+        /// <summary>"%64" next to the budget title.</summary>
+        public string BudgetPercentText => string.Format(AppResources.TripDetail_PercentFormat, Math.Round(BudgetUsagePercentage));
+
+        private async Task LoadSummariesAsync(int id)
+        {
+            try
+            {
+                ActivitiesSummary = TripDetailSummary.Activities((await _activityService.GetByTripIdAsync(id)).Count);
+                PlacesSummary = TripDetailSummary.Places(await _placeService.GetByTripIdAsync(id));
+                ExpensesSummary = TripDetailSummary.Expenses((await _expenseService.GetByTripIdAsync(id)).Count, TotalExpensesFormatted);
+                TasksSummary = _todos is null ? string.Empty : TripDetailSummary.Tasks(await _todos.GetByTripIdAsync(id));
+                FilesSummary = _attachments is null ? string.Empty : TripDetailSummary.Files((await _attachments.GetByTripIdAsync(id)).Count);
+            }
+            catch (Exception ex)
+            {
+                // only the small lines: the page itself is already there
+                System.Diagnostics.Debug.WriteLine($"[TripDetail] Summaries: {ex.Message}");
+            }
+        }
 
         /// <summary>The trip's cover photo on the phone (downloaded when needed), or null: no cover shown.</summary>
         [ObservableProperty]
@@ -167,10 +213,13 @@ namespace TravelPlanner.ViewModels
             OnPropertyChanged(nameof(HasBudget));
             OnPropertyChanged(nameof(NoBudgetSet));
             OnPropertyChanged(nameof(IsOverBudget));
+            OnPropertyChanged(nameof(IsBudgetWarning));
+            OnPropertyChanged(nameof(BudgetPercentText));
             OnPropertyChanged(nameof(TotalExpensesFormatted));
             OnPropertyChanged(nameof(RemainingBudgetFormatted));
 
             await LoadTodayAsync(Trip);
+            await LoadSummariesAsync(id);
             await LoadSharingAsync(id);
             // a network call: never hold the page's load (and its spinner) for it
             LoadAiQuotaAsync().FireAndForget();

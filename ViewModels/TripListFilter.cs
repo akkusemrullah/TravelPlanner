@@ -28,6 +28,10 @@ namespace TravelPlanner.ViewModels
 
         [ObservableProperty]
         private bool isSelected;
+
+        /// <summary>TP-98: how many trips (matching the search) the chip would show.</summary>
+        [ObservableProperty]
+        private int count;
     }
 
     /// <summary>
@@ -66,6 +70,10 @@ namespace TravelPlanner.ViewModels
                 _ => filtered.OrderBy(t => t.StartDate).ThenBy(t => t.Name, StringComparer.Create(culture, true)),
             }).ToList();
         }
+
+        /// <summary>TP-98: the count on each status chip - trips matching the search, per status ("Tümü" = all).</summary>
+        public static int CountFor(IEnumerable<Trip> searched, TripStatus? status) =>
+            status is null ? searched.Count() : searched.Count(t => t.Status == status);
 
         /// <summary>
         /// Case- and accent-insensitive "contains", so "istanbul" / "ISTANBUL" find "İstanbul" and "munih" finds

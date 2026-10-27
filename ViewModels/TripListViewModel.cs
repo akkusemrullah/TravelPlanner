@@ -51,7 +51,15 @@ namespace TravelPlanner.ViewModels
         private string searchText = string.Empty;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(SortLabel))]
         private SettingsOption<TripSortOption>? selectedSort;
+
+        /// <summary>TP-98: "5 seyahat" above the list (the trips shown).</summary>
+        [ObservableProperty]
+        private string countText = string.Empty;
+
+        /// <summary>TP-98: the sort pill's text - the current sort order.</summary>
+        public string SortLabel => SelectedSort?.Display ?? string.Empty;
 
         public IReadOnlyList<TripStatusFilterOption> StatusFilters { get; } = new[]
         {
@@ -102,6 +110,16 @@ namespace TravelPlanner.ViewModels
             ApplyFilters();
         }
 
+        /// <summary>TP-98: the sort pill opens the orders as a sheet (the prototype's pill instead of a picker).</summary>
+        [RelayCommand]
+        private async Task ChooseSortAsync()
+        {
+            var choice = await Dialogs.ChooseAsync(AppResources.TripList_SortTitle, SortOptions.Select(o => o.Display).ToList());
+            var option = SortOptions.FirstOrDefault(o => o.Display == choice);
+            if (option is not null)
+                SelectedSort = option;
+        }
+
         [RelayCommand]
         private void ClearFilters()
         {
@@ -132,6 +150,11 @@ namespace TravelPlanner.ViewModels
                 BudgetInDefaultCurrency);
 
             Trips.ReplaceAll(visible);
+
+            var searched = TripListFilter.Apply(_allTrips, SearchText, null, TripSortOption.DateAscending);
+            foreach (var filter in StatusFilters)
+                filter.Count = TripListFilter.CountFor(searched, filter.Status);
+            CountText = string.Format(AppResources.Selection_TripsFormat, Trips.Count);
 
             UpdateEmptyState();
             Selection.Sync();
