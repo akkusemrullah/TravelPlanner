@@ -3503,4 +3503,31 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="AiPlan_SummaryTitle" xml:space="preserve">
     <value>Plan özeti</value>
   </data>
+  <data name="Explore_NoResultsText" xml:space="preserve">
+    <value>Aramana ya da filtrelerine uyan hazır plan bulunamadı.</value>
+  </data>
+  <data name="Explore_EmptyText" xml:space="preserve">
+    <value>Ekibimiz yeni rotalar hazırlıyor. Yakında burada olacak.</value>
+  </data>
+  <data name="Explore_LoadErrorText" xml:space="preserve">
+    <value>Bir sorun oldu. Biraz sonra tekrar dene.</value>
+  </data>
+  <data name="Explore_EndOfList" xml:space="preserve">
+    <value>Hepsi bu kadar</value>
+  </data>
+  <data name="Common_Refresh" xml:space="preserve">
+    <value>Yenile</value>
+  </data>
+  <data name="Settings_NameHint" xml:space="preserve">
+    <value>Ana sayfa selamı ve avatar buradan gelir.</value>
+  </data>
+  <data name="Settings_CurrencyHint" xml:space="preserve">
+    <value>Yeni seyahatlerin ve Ana sayfa toplamının birimi.</value>
+  </data>
+  <data name="Settings_ThemeHint" xml:space="preserve">
+    <value>Seçince hemen uygulanır.</value>
+  </data>
+  <data name="Help_ContactShort" xml:space="preserve">
+    <value>Genellikle birkaç iş günü içinde dönüyoruz.</value>
+  </data>
 </root>

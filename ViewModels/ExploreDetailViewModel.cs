@@ -8,19 +8,31 @@ using TravelPlanner.Services;
 
 namespace TravelPlanner.ViewModels
 {
-    /// <summary>A section title in the sample trip's list ("GÜN GÜN PLAN").</summary>
-    public sealed record ExploreSectionRow(string Title);
+    /// <summary>A section title in the sample trip's list ("Gün gün plan"), with the prototype's accent icon.</summary>
+    public sealed record ExploreSectionRow(string Title, string IconKey = "Ic.CalendarDays")
+    {
+        public string Glyph => Application.Current?.Resources.TryGetValue(IconKey, out var value) == true ? value as string ?? string.Empty : string.Empty;
+    }
 
-    /// <summary>"Gün 2" above that day's activities.</summary>
-    public sealed record ExploreDayRow(string Header);
+    /// <summary>"Gün 2": the header slice of that day's card (TP-105).</summary>
+    public sealed record ExploreDayRow(string Header) : IListPositioned
+    {
+        public ListPosition ListPosition { get; set; }
+    }
 
     /// <summary>A read-only tip.</summary>
-    public sealed record ExploreTipRow(string Text);
+    public sealed record ExploreTipRow(string Text) : IListPositioned
+    {
+        public ListPosition ListPosition { get; set; }
+    }
 
     /// <summary>A row that "Düzenle ve ekle" can untick.</summary>
-    public abstract partial class ExploreSelectableRow : ObservableObject
+    public abstract partial class ExploreSelectableRow : ObservableObject, IListPositioned
     {
         public abstract Guid Id { get; }
+
+        /// <summary>TP-105: its slice of the section's card.</summary>
+        public ListPosition ListPosition { get; set; }
 
         [ObservableProperty]
         private bool isSelected = true;
@@ -113,7 +125,7 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(HasTrip), nameof(CoverUrl), nameof(ThumbUrl), nameof(HasCover), nameof(Title), nameof(Location),
                                   nameof(DurationText),
-                                  nameof(TagText), nameof(HasTags), nameof(MonthsText), nameof(Description), nameof(HasDescription),
+                                  nameof(TagText), nameof(HasTags), nameof(TagLabels), nameof(LocationLine), nameof(MonthsText), nameof(Description), nameof(HasDescription),
                                   nameof(ImageCreditText), nameof(HasImageCredit), nameof(HasPlaces))]
         private ExploreTripDetail? trip;
 
@@ -166,6 +178,14 @@ namespace TravelPlanner.ViewModels
         public string DurationText => Trip?.DurationText ?? string.Empty;
         public string TagText => Trip is null ? string.Empty : string.Join(" · ", Trip.Tags.Select(ExploreTags.Label).Where(l => l.Length > 0));
         public bool HasTags => TagText.Length > 0;
+
+        /// <summary>TP-105: every style as its own badge.</summary>
+        public IReadOnlyList<string> TagLabels => Trip is null
+            ? Array.Empty<string>()
+            : Trip.Tags.Select(ExploreTags.Label).Where(l => l.Length > 0).ToList();
+
+        /// <summary>"Roma, İtalya · 4 gün".</summary>
+        public string LocationLine => string.Join(" · ", new[] { Location, DurationText }.Where(s => s.Length > 0));
 
         /// <summary>"Uygun: Nis, May, Eyl" or "Her mevsim".</summary>
         public string MonthsText => Trip is null
@@ -238,7 +258,9 @@ namespace TravelPlanner.ViewModels
         internal void Show(ExploreTripDetail detail)
         {
             Trip = detail;
-            Rows.ReplaceAll(BuildRows(detail));
+            var rows = BuildRows(detail).ToList();
+            ListPositions.AssignCards(rows, row => row is ExploreDayRow);
+            Rows.ReplaceAll(rows);
         }
 
         internal static IEnumerable<object> BuildRows(ExploreTripDetail detail)
@@ -260,7 +282,7 @@ namespace TravelPlanner.ViewModels
 
             if (detail.Places.Count > 0)
             {
-                yield return new ExploreSectionRow(AppResources.Explore_SectionPlaces);
+                yield return new ExploreSectionRow(AppResources.Explore_SectionPlaces, "Ic.Pin");
                 foreach (var place in detail.Places)
                     yield return new ExplorePlaceRow(place);
             }
@@ -268,7 +290,7 @@ namespace TravelPlanner.ViewModels
             var todos = detail.Todos.Where(t => t.Kind != ExploreTodo.KindPacking).ToList();
             if (todos.Count > 0)
             {
-                yield return new ExploreSectionRow(AppResources.Explore_SectionTodos);
+                yield return new ExploreSectionRow(AppResources.Explore_SectionTodos, "Ic.ListChecks");
                 foreach (var todo in todos)
                     yield return new ExploreTodoRow(todo);
             }
@@ -276,14 +298,14 @@ namespace TravelPlanner.ViewModels
             var packing = detail.Todos.Where(t => t.Kind == ExploreTodo.KindPacking).ToList();
             if (packing.Count > 0)
             {
-                yield return new ExploreSectionRow(AppResources.Explore_SectionPacking);
+                yield return new ExploreSectionRow(AppResources.Explore_SectionPacking, "Ic.Luggage");
                 foreach (var item in packing)
                     yield return new ExploreTodoRow(item);
             }
 
             if (detail.Tips.Count > 0)
             {
-                yield return new ExploreSectionRow(AppResources.Explore_SectionTips);
+                yield return new ExploreSectionRow(AppResources.Explore_SectionTips, "Ic.Lightbulb");
                 foreach (var tip in detail.Tips.Where(t => !string.IsNullOrWhiteSpace(t)))
                     yield return new ExploreTipRow(tip.Trim());
             }

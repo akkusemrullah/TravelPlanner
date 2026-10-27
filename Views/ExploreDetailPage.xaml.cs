@@ -25,6 +25,13 @@ public partial class ExploreDetailPage : ContentPage
         _viewModel.Cancel();
     }
 
+    // TP-105: in "Düzenle ve ekle" a tap anywhere on the row ticks / unticks it.
+    private void OnRowTapped(object? sender, TappedEventArgs e)
+    {
+        if (_viewModel.IsEditing && (sender as BindableObject)?.BindingContext is ExploreSelectableRow row)
+            row.IsSelected = !row.IsSelected;
+    }
+
     // Hardware/gesture back first closes the sheet / leaves "Düzenle ve ekle".
     protected override bool OnBackButtonPressed() => _viewModel.HandleBack() || base.OnBackButtonPressed();
 }

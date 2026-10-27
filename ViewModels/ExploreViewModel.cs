@@ -109,9 +109,11 @@ namespace TravelPlanner.ViewModels
         private bool isLoadingFirst;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowEndOfList))]
         private bool isLoadingMore;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowEndOfList))]
         private bool hasMore;
 
         /// <summary>Cards from the cache are on screen but the fresh list couldn't be fetched.</summary>
@@ -146,6 +148,9 @@ namespace TravelPlanner.ViewModels
 
         public bool ShowSkeleton => IsLoadingFirst && Items.Count == 0;
 
+        /// <summary>TP-105: "Hepsi bu kadar" under the last card once every page is loaded.</summary>
+        public bool ShowEndOfList => !HasMore && !IsLoadingMore && !IsLoadingFirst && Items.Count > 0;
+
         private bool IsListEmpty => HasLoaded && !IsLoadingFirst && !HasError && !IsOfflineEmpty && Items.Count == 0;
 
         /// <summary>The search / filters match nothing.</summary>
@@ -157,6 +162,7 @@ namespace TravelPlanner.ViewModels
         private void NotifyListState()
         {
             OnPropertyChanged(nameof(ShowSkeleton));
+            OnPropertyChanged(nameof(ShowEndOfList));
             OnPropertyChanged(nameof(HasNoResults));
             OnPropertyChanged(nameof(IsEmptyCatalog));
         }

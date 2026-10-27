@@ -17,7 +17,6 @@ public partial class PrivacyPage : ContentPage
     {
         InitializeComponent();
         BindingContext = _viewModel = viewModel;
-        UpdateHeaderIcon();
     }
 
     /// <summary>"privacy", "kvkk", "terms" or "licenses".</summary>
@@ -27,7 +26,6 @@ public partial class PrivacyPage : ContentPage
         set
         {
             _viewModel.Load(LegalDocuments.FromKey(value));
-            UpdateHeaderIcon();
         }
     }
 
@@ -40,20 +38,6 @@ public partial class PrivacyPage : ContentPage
 
         page.DocumentKey = documentKey;
         await navigation.PushModalAsync(page);
-    }
-
-    private void UpdateHeaderIcon()
-    {
-        var key = _viewModel.Kind switch
-        {
-            LegalDocumentKind.Kvkk => "Ic.Shield",
-            LegalDocumentKind.Terms => "Ic.Scale",
-            LegalDocumentKind.Licenses => "Ic.FileText",
-            _ => "Ic.Lock",
-        };
-
-        if (Application.Current?.Resources.TryGetValue(key, out var glyph) == true && glyph is string text)
-            HeaderIcon.Text = text;
     }
 
     private async void OnBackTapped(object? sender, TappedEventArgs e)

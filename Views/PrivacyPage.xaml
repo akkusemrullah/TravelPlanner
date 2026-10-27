@@ -27,47 +27,46 @@
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
+        <!-- TP-105: the prototype's plain document - big title, date, numbered sections, a contact card at the end -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,20,16,32" Spacing="16">
-                <!-- Header: icon, title, last updated -->
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                    <Border Grid.Column="0" Style="{StaticResource IconTile}" VerticalOptions="Center">
-                        <Label x:Name="HeaderIcon" Style="{StaticResource Icon}" Text="{StaticResource Ic.Lock}" />
-                    </Border>
-                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                        <Label Text="{Binding Title}" Style="{StaticResource Text.H2}" LineBreakMode="WordWrap" SemanticProperties.HeadingLevel="Level1" />
-                        <Label Text="{Binding UpdatedText}" Style="{StaticResource Text.Caption}" />
-                    </VerticalStackLayout>
-                </Grid>
+            <VerticalStackLayout Padding="20,20,20,40" Spacing="0">
+                <Label Text="{Binding Title}" FontFamily="InterBold" FontSize="22" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap"
+                       SemanticProperties.HeadingLevel="Level1" />
+                <Label Text="{Binding UpdatedText}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" Margin="0,4,0,0" />
 
-                <!-- The document, one block per section -->
-                <Border Style="{StaticResource Card}" Padding="20">
-                    <VerticalStackLayout Spacing="18" BindableLayout.ItemsSource="{Binding Sections}">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="helpers:DocumentSection">
-                                <VerticalStackLayout Spacing="6">
-                                    <Label Text="{Binding Heading}" Style="{StaticResource Text.Title}" LineBreakMode="WordWrap"
-                                           SemanticProperties.HeadingLevel="Level2"
-                                           IsVisible="{Binding Heading, Converter={StaticResource StringNotEmptyConverter}}" />
-                                    <Label Text="{Binding Body}" Style="{StaticResource Text.Body}" FontSize="14" LineHeight="1.4"
-                                           TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap"
-                                           IsVisible="{Binding Body, Converter={StaticResource StringNotEmptyConverter}}" />
-                                </VerticalStackLayout>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
-                </Border>
+                <VerticalStackLayout Spacing="20" Margin="0,20,0,0" BindableLayout.ItemsSource="{Binding Sections}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="helpers:DocumentSection">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="{Binding Heading}" FontFamily="InterSemiBold" FontSize="15" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap"
+                                       SemanticProperties.HeadingLevel="Level2"
+                                       IsVisible="{Binding Heading, Converter={StaticResource StringNotEmptyConverter}}" />
+                                <Label Text="{Binding Body}" FontSize="14" LineHeight="1.4" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap"
+                                       IsVisible="{Binding Body, Converter={StaticResource StringNotEmptyConverter}}" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
 
                 <!-- Questions about the document -->
-                <Border Style="{StaticResource Card}" IsVisible="{Binding ShowContact}">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
-                            <Label Text="{x:Static res:AppResources.Legal_QuestionsTitle}" Style="{StaticResource Text.Title}" />
-                            <Label Text="{x:Static res:AppResources.Legal_QuestionsHint}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                        </VerticalStackLayout>
-                        <Button Grid.Column="1" Text="{x:Static res:AppResources.Help_WriteToUs}" Command="{Binding ContactCommand}"
-                                Style="{StaticResource Btn.Secondary.Sm}" HeightRequest="38" VerticalOptions="Center" />
-                    </Grid>
+                <Border Style="{StaticResource Card}" IsVisible="{Binding ShowContact}" Margin="0,32,0,0">
+                    <VerticalStackLayout Spacing="0">
+                        <Label FontSize="13.5" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static res:AppResources.Legal_QuestionsTitle}" />
+                                    <Span Text=" " />
+                                    <Span Text="{x:Static res:AppResources.Legal_QuestionsHint}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Button Text="{x:Static res:AppResources.Help_WriteToUs}" Command="{Binding ContactCommand}" Style="{StaticResource Btn.Primary.Sm}"
+                                HorizontalOptions="Start" Margin="0,12,0,0" ContentLayout="Left,6">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Mail}" Size="15" Color="{DynamicResource tp-on-primary}" />
+                            </Button.ImageSource>
+                        </Button>
+                    </VerticalStackLayout>
                 </Border>
             </VerticalStackLayout>
         </ScrollView>

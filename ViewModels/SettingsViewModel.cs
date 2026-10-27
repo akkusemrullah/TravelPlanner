@@ -249,6 +249,14 @@ namespace TravelPlanner.ViewModels
         // The theme applies and is saved as soon as it is picked. It used to be only a preview that was undone
         // when the page disappeared without Save - but Settings is a tab now, so simply switching tabs threw
         // the chosen dark theme away (and re-applying it during the tab switch could crash on Android).
+        /// <summary>TP-105: a theme tile on Tercihler.</summary>
+        [RelayCommand]
+        private void SelectTheme(AppThemeOption theme) => SelectedTheme = Themes.FirstOrDefault(t => t.Value == theme) ?? SelectedTheme;
+
+        /// <summary>TP-105: a segment of the language control on Tercihler.</summary>
+        [RelayCommand]
+        private void SelectLanguage(string language) => SelectedLanguage = Languages.FirstOrDefault(l => l.Value == language) ?? SelectedLanguage;
+
         partial void OnSelectedThemeChanged(SettingsOption<AppThemeOption>? value)
         {
             OnPropertyChanged(nameof(PreferencesSummary));
@@ -351,6 +359,10 @@ namespace TravelPlanner.ViewModels
 
         [RelayCommand]
         private Task OpenSignInAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.Auth));
+
+        /// <summary>TP-105: the guest card's "Hesap oluştur" opens the same page on the sign-up form.</summary>
+        [RelayCommand]
+        private Task OpenSignUpAsync() => RunSafeAsync(() => Shell.Current.GoToAsync($"{Routes.Auth}?{AuthViewModel.ModeQuery}={AuthViewModel.ModeSignUp}"));
 
         /// <summary>
         /// Signs out; the app switches back to the guest data. TP-16: the user chooses whether the account's data stays

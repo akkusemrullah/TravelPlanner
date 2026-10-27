@@ -13,52 +13,141 @@
 
     <!-- TP-33: one Keşfet sample trip. "Ekle" copies all of it; "Düzenle ve ekle" shows check boxes first. -->
     <ContentPage.Resources>
+        <!-- TP-105: the prototype's sections - an accent icon + bold title, then one card of rows per day / section -->
         <DataTemplate x:Key="SectionRow" x:DataType="vm:ExploreSectionRow">
-            <Label Text="{Binding Title}" Style="{StaticResource Text.Overline}" Padding="20,22,20,6" />
+            <HorizontalStackLayout Spacing="8" Padding="20,22,20,8">
+                <Label Style="{StaticResource Icon}" FontSize="18" Text="{Binding Glyph}" TextColor="{DynamicResource tp-accent}" VerticalOptions="Center" />
+                <Label Text="{Binding Title}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" VerticalOptions="Center"
+                       SemanticProperties.HeadingLevel="Level2" />
+            </HorizontalStackLayout>
         </DataTemplate>
         <DataTemplate x:Key="DayRow" x:DataType="vm:ExploreDayRow">
-            <Label Text="{Binding Header}" Style="{StaticResource Text.Title}" Padding="20,10,20,2" />
+            <Grid Padding="0,12,0,0">
+                <Border BackgroundColor="{DynamicResource tp-surface-alt}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="16,10" Margin="16,0"
+                        StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}">
+                    <Label Text="{Binding Header}" FontFamily="InterBold" FontSize="13" TextColor="{DynamicResource tp-text-2}" />
+                </Border>
+            </Grid>
         </DataTemplate>
         <DataTemplate x:Key="ActivityRow" x:DataType="vm:ExploreActivityRow">
-            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="6" Padding="14,0,16,0">
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start"
-                          IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreDetailViewModel}}, Path=IsEditing}" />
-                <VerticalStackLayout Grid.Column="1" Spacing="0" WidthRequest="44" VerticalOptions="Start" Margin="6,11,0,0">
-                    <Label Text="{Binding TimeText}" FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-text}" />
-                    <Label Text="{Binding EndText}" IsVisible="{Binding HasEnd}" Style="{StaticResource Text.Caption}" FontSize="12" />
-                </VerticalStackLayout>
-                <VerticalStackLayout Grid.Column="2" Spacing="1" Padding="0,10,0,8">
-                    <Label Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" LineBreakMode="WordWrap" />
-                    <Label Text="{Binding Detail}" IsVisible="{Binding HasDetail}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                </VerticalStackLayout>
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0" Margin="16,0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Middle}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Last}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Grid ColumnDefinitions="Auto,44,*" ColumnSpacing="12" Padding="16,10" BackgroundColor="Transparent">
+                    <Grid.Triggers>
+                        <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </DataTrigger>
+                    </Grid.Triggers>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRowTapped" />
+                    </Grid.GestureRecognizers>
+                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" Margin="0,1,0,0" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreDetailViewModel}}, Path=IsEditing}" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Start" Margin="0,1,0,0">
+                        <Label Text="{Binding TimeText}" FontFamily="InterBold" FontSize="13" TextColor="{DynamicResource tp-text}" />
+                        <Label Text="{Binding EndText}" IsVisible="{Binding HasEnd}" FontSize="12" TextColor="{DynamicResource tp-text-3}" />
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2" Spacing="1">
+                        <Label Text="{Binding Title}" FontSize="14.5" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="{Binding Detail}" IsVisible="{Binding HasDetail}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="PlaceRow" x:DataType="vm:ExplorePlaceRow">
-            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8" Padding="14,0,16,0">
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start"
-                          IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreDetailViewModel}}, Path=IsEditing}" />
-                <Label Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}"
-                       VerticalOptions="Start" Margin="6,11,0,0" />
-                <VerticalStackLayout Grid.Column="2" Spacing="1" Padding="0,10,0,8">
-                    <Label Text="{Binding Name}" Style="{StaticResource Text.Body}" FontSize="14" />
-                    <Label Text="{Binding Description}" IsVisible="{Binding HasDescription}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                </VerticalStackLayout>
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0" Margin="16,0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Middle}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Last}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="16,10" BackgroundColor="Transparent">
+                    <Grid.Triggers>
+                        <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </DataTrigger>
+                    </Grid.Triggers>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRowTapped" />
+                    </Grid.GestureRecognizers>
+                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Start" Margin="0,1,0,0" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreDetailViewModel}}, Path=IsEditing}" />
+                    <VerticalStackLayout Grid.Column="1" Spacing="1">
+                        <Label Text="{Binding Name}" FontSize="14.5" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Label Text="{Binding Description}" IsVisible="{Binding HasDescription}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="TodoRow" x:DataType="vm:ExploreTodoRow">
-            <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="8" Padding="14,0,16,0" MinimumHeightRequest="40">
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center"
-                          IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreDetailViewModel}}, Path=IsEditing}" />
-                <Label Grid.Column="1" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Check}" TextColor="{DynamicResource tp-text-3}"
-                       VerticalOptions="Center" Margin="6,0,0,0" />
-                <Label Grid.Column="2" Text="{Binding Title}" Style="{StaticResource Text.Body}" FontSize="14" VerticalOptions="Center" LineBreakMode="WordWrap" />
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0" Margin="16,0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Middle}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Last}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="16,10" MinimumHeightRequest="44" BackgroundColor="Transparent">
+                    <Grid.Triggers>
+                        <DataTrigger TargetType="Grid" Binding="{Binding IsSelected}" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </DataTrigger>
+                    </Grid.Triggers>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnRowTapped" />
+                    </Grid.GestureRecognizers>
+                    <controls:CheckMark Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalOptions="Center" IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExploreDetailViewModel}}, Path=IsEditing}" />
+                    <Label Grid.Column="1" Text="{Binding Title}" FontSize="14.5" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" LineBreakMode="WordWrap">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="False">
+                                <Setter Property="TextDecorations" Value="Strikethrough" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Grid>
+            </Border>
         </DataTemplate>
         <DataTemplate x:Key="TipRow" x:DataType="vm:ExploreTipRow">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="22,4,20,4">
-                <Label Grid.Column="0" Text="•" Style="{StaticResource Text.Body}" />
-                <Label Grid.Column="1" Text="{Binding Text}" Style="{StaticResource Text.Body2}" LineBreakMode="WordWrap" />
-            </Grid>
+            <Border BackgroundColor="{DynamicResource tp-surface}" Stroke="{DynamicResource tp-border}" StrokeThickness="1" Padding="0" Margin="16,0"
+                    StrokeShape="{Binding ListPosition, Converter={StaticResource ListPositionShapeConverter}}">
+                <Border.Triggers>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Middle}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                    <DataTrigger TargetType="Border" Binding="{Binding ListPosition}" Value="{x:Static helpers:ListPosition.Last}">
+                        <Setter Property="Margin" Value="16,-1,16,0" />
+                    </DataTrigger>
+                </Border.Triggers>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="16,10">
+                    <Label Grid.Column="0" Text="•" FontSize="13.5" TextColor="{DynamicResource tp-warning}" />
+                    <Label Grid.Column="1" Text="{Binding Text}" FontSize="13.5" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap" />
+                </Grid>
+            </Border>
         </DataTemplate>
         <views:ExploreRowTemplateSelector x:Key="RowTemplate"
                                           Section="{StaticResource SectionRow}" Day="{StaticResource DayRow}"
@@ -84,39 +173,50 @@
         <CollectionView Grid.Row="2" IsVisible="{Binding HasTrip}" ItemsSource="{Binding Rows}" ItemTemplate="{StaticResource RowTemplate}" SelectionMode="None">
             <CollectionView.Header>
                 <VerticalStackLayout Spacing="0">
-                    <Grid HeightRequest="200" BackgroundColor="{DynamicResource tp-surface-alt}" IsVisible="{Binding HasCover}">
+                    <!-- TP-105: 16:9 cover like the prototype -->
+                    <Grid HeightRequest="210" BackgroundColor="{DynamicResource tp-surface-alt}" IsVisible="{Binding HasCover}">
                         <!-- the list's thumbnail is on the phone already: it shows at once, the cover replaces it when it's here -->
                         <Image helpers:RemoteImage.Url="{Binding ThumbUrl}" Aspect="AspectFill" />
                         <Image helpers:RemoteImage.Url="{Binding CoverUrl}" Aspect="AspectFill" />
                     </Grid>
-                    <VerticalStackLayout Padding="20,16,20,0" Spacing="8">
-                        <Label Text="{Binding Title}" Style="{StaticResource Text.H2}" LineBreakMode="WordWrap" />
-                        <Label Text="{Binding Location}" Style="{StaticResource Text.Body2}" />
-                        <HorizontalStackLayout Spacing="8">
-                            <Border Style="{StaticResource Tag}">
-                                <Label Text="{Binding DurationText}" Style="{StaticResource Tag.Text}" />
-                            </Border>
+                    <VerticalStackLayout Padding="16,16,16,0" Spacing="0">
+                        <Label Text="{Binding Title}" FontFamily="InterBold" FontSize="22" TextColor="{DynamicResource tp-text}" LineBreakMode="WordWrap"
+                               SemanticProperties.HeadingLevel="Level1" />
+                        <HorizontalStackLayout Spacing="4" Margin="0,4,0,0">
+                            <Label Style="{StaticResource Icon}" FontSize="14" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                            <Label Text="{Binding LocationLine}" FontSize="13.5" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                        <Label Text="{Binding TagText}" IsVisible="{Binding HasTags}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                        <Label Text="{Binding MonthsText}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                        <Label Text="{Binding Description}" IsVisible="{Binding HasDescription}" Style="{StaticResource Text.Body}" FontSize="14"
-                               LineBreakMode="WordWrap" Margin="0,4,0,0" />
+                        <FlexLayout BindableLayout.ItemsSource="{Binding TagLabels}" Wrap="Wrap" Margin="0,10,0,0" IsVisible="{Binding HasTags}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <controls:Badge Text="{Binding .}" Margin="0,0,6,6" />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                        <controls:Badge Text="{Binding MonthsText}" Tone="info" Icon="{StaticResource Ic.CalendarDays}" HorizontalOptions="Start" Margin="0,4,0,6" />
+                        <Label Text="{Binding Description}" IsVisible="{Binding HasDescription}" FontSize="14" LineHeight="1.35" TextColor="{DynamicResource tp-text-2}"
+                               LineBreakMode="WordWrap" Margin="0,6,0,0" />
                         <Button Text="{x:Static res:AppResources.Explore_ShowMap}" IsVisible="{Binding HasPlaces}" Command="{Binding OpenMapCommand}"
-                                Style="{StaticResource Btn.Secondary.Sm}" HorizontalOptions="Start" Margin="0,4,0,0" />
-                        <Border Style="{StaticResource Banner.Info}" Margin="0,6,0,0">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="{x:Static res:AppResources.Explore_Disclaimer}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
-                                <Label Text="{Binding ImageCreditText}" IsVisible="{Binding HasImageCredit}" Style="{StaticResource Text.Caption}" FontSize="11" LineBreakMode="WordWrap" />
-                            </VerticalStackLayout>
-                        </Border>
-                        <Border IsVisible="{Binding IsEditing}" Style="{StaticResource Banner.Warning}">
-                            <Label Text="{x:Static res:AppResources.Explore_EditHint}" FontSize="13" TextColor="{DynamicResource tp-warning}" LineBreakMode="WordWrap" />
+                                Style="{StaticResource Btn.Soft.Sm}" HorizontalOptions="Start" Margin="0,12,0,0" ContentLayout="Left,6">
+                            <Button.ImageSource>
+                                <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Map}" Size="15" Color="{DynamicResource tp-accent-text}" />
+                            </Button.ImageSource>
+                        </Button>
+                        <Border IsVisible="{Binding IsEditing}" Style="{StaticResource Banner.Accent}" Margin="0,16,0,0">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Info}" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Start" />
+                                <Label Grid.Column="1" Text="{x:Static res:AppResources.Explore_EditHint}" FontSize="13" TextColor="{DynamicResource tp-accent-text}" LineBreakMode="WordWrap" />
+                            </Grid>
                         </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </CollectionView.Header>
             <CollectionView.Footer>
-                <BoxView HeightRequest="20" Color="Transparent" />
+                <VerticalStackLayout Spacing="2" Padding="24,20,24,28">
+                    <Label Text="{x:Static res:AppResources.Explore_Disclaimer}" FontSize="12" TextColor="{DynamicResource tp-text-3}" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding ImageCreditText}" IsVisible="{Binding HasImageCredit}" FontSize="12" TextColor="{DynamicResource tp-text-3}"
+                           HorizontalTextAlignment="Center" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
             </CollectionView.Footer>
         </CollectionView>
 
@@ -141,12 +241,21 @@
         </VerticalStackLayout>
 
         <!-- ════════ Bottom actions ════════ -->
-        <Grid Grid.Row="3" IsVisible="{Binding HasTrip}" Padding="16,10,16,16" BackgroundColor="{DynamicResource tp-surface}">
-            <Grid IsVisible="{Binding IsViewing}" ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Button Grid.Column="0" Text="{x:Static res:AppResources.Explore_EditAndAdd}" Command="{Binding StartEditCommand}" Style="{StaticResource Btn.Secondary}" />
-                <Button Grid.Column="1" Text="{x:Static res:AppResources.Explore_Add}" Command="{Binding StartAddCommand}" Style="{StaticResource Btn.Primary}" />
+        <Grid Grid.Row="3" IsVisible="{Binding HasTrip}" Padding="16,12,16,16" BackgroundColor="{DynamicResource tp-surface}">
+            <BoxView Style="{StaticResource Divider}" VerticalOptions="Start" Margin="-16,-12,-16,0" />
+            <Grid IsVisible="{Binding IsViewing}" ColumnDefinitions="*,*" ColumnSpacing="8">
+                <Button Grid.Column="0" Text="{x:Static res:AppResources.Explore_EditAndAdd}" Command="{Binding StartEditCommand}" Style="{StaticResource Btn.Secondary}" ContentLayout="Left,6">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Pencil}" Size="16" Color="{DynamicResource tp-text}" />
+                    </Button.ImageSource>
+                </Button>
+                <Button Grid.Column="1" Text="{x:Static res:AppResources.Explore_Add}" Command="{Binding StartAddCommand}" Style="{StaticResource Btn.Primary}" ContentLayout="Left,6">
+                    <Button.ImageSource>
+                        <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Plus}" Size="16" Color="{DynamicResource tp-on-primary}" />
+                    </Button.ImageSource>
+                </Button>
             </Grid>
-            <Grid IsVisible="{Binding IsEditing}" ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Grid IsVisible="{Binding IsEditing}" ColumnDefinitions="*,*" ColumnSpacing="8">
                 <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelEditCommand}" Style="{StaticResource Btn.Secondary}" />
                 <Button Grid.Column="1" Text="{x:Static res:AppResources.Explore_Continue}" Command="{Binding ContinueEditCommand}" Style="{StaticResource Btn.Primary}" />
             </Grid>

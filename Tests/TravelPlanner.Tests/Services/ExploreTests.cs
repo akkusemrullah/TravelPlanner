@@ -678,6 +678,23 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public async Task TP105_Rows_AreCards_DayHeaderOnTop_SectionIconsSet()
+        {
+            var detail = Detail();
+            _explore.Detail = detail;
+            var vm = Create();
+            vm.Id = detail.Id.ToString();
+            await vm.LoadCommand.ExecuteAsync(null);
+
+            var day = vm.Rows.OfType<ExploreDayRow>().First();
+            Assert.Equal(Helpers.ListPosition.First, day.ListPosition);
+            Assert.Equal(Helpers.ListPosition.Last, vm.Rows.OfType<ExploreActivityRow>().Single().ListPosition);
+            Assert.Equal(Helpers.ListPosition.Only, vm.Rows.OfType<ExplorePlaceRow>().Single().ListPosition);
+            Assert.Contains(vm.Rows.OfType<ExploreSectionRow>(), s => s.IconKey == "Ic.Lightbulb");
+            Assert.Contains(detail.DurationText, vm.LocationLine);
+        }
+
+        [Fact]
         public async Task Add_CopiesEverything_AndRemembersTheSample()
         {
             var detail = Detail();

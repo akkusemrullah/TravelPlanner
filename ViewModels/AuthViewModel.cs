@@ -62,6 +62,10 @@ namespace TravelPlanner.ViewModels
             }
         };
 
+        /// <summary>TP-105: Shell query that opens the page on a given form ("?mode=signup").</summary>
+        public const string ModeQuery = "mode";
+        public const string ModeSignUp = "signup";
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsSignIn), nameof(IsSignUp), nameof(IsVerifySignUp), nameof(IsForgotPassword),
                                   nameof(IsResetPassword), nameof(IsCodeMode), nameof(ShowEmailField), nameof(ShowPasswordField),
