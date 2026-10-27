@@ -11,16 +11,17 @@
       x:Class="TravelPlanner.Views.SelectionAppBar"
       x:DataType="vm:ISelectableListViewModel"
       Style="{StaticResource AppBar}"
+      BackgroundColor="{DynamicResource tp-accent-soft}"
       ColumnDefinitions="Auto,*,Auto,Auto">
 
     <Border Grid.Column="0" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Selection_Done}">
         <Border.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding Selection.CancelCommand}" />
         </Border.GestureRecognizers>
-        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+        <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
     </Border>
 
-    <Label Grid.Column="1" Text="{Binding Selection.Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+    <Label Grid.Column="1" Text="{Binding Selection.Title}" Style="{StaticResource Text.AppBarTitle}" FontSize="15" HorizontalTextAlignment="Start" Margin="4,0,0,0" />
 
     <Button Grid.Column="2" Text="{Binding Selection.ToggleAllText}" Command="{Binding Selection.ToggleAllCommand}"
             Style="{StaticResource Btn.Ghost.Sm}" Padding="10,0" VerticalOptions="Center" />
@@ -35,6 +36,6 @@
         <Border.GestureRecognizers>
             <TapGestureRecognizer Command="{Binding DeleteSelectedCommand}" />
         </Border.GestureRecognizers>
-        <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Delete}" TextColor="{DynamicResource tp-danger}" />
+        <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Delete}" TextColor="{DynamicResource tp-danger}" />
     </Border>
 </Grid>

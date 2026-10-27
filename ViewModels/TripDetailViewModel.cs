@@ -127,6 +127,7 @@ namespace TravelPlanner.ViewModels
             _placeService = placeService;
             _reportService = reportService;
             _share = share;
+            ListPositions.Track(TodayActivities); // TP-102: dividers between today's rows
         }
 
         private readonly ITripCoverService? _covers;
@@ -153,6 +154,12 @@ namespace TravelPlanner.ViewModels
 
         /// <summary>TP-98: the budget bar turns amber from 80 % (red once over the budget).</summary>
         public bool IsBudgetWarning => HasBudget && TripDetailSummary.IsBudgetWarning(BudgetUsagePercentage, IsOverBudget);
+
+        /// <summary>TP-102: the budget bar's colour (Controls/ProgressPill tone).</summary>
+        public string BudgetTone => IsOverBudget ? "danger" : IsBudgetWarning ? "warning" : "accent";
+
+        /// <summary>TP-102: the budget bar's fill, 0..1.</summary>
+        public double BudgetProgress => Math.Clamp(BudgetUsagePercentage / 100.0, 0, 1);
 
         /// <summary>"%64" next to the budget title.</summary>
         public string BudgetPercentText => string.Format(AppResources.TripDetail_PercentFormat, Math.Round(BudgetUsagePercentage));
@@ -214,6 +221,8 @@ namespace TravelPlanner.ViewModels
             OnPropertyChanged(nameof(NoBudgetSet));
             OnPropertyChanged(nameof(IsOverBudget));
             OnPropertyChanged(nameof(IsBudgetWarning));
+            OnPropertyChanged(nameof(BudgetTone));
+            OnPropertyChanged(nameof(BudgetProgress));
             OnPropertyChanged(nameof(BudgetPercentText));
             OnPropertyChanged(nameof(TotalExpensesFormatted));
             OnPropertyChanged(nameof(RemainingBudgetFormatted));

@@ -306,13 +306,13 @@
     <value>Seyahat adı</value>
   </data>
   <data name="TripForm_NamePlaceholder" xml:space="preserve">
-    <value>Örn. İtalya Yaz Tatili</value>
+    <value>İtalya Yaz Tatili</value>
   </data>
   <data name="TripForm_DestinationLabel" xml:space="preserve">
     <value>Gidilecek yer</value>
   </data>
   <data name="TripForm_CityPlaceholder" xml:space="preserve">
-    <value>Şehir veya bölge yazın, örn. Roma</value>
+    <value>Roma</value>
   </data>
   <data name="TripForm_StartLabel" xml:space="preserve">
     <value>Başlangıç</value>
@@ -330,7 +330,7 @@
     <value>Planlanan bütçe</value>
   </data>
   <data name="TripForm_DescriptionPlaceholder" xml:space="preserve">
-    <value>Bu seyahat hakkında notlar (isteğe bağlı)</value>
+    <value>Notlar, amaç, kimlerle gidiyorsun…</value>
   </data>
   <data name="TripForm_CityOffline" xml:space="preserve">
     <value>İnternet bağlantısı yok; şehir önerileri gösterilemiyor. Şehri elle yazabilirsiniz.</value>
@@ -1053,7 +1053,7 @@
     <value>Filtreleri temizle</value>
   </data>
   <data name="TripForm_CurrencyLabel" xml:space="preserve">
-    <value>Bütçe para birimi</value>
+    <value>Para birimi</value>
   </data>
   <data name="TripForm_CurrencyHint" xml:space="preserve">
     <value>Bütçe ve tüm harcamalar bu para biriminde tutulur. Farklı dövizle girilen harcamalar otomatik çevrilir.</value>
@@ -3397,5 +3397,23 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="Auth_ShowPassword" xml:space="preserve">
     <value>Şifreyi göster</value>
+  </data>
+  <data name="TripDetail_MapSub" xml:space="preserve">
+    <value>Yerler ve günün rotası</value>
+  </data>
+  <data name="TripDetail_AnalysisSub" xml:space="preserve">
+    <value>Kategori ve günlük dağılım</value>
+  </data>
+  <data name="TripDetail_SplitSub" xml:space="preserve">
+    <value>Kim kime ne kadar borçlu</value>
+  </data>
+  <data name="TripForm_CityHint" xml:space="preserve">
+    <value>Şehir veya bölge yaz, önerilerden seç.</value>
+  </data>
+  <data name="TripForm_DatesHint" xml:space="preserve">
+    <value>Bitiş başlangıçtan önce olamaz; en fazla 90 gün.</value>
+  </data>
+  <data name="TripForm_BudgetPlaceholder" xml:space="preserve">
+    <value>İsteğe bağlı</value>
   </data>
 </root>

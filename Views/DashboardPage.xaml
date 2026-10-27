@@ -306,7 +306,7 @@
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=GoToTripDetailCommand}"
                                                         CommandParameter="{Binding .}" />
                                                 </Grid.GestureRecognizers>
-                                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" WidthRequest="52" HeightRequest="52" VerticalOptions="Start">
+                                                <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" WidthRequest="52" HeightRequest="52" VerticalOptions="Center">
                                                     <Grid>
                                                         <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Luggage}" TextColor="{DynamicResource tp-accent-text}" />
                                                         <!-- the cover's thumbnail over the icon, as on the trip list -->
@@ -316,7 +316,7 @@
                                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                                     <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" MaxLines="1" />
                                                     <Label Text="{Binding Place}" Style="{StaticResource Text.Caption}" FontSize="13" LineBreakMode="TailTruncation" MaxLines="1" />
-                                                    <HorizontalStackLayout Spacing="8" Margin="0,4,0,0">
+                                                    <HorizontalStackLayout Spacing="8" Margin="0,6,0,0">
                                                         <Border Style="{StaticResource Tag}" BackgroundColor="{Binding Status, Converter={StaticResource TripTagColorConverter}}">
                                                             <Label Text="{Binding Tag}" Style="{StaticResource Tag.Text}"
                                                                    TextColor="{Binding Status, Converter={StaticResource TripTagColorConverter}, ConverterParameter=Foreground}" />
@@ -325,7 +325,7 @@
                                                     </HorizontalStackLayout>
                                                 </VerticalStackLayout>
                                                 <Label Grid.Column="2" Text="{Binding Budget}" Style="{StaticResource Text.Value}" FontSize="13.5" VerticalOptions="Start" Margin="0,1,0,0" />
-                                                <Label Grid.Column="3" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}"
+                                                <Label Grid.Column="3" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.ChevronRight}"
                                                        TextColor="{DynamicResource tp-text-3}" />
                                             </Grid>
                                         </VerticalStackLayout>

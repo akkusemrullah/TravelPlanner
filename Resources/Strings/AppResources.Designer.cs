@@ -9210,5 +9210,41 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Auth_ShowPassword", resourceCulture);
             }
         }
+
+        public static string TripDetail_MapSub {
+            get {
+                return ResourceManager.GetString("TripDetail_MapSub", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_AnalysisSub {
+            get {
+                return ResourceManager.GetString("TripDetail_AnalysisSub", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_SplitSub {
+            get {
+                return ResourceManager.GetString("TripDetail_SplitSub", resourceCulture);
+            }
+        }
+
+        public static string TripForm_CityHint {
+            get {
+                return ResourceManager.GetString("TripForm_CityHint", resourceCulture);
+            }
+        }
+
+        public static string TripForm_DatesHint {
+            get {
+                return ResourceManager.GetString("TripForm_DatesHint", resourceCulture);
+            }
+        }
+
+        public static string TripForm_BudgetPlaceholder {
+            get {
+                return ResourceManager.GetString("TripForm_BudgetPlaceholder", resourceCulture);
+            }
+        }
     }
 }

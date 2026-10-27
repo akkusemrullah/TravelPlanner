@@ -18,148 +18,156 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CancelCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
             </Border>
-            <Label Grid.Column="1" Text="{Binding PageTitle}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
+            <Label Grid.Column="1" Text="{Binding PageTitle}" Style="{StaticResource Text.AppBarTitle}" Margin="0,0,44,0" />
         </Grid>
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,20,16,24" Spacing="24">
+            <!-- TP-102: the prototype's form - plain fields on the page colour (no cards), label + counter above each -->
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
 
-                <!-- ════════ Cover photo (16:9, cropped by TripCoverService) ════════ -->
-                <Border Style="{StaticResource Card}" IsVisible="{Binding CanEditCover}" Padding="0">
-                    <VerticalStackLayout Spacing="0">
-                        <Grid HeightRequest="180" BackgroundColor="{DynamicResource tp-surface-alt}">
-                            <Grid.GestureRecognizers>
+                <!-- ════════ Cover photo (16:9, cropped by TripCoverService): dashed box, or the photo with Kaldır / Değiştir ════════ -->
+                <VerticalStackLayout Spacing="8" IsVisible="{Binding CanEditCover}">
+                    <Grid>
+                        <!-- no cover yet: a dashed 16:9 drop box -->
+                        <Border IsVisible="{Binding HasCover, Converter={StaticResource InvertBoolConverter}}" HeightRequest="196"
+                                BackgroundColor="{DynamicResource tp-surface-alt}" Stroke="{DynamicResource tp-border-strong}" StrokeThickness="2"
+                                StrokeDashArray="3,2" StrokeShape="RoundRectangle 16" SemanticProperties.Description="{x:Static res:AppResources.TripForm_CoverAdd}">
+                            <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding PickCoverCommand}" />
-                            </Grid.GestureRecognizers>
-                            <VerticalStackLayout Spacing="6" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding HasCover, Converter={StaticResource InvertBoolConverter}}">
-                                <Label Style="{StaticResource Icon.Lg}" Text="{StaticResource Ic.Image}" TextColor="{DynamicResource tp-text-3}" HorizontalOptions="Center" />
-                                <Label Text="{x:Static res:AppResources.TripForm_CoverAdd}" Style="{StaticResource Text.Body2}" HorizontalOptions="Center" />
-                            </VerticalStackLayout>
-                            <Image Source="{Binding CoverPreview}" Aspect="AspectFill" IsVisible="{Binding HasCover}" />
-                            <ActivityIndicator IsRunning="{Binding IsCoverBusy}" IsVisible="{Binding IsCoverBusy}" Color="{DynamicResource tp-primary}"
-                                               HorizontalOptions="Center" VerticalOptions="Center" />
-                        </Grid>
-                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Padding="16,10">
-                            <Label Grid.Column="0" Text="{x:Static res:AppResources.TripForm_CoverLabel}" Style="{StaticResource Text.Field}" VerticalOptions="Center" />
-                            <Button Grid.Column="1" Text="{x:Static res:AppResources.TripForm_CoverRemove}" Command="{Binding RemoveCoverCommand}"
-                                    Style="{StaticResource Btn.Ghost.Sm}" IsVisible="{Binding HasCover}" />
-                            <Button Grid.Column="2" Command="{Binding PickCoverCommand}" Style="{StaticResource Btn.Secondary.Sm}" IsEnabled="{Binding IsCoverBusy, Converter={StaticResource InvertBoolConverter}}">
-                                <Button.Triggers>
-                                    <DataTrigger TargetType="Button" Binding="{Binding HasCover}" Value="True">
-                                        <Setter Property="Text" Value="{x:Static res:AppResources.TripForm_CoverChange}" />
-                                    </DataTrigger>
-                                    <DataTrigger TargetType="Button" Binding="{Binding HasCover}" Value="False">
-                                        <Setter Property="Text" Value="{x:Static res:AppResources.TripForm_CoverAdd}" />
-                                    </DataTrigger>
-                                </Button.Triggers>
-                            </Button>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <!-- ════════ Trip ════════ -->
-                <Border Style="{StaticResource Card}">
-                    <VerticalStackLayout Spacing="16">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="{x:Static res:AppResources.TripForm_NameLabel}" Style="{StaticResource Text.Field}" />
-                            <Border Style="{StaticResource Input}">
-                                <Entry Text="{Binding Name}" MaxLength="100" Placeholder="{x:Static res:AppResources.TripForm_NamePlaceholder}" />
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="{x:Static res:AppResources.TripForm_DestinationLabel}" Style="{StaticResource Text.Field}" />
-                            <Border Style="{StaticResource Input}">
-                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Search}" TextColor="{DynamicResource tp-text-3}" />
-                                    <Entry Keyboard="{x:Static helpers:AppKeyboards.Words}" Grid.Column="1" Text="{Binding City}" MaxLength="100" Placeholder="{x:Static res:AppResources.TripForm_CityPlaceholder}" />
-                                </Grid>
-                            </Border>
-                            <Label IsVisible="{Binding IsOffline}" Text="{x:Static res:AppResources.TripForm_CityOffline}" Style="{StaticResource Text.Caption}"
-                                   TextColor="{DynamicResource tp-warning}" />
-                            <Border Style="{StaticResource SuggestionsBorder}" IsVisible="{Binding IsCitySuggestionsVisible}">
-                                <CollectionView ItemsSource="{Binding CitySuggestions}" SelectionMode="None" MaximumHeightRequest="240">
-                                    <CollectionView.ItemTemplate>
-                                        <DataTemplate x:DataType="models:CitySuggestion">
-                                            <Grid Padding="10,10" ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                                <Grid.GestureRecognizers>
-                                                    <TapGestureRecognizer
-                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TripFormViewModel}}, Path=SelectCityCommand}"
-                                                        CommandParameter="{Binding .}" />
-                                                </Grid.GestureRecognizers>
-                                                <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" />
-                                                <VerticalStackLayout Grid.Column="1" Spacing="1">
-                                                    <Label Text="{Binding Name}" Style="{StaticResource Text.Title}" FontSize="14" />
-                                                    <Label Text="{Binding DisplayRegion}" Style="{StaticResource Text.Caption}" />
-                                                </VerticalStackLayout>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <!-- One calendar for both dates, like booking apps (Android). -->
-                        <VerticalStackLayout Spacing="6" IsVisible="{Binding UsesRangePicker}">
-                            <Label Text="{x:Static res:AppResources.TripForm_DatesLabel}" Style="{StaticResource Text.Field}" />
-                            <Border Style="{StaticResource Input}" SemanticProperties.Description="{x:Static res:AppResources.TripForm_DatesTitle}">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding PickDatesCommand}" />
-                                </Border.GestureRecognizers>
-                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8" MinimumHeightRequest="40">
-                                    <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Calendar}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
-                                    <Label Grid.Column="1" Text="{Binding DateRangeText}" FontSize="15" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" />
-                                    <Label Grid.Column="2" Text="{Binding DayCountText}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
-                                </Grid>
-                            </Border>
-                        </VerticalStackLayout>
-
-                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding UsesTwoDatePickers}">
-                            <VerticalStackLayout Grid.Column="0" Spacing="6">
-                                <Label Text="{x:Static res:AppResources.TripForm_StartLabel}" Style="{StaticResource Text.Field}" />
-                                <Border Style="{StaticResource Input}">
-                                    <DatePicker Date="{Binding StartDate}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Border WidthRequest="48" HeightRequest="48" StrokeThickness="0" StrokeShape="RoundRectangle 16" HorizontalOptions="Center"
+                                        BackgroundColor="{DynamicResource tp-surface}">
+                                    <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Upload}" TextColor="{DynamicResource tp-text-3}" />
                                 </Border>
+                                <Label Text="{x:Static res:AppResources.TripForm_CoverAdd}" FontFamily="InterSemiBold" FontSize="14" TextColor="{DynamicResource tp-text-3}" HorizontalOptions="Center" />
                             </VerticalStackLayout>
-                            <VerticalStackLayout Grid.Column="1" Spacing="6">
-                                <Label Text="{x:Static res:AppResources.TripForm_EndLabel}" Style="{StaticResource Text.Field}" />
-                                <Border Style="{StaticResource Input}">
-                                    <DatePicker Date="{Binding EndDate}" MinimumDate="{Binding StartDate}" MaximumDate="{Binding MaximumEndDate}" />
-                                </Border>
-                            </VerticalStackLayout>
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
+                        </Border>
+                        <Border IsVisible="{Binding HasCover}" HeightRequest="196" StrokeThickness="0" StrokeShape="RoundRectangle 16"
+                                BackgroundColor="{DynamicResource tp-surface-alt}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PickCoverCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image Source="{Binding CoverPreview}" Aspect="AspectFill" />
+                        </Border>
+                        <ActivityIndicator IsRunning="{Binding IsCoverBusy}" IsVisible="{Binding IsCoverBusy}" Color="{DynamicResource tp-accent}"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Grid>
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding HasCover}">
+                        <Button Grid.Column="0" Text="{x:Static res:AppResources.TripForm_CoverRemove}" Command="{Binding RemoveCoverCommand}" Style="{StaticResource Btn.Secondary.Sm}" />
+                        <Button Grid.Column="1" Text="{x:Static res:AppResources.TripForm_CoverChange}" Command="{Binding PickCoverCommand}" Style="{StaticResource Btn.Soft.Sm}"
+                                IsEnabled="{Binding IsCoverBusy, Converter={StaticResource InvertBoolConverter}}" />
+                    </Grid>
+                </VerticalStackLayout>
 
-                <!-- ════════ Budget ════════ -->
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" />
-                    <Border Style="{StaticResource Card}">
-                        <VerticalStackLayout Spacing="16">
-                            <VerticalStackLayout Spacing="6">
-                                <Label Text="{x:Static res:AppResources.TripForm_BudgetLabel}" Style="{StaticResource Text.Field}" />
-                                <Border Style="{StaticResource Input}">
-                                    <Entry Text="{Binding PlannedBudget}" Keyboard="Numeric" MaxLength="16" Placeholder="0" />
-                                </Border>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout Spacing="6">
-                                <Label Text="{x:Static res:AppResources.TripForm_CurrencyLabel}" Style="{StaticResource Text.Field}" />
-                                <Border Style="{StaticResource Input}">
-                                    <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}"
-                                            Title="{x:Static res:AppResources.TripForm_CurrencyLabel}" />
-                                </Border>
-                            </VerticalStackLayout>
-                            <Label Text="{x:Static res:AppResources.TripForm_CurrencyHint}" Style="{StaticResource Text.Caption}" />
-                        </VerticalStackLayout>
+                <!-- ════════ Name ════════ -->
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="{x:Static res:AppResources.TripForm_NameLabel}" Style="{StaticResource Text.Field}" />
+                        <Label Grid.Column="1" Text="{Binding Name.Length, StringFormat='{0}/100'}" Style="{StaticResource Text.Counter}" />
+                    </Grid>
+                    <Border Style="{StaticResource Input}">
+                        <Entry Text="{Binding Name}" MaxLength="100" Placeholder="{x:Static res:AppResources.TripForm_NamePlaceholder}" />
                     </Border>
                 </VerticalStackLayout>
 
+                <!-- ════════ Destination + suggestions ════════ -->
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="{x:Static res:AppResources.TripForm_DestinationLabel}" Style="{StaticResource Text.Field}" />
+                    <Border Style="{StaticResource Input}">
+                        <Grid ColumnDefinitions="Auto,*">
+                            <Label Grid.Column="0" Style="{StaticResource Input.Icon}" Text="{StaticResource Ic.Pin}" />
+                            <Entry Keyboard="{x:Static helpers:AppKeyboards.Words}" Grid.Column="1" Text="{Binding City}" MaxLength="100" Placeholder="{x:Static res:AppResources.TripForm_CityPlaceholder}" />
+                        </Grid>
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.TripForm_CityHint}" Style="{StaticResource Text.Hint}" />
+                    <Border IsVisible="{Binding IsOffline}" Style="{StaticResource Banner.Warning}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                            <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" VerticalOptions="Start" />
+                            <Label Grid.Column="1" Text="{x:Static res:AppResources.TripForm_CityOffline}" FontSize="13" TextColor="{DynamicResource tp-warning}" />
+                        </Grid>
+                    </Border>
+                    <Border Style="{StaticResource SuggestionsBorder}" IsVisible="{Binding IsCitySuggestionsVisible}">
+                        <CollectionView ItemsSource="{Binding CitySuggestions}" SelectionMode="None" MaximumHeightRequest="280">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:CitySuggestion">
+                                    <Grid Padding="14,10" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                        <Grid.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TripFormViewModel}}, Path=SelectCityCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Grid.GestureRecognizers>
+                                        <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" />
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                            <Label Text="{Binding Name}" FontFamily="InterMedium" FontSize="14.5" TextColor="{DynamicResource tp-text}" />
+                                            <Label Text="{Binding DisplayRegion}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ════════ Dates: one calendar for both dates, like booking apps (Android) ════════ -->
+                <VerticalStackLayout Spacing="6" IsVisible="{Binding UsesRangePicker}">
+                    <Label Text="{x:Static res:AppResources.TripForm_DatesLabel}" Style="{StaticResource Text.Field}" />
+                    <Border Style="{StaticResource Input}" SemanticProperties.Description="{x:Static res:AppResources.TripForm_DatesTitle}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickDatesCommand}" />
+                        </Border.GestureRecognizers>
+                        <Grid ColumnDefinitions="Auto,*,Auto" MinimumHeightRequest="46">
+                            <Label Grid.Column="0" Style="{StaticResource Input.Icon}" Text="{StaticResource Ic.CalendarDays}" Margin="0,0,10,0" />
+                            <Label Grid.Column="1" Text="{Binding DateRangeText}" FontSize="15" TextColor="{DynamicResource tp-text}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Text="{Binding DayCountText}" FontSize="13" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                        </Grid>
+                    </Border>
+                    <Label Text="{x:Static res:AppResources.TripForm_DatesHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding UsesTwoDatePickers}">
+                    <VerticalStackLayout Grid.Column="0" Spacing="6">
+                        <Label Text="{x:Static res:AppResources.TripForm_StartLabel}" Style="{StaticResource Text.Field}" />
+                        <Border Style="{StaticResource Input}">
+                            <DatePicker Date="{Binding StartDate}" />
+                        </Border>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1" Spacing="6">
+                        <Label Text="{x:Static res:AppResources.TripForm_EndLabel}" Style="{StaticResource Text.Field}" />
+                        <Border Style="{StaticResource Input}">
+                            <DatePicker Date="{Binding EndDate}" MinimumDate="{Binding StartDate}" MaximumDate="{Binding MaximumEndDate}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- ════════ Budget + currency side by side ════════ -->
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,120" ColumnSpacing="8" RowDefinitions="Auto,Auto" RowSpacing="6">
+                        <Label Grid.Row="0" Grid.Column="0" Text="{x:Static res:AppResources.TripForm_BudgetLabel}" Style="{StaticResource Text.Field}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{x:Static res:AppResources.TripForm_CurrencyLabel}" Style="{StaticResource Text.Field}" />
+                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource Input}">
+                            <Entry Text="{Binding PlannedBudget}" Keyboard="Numeric" MaxLength="16" Placeholder="{x:Static res:AppResources.TripForm_BudgetPlaceholder}" />
+                        </Border>
+                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource Input}">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}"
+                                        Title="{x:Static res:AppResources.TripForm_CurrencyLabel}" />
+                                <Label Grid.Column="1" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.ChevronDown}" TextColor="{DynamicResource tp-text-3}" InputTransparent="True" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <Label Text="{x:Static res:AppResources.TripForm_CurrencyHint}" Style="{StaticResource Text.Hint}" />
+                </VerticalStackLayout>
+
                 <!-- ════════ Notes ════════ -->
-                <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Common_DescriptionLabel}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                <VerticalStackLayout Spacing="6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="{x:Static res:AppResources.Common_DescriptionLabel}" Style="{StaticResource Text.Field}" />
+                        <Label Grid.Column="1" Text="{Binding Description.Length, StringFormat='{0}/500'}" Style="{StaticResource Text.Counter}" />
+                    </Grid>
                     <Border Style="{StaticResource Input.Multiline}" MinimumHeightRequest="96">
                         <Editor Text="{Binding Description}" AutoSize="TextChanges" MaxLength="500" Placeholder="{x:Static res:AppResources.TripForm_DescriptionPlaceholder}" />
                     </Border>
@@ -174,11 +182,11 @@
             <VerticalStackLayout Grid.Row="1" Spacing="10" Padding="16,12">
                 <Border IsVisible="{Binding HasValidationError}" Style="{StaticResource Banner.Error}">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Alert}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
+                        <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" VerticalOptions="Start" />
                         <Label Grid.Column="1" Text="{Binding ValidationMessage}" FontSize="13" TextColor="{DynamicResource tp-danger}" />
                     </Grid>
                 </Border>
-                <Grid ColumnDefinitions="*,2*" ColumnSpacing="8">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Secondary}" />
                     <Button Grid.Column="1" Text="{x:Static res:AppResources.Common_Save}" Command="{Binding SaveCommand}" Style="{StaticResource Btn.Primary}" />
                 </Grid>

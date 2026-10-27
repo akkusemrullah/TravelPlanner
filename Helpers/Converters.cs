@@ -193,4 +193,54 @@ namespace TravelPlanner.Helpers
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
             value is not true;
     }
+
+    /// <summary>
+    /// TP-102: a grouped list row's outline (see <see cref="ListPositions"/>): 16 corners on top for the first row, at
+    /// the bottom for the last, all round for a single row, square in between. Parameter = radius (default 16).
+    /// </summary>
+    public class ListPositionShapeConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var r = parameter is string text && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : 16;
+            var corners = value switch
+            {
+                ListPosition.First => new CornerRadius(r, r, 0, 0),
+                ListPosition.Middle => new CornerRadius(0),
+                ListPosition.Last => new CornerRadius(0, 0, r, r),
+                _ => new CornerRadius(r),
+            };
+            return new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = corners };
+        }
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
+
+    /// <summary>
+    /// TP-102: a grouped list row's margin: the side margin from the parameter (default 16), and -1 on top for every
+    /// row after the first so its border lies on the row above (one hairline between rows).
+    /// </summary>
+    public class ListPositionMarginConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            var side = parameter is string text && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : 16;
+            var overlap = value is ListPosition.Middle or ListPosition.Last ? -1 : 0;
+            return new Thickness(side, overlap, side, 0);
+        }
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
+
+    /// <summary>TP-102: true when a row has a row above it - shows the divider of rows inside one card.</summary>
+    public class ListPositionHasAboveConverter : IValueConverter
+    {
+        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            value is ListPosition position && ListPositions.HasRowAbove(position);
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+            throw new NotSupportedException();
+    }
 }

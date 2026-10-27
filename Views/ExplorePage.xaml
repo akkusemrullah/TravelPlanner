@@ -205,7 +205,7 @@
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding CloseFilterCommand}" />
                             </Border.GestureRecognizers>
-                            <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" />
+                            <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Close}" />
                         </Border>
                     </Grid>
                     <ScrollView Grid.Row="1">

@@ -89,6 +89,7 @@ namespace TravelPlanner.ViewModels
             _exchangeRates = exchangeRates;
             _connectivity = connectivity;
             Selection = new ListSelection<Trip>(() => Trips);
+            ListPositions.Track(Trips); // TP-102: rows drawn as one card
             SelectedSort = SortOptions[0];
         }
 

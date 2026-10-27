@@ -48,7 +48,7 @@ namespace TravelPlanner.Models
     }
 
     /// <summary>Stored sync metadata shared by every synced model (see <see cref="ISyncEntity"/>).</summary>
-    public abstract class SyncEntityBase : INotifyPropertyChanged
+    public abstract class SyncEntityBase : INotifyPropertyChanged, Helpers.IListPositioned
     {
         [Indexed, System.ComponentModel.DataAnnotations.MaxLength(36)]
         public string SyncId { get; set; } = string.Empty;
@@ -83,6 +83,22 @@ namespace TravelPlanner.Models
                     return;
                 _isSelected = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsSelected)));
+            }
+        }
+
+        private Helpers.ListPosition _listPosition;
+
+        /// <summary>TP-102: the row's place in a grouped list card (see <see cref="Helpers.ListPositions"/>).</summary>
+        [Ignore, JsonIgnore]
+        public Helpers.ListPosition ListPosition
+        {
+            get => _listPosition;
+            set
+            {
+                if (_listPosition == value)
+                    return;
+                _listPosition = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ListPosition)));
             }
         }
 
