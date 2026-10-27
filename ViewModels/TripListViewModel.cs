@@ -168,7 +168,7 @@ namespace TravelPlanner.ViewModels
             await Shell.Current.GoToAsync(Routes.TripForm);
         }
 
-        /// <summary>TP-48: "Davetle katıl" next to "Seyahat oluştur"; opens the joined trip.</summary>
+        /// <summary>TP-48: "Seyahate katıl" next to "Seyahat oluştur"; opens the joined trip.</summary>
         [RelayCommand]
         private Task JoinTripAsync() => RunSafeAsync(async () =>
         {
