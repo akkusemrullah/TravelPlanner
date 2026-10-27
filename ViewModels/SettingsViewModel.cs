@@ -623,6 +623,10 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task OpenHelpCenterAsync() => RunSafeAsync(() => Shell.Current.GoToAsync(Routes.HelpCenter));
 
+        /// <summary>TP-93: the first-start tour once more.</summary>
+        [RelayCommand]
+        private Task ShowTourAsync() => RunSafeAsync(OnboardingTour.ShowAgainAsync);
+
         [RelayCommand]
         private Task ContactSupportAsync() =>
             RunSafeAsync(() => SupportContact.ComposeOrShowAddressAsync(Dialogs, AppResources.Help_MailSubject));

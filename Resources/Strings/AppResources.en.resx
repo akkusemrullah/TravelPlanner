@@ -3313,4 +3313,46 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="AiPlan_QuotaNoneNever" xml:space="preserve">
     <value>Your plans don't renew.</value>
   </data>
+  <data name="Onboarding_TripTitle" xml:space="preserve">
+    <value>Create your trip</value>
+  </data>
+  <data name="Onboarding_TripText" xml:space="preserve">
+    <value>Add dates, a city and a budget.</value>
+  </data>
+  <data name="Onboarding_AiTitle" xml:space="preserve">
+    <value>Plan with AI</value>
+  </data>
+  <data name="Onboarding_AiText" xml:space="preserve">
+    <value>A day-by-day route, ready in seconds.</value>
+  </data>
+  <data name="Onboarding_ExploreTitle" xml:space="preserve">
+    <value>Explore</value>
+  </data>
+  <data name="Onboarding_ExploreText" xml:space="preserve">
+    <value>Add ready-made plans to your own trips.</value>
+  </data>
+  <data name="Onboarding_TogetherTitle" xml:space="preserve">
+    <value>Plan together</value>
+  </data>
+  <data name="Onboarding_TogetherText" xml:space="preserve">
+    <value>Invite friends, and sign in to keep your data safe.</value>
+  </data>
+  <data name="Onboarding_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Onboarding_Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Onboarding_Close" xml:space="preserve">
+    <value>Close the tour</value>
+  </data>
+  <data name="Onboarding_PositionFormat" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+  <data name="Profile_ShowTour" xml:space="preserve">
+    <value>Show the tour again</value>
+  </data>
+  <data name="Profile_ShowTourHint" xml:space="preserve">
+    <value>The app in 4 cards</value>
+  </data>
 </root>

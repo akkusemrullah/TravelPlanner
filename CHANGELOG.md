@@ -5,6 +5,7 @@ Biçim: [Keep a Changelog](https://keepachangelog.com/tr-TR/1.1.0/), sürümleme
 ## [Yayınlanmadı / Unreleased] – 1.0.0
 
 ### Eklendi
+- İlk açılışta 4 kartlık tanıtım (TP-93): Seyahatini oluştur, AI ile plan yap, Keşfet, Birlikte planla. Kaydırılır, İleri / Başla, sağ üstte çarpı; bir kez gösterilir, Profil > Destek > "Tanıtımı tekrar göster" ile yeniden açılır. Çizimler tema renkleriyle kodda çizilir, açık/koyu temaya uyar.
 - AI planı arka planda hazırlanır (TP-57, migration 39): plan hazırlanırken sayfadan çıkılabilir, uygulama kapansa bile plan kaybolmaz; bitince "Planın hazır" bildirimi gelir, açılışta "Görmek ister misin?" diye sorulur. Aynı anda tek plan. TP-49'un çıkış uyarısı kalktı, yerine "Çıkabilirsin, arka planda sürer" yazar. `plan-trip` yeniden deploy edilmeli.
 - Seyahat kapak fotoğrafı (migration 32): formdan ekle / değiştir / kaldır; 16:9 olmayan fotoğrafta kırpma penceresi açılır (sürükle, iki parmakla yakınlaştır; 1280x720 JPEG), Seyahatler listesinde ve ana sayfada 256x256 küçük resmi, detayda kapağı görünür. Dosyalar cihazda ve `trip-files` kovasında; diğer cihazlar indirir, eski kapaklar gece temizlenir.
 - AI modeli ve düşünme seviyesi yönetim panelinden seçilir (migration 31); `plan-trip` boşsa `AI_MODEL` / `AI_REASONING` secret'larını kullanır.
