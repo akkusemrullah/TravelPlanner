@@ -13,28 +13,26 @@
     <!-- Tab root (Trips). -->
     <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-        <!-- ════════ Header ════════ -->
-        <Grid Grid.Row="0" Style="{StaticResource PageHeader}" ColumnDefinitions="*,Auto,Auto,Auto" IsVisible="{Binding Selection.IsInactive}">
-            <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
-                <Label Text="{x:Static res:AppResources.Nav_Trips}" Style="{StaticResource Text.Overline}" />
-                <Label Text="{x:Static res:AppResources.Section_MyTrips}" Style="{StaticResource Text.H1}" SemanticProperties.HeadingLevel="Level1" />
-            </VerticalStackLayout>
-            <Border Grid.Column="1" Style="{StaticResource IconButton}" VerticalOptions="End" IsVisible="{Binding HasTrips}"
+        <!-- ════════ Header (TP-98: large title, plain icon actions) ════════ -->
+        <Grid Grid.Row="0" Style="{StaticResource PageHeader}" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="4" IsVisible="{Binding Selection.IsInactive}">
+            <Label Grid.Column="0" Text="{x:Static res:AppResources.Nav_Trips}" Style="{StaticResource Text.H1}" FontSize="26"
+                   VerticalOptions="Center" SemanticProperties.HeadingLevel="Level1" />
+            <Border Grid.Column="1" Style="{StaticResource IconButton}" VerticalOptions="Center" IsVisible="{Binding HasTrips}"
                     SemanticProperties.Description="{x:Static res:AppResources.Selection_MenuA11y}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding Selection.StartCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Delete}" />
+                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Trash}" />
             </Border>
             <!-- TP-48: join a shared trip with an invite code, next to "add" -->
-            <Border Grid.Column="2" Style="{StaticResource IconButton}" VerticalOptions="End"
+            <Border Grid.Column="2" Style="{StaticResource IconButton}" VerticalOptions="Center"
                     SemanticProperties.Description="{x:Static res:AppResources.Join_Short}" ToolTipProperties.Text="{x:Static res:AppResources.Join_Short}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding JoinTripCommand}" />
                 </Border.GestureRecognizers>
                 <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Ticket}" />
             </Border>
-            <Border Grid.Column="3" Style="{StaticResource IconButton.Filled}" VerticalOptions="End"
+            <Border Grid.Column="3" Style="{StaticResource IconButton.Filled}" VerticalOptions="Center"
                     SemanticProperties.Description="{x:Static res:AppResources.A11y_Add}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoToAddTripCommand}" />
@@ -45,9 +43,8 @@
         <!-- "Seçerek sil" mode: [×] 3 seçildi [Tümünü seç] [sil] -->
         <views:SelectionAppBar Grid.Row="0" IsVisible="{Binding Selection.IsActive}" />
 
-        <!-- ════════ Search / filter / sort ════════ -->
-        <VerticalStackLayout Grid.Row="1" IsVisible="{Binding ShowFilterBar}" Spacing="12" Padding="16,0,16,14"
-                             BackgroundColor="{DynamicResource tp-surface}">
+        <!-- ════════ Search / filter chips with counts / "N seyahat" + sort pill ════════ -->
+        <VerticalStackLayout Grid.Row="1" IsVisible="{Binding ShowFilterBar}" Spacing="12" Padding="16,4,16,12">
             <!-- SearchBar draws its own magnifier/clear icons; the Border only supplies the field chrome. -->
             <Border Style="{StaticResource Input}" Padding="2,0">
                 <SearchBar Text="{Binding SearchText}" Placeholder="{x:Static res:AppResources.TripList_SearchPlaceholder}"
@@ -72,27 +69,41 @@
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:TripListViewModel}}, Path=SelectStatusFilterCommand}"
                                         CommandParameter="{Binding .}" />
                                 </Border.GestureRecognizers>
-                                <Label Text="{Binding Label}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}">
-                                    <Label.Triggers>
-                                        <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
-                                            <Setter Property="TextColor" Value="{DynamicResource tp-on-primary}" />
-                                        </DataTrigger>
-                                    </Label.Triggers>
-                                </Label>
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="{Binding Label}" FontFamily="InterMedium" FontSize="13" TextColor="{DynamicResource tp-text-2}" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource tp-on-primary}" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                    <Label Text="{Binding Count}" FontFamily="InterSemiBold" FontSize="12" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="TextColor" Value="{DynamicResource tp-on-primary}" />
+                                                <Setter Property="Opacity" Value="0.75" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </HorizontalStackLayout>
                             </Border>
                         </DataTemplate>
                     </BindableLayout.ItemTemplate>
                 </HorizontalStackLayout>
             </ScrollView>
 
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                <HorizontalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
-                    <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Sliders}" TextColor="{DynamicResource tp-text-3}" />
-                    <Label Text="{x:Static res:AppResources.TripList_SortTitle}" Style="{StaticResource Text.Field}" VerticalOptions="Center" />
-                </HorizontalStackLayout>
-                <Border Grid.Column="1" Style="{StaticResource Input}" MinimumHeightRequest="40">
-                    <Picker ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}"
-                            Title="{x:Static res:AppResources.TripList_SortTitle}" FontSize="14" />
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <Label Grid.Column="0" Text="{Binding CountText}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                <Border Grid.Column="1" Style="{StaticResource Chip}" Padding="10,6"
+                        SemanticProperties.Description="{x:Static res:AppResources.TripList_SortTitle}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ChooseSortCommand}" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Style="{StaticResource Icon.Xs}" Text="{StaticResource Ic.ArrowDownUp}" TextColor="{DynamicResource tp-text-2}" VerticalOptions="Center" />
+                        <Label Text="{Binding SortLabel}" FontFamily="InterMedium" FontSize="12.5" TextColor="{DynamicResource tp-text-2}"
+                               VerticalOptions="Center" MaxLines="1" LineBreakMode="TailTruncation" />
+                    </HorizontalStackLayout>
                 </Border>
             </Grid>
         </VerticalStackLayout>
@@ -105,7 +116,7 @@
             <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadTripsCommand}" IsVisible="{Binding HasTrips}">
                 <CollectionView x:Name="TripsCollectionView" ItemsSource="{Binding Trips}" SelectionMode="None">
                     <CollectionView.Header>
-                        <BoxView HeightRequest="16" Color="Transparent" />
+                        <BoxView HeightRequest="12" Color="Transparent" />
                     </CollectionView.Header>
                     <CollectionView.Footer>
                         <BoxView HeightRequest="24" Color="Transparent" />
@@ -128,9 +139,9 @@
                                             CommandParameter="{Binding .}" />
                                     </Border.GestureRecognizers>
                                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                                        <Border Grid.Column="0" Style="{StaticResource IconTile}" WidthRequest="56" HeightRequest="56" VerticalOptions="Start">
+                                        <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}" WidthRequest="52" HeightRequest="52" StrokeShape="RoundRectangle 14" VerticalOptions="Center">
                                             <Grid>
-                                                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Briefcase}"
+                                                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Luggage}" TextColor="{DynamicResource tp-accent-text}"
                                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:TripListViewModel}}, Path=Selection.IsInactive}" />
                                                 <!-- the cover's thumbnail over the icon (a file on the phone, see TripCoverService) -->
                                                 <Image Source="{Binding CoverThumbFile}" Aspect="AspectFill" IsVisible="{Binding HasCoverThumb}" />
@@ -148,22 +159,23 @@
                                                 </Grid>
                                             </Grid>
                                         </Border>
-                                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
                                             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                                <Label Grid.Column="0" Text="{Binding Name}" Style="{StaticResource Text.Title}" VerticalOptions="Center" />
-                                                <Border Grid.Column="1" Style="{StaticResource Tag}"
+                                                <Label Grid.Column="0" Text="{Binding Name}" Style="{StaticResource Text.Title}" VerticalOptions="Center"
+                                                       MaxLines="1" LineBreakMode="TailTruncation" />
+                                                <Label Grid.Column="1" Text="{Binding BudgetOrDash}" Style="{StaticResource Text.Value}" FontSize="14" VerticalOptions="Center" />
+                                            </Grid>
+                                            <Label Text="{Binding PlaceDisplay}" Style="{StaticResource Text.Body2}" MaxLines="1" LineBreakMode="TailTruncation" />
+                                            <HorizontalStackLayout Spacing="8" Margin="0,3,0,0">
+                                                <Border Style="{StaticResource Tag}" VerticalOptions="Center"
                                                         BackgroundColor="{Binding Status, Converter={StaticResource TripTagColorConverter}}">
                                                     <Label Text="{Binding StatusTag}" Style="{StaticResource Tag.Text}"
                                                            TextColor="{Binding Status, Converter={StaticResource TripTagColorConverter}, ConverterParameter=Foreground}" />
                                                 </Border>
-                                            </Grid>
-                                            <Label Text="{Binding City}" Style="{StaticResource Text.Body2}" LineBreakMode="TailTruncation" />
-                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                                                <Label Grid.Column="0" Text="{Binding CompactDateRangeDisplay}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
-                                                <Label Grid.Column="1" Text="{Binding FormattedBudget}" Style="{StaticResource Text.Value}" FontSize="14" />
-                                            </Grid>
+                                                <Label Text="{Binding CompactDateRangeDisplay}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
                                         </VerticalStackLayout>
-                                        <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}"
+                                        <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" VerticalOptions="Center"
                                                TextColor="{DynamicResource tp-text-3}" />
                                     </Grid>
                                 </Border>

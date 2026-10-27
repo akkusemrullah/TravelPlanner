@@ -3355,4 +3355,28 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Profile_ShowTourHint" xml:space="preserve">
     <value>The app in 4 cards</value>
   </data>
+  <data name="TripDetail_ActivitiesFormat" xml:space="preserve">
+    <value>{0} activities</value>
+  </data>
+  <data name="TripDetail_TasksPendingFormat" xml:space="preserve">
+    <value>{0} pending</value>
+  </data>
+  <data name="TripDetail_TasksAllDone" xml:space="preserve">
+    <value>All done</value>
+  </data>
+  <data name="TripDetail_PlacesVisitedFormat" xml:space="preserve">
+    <value>{0}/{1} visited</value>
+  </data>
+  <data name="TripDetail_ExpensesFormat" xml:space="preserve">
+    <value>{0} expenses · {1}</value>
+  </data>
+  <data name="TripDetail_FilesFormat" xml:space="preserve">
+    <value>{0} files</value>
+  </data>
+  <data name="TripDetail_SpentSuffix" xml:space="preserve">
+    <value>spent</value>
+  </data>
+  <data name="TripDetail_PercentFormat" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
 </root>

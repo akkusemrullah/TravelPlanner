@@ -9126,5 +9126,53 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Profile_ShowTourHint", resourceCulture);
             }
         }
+
+        public static string TripDetail_ActivitiesFormat {
+            get {
+                return ResourceManager.GetString("TripDetail_ActivitiesFormat", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_TasksPendingFormat {
+            get {
+                return ResourceManager.GetString("TripDetail_TasksPendingFormat", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_TasksAllDone {
+            get {
+                return ResourceManager.GetString("TripDetail_TasksAllDone", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_PlacesVisitedFormat {
+            get {
+                return ResourceManager.GetString("TripDetail_PlacesVisitedFormat", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_ExpensesFormat {
+            get {
+                return ResourceManager.GetString("TripDetail_ExpensesFormat", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_FilesFormat {
+            get {
+                return ResourceManager.GetString("TripDetail_FilesFormat", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_SpentSuffix {
+            get {
+                return ResourceManager.GetString("TripDetail_SpentSuffix", resourceCulture);
+            }
+        }
+
+        public static string TripDetail_PercentFormat {
+            get {
+                return ResourceManager.GetString("TripDetail_PercentFormat", resourceCulture);
+            }
+        }
     }
 }

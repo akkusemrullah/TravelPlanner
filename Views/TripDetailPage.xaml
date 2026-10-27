@@ -39,7 +39,7 @@
 
         <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <ScrollView>
-                <VerticalStackLayout Padding="16,20,16,28" Spacing="24">
+                <VerticalStackLayout Padding="16,16,16,28" Spacing="20">
 
                     <!-- G6: shared with the user as a viewer -->
                     <Border IsVisible="{Binding IsReadOnly}" Style="{StaticResource Banner.Info}">
@@ -94,84 +94,90 @@
                         </VerticalStackLayout>
                     </Border>
 
-                    <!-- ════════ Budget ════════ -->
-                    <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" />
-                        <Border Style="{StaticResource Card}">
-                            <VerticalStackLayout Spacing="16">
-                                <Label Text="{x:Static res:AppResources.TripDetail_NoBudget}" IsVisible="{Binding NoBudgetSet}" Style="{StaticResource Text.Body2}" />
+                    <!-- ════════ Budget (TP-98: "BÜTÇE  %64", big spent amount, bar accent → amber at 80 % → red over) ════════ -->
+                    <Border Style="{StaticResource Card}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToExpensesCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                <Label Grid.Column="0" Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Text.Overline}" VerticalOptions="Center" />
+                                <Label Grid.Column="1" Text="{Binding BudgetPercentText}" IsVisible="{Binding HasBudget}" FontFamily="InterSemiBold" FontSize="13"
+                                       TextColor="{DynamicResource tp-text-2}" VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsBudgetWarning}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-warning}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsOverBudget}" Value="True">
+                                            <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                            </Grid>
 
-                                <VerticalStackLayout IsVisible="{Binding HasBudget}" Spacing="16">
-                                    <Border IsVisible="{Binding IsOverBudget}" Style="{StaticResource Banner.Error}">
-                                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                            <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" />
-                                            <Label Grid.Column="1" Text="{x:Static res:AppResources.TripDetail_OverBudget}" FontFamily="InterSemiBold" FontSize="13"
-                                                   TextColor="{DynamicResource tp-danger}" VerticalOptions="Center" />
-                                        </Grid>
-                                    </Border>
+                            <Label Text="{x:Static res:AppResources.TripDetail_NoBudget}" IsVisible="{Binding NoBudgetSet}" Style="{StaticResource Text.Body2}" />
 
-                                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                            <Label Text="{x:Static res:AppResources.Budget_Spent}" Style="{StaticResource Text.Caption}" />
-                                            <Label Text="{Binding TotalExpensesFormatted}" Style="{StaticResource Text.Metric}" />
-                                        </VerticalStackLayout>
-                                        <Label Grid.Column="1" Text="{Binding BudgetUsagePercentage, StringFormat='{0:F0}%'}" FontFamily="InterSemiBold" FontSize="15"
-                                               TextColor="{DynamicResource tp-text-2}" VerticalOptions="End">
+                            <VerticalStackLayout IsVisible="{Binding HasBudget}" Spacing="14">
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="{Binding TotalExpensesFormatted}" Style="{StaticResource Text.Metric}" VerticalOptions="End" />
+                                    <Label Text="{x:Static res:AppResources.TripDetail_SpentSuffix}" Style="{StaticResource Text.Caption}" VerticalOptions="End" Margin="0,0,0,4" />
+                                </HorizontalStackLayout>
+
+                                <ProgressBar Progress="{Binding BudgetUsagePercentage, Converter={StaticResource PercentageToFractionConverter}}"
+                                             ProgressColor="{DynamicResource tp-accent}" HeightRequest="6">
+                                    <ProgressBar.Triggers>
+                                        <DataTrigger TargetType="ProgressBar" Binding="{Binding IsBudgetWarning}" Value="True">
+                                            <Setter Property="ProgressColor" Value="{DynamicResource tp-warning}" />
+                                        </DataTrigger>
+                                        <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOverBudget}" Value="True">
+                                            <Setter Property="ProgressColor" Value="{DynamicResource tp-danger}" />
+                                        </DataTrigger>
+                                    </ProgressBar.Triggers>
+                                </ProgressBar>
+
+                                <Border IsVisible="{Binding IsOverBudget}" Style="{StaticResource Banner.Error}">
+                                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                        <Label Grid.Column="0" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Warning}" TextColor="{DynamicResource tp-danger}" />
+                                        <Label Grid.Column="1" Text="{x:Static res:AppResources.TripDetail_OverBudget}" FontFamily="InterSemiBold" FontSize="13"
+                                               TextColor="{DynamicResource tp-danger}" VerticalOptions="Center" />
+                                    </Grid>
+                                </Border>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{x:Static res:AppResources.Budget_Planned}" Style="{StaticResource Text.Caption}" />
+                                        <Label Text="{Binding Trip.FormattedBudget}" Style="{StaticResource Text.Value}" />
+                                    </VerticalStackLayout>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{x:Static res:AppResources.Budget_Remaining}" Style="{StaticResource Text.Caption}" HorizontalTextAlignment="End" />
+                                        <Label Text="{Binding RemainingBudgetFormatted}" Style="{StaticResource Text.Value}" HorizontalTextAlignment="End">
                                             <Label.Triggers>
                                                 <DataTrigger TargetType="Label" Binding="{Binding IsOverBudget}" Value="True">
                                                     <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
                                                 </DataTrigger>
                                             </Label.Triggers>
                                         </Label>
-                                    </Grid>
-
-                                    <ProgressBar Progress="{Binding BudgetUsagePercentage, Converter={StaticResource PercentageToFractionConverter}}"
-                                                 ProgressColor="{DynamicResource tp-primary}" HeightRequest="6">
-                                        <ProgressBar.Triggers>
-                                            <DataTrigger TargetType="ProgressBar" Binding="{Binding IsOverBudget}" Value="True">
-                                                <Setter Property="ProgressColor" Value="{DynamicResource tp-danger}" />
-                                            </DataTrigger>
-                                        </ProgressBar.Triggers>
-                                    </ProgressBar>
-
-                                    <BoxView Style="{StaticResource Divider}" />
-
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                                            <Label Text="{x:Static res:AppResources.Budget_Planned}" Style="{StaticResource Text.Caption}" />
-                                            <Label Text="{Binding Trip.FormattedBudget}" Style="{StaticResource Text.Value}" />
-                                        </VerticalStackLayout>
-                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                            <Label Text="{x:Static res:AppResources.Budget_Remaining}" Style="{StaticResource Text.Caption}" />
-                                            <Label Text="{Binding RemainingBudgetFormatted}" Style="{StaticResource Text.Value}">
-                                                <Label.Triggers>
-                                                    <DataTrigger TargetType="Label" Binding="{Binding IsOverBudget}" Value="True">
-                                                        <Setter Property="TextColor" Value="{DynamicResource tp-danger}" />
-                                                    </DataTrigger>
-                                                </Label.Triggers>
-                                            </Label>
-                                        </VerticalStackLayout>
-                                    </Grid>
-                                </VerticalStackLayout>
+                                    </VerticalStackLayout>
+                                </Grid>
                             </VerticalStackLayout>
-                        </Border>
-                    </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </Border>
 
                     <!-- ════════ AI trip planner ════════ -->
-                    <Border Style="{StaticResource Card}" IsVisible="{Binding CanEdit}"
+                    <Border Style="{StaticResource Card}" IsVisible="{Binding CanEdit}" BackgroundColor="{DynamicResource tp-accent-soft}" Stroke="Transparent"
                             SemanticProperties.Description="{x:Static res:AppResources.AiPlan_Title}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToAiPlannerCommand}" />
                         </Border.GestureRecognizers>
                         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                            <Border Grid.Column="0" Style="{StaticResource IconTile.Accent}" WidthRequest="40" HeightRequest="40" VerticalOptions="Center">
-                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Star}" TextColor="{DynamicResource tp-accent-text}" />
+                            <Border Grid.Column="0" Style="{StaticResource IconTile}" BackgroundColor="{DynamicResource tp-accent}" WidthRequest="40" HeightRequest="40" VerticalOptions="Center">
+                                <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Sparkles}" TextColor="{StaticResource White}" />
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                                 <Label Text="{x:Static res:AppResources.AiPlan_Title}" Style="{StaticResource Text.Title}" />
                                 <Label Text="{Binding AiPlannerSubtitle}" Style="{StaticResource Text.Caption}" LineBreakMode="WordWrap" />
                             </VerticalStackLayout>
-                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" VerticalOptions="Center" />
+                            <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-accent-text}" VerticalOptions="Center" />
                         </Grid>
                     </Border>
 
@@ -188,7 +194,11 @@
                                     <Border Grid.Column="0" Style="{StaticResource IconTile.Tint}">
                                         <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.CalendarDays}" TextColor="{DynamicResource tp-accent-text}" />
                                     </Border>
-                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Itinerary}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{x:Static res:AppResources.Section_Itinerary}" Style="{StaticResource Text.Body}" />
+                                        <Label Text="{Binding ActivitiesSummary}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding ActivitiesSummary, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                                 </Grid>
                                 <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
@@ -200,7 +210,11 @@
                                     <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
                                         <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Checklist}" TextColor="{DynamicResource tp-success}" />
                                     </Border>
-                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.Body}" />
+                                        <Label Text="{Binding TasksSummary}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding TasksSummary, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                                 </Grid>
                                 <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
@@ -212,7 +226,11 @@
                                     <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
                                         <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-warning}" />
                                     </Border>
-                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Places}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{x:Static res:AppResources.Section_Places}" Style="{StaticResource Text.Body}" />
+                                        <Label Text="{Binding PlacesSummary}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding PlacesSummary, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                                 </Grid>
                                 <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
@@ -256,7 +274,11 @@
                                     <Border Grid.Column="0" Style="{StaticResource IconTile.Success}">
                                         <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Receipt}" TextColor="{DynamicResource tp-success}" />
                                     </Border>
-                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Expenses}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{x:Static res:AppResources.Section_Expenses}" Style="{StaticResource Text.Body}" />
+                                        <Label Text="{Binding ExpensesSummary}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding ExpensesSummary, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                                 </Grid>
                                 <BoxView Style="{StaticResource Divider.Inset}" Margin="60,0,0,0" />
@@ -324,7 +346,11 @@
                                     <Border Grid.Column="0" Style="{StaticResource IconTile.Warning}">
                                         <Label Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.Attachment}" TextColor="{DynamicResource tp-warning}" />
                                     </Border>
-                                    <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Attachments}" Style="{StaticResource Text.Body}" VerticalOptions="Center" />
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{x:Static res:AppResources.Section_Attachments}" Style="{StaticResource Text.Body}" />
+                                        <Label Text="{Binding FilesSummary}" Style="{StaticResource Text.Caption}" MaxLines="1" LineBreakMode="TailTruncation"
+                                               IsVisible="{Binding FilesSummary, Converter={StaticResource StringNotEmptyConverter}}" />
+                                    </VerticalStackLayout>
                                     <Label Grid.Column="2" Style="{StaticResource Icon.Sm}" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}" />
                                 </Grid>
                             </VerticalStackLayout>
@@ -332,11 +358,22 @@
                     </VerticalStackLayout>
 
                     <!-- ════════ Duplicate: a new trip from this one (to-dos, places, plan, participants) ════════ -->
-                    <Button Text="{x:Static res:AppResources.TripDetail_Duplicate}" Command="{Binding DuplicateTripCommand}" Style="{StaticResource Btn.Secondary}" />
+                    <VerticalStackLayout Spacing="10">
+                    <Button Text="{x:Static res:AppResources.TripDetail_Duplicate}" Command="{Binding DuplicateTripCommand}" Style="{StaticResource Btn.Secondary}"
+                            ContentLayout="Left,8">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Copy}" Size="16" Color="{DynamicResource tp-text}" />
+                        </Button.ImageSource>
+                    </Button>
 
                     <!-- ════════ Danger zone ════════ -->
                     <Button Text="{x:Static res:AppResources.TripDetail_Delete}" Command="{Binding DeleteTripCommand}" Style="{StaticResource Btn.Danger}"
-                            IsVisible="{Binding IsOwner}" />
+                            IsVisible="{Binding IsOwner}" ContentLayout="Left,8">
+                        <Button.ImageSource>
+                            <FontImageSource FontFamily="Lucide" Glyph="{StaticResource Ic.Trash}" Size="16" Color="{DynamicResource tp-danger}" />
+                        </Button.ImageSource>
+                    </Button>
+                    </VerticalStackLayout>
 
                 </VerticalStackLayout>
             </ScrollView>

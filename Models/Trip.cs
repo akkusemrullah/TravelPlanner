@@ -91,6 +91,14 @@ namespace TravelPlanner.Models
         [Ignore]
         public string FormattedBudget => MoneyFormatter.FormatIn(PlannedBudget, EffectiveCurrencyCode);
 
+        /// <summary>TP-98: the list row's budget - "—" when none was set (instead of "0 ₺").</summary>
+        [Ignore]
+        public string BudgetOrDash => PlannedBudget > 0 ? FormattedBudget : "—";
+
+        /// <summary>TP-98: "City, Country" for the list row (just the city when there is no country).</summary>
+        [Ignore]
+        public string PlaceDisplay => string.IsNullOrWhiteSpace(Country) ? City.Trim() : $"{City.Trim()}, {Country.Trim()}";
+
         [Ignore]
         public bool IsUpcoming => StartDate.Date > DateTime.Today;
 
