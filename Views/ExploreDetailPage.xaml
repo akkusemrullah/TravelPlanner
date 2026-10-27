@@ -74,7 +74,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Label Grid.Column="1" Text="{Binding Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" MaxLines="1" LineBreakMode="TailTruncation" />
         </Grid>

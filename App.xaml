@@ -24,6 +24,9 @@
             <helpers:WeatherGlyphConverter x:Key="WeatherGlyphConverter" />
             <helpers:CategoryGlyphConverter x:Key="CategoryGlyphConverter" />
             <helpers:InvertBoolConverter x:Key="InvertBoolConverter" />
+            <helpers:ListPositionShapeConverter x:Key="ListPositionShapeConverter" />
+            <helpers:ListPositionMarginConverter x:Key="ListPositionMarginConverter" />
+            <helpers:ListPositionHasAboveConverter x:Key="ListPositionHasAboveConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

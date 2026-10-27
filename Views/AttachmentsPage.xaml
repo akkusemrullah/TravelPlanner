@@ -18,7 +18,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Label Grid.Column="1" Text="{x:Static res:AppResources.Attachments_Title}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
             <Border Grid.Column="2" Style="{StaticResource IconButton}" IsVisible="{Binding ShowDeleteMenu}"
@@ -26,7 +26,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding Selection.StartCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Delete}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Delete}" />
             </Border>
         </Grid>
         <!-- "Seçerek sil" mode: [×] 3 seçildi [Tümünü seç] [sil] -->

@@ -306,13 +306,13 @@
     <value>Trip name</value>
   </data>
   <data name="TripForm_NamePlaceholder" xml:space="preserve">
-    <value>e.g. Summer in Italy</value>
+    <value>Summer in Italy</value>
   </data>
   <data name="TripForm_DestinationLabel" xml:space="preserve">
     <value>Destination</value>
   </data>
   <data name="TripForm_CityPlaceholder" xml:space="preserve">
-    <value>Type a city or region, e.g. Rome</value>
+    <value>Rome</value>
   </data>
   <data name="TripForm_StartLabel" xml:space="preserve">
     <value>Start</value>
@@ -330,7 +330,7 @@
     <value>Planned budget</value>
   </data>
   <data name="TripForm_DescriptionPlaceholder" xml:space="preserve">
-    <value>Notes about this trip (optional)</value>
+    <value>Notes, purpose, who you are going with…</value>
   </data>
   <data name="TripForm_CityOffline" xml:space="preserve">
     <value>No internet connection; city suggestions are unavailable. You can still type the city yourself.</value>
@@ -1053,7 +1053,7 @@
     <value>Clear filters</value>
   </data>
   <data name="TripForm_CurrencyLabel" xml:space="preserve">
-    <value>Budget currency</value>
+    <value>Currency</value>
   </data>
   <data name="TripForm_CurrencyHint" xml:space="preserve">
     <value>The budget and all expenses are kept in this currency. Expenses entered in another currency are converted automatically.</value>
@@ -3396,5 +3396,23 @@ For access, correction, deletion and other requests, write to {email} from your 
   </data>
   <data name="Auth_ShowPassword" xml:space="preserve">
     <value>Show password</value>
+  </data>
+  <data name="TripDetail_MapSub" xml:space="preserve">
+    <value>Places and the day's route</value>
+  </data>
+  <data name="TripDetail_AnalysisSub" xml:space="preserve">
+    <value>By category and day</value>
+  </data>
+  <data name="TripDetail_SplitSub" xml:space="preserve">
+    <value>Who owes whom</value>
+  </data>
+  <data name="TripForm_CityHint" xml:space="preserve">
+    <value>Type a city or region and pick a suggestion.</value>
+  </data>
+  <data name="TripForm_DatesHint" xml:space="preserve">
+    <value>The end can't be before the start; at most 90 days.</value>
+  </data>
+  <data name="TripForm_BudgetPlaceholder" xml:space="preserve">
+    <value>Optional</value>
   </data>
 </root>

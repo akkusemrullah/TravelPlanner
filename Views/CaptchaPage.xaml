@@ -20,7 +20,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnCloseTapped" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
             </Border>
         </Grid>
 

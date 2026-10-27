@@ -17,7 +17,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center" Margin="4,0,0,0">
                 <Label Text="{x:Static res:AppResources.Section_Weather}" Style="{StaticResource Text.AppBarTitle}" />

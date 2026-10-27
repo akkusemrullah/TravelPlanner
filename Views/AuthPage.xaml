@@ -23,14 +23,14 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CloseCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" FontSize="22" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Border Grid.Column="0" Style="{StaticResource IconButton}" IsVisible="{Binding ShowBack}"
                     SemanticProperties.Description="{x:Static res:AppResources.A11y_Back}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ShowSignInCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" FontSize="22" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
         </Grid>
 

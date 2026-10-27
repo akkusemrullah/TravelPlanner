@@ -16,7 +16,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding CancelCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Close}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Label Grid.Column="1" Text="{Binding PageTitle}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
         </Grid>

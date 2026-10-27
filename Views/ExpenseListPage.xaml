@@ -18,7 +18,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Expenses}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
             <!-- Expense export: every expense of the trip as a CSV file for Excel / Google Sheets. -->
@@ -27,20 +27,20 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ExportCsvCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.FileDown}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.FileDown}" />
             </Border>
             <Border Grid.Column="3" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Section_Analysis}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoToAnalysisCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.PieChart}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.PieChart}" />
             </Border>
             <Border Grid.Column="4" Style="{StaticResource IconButton}" IsVisible="{Binding ShowDeleteMenu}"
                     SemanticProperties.Description="{x:Static res:AppResources.Selection_MenuA11y}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding Selection.StartCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Delete}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Delete}" />
             </Border>
         </Grid>
         <!-- "Seçerek sil" mode: [×] 3 seçildi [Tümünü seç] [sil] -->

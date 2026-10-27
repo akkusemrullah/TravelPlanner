@@ -18,27 +18,27 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding GoBackCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Back}" TextColor="{DynamicResource tp-text}" />
             </Border>
             <Label Grid.Column="1" Text="{x:Static res:AppResources.Section_Tasks}" Style="{StaticResource Text.AppBarTitle}" Margin="4,0,0,0" />
             <Border Grid.Column="2" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Packing_Suggest}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ShowSuggestionsCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Star}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Star}" />
             </Border>
             <Border Grid.Column="3" Style="{StaticResource IconButton}" SemanticProperties.Description="{x:Static res:AppResources.Packing_Templates}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ManageTemplatesCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.ClipboardList}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.ClipboardList}" />
             </Border>
             <Border Grid.Column="4" Style="{StaticResource IconButton}" IsVisible="{Binding ShowDeleteMenu}"
                     SemanticProperties.Description="{x:Static res:AppResources.Selection_MenuA11y}">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding Selection.StartCommand}" />
                 </Border.GestureRecognizers>
-                <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Delete}" />
+                <Label Style="{StaticResource Icon.Bar}" Text="{StaticResource Ic.Delete}" />
             </Border>
         </Grid>
         <!-- "Seçerek sil" mode: [×] 3 seçildi [Tümünü seç] [sil] -->
