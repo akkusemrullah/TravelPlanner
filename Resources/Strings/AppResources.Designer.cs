@@ -9395,69 +9395,6 @@ namespace TravelPlanner.Resources.Strings {
         }
     
         /// <summary>
-        ///   Looks up a localized string similar to 3 adımda yola hazır.
-        /// </summary>
-        public static string Home_StepsTitle {
-            get {
-                return ResourceManager.GetString("Home_StepsTitle", resourceCulture);
-            }
-        }
-    
-        /// <summary>
-        ///   Looks up a localized string similar to Oluştur.
-        /// </summary>
-        public static string Home_Step1 {
-            get {
-                return ResourceManager.GetString("Home_Step1", resourceCulture);
-            }
-        }
-    
-        /// <summary>
-        ///   Looks up a localized string similar to Yer ve tarih.
-        /// </summary>
-        public static string Home_Step1Body {
-            get {
-                return ResourceManager.GetString("Home_Step1Body", resourceCulture);
-            }
-        }
-    
-        /// <summary>
-        ///   Looks up a localized string similar to Planla.
-        /// </summary>
-        public static string Home_Step2 {
-            get {
-                return ResourceManager.GetString("Home_Step2", resourceCulture);
-            }
-        }
-    
-        /// <summary>
-        ///   Looks up a localized string similar to Gün gün rota.
-        /// </summary>
-        public static string Home_Step2Body {
-            get {
-                return ResourceManager.GetString("Home_Step2Body", resourceCulture);
-            }
-        }
-    
-        /// <summary>
-        ///   Looks up a localized string similar to Hazırlan.
-        /// </summary>
-        public static string Home_Step3 {
-            get {
-                return ResourceManager.GetString("Home_Step3", resourceCulture);
-            }
-        }
-    
-        /// <summary>
-        ///   Looks up a localized string similar to Bavul ve belgeler.
-        /// </summary>
-        public static string Home_Step3Body {
-            get {
-                return ResourceManager.GetString("Home_Step3Body", resourceCulture);
-            }
-        }
-    
-        /// <summary>
         ///   Looks up a localized string similar to Hazır planlarla başla.
         /// </summary>
         public static string Home_ReadyPlans {

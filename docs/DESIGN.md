@@ -87,5 +87,5 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
 * Home (TP-106): blue hero (`tp-hero`, rings + dashed flight path) with "Roma'ya **12 gün** kaldı" (`tp-hero-accent`,
   Turkish endings from `Helpers/PlaceSuffix`), a white boarding-pass card over its edge, quick-link chips, "Seyahat
   takvimin" (date tiles), "Seyahat karnen". Without a coming trip: "Bir sonraki durağın neresi?" + city box (opens the
-  trip form with `?City=`), and with no trips at all "3 adımda yola hazır", Keşfet plans (no budget) and feature cards.
+  trip form with `?City=`), and with no trips at all Keşfet plans (no budget) and feature cards.
 * Forms end with a sticky action bar: secondary *Cancel* + primary *Save*, validation banner above.

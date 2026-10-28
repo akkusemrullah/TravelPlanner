@@ -3503,27 +3503,6 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Home_InviteQuestion" xml:space="preserve">
     <value>Davet kodun mu var?</value>
   </data>
-  <data name="Home_StepsTitle" xml:space="preserve">
-    <value>3 adımda yola hazır</value>
-  </data>
-  <data name="Home_Step1" xml:space="preserve">
-    <value>Oluştur</value>
-  </data>
-  <data name="Home_Step1Body" xml:space="preserve">
-    <value>Yer ve tarih</value>
-  </data>
-  <data name="Home_Step2" xml:space="preserve">
-    <value>Planla</value>
-  </data>
-  <data name="Home_Step2Body" xml:space="preserve">
-    <value>Gün gün rota</value>
-  </data>
-  <data name="Home_Step3" xml:space="preserve">
-    <value>Hazırlan</value>
-  </data>
-  <data name="Home_Step3Body" xml:space="preserve">
-    <value>Bavul ve belgeler</value>
-  </data>
   <data name="Home_ReadyPlans" xml:space="preserve">
     <value>Hazır planlarla başla</value>
   </data>

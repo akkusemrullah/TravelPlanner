@@ -441,57 +441,10 @@
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
 
-                            <!-- ════════ No trips: three steps, ready plans, what the app can do ════════ -->
+                            <!-- ════════ No trips: ready plans, what the app can do ════════ -->
                             <VerticalStackLayout IsVisible="{Binding HasNoTrips}" Spacing="0">
-                                <Border Style="{StaticResource Card}" Padding="18" StrokeShape="RoundRectangle 18" Margin="0,4,0,0">
-                                    <Border.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding GoToAddTripCommand}" />
-                                    </Border.GestureRecognizers>
-                                    <VerticalStackLayout Spacing="18">
-                                        <Grid ColumnDefinitions="*,Auto">
-                                            <Label Text="{x:Static res:AppResources.Home_StepsTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}"
-                                                   VerticalOptions="Center" SemanticProperties.HeadingLevel="Level2" />
-                                            <Border Grid.Column="1" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-accent-soft}" Padding="10,4">
-                                                <Label Text="0/3" FontFamily="InterBold" FontSize="12.5" TextColor="{DynamicResource tp-nav-active}" />
-                                            </Border>
-                                        </Grid>
-                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="0">
-                                            <VerticalStackLayout Grid.Column="0" Spacing="0">
-                                                <Grid HeightRequest="30">
-                                                    <BoxView HeightRequest="2" Color="{DynamicResource tp-border}" VerticalOptions="Center" Margin="38,0,8,0" />
-                                                    <Border WidthRequest="30" HeightRequest="30" HorizontalOptions="Start" StrokeThickness="0" StrokeShape="RoundRectangle 15"
-                                                            BackgroundColor="{DynamicResource tp-primary}" Padding="0">
-                                                        <Label Text="1" FontFamily="InterBold" FontSize="13.5" TextColor="{DynamicResource tp-on-primary}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
-                                                    </Border>
-                                                </Grid>
-                                                <Label Text="{x:Static res:AppResources.Home_Step1}" FontFamily="InterBold" FontSize="14" TextColor="{DynamicResource tp-text}" Margin="0,10,0,0" />
-                                                <Label Text="{x:Static res:AppResources.Home_Step1Body}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" />
-                                            </VerticalStackLayout>
-                                            <VerticalStackLayout Grid.Column="1" Spacing="0">
-                                                <Grid HeightRequest="30">
-                                                    <BoxView HeightRequest="2" Color="{DynamicResource tp-border}" VerticalOptions="Center" Margin="38,0,8,0" />
-                                                    <Border WidthRequest="30" HeightRequest="30" HorizontalOptions="Start" StrokeThickness="0" StrokeShape="RoundRectangle 15"
-                                                            BackgroundColor="{DynamicResource tp-accent-soft}" Padding="0">
-                                                        <Label Text="2" FontFamily="InterBold" FontSize="13.5" TextColor="{DynamicResource tp-nav-active}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
-                                                    </Border>
-                                                </Grid>
-                                                <Label Text="{x:Static res:AppResources.Home_Step2}" FontFamily="InterBold" FontSize="14" TextColor="{DynamicResource tp-text}" Margin="0,10,0,0" />
-                                                <Label Text="{x:Static res:AppResources.Home_Step2Body}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" />
-                                            </VerticalStackLayout>
-                                            <VerticalStackLayout Grid.Column="2" Spacing="0">
-                                                <Border WidthRequest="30" HeightRequest="30" HorizontalOptions="Start" StrokeThickness="0" StrokeShape="RoundRectangle 15"
-                                                        BackgroundColor="{DynamicResource tp-accent-soft}" Padding="0">
-                                                    <Label Text="3" FontFamily="InterBold" FontSize="13.5" TextColor="{DynamicResource tp-nav-active}" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
-                                                </Border>
-                                                <Label Text="{x:Static res:AppResources.Home_Step3}" FontFamily="InterBold" FontSize="14" TextColor="{DynamicResource tp-text}" Margin="0,10,0,0" />
-                                                <Label Text="{x:Static res:AppResources.Home_Step3Body}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" />
-                                            </VerticalStackLayout>
-                                        </Grid>
-                                    </VerticalStackLayout>
-                                </Border>
-
                                 <!-- Ready plans from Keşfet (no budget, as in Keşfet) -->
-                                <VerticalStackLayout IsVisible="{Binding HasPlans}" Spacing="12" Margin="0,28,0,0">
+                                <VerticalStackLayout IsVisible="{Binding HasPlans}" Spacing="12" Margin="0,4,0,24">
                                     <Grid ColumnDefinitions="*,Auto" Margin="4,0,0,0">
                                         <Label Text="{x:Static res:AppResources.Home_ReadyPlans}" FontFamily="InterBold" FontSize="19" TextColor="{DynamicResource tp-text}"
                                                VerticalOptions="Center" SemanticProperties.HeadingLevel="Level2" />
@@ -567,7 +520,7 @@
 
                                 <!-- What the app can do -->
                                 <Label Text="{x:Static res:AppResources.Dashboard_FeaturesTitle}" FontFamily="InterBold" FontSize="19" TextColor="{DynamicResource tp-text}"
-                                       Margin="4,28,0,12" SemanticProperties.HeadingLevel="Level2" />
+                                       Margin="4,4,0,12" SemanticProperties.HeadingLevel="Level2" />
                                 <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12" Margin="0,0,0,12">
                                     <Border Grid.Row="0" Grid.RowSpan="2" Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 18"
                                             BackgroundColor="{DynamicResource tp-primary}" Padding="18">
