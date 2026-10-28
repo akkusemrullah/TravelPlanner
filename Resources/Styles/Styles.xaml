@@ -335,8 +335,11 @@
         <Setter Property="TextColor" Value="{DynamicResource tp-text-2}" />
         <Setter Property="HorizontalTextAlignment" Value="Center" />
         <Setter Property="VerticalTextAlignment" Value="Center" />
-        <Setter Property="HorizontalOptions" Value="Center" />
-        <Setter Property="VerticalOptions" Value="Center" />
+        <!-- TP-106: Fill + centred text, not Center: a Center-placed glyph label sat off-centre inside fixed-size
+             tiles and round buttons on Android (logo tile, arrow button). Filling the box and centring the text
+             is exact; in stacks and Auto columns it looks the same as before. -->
+        <Setter Property="HorizontalOptions" Value="Fill" />
+        <Setter Property="VerticalOptions" Value="Fill" />
         <Setter Property="AutomationProperties.IsInAccessibleTree" Value="False" />
     </Style>
 

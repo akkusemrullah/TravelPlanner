@@ -10,6 +10,7 @@ namespace TravelPlanner.ViewModels
 {
     [QueryProperty(nameof(TripId), "TripId")]
     [QueryProperty(nameof(InitialCity), "City")]
+    [QueryProperty(nameof(InitialCountry), "Country")]
     public partial class TripFormViewModel : ViewModelBase
     {
         private readonly ITripService _tripService;
@@ -52,6 +53,10 @@ namespace TravelPlanner.ViewModels
         // Set while City is changed programmatically (loading an existing trip or picking a suggestion),
         // so OnCityChanged doesn't fire a fresh search for text the user didn't type.
         private bool _isApplyingCitySelection;
+
+        // TP-106: the city came from a suggestion (or is the saved trip's own). Typing clears it; saving needs it,
+        // as the place form does - so City and Country always name a real place.
+        private bool _hasPickedCity;
 
         // Incremented on every keystroke; a search only applies its results if it's still the latest.
         private int _citySearchGeneration;
@@ -184,8 +189,8 @@ namespace TravelPlanner.ViewModels
             Currencies.FirstOrDefault(c => string.Equals(c.Value, MoneyFormatter.Normalize(code), StringComparison.OrdinalIgnoreCase)) ?? Currencies[0];
 
         /// <summary>
-        /// TP-106: the city typed into Home's box. A new trip starts with it; setting City starts the usual search, so
-        /// the suggestions let the user pick the right one (and its country).
+        /// TP-106: the city picked from Home's suggestions. A new trip starts with it (and its country, below), already
+        /// counted as picked, and the trip name defaults to the city.
         /// </summary>
         public string? InitialCity
         {
@@ -193,8 +198,26 @@ namespace TravelPlanner.ViewModels
             set
             {
                 var city = (value ?? string.Empty).Trim();
-                if (TripId == 0 && city.Length > 0)
-                    City = city.Length > NameMaxLength ? city[..NameMaxLength] : city;
+                if (TripId != 0 || city.Length == 0)
+                    return;
+                city = city.Length > NameMaxLength ? city[..NameMaxLength] : city;
+                _isApplyingCitySelection = true;
+                City = city;
+                _isApplyingCitySelection = false;
+                _hasPickedCity = true;
+                if (string.IsNullOrWhiteSpace(Name))
+                    Name = city;
+            }
+        }
+
+        public string? InitialCountry
+        {
+            get => null;
+            set
+            {
+                var country = CountryNames.Tidy((value ?? string.Empty).Trim());
+                if (TripId == 0 && country.Length > 0)
+                    Country = country.Length > NameMaxLength ? country[..NameMaxLength] : country;
             }
         }
 
@@ -214,6 +237,7 @@ namespace TravelPlanner.ViewModels
             Name = _existingTrip.Name;
             Country = _existingTrip.Country ?? string.Empty; // NULL in rows from old versions/backups
             City = _existingTrip.City;
+            _hasPickedCity = true; // the saved city stays valid until the user types another
             StartDate = _existingTrip.StartDate;
             EndDate = _existingTrip.EndDate;
             PlannedBudget = _existingTrip.PlannedBudget;
@@ -294,6 +318,7 @@ namespace TravelPlanner.ViewModels
             if (_isApplyingCitySelection)
                 return;
 
+            _hasPickedCity = false;
             var generation = ++_citySearchGeneration;
             IsOffline = _connectivity.NetworkAccess != NetworkAccess.Internet;
 
@@ -334,6 +359,7 @@ namespace TravelPlanner.ViewModels
             City = selected.Name;
             Country = CountryNames.Tidy(selected.Country);
             _isApplyingCitySelection = false;
+            _hasPickedCity = true;
 
             IsCitySuggestionsVisible = false;
             CitySuggestions.Clear();
@@ -347,6 +373,9 @@ namespace TravelPlanner.ViewModels
 
             if (string.IsNullOrWhiteSpace(City))
                 return AppResources.TripForm_CityRequired;
+
+            if (!_hasPickedCity)
+                return AppResources.TripForm_PickCity;
 
             if (EndDate.Date < StartDate.Date)
                 return AppResources.TripForm_EndBeforeStart;

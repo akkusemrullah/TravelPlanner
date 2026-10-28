@@ -34,6 +34,11 @@ namespace TravelPlanner.ViewModels
         private readonly ITodoService? _todos;
         private readonly IActivityService? _activities;
         private readonly IExploreService? _explore;
+        private readonly IGeocodingService? _geocoding;
+
+        // Bumped on every keystroke in the city box, so a slow search can't show results for older text.
+        private int _citySearchGeneration;
+        private bool _isClearingCity;
 
         internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
 
@@ -73,6 +78,16 @@ namespace TravelPlanner.ViewModels
         /// <summary>The city typed into the hero's box (no coming trip).</summary>
         [ObservableProperty]
         private string cityQuery = string.Empty;
+
+        /// <summary>Cities matching <see cref="CityQuery"/>; a trip starts only from one of these.</summary>
+        public ObservableCollection<CitySuggestion> CitySuggestions { get; } = new RangeObservableCollection<CitySuggestion>();
+
+        [ObservableProperty]
+        private bool isCitySuggestionsVisible;
+
+        /// <summary>"Listeden bir şehir seç." - the arrow was tapped on typed text instead of a suggestion.</summary>
+        [ObservableProperty]
+        private bool showsCityHint;
 
         [ObservableProperty]
         private bool hasNoTrips;
@@ -137,7 +152,8 @@ namespace TravelPlanner.ViewModels
         public DashboardViewModel(ITripService tripService, ISettingsService settings, IDialogService dialogs,
                                   IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null,
                                   IJoinTripFlow? joinFlow = null, Services.Sync.ISyncService? sync = null, IAccountService? account = null,
-                                  ITodoService? todos = null, IActivityService? activities = null, IExploreService? explore = null)
+                                  ITodoService? todos = null, IActivityService? activities = null, IExploreService? explore = null,
+                                  IGeocodingService? geocoding = null)
             : base(dialogs)
         {
             _sync = sync;
@@ -151,6 +167,7 @@ namespace TravelPlanner.ViewModels
             _todos = todos;
             _activities = activities;
             _explore = explore;
+            _geocoding = geocoding;
 
             RefreshHeader();
         }
@@ -421,13 +438,66 @@ namespace TravelPlanner.ViewModels
             await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={row.Id}");
         }
 
-        /// <summary>The hero's city box: the new trip form, with the city already typed (its suggestions pick the country).</summary>
+        partial void OnCityQueryChanged(string value)
+        {
+            ShowsCityHint = false;
+            var generation = ++_citySearchGeneration;
+            if (_isClearingCity || _geocoding is null || string.IsNullOrWhiteSpace(value) || value.Trim().Length < 2)
+            {
+                CitySuggestions.Clear();
+                IsCitySuggestionsVisible = false;
+                return;
+            }
+
+            SearchCitiesDebouncedAsync(value.Trim(), generation).FireAndForget();
+        }
+
+        private async Task SearchCitiesDebouncedAsync(string query, int generation)
+        {
+            await Task.Delay(350); // debounce - wait for a pause in typing
+            if (generation != _citySearchGeneration || _geocoding is null)
+                return;
+
+            var results = await _geocoding.SearchCitiesAsync(query);
+            if (generation != _citySearchGeneration)
+                return;
+
+            CitySuggestions.ReplaceAll(results);
+            IsCitySuggestionsVisible = CitySuggestions.Count > 0;
+        }
+
+        /// <summary>
+        /// The hero's arrow / Go key. A trip starts only from a suggestion: with exactly one suggestion that one is
+        /// taken, an empty box opens the blank form, anything else asks to pick from the list.
+        /// </summary>
         [RelayCommand]
         private Task SearchCityAsync()
         {
-            var city = (CityQuery ?? string.Empty).Trim();
-            return Shell.Current.GoToAsync(city.Length == 0 ? Routes.TripForm : $"{Routes.TripForm}?City={Uri.EscapeDataString(city)}");
+            if (string.IsNullOrWhiteSpace(CityQuery))
+                return Shell.Current.GoToAsync(Routes.TripForm);
+            if (CitySuggestions.Count == 1)
+                return SelectCityAsync(CitySuggestions[0]);
+
+            ShowsCityHint = true;
+            return Task.CompletedTask;
         }
+
+        /// <summary>A suggestion was tapped: the new trip form with that city and its country filled in.</summary>
+        [RelayCommand]
+        private Task SelectCityAsync(CitySuggestion? city)
+        {
+            if (city is null)
+                return Task.CompletedTask;
+
+            var route = TripFormRoute(city);
+            _isClearingCity = true;
+            CityQuery = string.Empty;
+            _isClearingCity = false;
+            return Shell.Current.GoToAsync(route);
+        }
+
+        internal static string TripFormRoute(CitySuggestion city) =>
+            $"{Routes.TripForm}?City={Uri.EscapeDataString(city.Name)}&Country={Uri.EscapeDataString(CountryNames.Tidy(city.Country))}";
 
         [RelayCommand]
         private Task OpenPlanAsync(HomePlanCard? plan) =>

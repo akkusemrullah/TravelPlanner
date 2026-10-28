@@ -25,8 +25,8 @@ namespace TravelPlanner.Helpers
                 return string.Empty;
 
             culture ??= CultureInfo.CurrentCulture;
-            var first = parts[0][..1].ToUpper(culture);
-            return parts.Length == 1 ? first : first + parts[^1][..1].ToUpper(culture);
+            var first = TextCase.ToUpper(parts[0][..1], culture);
+            return parts.Length == 1 ? first : first + TextCase.ToUpper(parts[^1][..1], culture);
         }
 
         /// <summary>The prototype's avatar tones, picked by <see cref="ToneIndex"/>.</summary>

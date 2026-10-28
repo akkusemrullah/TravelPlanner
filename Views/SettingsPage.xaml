@@ -179,9 +179,9 @@
                     <Label FontFamily="InterSemiBold" FontSize="13" TextColor="{DynamicResource tp-text-2}" HorizontalOptions="Center">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Text="{x:Static res:AppResources.About_Developer}" />
-                                <Span Text=" · " />
-                                <Span Text="EAKSOFT" />
+                                <Span TextColor="{DynamicResource tp-text-2}" Text="{x:Static res:AppResources.About_Developer}" />
+                                <Span TextColor="{DynamicResource tp-text-2}" Text=" · " />
+                                <Span TextColor="{DynamicResource tp-text-2}" Text="EAKSOFT" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>

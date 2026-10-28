@@ -184,7 +184,7 @@
                 <!-- ════════ TP-104: the prototype's status cards instead of the questions ════════ -->
                 <VerticalStackLayout IsVisible="{Binding ShowGuestGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
                     <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
-                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.LogIn}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.LogIn}" TextColor="{DynamicResource tp-accent-text}" />
                     </Border>
                     <Label Text="{x:Static res:AppResources.AiPlan_SignInTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
                     <Label Text="{x:Static res:AppResources.AiPlan_SignInHint}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
@@ -192,28 +192,28 @@
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding ShowOfflineGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
                     <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-warning-soft}" HorizontalOptions="Center">
-                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.WifiOff}" TextColor="{DynamicResource tp-warning}" />
                     </Border>
                     <Label Text="{x:Static res:AppResources.AiPlan_OfflineTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
                     <Label Text="{x:Static res:AppResources.AiPlan_ErrorOffline}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding ShowReadOnlyGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
                     <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-warning-soft}" HorizontalOptions="Center">
-                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Eye}" TextColor="{DynamicResource tp-warning}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Eye}" TextColor="{DynamicResource tp-warning}" />
                     </Border>
                     <Label Text="{x:Static res:AppResources.AiPlan_ReadOnlyTitle}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
                     <Label Text="{x:Static res:AppResources.AiPlan_ReadOnly}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding ShowBusyGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
                     <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
-                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Hourglass}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Hourglass}" TextColor="{DynamicResource tp-accent-text}" />
                     </Border>
                     <Label Text="{x:Static res:AppResources.AiPlan_Busy}" FontFamily="InterBold" FontSize="17" TextColor="{DynamicResource tp-text}" HorizontalTextAlignment="Center" Margin="0,16,0,0" />
                     <Label Text="{x:Static res:AppResources.AiPlan_BusyText}" FontSize="14" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" LineBreakMode="WordWrap" Margin="0,6,0,0" />
                 </VerticalStackLayout>
                 <VerticalStackLayout IsVisible="{Binding ShowBlockedGate}" Spacing="0" Padding="16,56,16,0" HorizontalOptions="Center" MaximumWidthRequest="340">
                     <Border WidthRequest="64" HeightRequest="64" StrokeThickness="0" StrokeShape="RoundRectangle 24" BackgroundColor="{DynamicResource tp-warning-soft}" HorizontalOptions="Center">
-                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Hourglass}" TextColor="{DynamicResource tp-warning}" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="30" Text="{StaticResource Ic.Hourglass}" TextColor="{DynamicResource tp-warning}">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding IsPaused}" Value="True">
                                     <Setter Property="Text" Value="{StaticResource Ic.Wrench}" />

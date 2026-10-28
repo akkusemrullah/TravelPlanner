@@ -1,7 +1,9 @@
 using System.Globalization;
+using Moq;
 using Xunit;
 using TravelPlanner.Helpers;
 using TravelPlanner.Models;
+using TravelPlanner.Services;
 using TravelPlanner.ViewModels;
 
 namespace TravelPlanner.Tests
@@ -68,6 +70,23 @@ namespace TravelPlanner.Tests
             var offenders = Directory.EnumerateFiles(root, "*.xaml", SearchOption.AllDirectories)
                 .Where(f => !f.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") && !f.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
                 .Where(f => File.ReadAllText(f).Contains("TextTransform", StringComparison.Ordinal))
+                .ToList();
+            Assert.Empty(offenders);
+        }
+
+        [Fact]
+        public void EverySpanWithText_HasItsOwnColour()
+        {
+            // On Android a Span doesn't take the Label's TextColor: without its own it showed black on the blue hero
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "TravelPlanner.csproj")))
+                dir = dir.Parent;
+            Assert.NotNull(dir);
+            var offenders = Directory.EnumerateFiles(Path.Combine(dir!.FullName, "Views"), "*.xaml", SearchOption.AllDirectories)
+                .SelectMany(f => System.Text.RegularExpressions.Regex.Matches(File.ReadAllText(f), "<Span\\s[^>]*>")
+                    .Select(m => m.Value)
+                    .Where(tag => !tag.Contains("TextColor=") && !System.Text.RegularExpressions.Regex.IsMatch(tag, "Text=\"\\s*\""))
+                    .Select(tag => Path.GetFileName(f) + ": " + tag))
                 .ToList();
             Assert.Empty(offenders);
         }
@@ -170,5 +189,51 @@ namespace TravelPlanner.Tests
             Assert.Equal("Kas, Paz", ticket.EndShort);
             Assert.Equal("İtalya turu", ticket.Caption);
         }
-    }
+    
+        [Theory]
+        [InlineData("eki", "EKİ")]
+        [InlineData("ılgaz", "ILGAZ")]
+        [InlineData("i", "İ")]
+        public void ToUpper_MapsTheTurkishIByHand(string text, string expected) =>
+            Assert.Equal(expected, TextCase.ToUpper(text, Tr));
+
+        [Fact]
+        public void ToUpper_English_KeepsTheDottedIOut() => Assert.Equal("OCT", TextCase.ToUpper("oct", En));
+
+        [Fact]
+        public void Initials_UseTurkishCapitals() => Assert.Equal("İA", PersonName.Initials("ilker akkuş", Tr));
+
+        [Fact]
+        public void CitySuggestion_OpensTheTripFormWithCityAndCountry() =>
+            Assert.Equal("TripForm?City=New%20York&Country=Amerika%20Birle%C5%9Fik%20Devletleri",
+                DashboardViewModel.TripFormRoute(new CitySuggestion { Name = "New York", Country = "Amerika Birleşik Devletleri" }));
+
+        [Fact]
+        public async Task TypedCity_WithoutPickingASuggestion_DoesNotStartATrip()
+        {
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), new SettingsService(new InMemoryPreferences()), Mock.Of<IDialogService>());
+            vm.CityQuery = "Romaa";
+
+            await vm.SearchCityCommand.ExecuteAsync(null);
+
+            Assert.True(vm.ShowsCityHint);
+            vm.CityQuery = "Roma";
+            Assert.False(vm.ShowsCityHint);
+        }
+
+        [Fact]
+        public async Task CityBox_ShowsSuggestionsWhileTyping()
+        {
+            var geocoding = new Mock<IGeocodingService>();
+            geocoding.Setup(g => g.SearchCitiesAsync("Rom", null, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<CitySuggestion> { new() { Name = "Roma", Country = "İtalya" } });
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), new SettingsService(new InMemoryPreferences()), Mock.Of<IDialogService>(), geocoding: geocoding.Object);
+
+            vm.CityQuery = "Rom";
+            await Task.Delay(600);
+
+            Assert.True(vm.IsCitySuggestionsVisible);
+            Assert.Equal("Roma", Assert.Single(vm.CitySuggestions).Name);
+        }
+}
 }

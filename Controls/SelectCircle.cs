@@ -21,8 +21,10 @@ namespace TravelPlanner.Controls
                 FontFamily = "Lucide",
                 FontSize = 14,
                 TextColor = Colors.White,
-                HorizontalOptions = LayoutOptions.Center,
-                VerticalOptions = LayoutOptions.Center,
+                HorizontalOptions = LayoutOptions.Fill, // TP-106: fill the tile + centred text, exact on Android
+                VerticalOptions = LayoutOptions.Fill,
+                HorizontalTextAlignment = TextAlignment.Center,
+                VerticalTextAlignment = TextAlignment.Center,
                 Text = ListRow.Glyph("Ic.Check"),
             };
             _ring = new Border

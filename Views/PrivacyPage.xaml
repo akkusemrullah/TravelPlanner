@@ -54,9 +54,9 @@
                         <Label FontSize="13.5" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap">
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{x:Static res:AppResources.Legal_QuestionsTitle}" />
-                                    <Span Text=" " />
-                                    <Span Text="{x:Static res:AppResources.Legal_QuestionsHint}" />
+                                    <Span TextColor="{DynamicResource tp-text-2}" Text="{x:Static res:AppResources.Legal_QuestionsTitle}" />
+                                    <Span TextColor="{DynamicResource tp-text-2}" Text=" " />
+                                    <Span TextColor="{DynamicResource tp-text-2}" Text="{x:Static res:AppResources.Legal_QuestionsHint}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
