@@ -41,7 +41,9 @@ namespace TravelPlanner.Services
             if (string.IsNullOrWhiteSpace(city))
                 return null;
 
-            var cacheKey = CacheKey("point", city, country);
+            // TP-109: a point is the same in every language - the trip's city and country stay as they were saved
+            // (often in the other language), so the point must not depend on the app's language
+            var cacheKey = $"geo:point:" + string.Join("|", new[] { city, country }.Select(p => p?.Trim().ToLowerInvariant() ?? string.Empty));
             if (_cache.TryGet<(double Latitude, double Longitude)>(cacheKey, out var cached))
                 return cached;
 
@@ -55,25 +57,33 @@ namespace TravelPlanner.Services
             {
                 // Ask for several candidates and pick the one whose country matches (when we know
                 // it), since Open-Meteo's geocoding matches by name only and cities can repeat
-                // across countries (e.g. more than one "Paris").
-                var url = $"{AppConstants.OpenMeteoGeocodingBaseUrl}?name={Uri.EscapeDataString(InputLimits.Truncate(city.Trim(), InputLimits.MaxSearchQueryLength)!)}&count=10&language={LocalizationHelper.ApiLanguage}&format=json";
+                // across countries (e.g. more than one "Paris"). The country comes back in the asked language:
+                // a trip saved in Turkish ("Almanya") is matched by asking in Turkish too when English ("Germany")
+                // didn't match.
+                GeocodingResult? first = null;
+                foreach (var language in GeocodeLanguages())
+                {
+                    var url = $"{AppConstants.OpenMeteoGeocodingBaseUrl}?name={Uri.EscapeDataString(InputLimits.Truncate(city.Trim(), InputLimits.MaxSearchQueryLength)!)}&count=10&language={language}&format=json";
+                    var results = (await _httpClient.GetFromJsonAsync<GeocodingResponse>(url))?.Results;
+                    if (results is null || results.Count == 0)
+                        continue;
+                    first ??= results[0];
+                    if (string.IsNullOrWhiteSpace(country))
+                        break;
+                    if (MatchCountry(results, country) is { } match)
+                    {
+                        first = match;
+                        break;
+                    }
+                }
 
-                var response = await _httpClient.GetFromJsonAsync<GeocodingResponse>(url);
-                var results = response?.Results;
-                if (results is null || results.Count == 0)
+                if (first is null)
                 {
                     Debug.WriteLine($"[GeocodingService] No results for '{city}, {country}'.");
                     return null;
                 }
 
-                var match = string.IsNullOrWhiteSpace(country)
-                    ? results[0]
-                    : results.FirstOrDefault(r =>
-                          string.Equals(r.Country, country, StringComparison.OrdinalIgnoreCase) ||
-                          string.Equals(r.CountryCode, country, StringComparison.OrdinalIgnoreCase))
-                      ?? results[0];
-
-                var point = (match.Latitude, match.Longitude);
+                var point = (first.Latitude, first.Longitude);
                 _cache.Set(cacheKey, point, GeocodeCacheDuration);
                 return point;
             }
@@ -103,6 +113,23 @@ namespace TravelPlanner.Services
                 Debug.WriteLine($"[GeocodingService] Unexpected error for '{city}, {country}': {ex}");
                 return null;
             }
+        }
+
+        /// <summary>The app's language first, then the other one.</summary>
+        private static IEnumerable<string> GeocodeLanguages()
+        {
+            var first = LocalizationHelper.ApiLanguage;
+            yield return first;
+            yield return first == "tr" ? "en" : "tr";
+        }
+
+        /// <summary>The result in <paramref name="country"/> (its name in any spelling, or its ISO code), or null.</summary>
+        internal static GeocodingResult? MatchCountry(IReadOnlyList<GeocodingResult> results, string country)
+        {
+            var key = CountryNames.Key(country);
+            return results.FirstOrDefault(r =>
+                string.Equals(r.CountryCode, country.Trim(), StringComparison.OrdinalIgnoreCase) ||
+                (!string.IsNullOrEmpty(r.Country) && CountryNames.Key(r.Country) == key));
         }
 
         /// <summary>
@@ -354,7 +381,7 @@ namespace TravelPlanner.Services
             public List<GeocodingResult>? Results { get; set; }
         }
 
-        private class GeocodingResult
+        internal class GeocodingResult
         {
             [JsonPropertyName("name")]
             public string? Name { get; set; }

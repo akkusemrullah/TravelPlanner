@@ -270,14 +270,18 @@ namespace TravelPlanner.ViewModels
         [RelayCommand]
         private Task SaveAsync() => RunSafeAsync(async () =>
         {
-            var reminderChanged = SelectedReminderHour is not null && SelectedReminderHour.Value != _settings.ReminderHour;
             var languageChanged = SelectedLanguage is not null && SelectedLanguage.Value != _settings.Language;
+            // TP-109: the reminders' texts are in the app's language too
+            var reminderChanged = languageChanged ||
+                                  SelectedReminderHour is not null && SelectedReminderHour.Value != _settings.ReminderHour;
 
             _settings.UserName = UserName;
             if (SelectedCurrency is not null) _settings.CurrencyCode = SelectedCurrency.Value;
             if (SelectedReminderHour is not null) _settings.ReminderHour = SelectedReminderHour.Value;
             if (SelectedTheme is not null) _settings.Theme = SelectedTheme.Value;
             if (SelectedLanguage is not null) _settings.Language = SelectedLanguage.Value;
+            if (languageChanged)
+                LocalizationHelper.Apply(_settings.Language); // before the reminders are written again
 
             // Already-scheduled reminders used the old hour - move them to the new one.
             if (reminderChanged)
@@ -291,14 +295,22 @@ namespace TravelPlanner.ViewModels
 
             if (languageChanged)
             {
-                LocalizationHelper.Apply(_settings.Language);
-                ShowLanguageRestartHint = true;
-                return; // stay on the page so the restart hint is seen
+                // TP-109: pages already open keep the texts (and the weather, dates …) they were built with:
+                // every page is built again in the new language, Profile on screen
+                if (!await ReopenInNewLanguage())
+                    ShowLanguageRestartHint = true; // stay on the page so the restart hint is seen
+                return;
             }
 
             // Settings is a tab root (Profile) - confirm in place instead of navigating back.
             ShowSavedHint = true;
         }, AppResources.Settings_SaveError);
+
+        /// <summary>
+        /// TP-109: builds the app's pages again (the shell) after a language change; false when it couldn't.
+        /// Replaced in tests.
+        /// </summary>
+        internal Func<Task<bool>> ReopenInNewLanguage { get; set; } = () => LocalizationHelper.ReopenPages?.Invoke() ?? Task.FromResult(false);
 
         // ================= G3: account =================
 

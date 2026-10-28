@@ -40,7 +40,8 @@ namespace TravelPlanner.Services
             // Fail fast and let the caller show an "unavailable offline" message
             // instead of waiting on a request that can't succeed.
             // Current conditions change slowly - reuse a recent answer instead of calling the API again.
-            var cacheKey = $"weather:{city?.Trim().ToLowerInvariant()}|{country?.Trim().ToLowerInvariant()}";
+            // TP-109: the condition is text in the app's language - a Turkish answer must not be shown after switching to English
+            var cacheKey = $"weather:{city?.Trim().ToLowerInvariant()}|{country?.Trim().ToLowerInvariant()}|{LocalizationHelper.ApiLanguage}";
             if (_cache.TryGet<WeatherInfo>(cacheKey, out var cached) && cached is not null)
                 return cached;
 
