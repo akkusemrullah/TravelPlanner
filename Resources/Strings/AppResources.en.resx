@@ -3568,9 +3568,6 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="AiPlan_Cancel" xml:space="preserve">
     <value>Cancel plan</value>
   </data>
-  <data name="AiPlan_CancelFreeHint" xml:space="preserve">
-    <value>Cancel now and no plan is used.</value>
-  </data>
   <data name="AiPlan_CancelCostHint" xml:space="preserve">
     <value>Cancelling now still uses 1 plan.</value>
   </data>

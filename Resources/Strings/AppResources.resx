@@ -3569,11 +3569,8 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="AiPlan_Cancel" xml:space="preserve">
     <value>Planı iptal et</value>
   </data>
-  <data name="AiPlan_CancelFreeHint" xml:space="preserve">
-    <value>Şimdi iptal edersen hakkın gitmez.</value>
-  </data>
   <data name="AiPlan_CancelCostHint" xml:space="preserve">
-    <value>Şimdi iptal edersen 1 hakkın düşer.</value>
+    <value>Şimdi iptal edersen 1 hakkın eksilir.</value>
   </data>
   <data name="AiPlan_CancelConfirmTitle" xml:space="preserve">
     <value>Plan iptal edilsin mi?</value>

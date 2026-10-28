@@ -9593,16 +9593,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Şimdi iptal edersen hakkın gitmez..
-        /// </summary>
-        public static string AiPlan_CancelFreeHint {
-            get {
-                return ResourceManager.GetString("AiPlan_CancelFreeHint", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Şimdi iptal edersen 1 hakkın düşer..
+        ///   Looks up a localized string similar to Şimdi iptal edersen 1 hakkın eksilir..
         /// </summary>
         public static string AiPlan_CancelCostHint {
             get {
