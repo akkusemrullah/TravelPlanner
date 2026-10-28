@@ -9582,5 +9582,77 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Dashboard_PickCity", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Planı iptal et.
+        /// </summary>
+        public static string AiPlan_Cancel {
+            get {
+                return ResourceManager.GetString("AiPlan_Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Şimdi iptal edersen hakkın gitmez..
+        /// </summary>
+        public static string AiPlan_CancelFreeHint {
+            get {
+                return ResourceManager.GetString("AiPlan_CancelFreeHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Şimdi iptal edersen 1 hakkın düşer..
+        /// </summary>
+        public static string AiPlan_CancelCostHint {
+            get {
+                return ResourceManager.GetString("AiPlan_CancelCostHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan iptal edilsin mi?.
+        /// </summary>
+        public static string AiPlan_CancelConfirmTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_CancelConfirmTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan hazırlanmaya başladı. Şimdi iptal edersen 1 plan hakkın yine düşer..
+        /// </summary>
+        public static string AiPlan_CancelConfirmText {
+            get {
+                return ResourceManager.GetString("AiPlan_CancelConfirmText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to İptal et.
+        /// </summary>
+        public static string AiPlan_CancelConfirm {
+            get {
+                return ResourceManager.GetString("AiPlan_CancelConfirm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Devam etsin.
+        /// </summary>
+        public static string AiPlan_KeepGoing {
+            get {
+                return ResourceManager.GetString("AiPlan_KeepGoing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Arka planda sürsün.
+        /// </summary>
+        public static string AiPlan_Leave {
+            get {
+                return ResourceManager.GetString("AiPlan_Leave", resourceCulture);
+            }
+        }
 }
 }

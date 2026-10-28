@@ -449,6 +449,7 @@ namespace TravelPlanner.ViewModels
                 case AiPlanJobPhase.Running:
                     IsPreview = false;
                     ErrorText = null;
+                    IsRequestSent = job.Sent;
                     IsGenerating = true;
                     StartSteps(job.StartedUtc);
                     return;
@@ -605,6 +606,41 @@ namespace TravelPlanner.ViewModels
             if (!_jobs.Start(_trip.Id, _trip.Name, BuildRequest(_trip, existing)))
                 ErrorText = AppResources.AiPlan_Busy;
             await ShowJobAsync();
+        }, AppResources.AiPlan_ErrorFailed);
+
+        /// <summary>
+        /// The request has gone to the server (3 seconds after "Planı oluştur"): cancelling now still uses a plan,
+        /// so the page says so and asks first.
+        /// </summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CancelHint))]
+        private bool isRequestSent;
+
+        /// <summary>Under "Planı iptal et": whether cancelling now costs a plan.</summary>
+        public string CancelHint => IsRequestSent ? AppResources.AiPlan_CancelCostHint : AppResources.AiPlan_CancelFreeHint;
+
+        /// <summary>
+        /// Stops the plan being made. In the first seconds nothing was sent and nothing is used; later the user is
+        /// warned that the plan still counts, and the allowance is asked for again afterwards.
+        /// </summary>
+        [RelayCommand]
+        private Task CancelAsync() => RunSafeAsync(async () =>
+        {
+            if (_trip is null || !IsGenerating)
+                return;
+
+            var sent = _jobs.For(_trip.Id)?.Sent == true;
+            if (sent && !await Dialogs.ConfirmAsync(AppResources.AiPlan_CancelConfirmTitle, AppResources.AiPlan_CancelConfirmText,
+                                                    AppResources.AiPlan_CancelConfirm, AppResources.AiPlan_KeepGoing))
+                return;
+
+            // asked while the plan got ready or failed: that is shown instead
+            sent = _jobs.For(_trip.Id) is { Phase: AiPlanJobPhase.Running, Sent: true };
+            if (!_jobs.Cancel(_trip.Id))
+                return;
+            await ShowJobAsync();
+            if (sent && IsSignedIn && IsOnline)
+                ShowQuota(await _planner.GetQuotaAsync());
         }, AppResources.AiPlan_ErrorFailed);
 
         /// <summary>What the waiting screen says the planner is doing ("Gezilecek yerler seçiliyor…").</summary>

@@ -61,16 +61,13 @@ namespace TravelPlanner.Controls
                 VerticalOptions = LayoutOptions.Start,
                 Padding = 0,
                 Shadow = new Shadow { Brush = Color.FromArgb("#2563EB"), Opacity = 0.35f, Radius = 14, Offset = new Point(0, 6) },
-                Content = new Label
+                // The + is drawn with two bars instead of the Lucide glyph: the font's line height put the glyph
+                // a few pixels off the middle on Android, two centred bars are exactly in the middle everywhere.
+                Content = new Grid
                 {
                     HorizontalOptions = LayoutOptions.Fill,
                     VerticalOptions = LayoutOptions.Fill,
-                    FontFamily = "Lucide",
-                    FontSize = 26,
-                    Text = Glyph("Ic.Plus"),
-                    TextColor = Colors.White,
-                    HorizontalTextAlignment = TextAlignment.Center,
-                    VerticalTextAlignment = TextAlignment.Center,
+                    Children = { PlusBar(20, 2.6), PlusBar(2.6, 20) },
                 },
             };
             plus.SetDynamicResource(BackgroundColorProperty, "tp-accent");
@@ -144,6 +141,16 @@ namespace TravelPlanner.Controls
             _busy = true;
             action().ContinueWith(_ => _busy = false).FireAndForget();
         }
+
+        private static BoxView PlusBar(double width, double height) => new()
+        {
+            WidthRequest = width,
+            HeightRequest = height,
+            CornerRadius = 1.3,
+            Color = Colors.White,
+            HorizontalOptions = LayoutOptions.Center,
+            VerticalOptions = LayoutOptions.Center,
+        };
 
         private static string Glyph(string key) =>
             Application.Current?.Resources.TryGetValue(key, out var value) == true && value is string glyph ? glyph : string.Empty;

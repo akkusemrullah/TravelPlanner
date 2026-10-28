@@ -34,6 +34,13 @@ namespace TravelPlanner.Services
 
         /// <summary>The user saw that it is ready (on the planner page, or "Göster?" was asked).</summary>
         public bool Offered { get; set; }
+
+        /// <summary>
+        /// The request went to the server (after <see cref="AiPlanJobs.SendDelay"/>): from now on the plan counts
+        /// against the user's allowance, also when it is cancelled. True by default: a job saved by an older app
+        /// (without this field) was sent at once.
+        /// </summary>
+        public bool Sent { get; set; } = true;
     }
 
     /// <summary>
@@ -74,6 +81,13 @@ namespace TravelPlanner.Services
         /// <summary>The plan of this trip was added, thrown away or its error shown: forget it.</summary>
         void Dismiss(int tripId);
 
+        /// <summary>
+        /// Stops the plan of this trip that is being made. Before <see cref="AiPlanJobs.SendDelay"/> nothing was sent
+        /// and nothing is used; after it the server goes on and the plan still counts, but it is never shown.
+        /// False when no plan of this trip is being made.
+        /// </summary>
+        bool Cancel(int tripId);
+
         /// <summary>The user has been told the plan is ready.</summary>
         void MarkOffered();
 
@@ -92,6 +106,12 @@ namespace TravelPlanner.Services
         /// <summary>Without an answer from the server (offline) for this long, asking stops until the next resume.</summary>
         public static readonly TimeSpan MaxOffline = TimeSpan.FromMinutes(6);
 
+        /// <summary>
+        /// The request waits this long before it is sent, so "İptal" right after "Planı oluştur" costs no plan.
+        /// Replaced in tests.
+        /// </summary>
+        internal TimeSpan SendDelay { get; set; } = TimeSpan.FromSeconds(3);
+
         /// <summary>How often the server is asked while the plan is being made. Replaced in tests.</summary>
         internal static TimeSpan PollInterval { get; set; } = TimeSpan.FromSeconds(4);
 
@@ -106,6 +126,9 @@ namespace TravelPlanner.Services
 
         /// <summary>The job this process is working on (starting or asking): <see cref="ResumeAsync"/> leaves it alone.</summary>
         private string? _activeId;
+
+        /// <summary>Ends the wait before the request is sent (<see cref="Cancel"/>).</summary>
+        private CancellationTokenSource? _sendWait;
 
         public AiPlanJobs(IAiPlannerService planner, IPreferences preferences, INotificationService? notifications = null)
         {
@@ -156,20 +179,37 @@ namespace TravelPlanner.Services
                     TripName = tripName,
                     StartedUtc = UtcNow(),
                     Phase = AiPlanJobPhase.Running,
+                    Sent = false,
                 };
                 _job = job;
                 _activeId = job.Id;
+                _sendWait?.Dispose();
+                _sendWait = new CancellationTokenSource();
                 Save();
             }
             Raise();
-            RunAsync(job, request).FireAndForget();
+            RunAsync(job, request, _sendWait.Token).FireAndForget();
             return true;
         }
 
-        private async Task RunAsync(AiPlanJob job, AiPlanRequest request)
+        private async Task RunAsync(AiPlanJob job, AiPlanRequest request, CancellationToken sendWait)
         {
             try
             {
+                if (SendDelay > TimeSpan.Zero)
+                {
+                    try
+                    {
+                        await Task.Delay(SendDelay, sendWait);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return; // cancelled before it was sent: nothing used
+                    }
+                }
+                if (!Update(job, j => j.Sent = true))
+                    return;
+
                 var start = await _planner.StartPlanAsync(request, job.Id);
                 if (start.Result is { } result)
                 {
@@ -206,6 +246,12 @@ namespace TravelPlanner.Services
                 job = Current;
                 if (job is null || _activeId == job.Id)
                     return;
+                if (job.Phase == AiPlanJobPhase.Running && !job.Sent)
+                {
+                    // the app was closed in the seconds before sending: nothing reached the server
+                    Forget(job);
+                    return;
+                }
                 if (job.Phase != AiPlanJobPhase.Running)
                 {
                     if (UtcNow() - job.StartedUtc > KeepReady)
@@ -343,6 +389,23 @@ namespace TravelPlanner.Services
             }
             if (job.Phase == AiPlanJobPhase.Failed)
                 _planner.ClearJobAsync(job.Id).FireAndForget();
+        }
+
+        public bool Cancel(int tripId)
+        {
+            AiPlanJob? job;
+            lock (_gate)
+            {
+                job = For(tripId);
+                if (job is null || job.Phase != AiPlanJobPhase.Running)
+                    return false;
+                if (!job.Sent)
+                    _sendWait?.Cancel();
+                Forget(job);
+            }
+            // a sent plan goes on on the server: the poll stops (not current any more) and the server's copy is
+            // purged after a day (a running job can't be cleared)
+            return true;
         }
 
         public void MarkOffered()

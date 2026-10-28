@@ -3566,4 +3566,28 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Dashboard_PickCity" xml:space="preserve">
     <value>Listeden bir şehir seç.</value>
   </data>
+  <data name="AiPlan_Cancel" xml:space="preserve">
+    <value>Planı iptal et</value>
+  </data>
+  <data name="AiPlan_CancelFreeHint" xml:space="preserve">
+    <value>Şimdi iptal edersen hakkın gitmez.</value>
+  </data>
+  <data name="AiPlan_CancelCostHint" xml:space="preserve">
+    <value>Şimdi iptal edersen 1 hakkın düşer.</value>
+  </data>
+  <data name="AiPlan_CancelConfirmTitle" xml:space="preserve">
+    <value>Plan iptal edilsin mi?</value>
+  </data>
+  <data name="AiPlan_CancelConfirmText" xml:space="preserve">
+    <value>Plan hazırlanmaya başladı. Şimdi iptal edersen 1 plan hakkın yine düşer.</value>
+  </data>
+  <data name="AiPlan_CancelConfirm" xml:space="preserve">
+    <value>İptal et</value>
+  </data>
+  <data name="AiPlan_KeepGoing" xml:space="preserve">
+    <value>Devam etsin</value>
+  </data>
+  <data name="AiPlan_Leave" xml:space="preserve">
+    <value>Arka planda sürsün</value>
+  </data>
 </root>

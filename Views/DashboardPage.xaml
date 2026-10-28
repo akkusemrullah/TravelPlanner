@@ -33,12 +33,12 @@
                             <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
                                 <Border Grid.Column="0" WidthRequest="34" HeightRequest="34" StrokeThickness="0" StrokeShape="RoundRectangle 10"
                                         BackgroundColor="{StaticResource White}" Padding="0" VerticalOptions="Center">
-                                    <Label Style="{StaticResource Icon}" FontSize="19" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-hero}" />
+                                    <controls:LogoMark Size="26" PinColor="{StaticResource BrandRoyal}" PlaneColor="White" HorizontalOptions="Center" VerticalOptions="Center" />
                                 </Border>
                                 <Label Grid.Column="1" VerticalOptions="Center" FontSize="19" TextColor="{StaticResource White}">
                                     <Label.FormattedText>
                                         <FormattedString>
-                                            <Span TextColor="{StaticResource White}" Text="Travel" FontFamily="InterBold" />
+                                            <Span TextColor="{StaticResource White}" Text="Travel " FontFamily="InterBold" />
                                             <Span TextColor="{StaticResource White}" Text="Planner" FontFamily="InterMedium" />
                                         </FormattedString>
                                     </Label.FormattedText>

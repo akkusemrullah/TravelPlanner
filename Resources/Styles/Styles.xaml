@@ -28,12 +28,13 @@
     </Style>
 
     <!-- .NET 10: ContentPage.SafeAreaEdges defaults to None (edge-to-edge, content under the system bars).
-         Container keeps the .NET 9 layout: clear of the status/navigation bars and cut-outs. This more specific
-         implicit style replaces the Page one for content pages, so it repeats its setters. -->
+         All keeps the .NET 9 layout: clear of the status/navigation bars and cut-outs, and the page ends above the
+         keyboard (Container let the keyboard cover sheets and low fields, e.g. Keşfet's "Seyahatlerine ekle").
+         This more specific implicit style replaces the Page one for content pages, so it repeats its setters. -->
     <Style TargetType="ContentPage" ApplyToDerivedTypes="True">
         <Setter Property="Padding" Value="0" />
         <Setter Property="BackgroundColor" Value="{DynamicResource tp-bg}" />
-        <Setter Property="SafeAreaEdges" Value="Container" />
+        <Setter Property="SafeAreaEdges" Value="All" />
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
