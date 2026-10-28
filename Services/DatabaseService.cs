@@ -135,6 +135,7 @@ namespace TravelPlanner.Services
                 await connection.CreateTableAsync<SyncStateEntry>();  // G4 - pull cursor
                 await connection.CreateTableAsync<TripMembership>();  // G4 - role per trip
                 await connection.CreateTableAsync<KnownUser>();       // G6 - trip mates' names
+                await connection.CreateTableAsync<AiPlanRecord>();    // TP-108 - AI plans kept on the phone
 
                 await MigrateAsync(connection, _migrationContext);
 

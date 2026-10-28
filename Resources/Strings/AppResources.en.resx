@@ -618,7 +618,7 @@
     <value>Language</value>
   </data>
   <data name="Settings_LanguageHint" xml:space="preserve">
-    <value>A language change applies to every screen after the app restarts.</value>
+    <value>Saving reopens the screens in the new language.</value>
   </data>
   <data name="Settings_Saved" xml:space="preserve">
     <value>Settings saved.</value>
@@ -1451,7 +1451,7 @@ We do not use your data for advertising, profiling or marketing.
 When you share a trip with an invite code, the people who join see everything in it (plan, places, expenses, to-dos, documents); editors can also change it. Trip members can see each other's name and profile photo; e-mail addresses are only visible to the trip's owner. Invite codes are single-use and valid for 48 hours by default; share a code only with the person you invite.
 
 ## Planning with AI
-This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass). The plan is made in the background; a ready plan is kept on our server until it reaches your app, and deleted then, at the latest after 1 day.
+This feature is optional and requires an account. When you tap "Create plan", the following is sent to the plan function on our server and from there to the AI provider OpenAI (USA): the destination city and country, the start date and number of days, the interests, pace, budget level and travel companions you chose, the note you wrote (if any) and the names of places already saved in the trip. Your expenses, documents, e-mail address and name are not sent. Suggested places are checked on our server with mapping services that use OpenStreetMap data (Photon, Overpass). The plan is made in the background; a ready plan is kept on our server until it reaches your app, and deleted then, at the latest after 1 day. Ready plans are kept only on your phone, so you can open them again, until the trip is deleted.
 To apply the plan quota we keep your account id and an irreversible hash (SHA-256) derived from your device's id, with a usage count; your device's actual id never leaves the device. The hash is also sent when you sign in and open the app: to prevent abuse (e.g. many accounts opened on one phone for more plans), which accounts were used on the same device, with the account's e-mail and first/last seen time, is kept for 1 year after the device was last seen and is only visible to the administrator.
 Please don't put personal or sensitive information in the note. AI suggestions can be wrong; check opening hours, prices and bookings. You can report an inappropriate suggestion with the "Report" link on the plan screen.
 
@@ -3585,5 +3585,14 @@ For access, correction, deletion and other requests, write to {email} from your 
   </data>
   <data name="AiPlan_Leave" xml:space="preserve">
     <value>Run in background</value>
+  </data>
+  <data name="AiPlan_HistoryTitle" xml:space="preserve">
+    <value>Earlier plans</value>
+  </data>
+  <data name="AiPlan_HistoryHint" xml:space="preserve">
+    <value>Opening one is free.</value>
+  </data>
+  <data name="AiPlan_HistoryApplied" xml:space="preserve">
+    <value>Added</value>
   </data>
 </root>

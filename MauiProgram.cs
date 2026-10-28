@@ -146,6 +146,7 @@ namespace TravelPlanner
             // AI trip planner: Supabase Edge Function "plan-trip" (the OpenAI key stays on the server).
             services.AddSingleton<IDeviceIdentity, DeviceIdentity>();
             services.AddSingleton<IAiPlannerService, AiPlannerService>();
+            services.AddSingleton<IAiPlanHistory, AiPlanHistory>(); // TP-108: earlier AI plans, kept on the phone
             services.AddSingleton<IAiPlanJobs, AiPlanJobs>();   // TP-57: the AI plan is made in the background
             // Admin panel settings (migration 29): AI maintenance, home page notice, lowest version, defaults.
             services.AddSingleton<IAppConfigService>(sp => new AppConfigService(

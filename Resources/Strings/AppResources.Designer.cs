@@ -3146,7 +3146,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dil değişikliği, uygulama yeniden başlatıldığında tüm ekranlara uygulanır..
+        ///   Looks up a localized string similar to Kaydedince ekranlar yeni dille yeniden açılır..
         /// </summary>
         public static string Settings_LanguageHint {
             get {
@@ -9645,5 +9645,31 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("AiPlan_Leave", resourceCulture);
             }
         }
-}
+        /// <summary>
+        ///   Looks up a localized string similar to Önceki planlar.
+        /// </summary>
+        public static string AiPlan_HistoryTitle {
+            get {
+                return ResourceManager.GetString("AiPlan_HistoryTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Açmak hak harcamaz..
+        /// </summary>
+        public static string AiPlan_HistoryHint {
+            get {
+                return ResourceManager.GetString("AiPlan_HistoryHint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Eklendi.
+        /// </summary>
+        public static string AiPlan_HistoryApplied {
+            get {
+                return ResourceManager.GetString("AiPlan_HistoryApplied", resourceCulture);
+            }
+        }
+    }
 }

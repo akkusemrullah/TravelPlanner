@@ -123,6 +123,30 @@ namespace TravelPlanner.ViewModels
         public string Glyph => Application.Current?.Resources.TryGetValue(IconKey, out var value) == true ? value as string ?? string.Empty : string.Empty;
     }
 
+    /// <summary>TP-108: one row of "Önceki planlar": when it was made and with which answers.</summary>
+    public sealed class AiPlanHistoryItem
+    {
+        public AiPlanHistoryItem(AiPlanHistoryEntry entry, string title, string subtitle)
+        {
+            Entry = entry;
+            Title = title;
+            Subtitle = subtitle;
+        }
+
+        public AiPlanHistoryEntry Entry { get; }
+
+        /// <summary>"28 Eki, 14:30".</summary>
+        public string Title { get; }
+
+        /// <summary>"Tarih, Yemek · Dengeli · Orta · Çift".</summary>
+        public string Subtitle { get; }
+
+        public bool HasSubtitle => Subtitle.Length > 0;
+
+        /// <summary>Something of it was added to the trip ("Eklendi").</summary>
+        public bool IsApplied => Entry.IsApplied;
+    }
+
     /// <summary>A read-only local tip in the preview list.</summary>
     public sealed record AiPreviewTip(string Text) : IListPositioned
     {
@@ -167,6 +191,7 @@ namespace TravelPlanner.ViewModels
         private readonly IAccountService _account;
         private readonly IConnectivity _connectivity;
         private readonly IConsentService? _consent;
+        private readonly IAiPlanHistory? _history;
         private Trip? _trip;
         private AiTripPlan? _plan;
         private string? _planRequestId;
@@ -174,15 +199,19 @@ namespace TravelPlanner.ViewModels
 
         /// <summary>The job whose plan (or error) is on screen: shown once.</summary>
         private string? _shownJobId;
+
+        /// <summary>TP-108: the job id of the plan in the preview (a new one or one from "Önceki planlar").</summary>
+        private string? _previewJobId;
         private bool _watching;
         private CancellationTokenSource? _steps;
 
         public AiPlannerViewModel(IAiPlannerService planner, IAiPlanJobs jobs, ITripService trips, IPlaceService places,
                                   IAccountService account, IConnectivity connectivity, IDialogService dialogs,
-                                  IConsentService? consent = null)
+                                  IConsentService? consent = null, IAiPlanHistory? history = null)
             : base(dialogs)
         {
             _consent = consent;
+            _history = history;
             _planner = planner;
             _jobs = jobs;
             _trips = trips;
@@ -241,6 +270,14 @@ namespace TravelPlanner.ViewModels
         public ObservableCollection<AiChoice> Paces { get; }
         public ObservableCollection<AiChoice> Budgets { get; }
         public ObservableCollection<AiChoice> Companions { get; }
+
+        /// <summary>TP-108: the trip's earlier plans, newest first; opening one uses no plan.</summary>
+        public ObservableCollection<AiPlanHistoryItem> History { get; } = new();
+
+        public bool HasHistory => History.Count > 0;
+
+        /// <summary>Under the questions (or the status card): also offline or with no plans left.</summary>
+        public bool ShowHistory => HasHistory && !IsGenerating && !IsPreview;
 
         public ObservableCollection<AiPreviewDay> Days { get; } = new();
         public ObservableCollection<AiPreviewPlace> Places { get; } = new();
@@ -365,7 +402,7 @@ namespace TravelPlanner.ViewModels
             if (e.PropertyName is null || !GateInputs.Contains(e.PropertyName))
                 return;
             foreach (var name in new[] { nameof(ShowGuestGate), nameof(ShowOfflineGate), nameof(ShowReadOnlyGate), nameof(ShowBusyGate),
-                                         nameof(ShowBlockedGate), nameof(ShowQuestions), nameof(ShowBackButton), nameof(ShowErrorBanner) })
+                                         nameof(ShowBlockedGate), nameof(ShowQuestions), nameof(ShowBackButton), nameof(ShowErrorBanner), nameof(ShowHistory) })
                 base.OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(name));
         }
 
@@ -389,6 +426,7 @@ namespace TravelPlanner.ViewModels
 
             Watch();
             await ShowJobAsync();
+            await LoadHistoryAsync();
             if (IsSignedIn && IsOnline && !IsPreview && !IsGenerating)
                 ShowQuota(await _planner.GetQuotaAsync());
         }, AppResources.AiPlan_LoadError);
@@ -462,6 +500,8 @@ namespace TravelPlanner.ViewModels
                     if (_shownJobId == job.Id && IsPreview)
                         return;
                     _shownJobId = job.Id;
+                    _previewJobId = job.Id;
+                    await _jobs.SaveToHistoryAsync(job); // TP-108: a plan made by an older app too
                     var existing = (await _places.GetByTripIdAsync(_trip.Id)).Select(p => p.Name).ToList();
                     ShowPreview(_trip, result, existing);
                     ShowQuota(new AiQuota(result.Remaining, Math.Max(result.Remaining, 1)));
@@ -800,13 +840,67 @@ namespace TravelPlanner.ViewModels
             ListPositions.AssignCards(rows, row => row is AiPreviewDay);
 
         [RelayCommand]
-        private void StartOver()
+        private Task StartOverAsync() => RunSafeAsync(async () =>
         {
             IsPreview = false;
             ErrorText = null;
+            _previewJobId = null;
             if (_trip is not null)
                 _jobs.Dismiss(_trip.Id);
+            await LoadHistoryAsync(); // the plan just seen is the first of "Önceki planlar"
+        });
+
+        /// <summary>TP-108: shows the trip's earlier plans (only the ones of this trip, so none of a deleted trip).</summary>
+        private async Task LoadHistoryAsync()
+        {
+            if (_history is null || _trip is null)
+                return;
+            IReadOnlyList<AiPlanHistoryEntry> entries;
+            try
+            {
+                entries = await _history.ForTripAsync(_trip.Id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AI] Earlier plans unreadable: {ex.Message}");
+                entries = Array.Empty<AiPlanHistoryEntry>();
+            }
+            History.Clear();
+            foreach (var entry in entries)
+                History.Add(new AiPlanHistoryItem(entry, HistoryTitle(entry.CreatedUtc), HistorySubtitle(entry)));
+            OnPropertyChanged(nameof(HasHistory));
+            OnPropertyChanged(nameof(ShowHistory));
         }
+
+        /// <summary>"28 Eki, 14:30" in the phone's time and language.</summary>
+        internal static string HistoryTitle(DateTime createdUtc) =>
+            DateTime.SpecifyKind(createdUtc, DateTimeKind.Utc).ToLocalTime().ToString("d MMM, HH:mm", CultureInfo.CurrentCulture);
+
+        /// <summary>"Tarih, Yemek · Dengeli · Orta · Çift"; the plan's summary for a plan saved without its answers.</summary>
+        internal string HistorySubtitle(AiPlanHistoryEntry entry)
+        {
+            if (entry.Answers is not { } answers)
+                return entry.Result.Plan.Summary.Trim();
+            static string? Label(IEnumerable<AiChoice> choices, string key) => choices.FirstOrDefault(c => c.Key == key)?.Label;
+            var interests = string.Join(", ", answers.Interests.Select(k => Label(Interests, k)).Where(l => l is not null));
+            return string.Join(" · ", new[] { interests, Label(Paces, answers.Pace), Label(Budgets, answers.Budget), Label(Companions, answers.Companions) }
+                .Where(s => !string.IsNullOrEmpty(s)));
+        }
+
+        /// <summary>TP-108: opens an earlier plan in the preview; its parts can be added to the trip like a new one's.</summary>
+        [RelayCommand]
+        private Task OpenHistoryAsync(AiPlanHistoryItem? item) => RunSafeAsync(async () =>
+        {
+            if (item is null || _trip is null || IsGenerating)
+                return;
+            var existing = (await _places.GetByTripIdAsync(_trip.Id)).Select(p => p.Name).ToList();
+            ErrorText = null;
+            ShowPreview(_trip, item.Entry.Result, existing);
+            _previewJobId = item.Entry.JobId;
+            // the AI log's "saved" time is only for a plan saved right after it was made
+            if (item.IsApplied || _shownJobId != item.Entry.JobId)
+                _planRequestId = null;
+        }, AppResources.AiPlan_ErrorFailed);
 
         [RelayCommand]
         private Task AddSelectedAsync() => RunSafeAsync(async () =>
@@ -844,6 +938,17 @@ namespace TravelPlanner.ViewModels
             if (result.UnlocatedPlaces > 0)
                 message += " " + string.Format(AppResources.AiPlan_ApproximateFormat, result.UnlocatedPlaces);
             _jobs.Dismiss(_trip.Id); // in the trip now
+            if (_history is not null && _previewJobId is { } shownJob)
+            {
+                try
+                {
+                    await _history.MarkAppliedAsync(shownJob);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[AI] Marking the plan added failed: {ex.Message}");
+                }
+            }
             await Dialogs.ShowMessageAsync(AppResources.AiPlan_Title, message);
             await AfterApplied(_trip.Id);
         }, AppResources.AiPlan_ApplyError);

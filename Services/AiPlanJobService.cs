@@ -41,6 +41,9 @@ namespace TravelPlanner.Services
         /// (without this field) was sent at once.
         /// </summary>
         public bool Sent { get; set; } = true;
+
+        /// <summary>TP-108: the answers, for the plan's row in "Önceki planlar".</summary>
+        public AiPlanAnswers? Answers { get; set; }
     }
 
     /// <summary>
@@ -91,6 +94,9 @@ namespace TravelPlanner.Services
         /// <summary>The user has been told the plan is ready.</summary>
         void MarkOffered();
 
+        /// <summary>TP-108: keeps a ready plan with the trip's earlier plans (a plan made by an older app too).</summary>
+        Task SaveToHistoryAsync(AiPlanJob job);
+
         /// <summary>At start-up and on resume: goes on asking for a plan that was being made.</summary>
         Task ResumeAsync();
     }
@@ -120,6 +126,7 @@ namespace TravelPlanner.Services
         private readonly IAiPlannerService _planner;
         private readonly IPreferences _preferences;
         private readonly INotificationService? _notifications;
+        private readonly IAiPlanHistory? _history;
         private readonly object _gate = new();
         private AiPlanJob? _job;
         private bool _loaded;
@@ -130,11 +137,13 @@ namespace TravelPlanner.Services
         /// <summary>Ends the wait before the request is sent (<see cref="Cancel"/>).</summary>
         private CancellationTokenSource? _sendWait;
 
-        public AiPlanJobs(IAiPlannerService planner, IPreferences preferences, INotificationService? notifications = null)
+        public AiPlanJobs(IAiPlannerService planner, IPreferences preferences, INotificationService? notifications = null,
+                          IAiPlanHistory? history = null)
         {
             _planner = planner;
             _preferences = preferences;
             _notifications = notifications;
+            _history = history;
         }
 
         /// <summary>The signed-in account (replaced in tests).</summary>
@@ -180,6 +189,7 @@ namespace TravelPlanner.Services
                     StartedUtc = UtcNow(),
                     Phase = AiPlanJobPhase.Running,
                     Sent = false,
+                    Answers = AiPlanAnswers.From(request),
                 };
                 _job = job;
                 _activeId = job.Id;
@@ -342,6 +352,9 @@ namespace TravelPlanner.Services
             // the phone keeps it now: off the server
             _planner.ClearJobAsync(job.Id).FireAndForget();
 
+            // TP-108: also among the trip's earlier plans, so it isn't lost when the user asks again
+            await SaveToHistoryAsync(job);
+
             if (InForeground && WatchedTripId == job.TripId)
                 return; // the page shows it
 
@@ -406,6 +419,21 @@ namespace TravelPlanner.Services
             // a sent plan goes on on the server: the poll stops (not current any more) and the server's copy is
             // purged after a day (a running job can't be cleared)
             return true;
+        }
+
+        /// <summary>TP-108: keeps a ready plan with the trip's other plans (once per job; never fails the plan).</summary>
+        public async Task SaveToHistoryAsync(AiPlanJob job)
+        {
+            if (_history is null || job.Result is null)
+                return;
+            try
+            {
+                await _history.SaveAsync(job.TripId, job.Id, job.Result, job.Answers, job.StartedUtc);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AI] Saving the plan failed: {ex.Message}");
+            }
         }
 
         public void MarkOffered()
