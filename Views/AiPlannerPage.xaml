@@ -265,6 +265,46 @@
                     </Grid>
                 </Border>
 
+                <!-- ════════ TP-108: the trip's earlier plans (back to a plan after "Soruları değiştir"; opening one is free) ════════ -->
+                <Border IsVisible="{Binding ShowHistory}" Style="{StaticResource Card}" Padding="0">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="16,14,16,8">
+                            <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Clock}" TextColor="{DynamicResource tp-accent}" VerticalOptions="Center" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                                <Label Text="{x:Static res:AppResources.AiPlan_HistoryTitle}" FontFamily="InterBold" FontSize="15" TextColor="{DynamicResource tp-text}" />
+                                <Label Text="{x:Static res:AppResources.AiPlan_HistoryHint}" FontSize="12" TextColor="{DynamicResource tp-text-3}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding History}" Spacing="0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="vm:AiPlanHistoryItem">
+                                    <VerticalStackLayout Spacing="0">
+                                        <BoxView Style="{StaticResource Divider}" Margin="16,0" />
+                                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Padding="16,10" MinimumHeightRequest="52" BackgroundColor="Transparent"
+                                              SemanticProperties.Description="{Binding Title}">
+                                            <Grid.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AiPlannerViewModel}}, Path=OpenHistoryCommand}"
+                                                                      CommandParameter="{Binding .}" />
+                                            </Grid.GestureRecognizers>
+                                            <VerticalStackLayout Grid.Column="0" Spacing="1" VerticalOptions="Center">
+                                                <Label Text="{Binding Title}" FontFamily="InterSemiBold" FontSize="14.5" TextColor="{DynamicResource tp-text}" />
+                                                <Label Text="{Binding Subtitle}" IsVisible="{Binding HasSubtitle}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}"
+                                                       MaxLines="2" LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+                                            <Border Grid.Column="1" IsVisible="{Binding IsApplied}" StrokeThickness="0" StrokeShape="RoundRectangle 8" Padding="8,3"
+                                                    BackgroundColor="{DynamicResource tp-success-soft}" VerticalOptions="Center">
+                                                <Label Text="{x:Static res:AppResources.AiPlan_HistoryApplied}" FontFamily="InterSemiBold" FontSize="11.5" TextColor="{DynamicResource tp-success}" />
+                                            </Border>
+                                            <Label Grid.Column="2" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.ChevronRight}" TextColor="{DynamicResource tp-text-3}"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
                 <!-- ════════ Questions: a plain summary card, then one numbered card per question ════════ -->
                 <VerticalStackLayout IsVisible="{Binding ShowQuestions}" Spacing="12">
                     <Border Style="{StaticResource Card}">

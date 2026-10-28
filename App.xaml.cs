@@ -58,6 +58,9 @@ namespace TravelPlanner
             _memberJoins = memberJoins;
             _aiJobs = aiJobs;
 
+            // TP-109: after a language change every page is built again, in the new language
+            LocalizationHelper.ReopenPages = ReopenAfterLanguageChangeAsync;
+
             // TP-57: an AI plan got ready while its page was closed and no notification could be shown
             _aiJobs.ReadyUnnoticed += (_, _) => MainThread.BeginInvokeOnMainThread(() => OfferReadyAiPlanAsync().FireAndForget());
 
@@ -158,6 +161,32 @@ namespace TravelPlanner
                 await shell.Navigation.PopModalAsync(false);
 
             window.Page = new AppShell();
+        }
+
+        /// <summary>
+        /// TP-109: open pages keep the texts, dates and the weather they were built with, so after a language change
+        /// the shell is built again (like after signing in) and Profile is shown, now in the new language.
+        /// </summary>
+        private async Task<bool> ReopenAfterLanguageChangeAsync()
+        {
+            var window = Windows.FirstOrDefault();
+            if (window?.Page is not AppShell old)
+                return false;
+
+            while (old.Navigation.ModalStack.Count > 0)
+                await old.Navigation.PopModalAsync(false);
+
+            var shell = new AppShell();
+            window.Page = shell;
+            try
+            {
+                await shell.GoToAsync("//Settings");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Language] Opening Profile failed: {ex.Message}");
+            }
+            return true;
         }
 
         private async Task InitializeAccountAsync()

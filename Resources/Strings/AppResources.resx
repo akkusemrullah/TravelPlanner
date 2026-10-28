@@ -618,7 +618,7 @@
     <value>Dil</value>
   </data>
   <data name="Settings_LanguageHint" xml:space="preserve">
-    <value>Dil değişikliği, uygulama yeniden başlatıldığında tüm ekranlara uygulanır.</value>
+    <value>Kaydedince ekranlar yeni dille yeniden açılır.</value>
   </data>
   <data name="Settings_Saved" xml:space="preserve">
     <value>Ayarlar kaydedildi.</value>
@@ -1451,7 +1451,7 @@ Verilerini reklam, profil çıkarma veya pazarlama için kullanmayız.
 Bir seyahati davet koduyla paylaştığında, o seyahate katılan kişiler seyahatin içindeki her şeyi (plan, yerler, harcamalar, görevler, belgeler) görür; düzenleyiciler değişiklik de yapabilir. Seyahat üyeleri birbirinin adını ve profil fotoğrafını görür; e-posta adresleri yalnızca seyahatin sahibine görünür. Davet kodları varsayılan olarak tek kullanımlıktır ve 48 saat geçerlidir; kodu yalnızca davet ettiğin kişiyle paylaş.
 
 ## Yapay zekâ ile planlama
-Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır. Plan arka planda hazırlanır; hazır olan plan uygulamana ulaşana kadar sunucumuzda tutulur, ulaşınca ve en geç 1 gün içinde silinir.
+Bu özellik isteğe bağlıdır ve giriş yapmanı gerektirir. "Planı oluştur"a dokunduğunda şu bilgiler sunucumuzdaki plan fonksiyonuna, oradan da yapay zekâ hizmet sağlayıcısı OpenAI'ye (ABD) gönderilir: gidilecek şehir ve ülke, başlangıç tarihi ve gün sayısı, seçtiğin ilgi alanları, tempo, bütçe düzeyi, kiminle gittiğin, varsa yazdığın özel istek notu ve seyahatte zaten kayıtlı yerlerin adları. Harcamaların, belgelerin, e-posta adresin veya adın gönderilmez. Önerilen yerler, OpenStreetMap verisi kullanan haritalama hizmetleri (Photon, Overpass) üzerinden sunucumuzda doğrulanır. Plan arka planda hazırlanır; hazır olan plan uygulamana ulaşana kadar sunucumuzda tutulur, ulaşınca ve en geç 1 gün içinde silinir. Hazır planlar, sonra tekrar açabilmen için yalnızca telefonunda, seyahat silinene kadar saklanır.
 Plan hakkını uygulamak için hesap kimliğin ve cihazından türetilen, geri çevrilemeyen bir özet (SHA-256) ile kullanım sayısı tutulur; cihazının asıl kimliği cihazından çıkmaz. Hesabınla giriş yaptığında ve uygulamayı açtığında da bu özet gönderilir: kötüye kullanımı (ör. plan hakkı için aynı telefonda çok sayıda hesap açılmasını) önlemek için hangi hesapların aynı cihazda kullanıldığı, hesabın e-postası ve ilk/son görülme zamanıyla birlikte, cihaz son görüldükten sonra 1 yıl tutulur ve yalnızca yönetici tarafından görülür.
 Özel istek notuna kişisel veya hassas bilgi yazmamanı öneririz. Yapay zekâ önerileri hatalı olabilir; açılış saatlerini, fiyatları ve rezervasyonları kontrol et. Uygunsuz bir öneriyi plan ekranındaki "Bildir" bağlantısıyla bize iletebilirsin.
 
@@ -3586,5 +3586,14 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="AiPlan_Leave" xml:space="preserve">
     <value>Arka planda sürsün</value>
+  </data>
+  <data name="AiPlan_HistoryTitle" xml:space="preserve">
+    <value>Önceki planlar</value>
+  </data>
+  <data name="AiPlan_HistoryHint" xml:space="preserve">
+    <value>Açmak hak harcamaz.</value>
+  </data>
+  <data name="AiPlan_HistoryApplied" xml:space="preserve">
+    <value>Eklendi</value>
   </data>
 </root>
