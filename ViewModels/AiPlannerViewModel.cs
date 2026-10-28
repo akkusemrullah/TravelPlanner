@@ -613,11 +613,7 @@ namespace TravelPlanner.ViewModels
         /// so the page says so and asks first.
         /// </summary>
         [ObservableProperty]
-        [NotifyPropertyChangedFor(nameof(CancelHint))]
         private bool isRequestSent;
-
-        /// <summary>Under "Planı iptal et": whether cancelling now costs a plan.</summary>
-        public string CancelHint => IsRequestSent ? AppResources.AiPlan_CancelCostHint : AppResources.AiPlan_CancelFreeHint;
 
         /// <summary>
         /// Stops the plan being made. In the first seconds nothing was sent and nothing is used; later the user is

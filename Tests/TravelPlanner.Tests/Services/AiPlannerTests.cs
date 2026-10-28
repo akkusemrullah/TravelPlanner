@@ -788,8 +788,7 @@ namespace TravelPlanner.Tests
 
             await vm.GenerateCommand.ExecuteAsync(null);
             Assert.True(vm.IsGenerating);
-            Assert.False(vm.IsRequestSent);
-            Assert.Equal(AppResources.AiPlan_CancelFreeHint, vm.CancelHint);
+            Assert.False(vm.IsRequestSent);                                  // no note under "İptal" yet
 
             await vm.CancelCommand.ExecuteAsync(null);
 
@@ -811,8 +810,7 @@ namespace TravelPlanner.Tests
             await vm.GenerateCommand.ExecuteAsync(null);
             _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
 
-            await Until(() => vm.IsRequestSent);
-            Assert.Equal(AppResources.AiPlan_CancelCostHint, vm.CancelHint);
+            await Until(() => vm.IsRequestSent);                             // "1 hakkın eksilir" shows
             _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 

@@ -425,13 +425,9 @@
                         <Button Grid.Column="0" Text="{x:Static res:AppResources.AiPlan_Cancel}" Command="{Binding CancelCommand}" Style="{StaticResource Btn.Danger}" />
                         <Button Grid.Column="1" Text="{x:Static res:AppResources.AiPlan_Leave}" Command="{Binding GoBackCommand}" Style="{StaticResource Btn.Secondary}" />
                     </Grid>
-                    <Label Text="{Binding CancelHint}" FontSize="12" TextColor="{DynamicResource tp-text-3}" HorizontalTextAlignment="Center">
-                        <Label.Triggers>
-                            <DataTrigger TargetType="Label" Binding="{Binding IsRequestSent}" Value="True">
-                                <Setter Property="TextColor" Value="{DynamicResource tp-warning}" />
-                            </DataTrigger>
-                        </Label.Triggers>
-                    </Label>
+                    <!-- only once the request is sent: before that cancelling is free and nothing needs saying -->
+                    <Label IsVisible="{Binding IsRequestSent}" Text="{x:Static res:AppResources.AiPlan_CancelCostHint}" FontSize="12"
+                           TextColor="{DynamicResource tp-warning}" HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
                 <Button IsVisible="{Binding ShowBackButton}" Text="{x:Static res:AppResources.AiPlan_BackToTrip}" Command="{Binding GoBackCommand}"
                         Style="{StaticResource Btn.Secondary}" />
