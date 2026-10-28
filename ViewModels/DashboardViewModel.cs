@@ -13,7 +13,7 @@ namespace TravelPlanner.ViewModels
     /// Backs DashboardPage - the app's home screen (TP-106). With a coming or ongoing trip: a hero with the countdown
     /// ("Roma'ya 12 gün kaldı"), the trip's boarding-pass card with quick links, the trip calendar and the travel
     /// record (trips / countries / cities). Without one: the hero asks where to go next (city box → new trip form),
-    /// then "3 adımda yola hazır", ready plans from Keşfet and what the app can do.
+    /// then ready plans from Keşfet and what the app can do (the "3 adımda yola hazır" panel was dropped).
     /// </summary>
     public partial class DashboardViewModel : ViewModelBase
     {

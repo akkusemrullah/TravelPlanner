@@ -3502,27 +3502,6 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Home_InviteQuestion" xml:space="preserve">
     <value>Have an invite code?</value>
   </data>
-  <data name="Home_StepsTitle" xml:space="preserve">
-    <value>Ready in 3 steps</value>
-  </data>
-  <data name="Home_Step1" xml:space="preserve">
-    <value>Create</value>
-  </data>
-  <data name="Home_Step1Body" xml:space="preserve">
-    <value>Place and dates</value>
-  </data>
-  <data name="Home_Step2" xml:space="preserve">
-    <value>Plan</value>
-  </data>
-  <data name="Home_Step2Body" xml:space="preserve">
-    <value>Daily route</value>
-  </data>
-  <data name="Home_Step3" xml:space="preserve">
-    <value>Get ready</value>
-  </data>
-  <data name="Home_Step3Body" xml:space="preserve">
-    <value>Bags and documents</value>
-  </data>
   <data name="Home_ReadyPlans" xml:space="preserve">
     <value>Start with a plan</value>
   </data>
