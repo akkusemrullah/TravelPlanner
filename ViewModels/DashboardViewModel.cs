@@ -10,24 +10,30 @@ using TravelPlanner.Services;
 namespace TravelPlanner.ViewModels
 {
     /// <summary>
-    /// Backs DashboardPage - the app's home screen, implementing the "Travel Planner Ana Sayfa" design
-    /// from the Frame Design System handoff (see Views/DashboardPage.xaml for the layout notes). Surfaces
-    /// the single most relevant trip (ongoing, else nearest upcoming) as a featured card, quick stats
-    /// across every trip, and a short preview list of recent/upcoming trips.
+    /// Backs DashboardPage - the app's home screen (TP-106). With a coming or ongoing trip: a hero with the countdown
+    /// ("Roma'ya 12 gün kaldı"), the trip's boarding-pass card with quick links, the trip calendar and the travel
+    /// record (trips / countries / cities). Without one: the hero asks where to go next (city box → new trip form),
+    /// then "3 adımda yola hazır", ready plans from Keşfet and what the app can do.
     /// </summary>
     public partial class DashboardViewModel : ViewModelBase
     {
+        /// <summary>How many trips "Seyahat takvimin" lists.</summary>
+        public const int CalendarRows = 3;
+
+        /// <summary>How many Keşfet plans the empty Home shows (one large, two small).</summary>
+        public const int PlanCards = 3;
+
         private readonly ITripService _tripService;
-        private readonly IExpenseService _expenseService;
         private readonly ISettingsService _settings;
-        private readonly IExchangeRateService _exchangeRates;
         private readonly IAppConfigService? _appConfig;
         private readonly IAppInfo? _appInfo;
         private readonly IPreferences? _preferences;
-        private readonly ITripCoverService? _covers;
         private readonly IJoinTripFlow? _joinFlow;
         private readonly Services.Sync.ISyncService? _sync;
         private readonly IAccountService? _account;
+        private readonly ITodoService? _todos;
+        private readonly IActivityService? _activities;
+        private readonly IExploreService? _explore;
 
         internal const string DismissedNoticeKey = "dashboard.dismissed_notice";
 
@@ -37,52 +43,54 @@ namespace TravelPlanner.ViewModels
         /// <summary>The notice asks to update the app (tapping it opens the store; it can't be closed).</summary>
         private bool _isUpdateNotice;
 
-        // The Trip backing the featured card - kept alongside the display-only properties below so the
-        // Hava/Harita/Detaylar commands have an Id to navigate with without re-deriving "which trip".
+        // The trip behind the card - the card's button and quick links need its Id.
         private Trip? _featuredTrip;
 
-        /// <summary>"👋 Merhaba {name}" - the name comes from Settings (TP-305) instead of a hard-coded constant.</summary>
+        /// <summary>"Merhaba Yusuf," above the countdown - the first name from Settings.</summary>
         [ObservableProperty]
         private string greetingText = string.Empty;
 
+        /// <summary>"Y" in the avatar (signed in with a name); empty shows the person icon.</summary>
         [ObservableProperty]
-        private string todayDisplay = string.Empty;
+        [NotifyPropertyChangedFor(nameof(HasAvatarText), nameof(ShowsAvatarIcon))]
+        private string avatarText = string.Empty;
+
+        public bool HasAvatarText => AvatarText.Length > 0;
+
+        public bool ShowsAvatarIcon => !HasAvatarText;
+
+        // ---- Hero title: "Roma'ya " + "12 gün" (light blue) + " kaldı" ----
+
+        [ObservableProperty]
+        private string heroBefore = AppResources.Home_EmptyTitle;
+
+        [ObservableProperty]
+        private string heroHighlight = string.Empty;
+
+        [ObservableProperty]
+        private string heroAfter = string.Empty;
+
+        /// <summary>The city typed into the hero's box (no coming trip).</summary>
+        [ObservableProperty]
+        private string cityQuery = string.Empty;
 
         [ObservableProperty]
         private bool hasNoTrips;
 
-        // Kept alongside HasNoTrips (rather than a XAML inverter converter) purely so the stats-row and
-        // "Seyahatlerim" list's IsVisible bindings stay simple, direct property bindings.
+        // Kept alongside HasNoTrips (rather than an inverting converter) so the IsVisible bindings stay direct.
         [ObservableProperty]
         private bool hasAnyTrips;
 
         [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(ShowsCitySearch))]
         private bool hasFeaturedTrip;
 
-        [ObservableProperty]
-        private string featuredBadgeText = string.Empty;
+        /// <summary>No coming trip: the hero asks where to go and shows the city box.</summary>
+        public bool ShowsCitySearch => !HasFeaturedTrip;
 
-        [ObservableProperty]
-        private string featuredName = string.Empty;
-
-        [ObservableProperty]
-        private string featuredPlace = string.Empty;
-
-        [ObservableProperty]
-        private string featuredDates = string.Empty;
-
-        [ObservableProperty]
-        private string featuredBudget = string.Empty;
-
-        /// <summary>Boarding-pass style featured trip card (TripTicket).</summary>
+        /// <summary>Boarding-pass card of the featured trip.</summary>
         [ObservableProperty]
         private TripTicket? featuredTicket;
-
-        [ObservableProperty]
-        private string featuredDaysLabel = string.Empty;
-
-        [ObservableProperty]
-        private string featuredDaysValue = string.Empty;
 
         [ObservableProperty]
         private int totalTripsCount;
@@ -92,9 +100,6 @@ namespace TravelPlanner.ViewModels
 
         [ObservableProperty]
         private int visitedCitiesCount;
-
-        [ObservableProperty]
-        private string totalExpensesFormatted = MoneyFormatter.Format(0m, 0);
 
         /// <summary>The admin panel's notice (or "a new version is out") at the top of the page.</summary>
         [ObservableProperty]
@@ -106,25 +111,46 @@ namespace TravelPlanner.ViewModels
         [ObservableProperty]
         private bool canCloseNotice;
 
-        public ObservableCollection<TripSummaryItem> RecentTrips { get; } = new RangeObservableCollection<TripSummaryItem>();
+        /// <summary>Keşfet plans for the empty Home: the large card and the two small ones under it.</summary>
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasPlans))]
+        private HomePlanCard? firstPlan;
 
-        public DashboardViewModel(ITripService tripService, IExpenseService expenseService, ISettingsService settings, IExchangeRateService exchangeRates, IDialogService dialogs,
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasMorePlans))]
+        private HomePlanCard? secondPlan;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasMorePlans))]
+        private HomePlanCard? thirdPlan;
+
+        public bool HasPlans => FirstPlan is not null;
+
+        public bool HasMorePlans => SecondPlan is not null;
+
+        /// <summary>Quick links under the card ("Plan 5/7", "Görevler 9/14", "Harita"...).</summary>
+        public ObservableCollection<HomeChip> Chips { get; } = new RangeObservableCollection<HomeChip>();
+
+        /// <summary>"Seyahat takvimin": the coming trips first, then the latest past ones.</summary>
+        public ObservableCollection<HomeTripRow> CalendarTrips { get; } = new RangeObservableCollection<HomeTripRow>();
+
+        public DashboardViewModel(ITripService tripService, ISettingsService settings, IDialogService dialogs,
                                   IAppConfigService? appConfig = null, IAppInfo? appInfo = null, IPreferences? preferences = null,
-                                  ITripCoverService? covers = null, IJoinTripFlow? joinFlow = null,
-                                  Services.Sync.ISyncService? sync = null, IAccountService? account = null)
+                                  IJoinTripFlow? joinFlow = null, Services.Sync.ISyncService? sync = null, IAccountService? account = null,
+                                  ITodoService? todos = null, IActivityService? activities = null, IExploreService? explore = null)
             : base(dialogs)
         {
             _sync = sync;
             _account = account;
             _joinFlow = joinFlow;
             _tripService = tripService;
-            _expenseService = expenseService;
             _settings = settings;
-            _exchangeRates = exchangeRates;
             _appConfig = appConfig;
             _appInfo = appInfo;
             _preferences = preferences;
-            _covers = covers;
+            _todos = todos;
+            _activities = activities;
+            _explore = explore;
 
             RefreshHeader();
         }
@@ -181,21 +207,21 @@ namespace TravelPlanner.ViewModels
             ? Task.CompletedTask
             : Dialogs.ShowMessageAsync(AppResources.Common_Info, SettingsViewModel.DescribeSync(_sync));
 
-        /// <summary>Greeting + "Bugün 15 Ağustos" line, in the app language. Re-run on every load so a
-        /// name changed in Settings shows up as soon as the user comes back here.</summary>
+        /// <summary>Greeting and avatar letter. Re-run on every load so a name changed in Settings shows up here at once.</summary>
         private void RefreshHeader()
         {
-            // "Ad Soyad" is stored; the greeting only uses the first name ("Merhaba Emrullah").
+            // "Ad Soyad" is stored; the greeting only uses the first name ("Merhaba Emrullah,").
             var name = PersonName.FirstName(_settings.UserName);
             GreetingText = string.IsNullOrWhiteSpace(name)
-                ? AppResources.Dashboard_GreetingNoName
-                : string.Format(AppResources.Dashboard_Greeting, name);
+                ? AppResources.Home_GreetingNoName
+                : string.Format(AppResources.Home_GreetingFormat, name);
 
-            TodayDisplay = string.Format(AppResources.Dashboard_TodayFormat, DateTime.Today.ToString("d MMMM", CultureInfo.CurrentCulture));
+            var initials = _account is { IsSignedIn: false } ? string.Empty : PersonName.Initials(_settings.UserName);
+            AvatarText = initials.Length > 0 ? initials[..1] : string.Empty;
         }
 
         // Called from DashboardPage.OnAppearing so the numbers are fresh every time the user lands back
-        // here (e.g. after adding a trip or logging an expense elsewhere).
+        // here (e.g. after adding a trip elsewhere).
         [RelayCommand]
         private Task LoadAsync() => RunLoadAsync(async () =>
         {
@@ -207,37 +233,120 @@ namespace TravelPlanner.ViewModels
             }
 
             var trips = await _tripService.GetAllAsync();
+            var today = DateTime.Today;
             TotalTripsCount = trips.Count;
             HasNoTrips = trips.Count == 0;
             HasAnyTrips = !HasNoTrips;
 
             // "Gezilen ülke" = countries of trips that have started (TP-59: an ongoing trip counts too),
             // not ones merely planned.
-            VisitedCountriesCount = CountVisitedCountries(trips, DateTime.Today);
-            VisitedCitiesCount = CountVisitedCities(trips, DateTime.Today);
+            VisitedCountriesCount = CountVisitedCountries(trips, today);
+            VisitedCitiesCount = CountVisitedCities(trips, today);
 
-            // TP-403: grouped by trip currency. TP-69: the user's own spending - their share in shared trips.
-            var totalsByCurrency = await _expenseService.GetMyTotalsByCurrencyAsync(Services.Sync.ChangeTracker.CurrentUserId);
-            TotalExpensesFormatted = await FormatCombinedTotalAsync(totalsByCurrency);
-
-            // Featured card: an ongoing trip wins over the nearest upcoming one - "what's happening
-            // right now" beats "what's next" when both exist.
-            _featuredTrip = trips.FirstOrDefault(t => t.IsOngoing)
-                ?? trips.Where(t => t.IsUpcoming).OrderBy(t => t.StartDate).FirstOrDefault();
-
+            _featuredTrip = PickFeatured(trips);
             HasFeaturedTrip = _featuredTrip is not null;
-            if (_featuredTrip is not null)
-                ApplyFeaturedTrip(_featuredTrip);
+            FeaturedTicket = _featuredTrip is null ? null : new TripTicket(_featuredTrip);
+            (HeroBefore, HeroHighlight, HeroAfter) = HeroTitle(_featuredTrip, today);
 
-            var recent = trips
-                .OrderBy(t => t.IsOngoing ? 0 : t.IsUpcoming ? 1 : 2)
-                .ThenBy(t => t.IsOngoing || t.IsUpcoming ? t.StartDate : DateTime.MaxValue)
-                .ThenByDescending(t => t.StartDate)
-                .Take(5)
-                .ToList();
-            _covers?.ShowThumbnails(recent); // cover thumbnails, as on the trip list
-            RecentTrips.ReplaceAll(recent.Select((trip, index) => new TripSummaryItem(trip) { IsFirst = index == 0 }));
+            CalendarTrips.ReplaceAll(CalendarOrder(trips).Take(CalendarRows)
+                .Select(t => new HomeTripRow(t, isNext: t == _featuredTrip, today)));
+
+            Chips.ReplaceAll(_featuredTrip is null ? Array.Empty<HomeChip>() : await BuildChipsAsync(_featuredTrip));
+
+            if (HasNoTrips)
+                await LoadPlansAsync();
         }, AppResources.Dashboard_LoadError);
+
+        /// <summary>The card's trip: an ongoing one wins over the nearest coming one; none when every trip is over.</summary>
+        internal static Trip? PickFeatured(IEnumerable<Trip> trips)
+        {
+            var list = trips as IReadOnlyCollection<Trip> ?? trips.ToList();
+            return list.FirstOrDefault(t => t.IsOngoing) ?? list.Where(t => t.IsUpcoming).OrderBy(t => t.StartDate).FirstOrDefault();
+        }
+
+        /// <summary>Ongoing and coming trips by date, then past ones newest first.</summary>
+        internal static IEnumerable<Trip> CalendarOrder(IEnumerable<Trip> trips) => trips
+            .OrderBy(t => t.IsOngoing ? 0 : t.IsUpcoming ? 1 : 2)
+            .ThenBy(t => t.IsOngoing || t.IsUpcoming ? t.StartDate : DateTime.MaxValue)
+            .ThenByDescending(t => t.StartDate);
+
+        /// <summary>
+        /// The hero's big line, cut around the highlighted part: "Roma'ya " · "12 gün" · " kaldı", "Roma'da " · "3. gün";
+        /// without a trip "Bir sonraki durağın neresi?".
+        /// </summary>
+        internal static (string Before, string Highlight, string After) HeroTitle(Trip? trip, DateTime today)
+        {
+            if (trip is null)
+                return (AppResources.Home_EmptyTitle, string.Empty, string.Empty);
+
+            var city = string.IsNullOrWhiteSpace(trip.City) ? trip.Name.Trim() : trip.City.Trim();
+            var start = trip.StartDate.Date;
+            var culture = CultureInfo.CurrentCulture;
+            return today.Date < start
+                ? Cut(AppResources.Home_CountdownFormat, PlaceSuffix.Dative(city),
+                      string.Format(culture, AppResources.Explore_DaysFormat, (start - today.Date).Days))
+                : Cut(AppResources.Home_OngoingFormat, PlaceSuffix.Locative(city),
+                      string.Format(culture, AppResources.Home_DayNumberFormat, (today.Date - start).Days + 1));
+        }
+
+        private static (string, string, string) Cut(string format, string place, string highlight)
+        {
+            const string marker = "\u0001";
+            var text = string.Format(CultureInfo.CurrentCulture, format, place, marker);
+            var at = text.IndexOf(marker, StringComparison.Ordinal);
+            return at < 0 ? (text, string.Empty, string.Empty) : (text[..at], highlight, text[(at + marker.Length)..]);
+        }
+
+        /// <summary>"Plan 5/7" (days with something planned / days), "Görevler 9/14", then map, weather and expenses.</summary>
+        private async Task<IReadOnlyList<HomeChip>> BuildChipsAsync(Trip trip)
+        {
+            var days = (trip.EndDate.Date - trip.StartDate.Date).Days + 1;
+            var plan = string.Empty;
+            var tasks = string.Empty;
+            if (_activities is not null)
+            {
+                var planned = (await _activities.GetByTripIdAsync(trip.Id)).Select(a => a.Date.Date).Distinct().Count();
+                plan = $"{Math.Min(planned, days)}/{days}";
+            }
+            if (_todos is not null && await _todos.GetByTripIdAsync(trip.Id) is { Count: > 0 } todos)
+                tasks = $"{todos.Count(t => t.IsCompleted)}/{todos.Count}";
+
+            return new[]
+            {
+                new HomeChip("Ic.CalendarDays", AppResources.Home_ChipPlan, plan, Routes.Itinerary),
+                new HomeChip("Ic.ListChecks", AppResources.Home_ChipTasks, tasks, Routes.TodoList),
+                new HomeChip("Ic.Map", AppResources.Dashboard_MapShort, string.Empty, Routes.Map),
+                new HomeChip("Ic.CloudSun", AppResources.Dashboard_WeatherShort, string.Empty, Routes.Weather),
+                new HomeChip("Ic.Wallet", AppResources.Nav_Expenses, string.Empty, Routes.ExpenseList),
+            };
+        }
+
+        /// <summary>Keşfet's first plans (featured first) - the cached page at once, then the fresh one. Offline: none.</summary>
+        private async Task LoadPlansAsync()
+        {
+            if (_explore is null)
+                return;
+            var filter = new ExploreFilter();
+            if (_explore.GetCachedFirstPage(filter) is { } cached)
+                ShowPlans(cached.Items);
+            try
+            {
+                ShowPlans((await _explore.ListAsync(filter, null)).Items);
+            }
+            catch (Exception ex)
+            {
+                // only a suggestion: Home works without it
+                System.Diagnostics.Debug.WriteLine($"[Dashboard] Explore: {ex.Message}");
+            }
+        }
+
+        internal void ShowPlans(IEnumerable<ExploreTripCard> cards)
+        {
+            var picked = cards.OrderByDescending(c => c.IsFeatured).Take(PlanCards).Select(c => new HomePlanCard(c)).ToList();
+            FirstPlan = picked.ElementAtOrDefault(0);
+            SecondPlan = picked.ElementAtOrDefault(1);
+            ThirdPlan = picked.ElementAtOrDefault(2);
+        }
 
         /// <summary>"Gezilen ülke": countries of trips that have started; "Türkiye" and "Türkiye Cumhuriyeti" are one country.</summary>
         internal static int CountVisitedCountries(IEnumerable<Trip> trips, DateTime today) => trips
@@ -255,61 +364,6 @@ namespace TravelPlanner.ViewModels
             .Select(t => CountryNames.Key(t.Country) + "|" + t.City.Trim().ToUpperInvariant())
             .Distinct(StringComparer.Ordinal)
             .Count();
-
-        /// <summary>
-        /// Trips can have different currencies (TP-403): convert every currency's total into the default one
-        /// with the free Frankfurter rate. If a rate is unavailable (offline, never fetched), the totals are shown
-        /// side by side instead ("₺12.500 + €340") rather than adding up amounts of different currencies.
-        /// </summary>
-        private async Task<string> FormatCombinedTotalAsync(Dictionary<string, decimal> totals)
-        {
-            var target = MoneyFormatter.CurrencyCode;
-            if (totals.Count == 0)
-                return MoneyFormatter.Format(0m, 0);
-
-            var sum = 0m;
-            var unconverted = new List<string>();
-
-            foreach (var (code, amount) in totals)
-            {
-                var quote = await _exchangeRates.GetRateAsync(code, target);
-                if (quote is null)
-                    unconverted.Add(MoneyFormatter.FormatIn(amount, code, 0));
-                else
-                    sum += quote.Convert(amount);
-            }
-
-            if (unconverted.Count == 0)
-                return MoneyFormatter.Format(sum, 0);
-
-            if (sum > 0)
-                unconverted.Insert(0, MoneyFormatter.Format(sum, 0));
-
-            return string.Join(" + ", unconverted);
-        }
-
-        private void ApplyFeaturedTrip(Trip trip)
-        {
-            FeaturedBadgeText = trip.IsOngoing ? AppResources.Dashboard_BadgeOngoing : AppResources.Dashboard_BadgeUpcoming;
-            FeaturedName = trip.Name;
-            FeaturedPlace = string.IsNullOrWhiteSpace(trip.Country) ? trip.City : $"{trip.City}, {trip.Country}";
-            FeaturedDates = trip.CompactDateRangeDisplay;
-            FeaturedBudget = trip.FormattedBudget;
-            FeaturedTicket = new TripTicket(trip);
-
-            if (trip.IsOngoing)
-            {
-                // Mid-trip, "kalan süre" (time left until the trip starts) no longer applies - show how
-                // many days remain until it ends instead.
-                FeaturedDaysLabel = AppResources.Dashboard_EndsIn;
-                FeaturedDaysValue = string.Format(AppResources.Common_DaysFormat, Math.Max((trip.EndDate.Date - DateTime.Today).Days, 0));
-            }
-            else
-            {
-                FeaturedDaysLabel = AppResources.Dashboard_StartsIn;
-                FeaturedDaysValue = string.Format(AppResources.Common_DaysFormat, (trip.StartDate.Date - DateTime.Today).Days);
-            }
-        }
 
         private async Task RefreshNoticeAsync() => ShowNotice(await _appConfig!.RefreshAsync());
 
@@ -352,38 +406,45 @@ namespace TravelPlanner.ViewModels
         }, AppResources.Members_ActionError);
 
         [RelayCommand]
-        private async Task GoToTripListAsync() => await Shell.Current.GoToAsync($"//{Routes.TripList}"); // tab (absolute route)
+        private void GoToTripList() => TabNavigation.Select(Routes.TripList);
 
         [RelayCommand]
-        private async Task GoToTripDetailAsync(TripSummaryItem? item)
-        {
-            if (item is null) return;
-            await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={item.Id}");
-        }
-
-        // ---- Featured card actions ----
-        // Per design decision: these navigate straight to the existing Weather/Map/TripDetail pages
-        // rather than reproducing the design's bottom-sheet quick-preview as a new modal control.
+        private void OpenProfile() => TabNavigation.Select(Routes.Settings);
 
         [RelayCommand]
-        private async Task OpenFeaturedWeatherAsync()
+        private void OpenExplore() => TabNavigation.Select(Routes.Explore);
+
+        [RelayCommand]
+        private async Task GoToTripDetailAsync(HomeTripRow? row)
         {
-            if (_featuredTrip is null) return;
-            await Shell.Current.GoToAsync($"{Routes.Weather}?TripId={_featuredTrip.Id}");
+            if (row is null) return;
+            await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={row.Id}");
+        }
+
+        /// <summary>The hero's city box: the new trip form, with the city already typed (its suggestions pick the country).</summary>
+        [RelayCommand]
+        private Task SearchCityAsync()
+        {
+            var city = (CityQuery ?? string.Empty).Trim();
+            return Shell.Current.GoToAsync(city.Length == 0 ? Routes.TripForm : $"{Routes.TripForm}?City={Uri.EscapeDataString(city)}");
         }
 
         [RelayCommand]
-        private async Task OpenFeaturedMapAsync()
-        {
-            if (_featuredTrip is null) return;
-            await Shell.Current.GoToAsync($"{Routes.Map}?TripId={_featuredTrip.Id}");
-        }
+        private Task OpenPlanAsync(HomePlanCard? plan) =>
+            plan is null ? Task.CompletedTask : Shell.Current.GoToAsync($"{Routes.ExploreDetail}?Id={plan.Id}");
 
         [RelayCommand]
         private async Task OpenFeaturedDetailsAsync()
         {
             if (_featuredTrip is null) return;
             await Shell.Current.GoToAsync($"{Routes.TripDetail}?TripId={_featuredTrip.Id}");
+        }
+
+        [RelayCommand]
+        private async Task OpenChipAsync(HomeChip? chip)
+        {
+            if (_featuredTrip is null || chip is null) return;
+            await Shell.Current.GoToAsync($"{chip.Route}?TripId={_featuredTrip.Id}");
         }
     }
 }

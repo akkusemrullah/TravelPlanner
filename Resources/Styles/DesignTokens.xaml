@@ -37,6 +37,8 @@
     <Color x:Key="tp-hero-line">#2F4C9E</Color>  <!-- hero card inner strokes -->
     <Color x:Key="tp-hero-muted">#C3CEEB</Color>  <!-- secondary text on hero -->
     <Color x:Key="tp-on-hero">#FFFFFF</Color>  <!-- primary text on hero -->
+    <Color x:Key="tp-hero-accent">#93C5FD</Color>  <!-- highlighted words on the hero (TP-106) -->
+    <Color x:Key="tp-nav-active">#1E3A8A</Color>  <!-- selected item of the floating bottom menu (TP-106) -->
     <Color x:Key="tp-ticket-start">#1E3A8A</Color>  <!-- trip ticket gradient (TP-97) -->
     <Color x:Key="tp-ticket-end">#2F5BD3</Color>
     <Color x:Key="tp-overlay">#14161B</Color>  <!-- scrims -->

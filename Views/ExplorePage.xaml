@@ -8,7 +8,8 @@
              xmlns:models="clr-namespace:TravelPlanner.Models"
              x:Class="TravelPlanner.Views.ExplorePage"
              x:DataType="vm:ExploreViewModel"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
 
     <!-- Tab root (Keşfet, TP-33): the admin's sample trips as an endless list of fixed-height cards. -->
     <ContentPage.Resources>
@@ -133,7 +134,7 @@
                         </VerticalStackLayout>
                     </CollectionView.Header>
                     <CollectionView.Footer>
-                        <Grid Padding="0,8,0,24" MinimumHeightRequest="40">
+                        <Grid Padding="0,8,0,104" MinimumHeightRequest="40"> <!-- bottom: room for the floating menu -->
                             <controls:LoadingDots IsVisible="{Binding IsLoadingMore}" DotSize="6" DotColor="{DynamicResource tp-primary}" HorizontalOptions="Center" />
                             <Label IsVisible="{Binding ShowEndOfList}" Text="{x:Static res:AppResources.Explore_EndOfList}" FontSize="12"
                                    TextColor="{DynamicResource tp-text-3}" HorizontalOptions="Center" VerticalOptions="Center" />
@@ -246,6 +247,9 @@
                 <Button Text="{x:Static res:AppResources.Explore_Retry}" Command="{Binding RetryCommand}" Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" />
             </VerticalStackLayout>
         </Grid>
+
+        <!-- ════════ TP-106: floating bottom menu (under the filter sheet) ════════ -->
+        <controls:FloatingTabBar Grid.RowSpan="4" Current="Explore" />
 
         <!-- ════════ Filter sheet (over everything) ════════ -->
         <Grid Grid.Row="0" Grid.RowSpan="4" IsVisible="{Binding IsFilterOpen}" RowDefinitions="*,Auto">

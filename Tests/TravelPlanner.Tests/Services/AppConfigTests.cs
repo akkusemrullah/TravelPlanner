@@ -96,7 +96,7 @@ namespace TravelPlanner.Tests
         {
             var appInfo = new Mock<IAppInfo>();
             appInfo.SetupGet(a => a.VersionString).Returns(version);
-            return new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+            return new DashboardViewModel(Mock.Of<ITripService>(), _settings,
                 Mock.Of<IDialogService>(), Mock.Of<IAppConfigService>(), appInfo.Object, _preferences);
         }
 
@@ -111,7 +111,7 @@ namespace TravelPlanner.Tests
             var sync = new Mock<ISyncService>();
             sync.SetupGet(s => s.Status).Returns(status);
             sync.SetupGet(s => s.PendingCount).Returns(pending);
-            var vm = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), _settings,
                 Mock.Of<IDialogService>(), sync: sync.Object);
 
             Assert.Equal(shown, vm.ShowSyncBadge);
@@ -125,7 +125,7 @@ namespace TravelPlanner.Tests
         {
             var account = new Mock<IAccountService>();
             account.SetupGet(a => a.IsSignedIn).Returns(signedIn);
-            var vm = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), _settings,
                 Mock.Of<IDialogService>(), preferences: _preferences, account: account.Object);
 
             Assert.Equal(shown, vm.ShowSignInHint);
@@ -136,13 +136,13 @@ namespace TravelPlanner.Tests
         {
             var account = new Mock<IAccountService>();
             account.SetupGet(a => a.IsSignedIn).Returns(false);
-            var vm = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+            var vm = new DashboardViewModel(Mock.Of<ITripService>(), _settings,
                 Mock.Of<IDialogService>(), preferences: _preferences, account: account.Object);
 
             vm.CloseSignInHintCommand.Execute(null);
 
             Assert.False(vm.ShowSignInHint);
-            var again = new DashboardViewModel(Mock.Of<ITripService>(), Mock.Of<IExpenseService>(), _settings, Mock.Of<IExchangeRateService>(),
+            var again = new DashboardViewModel(Mock.Of<ITripService>(), _settings,
                 Mock.Of<IDialogService>(), preferences: _preferences, account: account.Object);
             Assert.False(again.ShowSignInHint);
         }

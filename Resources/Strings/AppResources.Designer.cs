@@ -1132,33 +1132,6 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Devam eden seyahat.
-        /// </summary>
-        public static string Dashboard_BadgeOngoing {
-            get {
-                return ResourceManager.GetString("Dashboard_BadgeOngoing", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Yaklaşan seyahat.
-        /// </summary>
-        public static string Dashboard_BadgeUpcoming {
-            get {
-                return ResourceManager.GetString("Dashboard_BadgeUpcoming", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Bütçe.
-        /// </summary>
-        public static string Dashboard_BudgetHeader {
-            get {
-                return ResourceManager.GetString("Dashboard_BudgetHeader", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Yeni Seyahat Oluştur.
         /// </summary>
         public static string Dashboard_CreateTrip {
@@ -1168,7 +1141,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Sana özel rota önerisi al.
+        ///   Looks up a localized string similar to İlgi alanına ve tempona göre gün gün rota önerisi..
         /// </summary>
         public static string Dashboard_FeatureAiBody {
             get {
@@ -1186,7 +1159,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Arkadaşlarını seyahate davet et.
+        ///   Looks up a localized string similar to Arkadaşlarını seyahate ekle.
         /// </summary>
         public static string Dashboard_FeatureShareBody {
             get {
@@ -1249,74 +1222,11 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Nereye?.
-        /// </summary>
-        public static string Dashboard_EmptyWhere {
-            get {
-                return ResourceManager.GetString("Dashboard_EmptyWhere", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to İlk seyahat.
-        /// </summary>
-        public static string Dashboard_EmptyBadge {
-            get {
-                return ResourceManager.GetString("Dashboard_EmptyBadge", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Detaylar.
         /// </summary>
         public static string Dashboard_Details {
             get {
                 return ResourceManager.GetString("Dashboard_Details", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Rotanı, bütçeni ve planını tek yerde topla..
-        /// </summary>
-        public static string Dashboard_EmptyBody {
-            get {
-                return ResourceManager.GetString("Dashboard_EmptyBody", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Henüz seyahatin yok.
-        /// </summary>
-        public static string Dashboard_EmptyTitle {
-            get {
-                return ResourceManager.GetString("Dashboard_EmptyTitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Bitmesine.
-        /// </summary>
-        public static string Dashboard_EndsIn {
-            get {
-                return ResourceManager.GetString("Dashboard_EndsIn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Merhaba {0}.
-        /// </summary>
-        public static string Dashboard_Greeting {
-            get {
-                return ResourceManager.GetString("Dashboard_Greeting", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Merhaba.
-        /// </summary>
-        public static string Dashboard_GreetingNoName {
-            get {
-                return ResourceManager.GetString("Dashboard_GreetingNoName", resourceCulture);
             }
         }
         
@@ -1339,65 +1249,11 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Genel bakış.
-        /// </summary>
-        public static string Dashboard_Overview {
-            get {
-                return ResourceManager.GetString("Dashboard_Overview", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Kalan süre.
         /// </summary>
         public static string Dashboard_StartsIn {
             get {
                 return ResourceManager.GetString("Dashboard_StartsIn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Seyahatlerini planlamaya hazır mısın?.
-        /// </summary>
-        public static string Dashboard_Subtitle {
-            get {
-                return ResourceManager.GetString("Dashboard_Subtitle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Bugün {0}.
-        /// </summary>
-        public static string Dashboard_TodayFormat {
-            get {
-                return ResourceManager.GetString("Dashboard_TodayFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Harcamalarım.
-        /// </summary>
-        public static string Dashboard_TotalExpenses {
-            get {
-                return ResourceManager.GetString("Dashboard_TotalExpenses", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Toplam Seyahat.
-        /// </summary>
-        public static string Dashboard_TotalTrips {
-            get {
-                return ResourceManager.GetString("Dashboard_TotalTrips", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Gezilen Şehir.
-        /// </summary>
-        public static string Dashboard_VisitedCities {
-            get {
-                return ResourceManager.GetString("Dashboard_VisitedCities", resourceCulture);
             }
         }
         
@@ -1434,15 +1290,6 @@ namespace TravelPlanner.Resources.Strings {
         public static string Sync_SharedTripsRemovedFormat {
             get {
                 return ResourceManager.GetString("Sync_SharedTripsRemovedFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Gezilen Ülke.
-        /// </summary>
-        public static string Dashboard_VisitedCountries {
-            get {
-                return ResourceManager.GetString("Dashboard_VisitedCountries", resourceCulture);
             }
         }
         
@@ -8912,15 +8759,6 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ülke ve şehirler başlamış seyahatlerden sayılır. Harcamalarım: senin payın..
-        /// </summary>
-        public static string Dashboard_StatsRule {
-            get {
-                return ResourceManager.GetString("Dashboard_StatsRule", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Eşitleme durumu.
         /// </summary>
         public static string Sync_BadgeA11y {
@@ -9474,5 +9312,257 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Help_ContactShort", resourceCulture);
             }
         }
-    }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Merhaba {0},.
+        /// </summary>
+        public static string Home_GreetingFormat {
+            get {
+                return ResourceManager.GetString("Home_GreetingFormat", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Merhaba,.
+        /// </summary>
+        public static string Home_GreetingNoName {
+            get {
+                return ResourceManager.GetString("Home_GreetingNoName", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to {0} {1} kaldı.
+        /// </summary>
+        public static string Home_CountdownFormat {
+            get {
+                return ResourceManager.GetString("Home_CountdownFormat", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to {0} {1}.
+        /// </summary>
+        public static string Home_OngoingFormat {
+            get {
+                return ResourceManager.GetString("Home_OngoingFormat", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to {0}. gün.
+        /// </summary>
+        public static string Home_DayNumberFormat {
+            get {
+                return ResourceManager.GetString("Home_DayNumberFormat", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Bir sonraki durağın neresi?.
+        /// </summary>
+        public static string Home_EmptyTitle {
+            get {
+                return ResourceManager.GetString("Home_EmptyTitle", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Rotanı, gün gün planını ve görevlerini tek yerde topla..
+        /// </summary>
+        public static string Home_EmptyBody {
+            get {
+                return ResourceManager.GetString("Home_EmptyBody", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Gidilecek şehri yaz....
+        /// </summary>
+        public static string Home_CityPlaceholder {
+            get {
+                return ResourceManager.GetString("Home_CityPlaceholder", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Davet kodun mu var?.
+        /// </summary>
+        public static string Home_InviteQuestion {
+            get {
+                return ResourceManager.GetString("Home_InviteQuestion", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to 3 adımda yola hazır.
+        /// </summary>
+        public static string Home_StepsTitle {
+            get {
+                return ResourceManager.GetString("Home_StepsTitle", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Oluştur.
+        /// </summary>
+        public static string Home_Step1 {
+            get {
+                return ResourceManager.GetString("Home_Step1", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Yer ve tarih.
+        /// </summary>
+        public static string Home_Step1Body {
+            get {
+                return ResourceManager.GetString("Home_Step1Body", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Planla.
+        /// </summary>
+        public static string Home_Step2 {
+            get {
+                return ResourceManager.GetString("Home_Step2", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Gün gün rota.
+        /// </summary>
+        public static string Home_Step2Body {
+            get {
+                return ResourceManager.GetString("Home_Step2Body", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Hazırlan.
+        /// </summary>
+        public static string Home_Step3 {
+            get {
+                return ResourceManager.GetString("Home_Step3", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Bavul ve belgeler.
+        /// </summary>
+        public static string Home_Step3Body {
+            get {
+                return ResourceManager.GetString("Home_Step3Body", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Hazır planlarla başla.
+        /// </summary>
+        public static string Home_ReadyPlans {
+            get {
+                return ResourceManager.GetString("Home_ReadyPlans", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Aç.
+        /// </summary>
+        public static string Home_Open {
+            get {
+                return ResourceManager.GetString("Home_Open", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Plan.
+        /// </summary>
+        public static string Home_ChipPlan {
+            get {
+                return ResourceManager.GetString("Home_ChipPlan", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Görevler.
+        /// </summary>
+        public static string Home_ChipTasks {
+            get {
+                return ResourceManager.GetString("Home_ChipTasks", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahat takvimin.
+        /// </summary>
+        public static string Home_CalendarTitle {
+            get {
+                return ResourceManager.GetString("Home_CalendarTitle", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to {0} gün sonra.
+        /// </summary>
+        public static string Home_InDaysFormat {
+            get {
+                return ResourceManager.GetString("Home_InDaysFormat", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Seyahat karnen.
+        /// </summary>
+        public static string Home_StatsTitle {
+            get {
+                return ResourceManager.GetString("Home_StatsTitle", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to seyahat.
+        /// </summary>
+        public static string Home_StatTrips {
+            get {
+                return ResourceManager.GetString("Home_StatTrips", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to ülke.
+        /// </summary>
+        public static string Home_StatCountries {
+            get {
+                return ResourceManager.GetString("Home_StatCountries", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to şehir.
+        /// </summary>
+        public static string Home_StatCities {
+            get {
+                return ResourceManager.GetString("Home_StatCities", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Profil.
+        /// </summary>
+        public static string Home_ProfileA11y {
+            get {
+                return ResourceManager.GetString("Home_ProfileA11y", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Bu şehre seyahat oluştur.
+        /// </summary>
+        public static string Home_SearchA11y {
+            get {
+                return ResourceManager.GetString("Home_SearchA11y", resourceCulture);
+            }
+        }
+}
 }

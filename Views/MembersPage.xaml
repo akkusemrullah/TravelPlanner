@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              xmlns:controls="clr-namespace:TravelPlanner.Controls"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
@@ -60,7 +61,7 @@
                     <!-- ════════ Members ════════ -->
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding IsSignedIn}">
                         <Grid ColumnDefinitions="*,Auto" Margin="4,0">
-                            <Label Grid.Column="0" Text="{x:Static res:AppResources.Members_ListTitle}" Style="{StaticResource Text.Overline}" VerticalOptions="Center" />
+                            <Label Grid.Column="0" Text="{helpers:Upper Members_ListTitle}" Style="{StaticResource Text.Overline}" VerticalOptions="Center" />
                             <controls:Badge Grid.Column="1" Text="{Binding MyRoleText}" Tone="{Binding MyRoleTone}" />
                         </Grid>
                         <Border IsVisible="{Binding IsNotShared}" Style="{StaticResource Banner.Accent}">
@@ -104,14 +105,13 @@
 
                     <!-- ════════ Invite (owner) ════════ -->
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding CanInvite}">
-                        <Label Text="{x:Static res:AppResources.Members_InviteTitle}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                        <Label Text="{helpers:Upper Members_InviteTitle}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                         <Border Style="{StaticResource Card}">
                             <VerticalStackLayout Spacing="16">
                                 <Label Text="{x:Static res:AppResources.Members_InviteHint}" FontSize="13.5" TextColor="{DynamicResource tp-text-2}" LineBreakMode="WordWrap" />
                                 <Border IsVisible="{Binding HasInvite}" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="16" BackgroundColor="{DynamicResource tp-accent-soft}">
                                     <VerticalStackLayout Spacing="4">
-                                        <Label Text="{x:Static res:AppResources.Members_InviteCodeLabel}" FontFamily="InterSemiBold" FontSize="11" CharacterSpacing="1.1"
-                                               TextTransform="Uppercase" TextColor="{DynamicResource tp-accent-text}" HorizontalTextAlignment="Center" />
+                                        <Label Text="{helpers:Upper Members_InviteCodeLabel}" FontFamily="InterSemiBold" FontSize="11" CharacterSpacing="1.1" TextColor="{DynamicResource tp-accent-text}" HorizontalTextAlignment="Center" />
                                         <Label Text="{Binding LastInviteCode}" FontFamily="InterBold" FontSize="30" CharacterSpacing="5"
                                                HorizontalTextAlignment="Center" TextColor="{DynamicResource tp-text}" />
                                         <Label Text="{Binding LastInviteText}" FontSize="12.5" TextColor="{DynamicResource tp-text-2}" HorizontalTextAlignment="Center" />

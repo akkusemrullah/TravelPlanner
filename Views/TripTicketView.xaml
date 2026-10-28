@@ -5,6 +5,7 @@
      buttons. Set Ticket; the buttons show for the commands that are set (Hava, Harita, Detaylar). -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
              xmlns:views="clr-namespace:TravelPlanner.Views"
@@ -36,7 +37,7 @@
                         </HorizontalStackLayout>
                     </Border>
                     <VerticalStackLayout Grid.Column="1" Spacing="1" HorizontalOptions="End" VerticalOptions="Center">
-                        <Label Text="{Binding CountdownLabel}" IsVisible="{Binding HasCountdownLabel}" Style="{StaticResource Ticket.Caption}"
+                        <Label Text="{Binding CountdownLabel, Converter={StaticResource UpperText}}" IsVisible="{Binding HasCountdownLabel}" Style="{StaticResource Ticket.Caption}"
                                HorizontalTextAlignment="End" />
                         <Label Text="{Binding CountdownValue}" Style="{StaticResource Ticket.Countdown}" />
                     </VerticalStackLayout>
@@ -51,7 +52,7 @@
                 <!-- Departure ✈ return -->
                 <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12" Margin="0,20,0,0">
                     <VerticalStackLayout Grid.Column="0" Spacing="0" VerticalOptions="End">
-                        <Label Text="{x:Static res:AppResources.Ticket_Departure}" Style="{StaticResource Ticket.Caption}" />
+                        <Label Text="{helpers:Upper Ticket_Departure}" Style="{StaticResource Ticket.Caption}" />
                         <Label Text="{Binding StartDay}" Style="{StaticResource Ticket.Day}" />
                         <Label Text="{Binding StartMonth}" Style="{StaticResource Ticket.Muted}" />
                     </VerticalStackLayout>
@@ -79,7 +80,7 @@
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="End">
-                        <Label Text="{x:Static res:AppResources.Ticket_Return}" Style="{StaticResource Ticket.Caption}" HorizontalTextAlignment="End" />
+                        <Label Text="{helpers:Upper Ticket_Return}" Style="{StaticResource Ticket.Caption}" HorizontalTextAlignment="End" />
                         <Label Text="{Binding EndDay}" Style="{StaticResource Ticket.Day}" HorizontalTextAlignment="End" />
                         <Label Text="{Binding EndMonth}" Style="{StaticResource Ticket.Muted}" HorizontalTextAlignment="End" />
                     </VerticalStackLayout>
@@ -99,11 +100,11 @@
             <VerticalStackLayout Grid.Row="2" Padding="20,2,20,18" Spacing="16">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="24">
                     <VerticalStackLayout Grid.Column="0" Spacing="2">
-                        <Label Text="{x:Static res:AppResources.Ticket_Duration}" Style="{StaticResource Ticket.StatLabel}" />
+                        <Label Text="{helpers:Upper Ticket_Duration}" Style="{StaticResource Ticket.StatLabel}" />
                         <Label Text="{Binding DurationText}" Style="{StaticResource Ticket.StatValue}" />
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Column="1" Spacing="2">
-                        <Label Text="{x:Static res:AppResources.Budget_Title}" Style="{StaticResource Ticket.StatLabel}" />
+                        <Label Text="{helpers:Upper Budget_Title}" Style="{StaticResource Ticket.StatLabel}" />
                         <Label Text="{Binding BudgetText}" Style="{StaticResource Ticket.StatValue}" />
                     </VerticalStackLayout>
                 </Grid>

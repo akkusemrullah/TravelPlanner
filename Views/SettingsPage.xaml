@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              xmlns:controls="clr-namespace:TravelPlanner.Controls"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
              xmlns:sync="clr-namespace:TravelPlanner.Services.Sync"
              x:Class="TravelPlanner.Views.SettingsPage"
              x:DataType="vm:SettingsViewModel"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
 
     <!-- Tab root (Profile): a short hub. The profile/account card on top, then a few menu rows - each with its own
          icon colour so they are told apart at a glance. The settings themselves live on the Tercihler page
@@ -21,7 +23,7 @@
         <BoxView Grid.Row="1" Style="{StaticResource Divider}" />
 
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Padding="16,16,16,40" Spacing="20">
+            <VerticalStackLayout Padding="16,16,16,120" Spacing="20"> <!-- bottom: room for the floating menu -->
 
                 <!-- ════════ Profile + account card (TP-105: the prototype's card) ════════ -->
                 <Border Style="{StaticResource Card}">
@@ -93,7 +95,7 @@
 
                 <!-- ════════ App ════════ -->
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Profile_App}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Label Text="{helpers:Upper Profile_App}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
                             <controls:ListRow Icon="{StaticResource Ic.Settings2}" Title="{x:Static res:AppResources.Profile_Preferences}"
@@ -108,7 +110,7 @@
 
                 <!-- ════════ Data ════════ -->
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Profile_Data}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Label Text="{helpers:Upper Profile_Data}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
                             <!-- G6: deleted items, restorable for 30 days - the red count so it is noticed. -->
@@ -129,7 +131,7 @@
 
                 <!-- ════════ Support & legal ════════ -->
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Profile_Support}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Label Text="{helpers:Upper Profile_Support}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
                             <controls:ListRow Icon="{StaticResource Ic.LifeBuoy}" Tone="info" Title="{x:Static res:AppResources.Help_Title}"
@@ -151,7 +153,7 @@
 
                 <!-- ════════ Account actions (signed in) - last, apart from everything else ════════ -->
                 <VerticalStackLayout Spacing="8" IsVisible="{Binding IsSignedIn}">
-                    <Label Text="{x:Static res:AppResources.Profile_Account}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Label Text="{helpers:Upper Profile_Account}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
                             <controls:ListRow Icon="{StaticResource Ic.LogOut}" Tone="neutral" Title="{x:Static res:AppResources.Account_SignOut}" IsVisible="{Binding CanDeleteAccount}"
@@ -189,5 +191,8 @@
 
             </VerticalStackLayout>
         </ScrollView>
+
+        <!-- ════════ TP-106: floating bottom menu ════════ -->
+        <controls:FloatingTabBar Grid.RowSpan="3" Current="Settings" />
     </Grid>
 </ContentPage>

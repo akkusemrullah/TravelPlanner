@@ -36,8 +36,6 @@ namespace TravelPlanner
 #if ANDROID
                     // Day plan: reorder by dragging the grip (tracks the touch natively, see DragHandleHandler).
                     handlers.AddHandler<Controls.DragHandle, DragHandleHandler>();
-                    // TP-99: pill behind the selected tab (TabBarShellRenderer).
-                    handlers.AddHandler<Shell, TabBarShellRenderer>();
 #endif
                 });
 
@@ -47,8 +45,6 @@ namespace TravelPlanner
 
             // One modern look for every text field: no platform underline/border, focus highlight (InputChrome.cs).
             Handlers.InputChrome.Configure();
-            // TextTransform="Uppercase" in the app language (Turkish İ/I), see CultureUppercase.cs.
-            Handlers.CultureUppercase.Configure();
 
             RegisterServices(builder.Services);
             RegisterViewModels(builder.Services);
