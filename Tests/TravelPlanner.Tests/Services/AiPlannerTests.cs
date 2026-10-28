@@ -464,7 +464,7 @@ namespace TravelPlanner.Tests
         }
 
         /// <summary>The background plans of one account, saved in <see cref="_preferences"/> (a restart is a new one).</summary>
-        private AiPlanJobs NewJobs() => new(_planner.Object, _preferences, _notifications.Object) { CurrentUser = () => "u1" };
+        private AiPlanJobs NewJobs() => new(_planner.Object, _preferences, _notifications.Object) { CurrentUser = () => "u1", SendDelay = TimeSpan.Zero };
 
         private static AiPlanStart Started(AiPlanResult result) => new(result, null, result.Remaining);
 
@@ -778,6 +778,92 @@ namespace TravelPlanner.Tests
             var again = NewJobs();                                           // and it survives one more restart
             Assert.Equal("Kolezyum turu", again.For(1)!.Result!.Plan.Days[0].Activities[0].Title);
             Assert.Null(again.For(2));
+        }
+
+        [Fact]
+        public async Task CancelInTheFirstSeconds_SendsNothing_AndAsksNothing()
+        {
+            _jobs.SendDelay = TimeSpan.FromSeconds(30);
+            var vm = await LoadAsync();
+
+            await vm.GenerateCommand.ExecuteAsync(null);
+            Assert.True(vm.IsGenerating);
+            Assert.False(vm.IsRequestSent);
+            Assert.Equal(AppResources.AiPlan_CancelFreeHint, vm.CancelHint);
+
+            await vm.CancelCommand.ExecuteAsync(null);
+
+            Assert.False(vm.IsGenerating);
+            Assert.True(vm.ShowQuestions);
+            Assert.Null(_jobs.Current);
+            _dialogs.Verify(d => d.ConfirmAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<string?>()), Times.Never);
+            _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task TheRequestWaitsBeforeItIsSent()
+        {
+            _jobs.SendDelay = TimeSpan.FromMilliseconds(150);
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .Returns(new TaskCompletionSource<AiPlanStart>().Task);
+            var vm = await LoadAsync();
+
+            await vm.GenerateCommand.ExecuteAsync(null);
+            _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Never);
+
+            await Until(() => vm.IsRequestSent);
+            Assert.Equal(AppResources.AiPlan_CancelCostHint, vm.CancelHint);
+            _planner.Verify(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CancelAfterSending_WarnsFirst_AndThePlanStillCounts()
+        {
+            _planner.Setup(p => p.StartPlanAsync(It.IsAny<AiPlanRequest>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new AiPlanStart(null, "x", 4));
+            var ready = false;
+            _planner.Setup(p => p.GetJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => ready
+                        ? new AiPlanJobState(AiPlanJobStatus.Done, new AiPlanResult(SamplePlan(), 4, false))
+                        : new AiPlanJobState(AiPlanJobStatus.Running));
+            var vm = await LoadAsync();
+            await vm.GenerateCommand.ExecuteAsync(null);
+            Assert.True(vm.IsRequestSent);
+
+            _dialogs.Setup(d => d.ConfirmAsync(AppResources.AiPlan_CancelConfirmTitle, AppResources.AiPlan_CancelConfirmText,
+                                               AppResources.AiPlan_CancelConfirm, AppResources.AiPlan_KeepGoing)).ReturnsAsync(false);
+            await vm.CancelCommand.ExecuteAsync(null);
+            Assert.True(vm.IsGenerating);                                    // "Devam etsin"
+            Assert.NotNull(_jobs.Current);
+
+            _dialogs.Setup(d => d.ConfirmAsync(AppResources.AiPlan_CancelConfirmTitle, AppResources.AiPlan_CancelConfirmText,
+                                               AppResources.AiPlan_CancelConfirm, AppResources.AiPlan_KeepGoing)).ReturnsAsync(true);
+            _planner.Setup(p => p.GetQuotaAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new AiQuota(4, 5));
+            await vm.CancelCommand.ExecuteAsync(null);
+
+            Assert.False(vm.IsGenerating);
+            Assert.Null(_jobs.Current);
+            Assert.Equal(4, vm.Remaining);                                   // asked again: the plan was used
+
+            ready = true;                                                    // the server finishes it anyway
+            await Task.Delay(50);
+            Assert.False(vm.IsPreview);
+            Assert.Null(_jobs.Current);
+            _notifications.Verify(n => n.ShowAiPlanAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task AppClosedBeforeSending_NothingIsPickedUp()
+        {
+            _jobs.SendDelay = TimeSpan.FromSeconds(30);
+            var vm = await LoadAsync();
+            await vm.GenerateCommand.ExecuteAsync(null);
+
+            var restarted = NewJobs();
+            await restarted.ResumeAsync();
+
+            Assert.Null(restarted.Current);
+            _planner.Verify(p => p.GetJobAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [Fact]

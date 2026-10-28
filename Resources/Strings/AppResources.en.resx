@@ -3565,4 +3565,28 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Dashboard_PickCity" xml:space="preserve">
     <value>Pick a city from the list.</value>
   </data>
+  <data name="AiPlan_Cancel" xml:space="preserve">
+    <value>Cancel plan</value>
+  </data>
+  <data name="AiPlan_CancelFreeHint" xml:space="preserve">
+    <value>Cancel now and no plan is used.</value>
+  </data>
+  <data name="AiPlan_CancelCostHint" xml:space="preserve">
+    <value>Cancelling now still uses 1 plan.</value>
+  </data>
+  <data name="AiPlan_CancelConfirmTitle" xml:space="preserve">
+    <value>Cancel the plan?</value>
+  </data>
+  <data name="AiPlan_CancelConfirmText" xml:space="preserve">
+    <value>The plan has already started. Cancelling now still uses 1 plan.</value>
+  </data>
+  <data name="AiPlan_CancelConfirm" xml:space="preserve">
+    <value>Cancel it</value>
+  </data>
+  <data name="AiPlan_KeepGoing" xml:space="preserve">
+    <value>Keep going</value>
+  </data>
+  <data name="AiPlan_Leave" xml:space="preserve">
+    <value>Run in background</value>
+  </data>
 </root>

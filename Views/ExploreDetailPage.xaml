@@ -268,45 +268,49 @@
                     <TapGestureRecognizer Command="{Binding CloseSheetCommand}" />
                 </BoxView.GestureRecognizers>
             </BoxView>
-            <Border Grid.Row="1" BackgroundColor="{DynamicResource tp-surface}" StrokeThickness="0" StrokeShape="RoundRectangle 20,20,0,0" Padding="20,16,20,16">
-                <VerticalStackLayout Spacing="14">
-                    <Label Text="{x:Static res:AppResources.Explore_SheetTitle}" Style="{StaticResource Text.H3}" />
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="{x:Static res:AppResources.Explore_TripName}" Style="{StaticResource Text.Field}" />
-                        <Border Style="{StaticResource Input}">
-                            <Entry Text="{Binding TripName}" MaxLength="100" />
-                        </Border>
-                    </VerticalStackLayout>
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                        <VerticalStackLayout Grid.Column="0" Spacing="6">
-                            <Label Text="{x:Static res:AppResources.Explore_StartDate}" Style="{StaticResource Text.Field}" />
+            <!-- The page shrinks above the keyboard (SafeAreaEdges All), so the sheet stands on it; on a short
+                 screen its fields scroll instead of being cut off. -->
+            <Border Grid.Row="1" BackgroundColor="{DynamicResource tp-surface}" StrokeThickness="0" StrokeShape="RoundRectangle 20,20,0,0" Padding="0">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="14" Padding="20,16,20,16">
+                        <Label Text="{x:Static res:AppResources.Explore_SheetTitle}" Style="{StaticResource Text.H3}" />
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Explore_TripName}" Style="{StaticResource Text.Field}" />
                             <Border Style="{StaticResource Input}">
-                                <DatePicker Date="{Binding StartDate}" MinimumDate="{Binding MinimumDate}" MaximumDate="{Binding MaximumDate}" />
+                                <Entry Text="{Binding TripName}" MaxLength="100" />
                             </Border>
                         </VerticalStackLayout>
-                        <VerticalStackLayout Grid.Column="1" Spacing="6">
-                            <Label Text="{x:Static res:AppResources.Explore_Currency}" Style="{StaticResource Text.Field}" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="6">
+                                <Label Text="{x:Static res:AppResources.Explore_StartDate}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <DatePicker Date="{Binding StartDate}" MinimumDate="{Binding MinimumDate}" MaximumDate="{Binding MaximumDate}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="{x:Static res:AppResources.Explore_Currency}" Style="{StaticResource Text.Field}" />
+                                <Border Style="{StaticResource Input}">
+                                    <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}"
+                                            Title="{x:Static res:AppResources.Explore_Currency}" FontSize="14" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="{x:Static res:AppResources.Explore_Budget}" Style="{StaticResource Text.Field}" />
                             <Border Style="{StaticResource Input}">
-                                <Picker ItemsSource="{Binding Currencies}" SelectedItem="{Binding SelectedCurrency}"
-                                        Title="{x:Static res:AppResources.Explore_Currency}" FontSize="14" />
+                                <Entry Text="{Binding BudgetText}" Keyboard="Numeric" MaxLength="16" Placeholder="0" />
                             </Border>
                         </VerticalStackLayout>
-                    </Grid>
-                    <VerticalStackLayout Spacing="6">
-                        <Label Text="{x:Static res:AppResources.Explore_Budget}" Style="{StaticResource Text.Field}" />
-                        <Border Style="{StaticResource Input}">
-                            <Entry Text="{Binding BudgetText}" Keyboard="Numeric" MaxLength="16" Placeholder="0" />
-                        </Border>
+                        <HorizontalStackLayout IsVisible="{Binding IsAdding}" Spacing="8" HorizontalOptions="Center">
+                            <controls:LoadingDots IsVisible="{Binding IsAdding}" DotSize="6" DotColor="{DynamicResource tp-primary}" />
+                            <Label Text="{x:Static res:AppResources.Explore_Adding}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CloseSheetCommand}" Style="{StaticResource Btn.Secondary}" />
+                            <Button Grid.Column="1" Text="{x:Static res:AppResources.Explore_Add}" Command="{Binding ConfirmAddCommand}" Style="{StaticResource Btn.Primary}" />
+                        </Grid>
                     </VerticalStackLayout>
-                    <HorizontalStackLayout IsVisible="{Binding IsAdding}" Spacing="8" HorizontalOptions="Center">
-                        <controls:LoadingDots IsVisible="{Binding IsAdding}" DotSize="6" DotColor="{DynamicResource tp-primary}" />
-                        <Label Text="{x:Static res:AppResources.Explore_Adding}" Style="{StaticResource Text.Caption}" VerticalOptions="Center" />
-                    </HorizontalStackLayout>
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="{x:Static res:AppResources.Common_Cancel}" Command="{Binding CloseSheetCommand}" Style="{StaticResource Btn.Secondary}" />
-                        <Button Grid.Column="1" Text="{x:Static res:AppResources.Explore_Add}" Command="{Binding ConfirmAddCommand}" Style="{StaticResource Btn.Primary}" />
-                    </Grid>
-                </VerticalStackLayout>
+                </ScrollView>
             </Border>
         </Grid>
     </Grid>

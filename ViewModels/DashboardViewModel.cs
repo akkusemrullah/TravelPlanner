@@ -233,8 +233,8 @@ namespace TravelPlanner.ViewModels
                 ? AppResources.Home_GreetingNoName
                 : string.Format(AppResources.Home_GreetingFormat, name);
 
-            var initials = _account is { IsSignedIn: false } ? string.Empty : PersonName.Initials(_settings.UserName);
-            AvatarText = initials.Length > 0 ? initials[..1] : string.Empty;
+            // The same initials as the Profil avatar: first letters of the first and the last name ("EA").
+            AvatarText = _account is { IsSignedIn: false } ? string.Empty : PersonName.Initials(_settings.UserName);
         }
 
         // Called from DashboardPage.OnAppearing so the numbers are fresh every time the user lands back
