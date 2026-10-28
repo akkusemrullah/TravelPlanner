@@ -101,7 +101,7 @@
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding AddParticipantCommand}" />
                                 </Border.GestureRecognizers>
-                                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-accent}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Label Style="{StaticResource Icon}" FontSize="22" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-on-accent}" />
                             </Border>
                         </Grid>
                         <!-- G6: shared trip - add its members (linked to their accounts) -->

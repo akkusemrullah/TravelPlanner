@@ -123,7 +123,7 @@ namespace TravelPlanner.Tests
         {
             var vm = Create();
             vm.Name = "Dünya turu";
-            vm.City = "Roma";
+            vm.SelectCityCommand.Execute(new CitySuggestion { Name = "Roma", Country = "İtalya" });
             vm.StartDate = Start;
             vm.EndDate = Start.AddDays(AppConstants.MaxTripDays); // limit + 1 days
 
@@ -151,7 +151,7 @@ namespace TravelPlanner.Tests
         {
             var vm = Create();
             vm.Name = "Roma";
-            vm.City = "Roma";
+            vm.SelectCityCommand.Execute(new CitySuggestion { Name = "Roma", Country = "İtalya" });
             vm.PlannedBudget = InputLimits.MaxMoneyAmount + 1m;
 
             await vm.SaveCommand.ExecuteAsync(null);

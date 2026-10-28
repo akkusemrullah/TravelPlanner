@@ -54,7 +54,7 @@ namespace TravelPlanner.Tests
         {
             var vm = CreateViewModel();
             vm.Name = "Yaz tatili";
-            vm.City = "Roma";
+            vm.SelectCityCommand.Execute(new CitySuggestion { Name = "Roma", Country = "İtalya" });
             vm.StartDate = new DateTime(2026, 8, 20);
             vm.EndDate = new DateTime(2026, 8, 10);
 
@@ -69,7 +69,7 @@ namespace TravelPlanner.Tests
         {
             var vm = CreateViewModel();
             vm.Name = "Yaz tatili";
-            vm.City = "Roma";
+            vm.SelectCityCommand.Execute(new CitySuggestion { Name = "Roma", Country = "İtalya" });
             vm.PlannedBudget = -1m;
 
             await vm.SaveCommand.ExecuteAsync(null);
@@ -93,7 +93,7 @@ namespace TravelPlanner.Tests
         public async Task ValidationMessage_Clears_OnceTheProblemIsFixed()
         {
             var vm = CreateViewModel();
-            vm.City = "Roma";
+            vm.SelectCityCommand.Execute(new CitySuggestion { Name = "Roma", Country = "İtalya" });
             await vm.SaveCommand.ExecuteAsync(null);
             Assert.True(vm.HasValidationError);
 
@@ -112,6 +112,33 @@ namespace TravelPlanner.Tests
             Assert.Equal("Roma", vm.City);
             Assert.Equal("İtalya", vm.Country);
             Assert.False(vm.IsCitySuggestionsVisible);
+        }
+
+        [Fact]
+        public async Task Save_WithATypedCity_AsksToPickASuggestion()
+        {
+            var vm = CreateViewModel();
+            vm.Name = "Yaz tatili";
+            vm.SelectCityCommand.Execute(new CitySuggestion { Name = "Roma", Country = "İtalya" });
+            vm.City = "Romaa"; // typed over the picked city
+
+            await vm.SaveCommand.ExecuteAsync(null);
+
+            Assert.Equal(TravelPlanner.Resources.Strings.AppResources.TripForm_PickCity, vm.ValidationMessage);
+            _trips.Verify(t => t.SaveAsync(It.IsAny<Trip>()), Times.Never);
+        }
+
+        [Fact]
+        public void CityFromHome_CountsAsPicked()
+        {
+            var vm = CreateViewModel();
+
+            vm.InitialCity = "Roma";
+            vm.InitialCountry = "İtalya";
+
+            Assert.Equal("Roma", vm.City);
+            Assert.Equal("İtalya", vm.Country);
+            Assert.Equal("Roma", vm.Name);
         }
 
         [Fact]

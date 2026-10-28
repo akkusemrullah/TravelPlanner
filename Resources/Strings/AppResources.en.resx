@@ -3559,4 +3559,10 @@ For access, correction, deletion and other requests, write to {email} from your 
   <data name="Home_SearchA11y" xml:space="preserve">
     <value>Create a trip to this city</value>
   </data>
+  <data name="TripForm_PickCity" xml:space="preserve">
+    <value>Pick a city from the suggestions as you type.</value>
+  </data>
+  <data name="Dashboard_PickCity" xml:space="preserve">
+    <value>Pick a city from the list.</value>
+  </data>
 </root>

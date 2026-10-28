@@ -63,6 +63,8 @@ namespace TravelPlanner.Controls
                 Shadow = new Shadow { Brush = Color.FromArgb("#2563EB"), Opacity = 0.35f, Radius = 14, Offset = new Point(0, 6) },
                 Content = new Label
                 {
+                    HorizontalOptions = LayoutOptions.Fill,
+                    VerticalOptions = LayoutOptions.Fill,
                     FontFamily = "Lucide",
                     FontSize = 26,
                     Text = Glyph("Ic.Plus"),
@@ -76,19 +78,16 @@ namespace TravelPlanner.Controls
             SemanticProperties.SetDescription(plus, AppResources.Dashboard_CreateTrip);
             plus.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => Run(() => Shell.Current.GoToAsync(Routes.TripForm))) });
 
-            // The + stands 20 above the bar. Around the bar and the + the page stays visible and tappable: the
-            // containers pass touches through, their children still take them.
+            // The + stands 20 above the bar. No InputTransparent here: on Android a transparent ContentView with
+            // CascadeInputTransparent=false swallowed every tap on the bar (TP-106 fix). An empty layout without
+            // a background doesn't take touches anyway, so the page around the bar stays tappable.
             Content = new Grid
             {
-                InputTransparent = true,
-                CascadeInputTransparent = false,
                 HeightRequest = 92,
                 Padding = new Thickness(16, 0, 16, 8),
                 Children = { bar, plus },
             };
             VerticalOptions = LayoutOptions.End;
-            InputTransparent = true;
-            CascadeInputTransparent = false;
             UpdateSelection();
         }
 
@@ -109,12 +108,11 @@ namespace TravelPlanner.Controls
             };
             _items.Add((tab.Route, icon, title));
 
-            var cell = new VerticalStackLayout
+            // The whole slot (full bar height) takes the tap, not only the icon and the label.
+            var cell = new Grid
             {
-                Spacing = 3,
-                VerticalOptions = LayoutOptions.Center,
                 BackgroundColor = Colors.Transparent,
-                Children = { icon, title },
+                Children = { new VerticalStackLayout { Spacing = 3, VerticalOptions = LayoutOptions.Center, Children = { icon, title } } },
             };
             SemanticProperties.SetDescription(cell, tab.Title);
             cell.GestureRecognizers.Add(new TapGestureRecognizer { Command = new Command(() => Select(tab.Route)) });

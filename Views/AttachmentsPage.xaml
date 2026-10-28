@@ -48,7 +48,7 @@
                     </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="8" VerticalOptions="Center">
                         <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
-                            <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Camera}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Camera}" TextColor="{DynamicResource tp-accent-text}" />
                         </Border>
                         <Label Text="{x:Static res:AppResources.Attachments_TakePhoto}" FontFamily="InterMedium" FontSize="13" HorizontalTextAlignment="Center"
                                TextColor="{DynamicResource tp-text}" LineBreakMode="TailTruncation" MaxLines="1" Margin="4,0" />
@@ -61,7 +61,7 @@
                     </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="8" VerticalOptions="Center">
                         <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
-                            <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Image}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Image}" TextColor="{DynamicResource tp-accent-text}" />
                         </Border>
                         <Label Text="{x:Static res:AppResources.Attachments_PickPhoto}" FontFamily="InterMedium" FontSize="13" HorizontalTextAlignment="Center"
                                TextColor="{DynamicResource tp-text}" LineBreakMode="TailTruncation" MaxLines="1" Margin="4,0" />
@@ -74,7 +74,7 @@
                     </Border.GestureRecognizers>
                     <VerticalStackLayout Spacing="8" VerticalOptions="Center">
                         <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 12" BackgroundColor="{DynamicResource tp-accent-soft}" HorizontalOptions="Center">
-                            <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Folder}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                            <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Folder}" TextColor="{DynamicResource tp-accent-text}" />
                         </Border>
                         <Label Text="{x:Static res:AppResources.Attachments_PickDocument}" FontFamily="InterMedium" FontSize="13" HorizontalTextAlignment="Center"
                                TextColor="{DynamicResource tp-text}" LineBreakMode="TailTruncation" MaxLines="1" Margin="4,0" />
@@ -148,9 +148,9 @@
                                         <Label FontSize="12.5" TextColor="{DynamicResource tp-text-3}">
                                             <Label.FormattedText>
                                                 <FormattedString>
-                                                    <Span Text="{Binding SizeDisplay}" />
-                                                    <Span Text=" · " />
-                                                    <Span Text="{Binding CreatedDate, StringFormat='{0:dd.MM.yyyy}'}" />
+                                                    <Span TextColor="{DynamicResource tp-text-3}" Text="{Binding SizeDisplay}" />
+                                                    <Span TextColor="{DynamicResource tp-text-3}" Text=" · " />
+                                                    <Span TextColor="{DynamicResource tp-text-3}" Text="{Binding CreatedDate, StringFormat='{0:dd.MM.yyyy}'}" />
                                                 </FormattedString>
                                             </Label.FormattedText>
                                         </Label>

@@ -35,7 +35,7 @@ namespace TravelPlanner.Helpers
             }
 
             culture ??= CultureInfo.CurrentCulture;
-            return text[..start] + text.Substring(start, 1).ToUpper(culture) + text[(start + 1)..];
+            return text[..start] + ToUpper(text.Substring(start, 1), culture) + text[(start + 1)..];
         }
 
         /// <summary>"new york" → "New York", "emrullah akkuş" → "Emrullah Akkuş" (each word via <see cref="CapitalizeFirst"/>).</summary>
@@ -70,6 +70,18 @@ namespace TravelPlanner.Helpers
         /// culture (dotless I for every i).
         /// </summary>
         public static string Upper(string? text, CultureInfo? culture = null) =>
-            string.IsNullOrEmpty(text) ? string.Empty : text.ToUpper(culture ?? UiCulture);
+            string.IsNullOrEmpty(text) ? string.Empty : ToUpper(text, culture ?? UiCulture);
+
+        /// <summary>
+        /// ToUpper that keeps Turkish rules even where the runtime has no Turkish casing data (Android's ICU gave
+        /// "EKI" for "eki"): for tr/az the i and ı are mapped by hand first.
+        /// </summary>
+        public static string ToUpper(string text, CultureInfo culture)
+        {
+            var lang = culture.TwoLetterISOLanguageName;
+            if (lang is "tr" or "az")
+                text = text.Replace('i', 'İ').Replace('ı', 'I');
+            return text.ToUpper(culture);
+        }
     }
 }

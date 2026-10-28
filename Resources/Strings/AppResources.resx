@@ -3560,4 +3560,10 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Home_SearchA11y" xml:space="preserve">
     <value>Bu şehre seyahat oluştur</value>
   </data>
+  <data name="TripForm_PickCity" xml:space="preserve">
+    <value>Yazarken çıkan önerilerden bir şehir seç.</value>
+  </data>
+  <data name="Dashboard_PickCity" xml:space="preserve">
+    <value>Listeden bir şehir seç.</value>
+  </data>
 </root>

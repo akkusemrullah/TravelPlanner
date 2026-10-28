@@ -9564,5 +9564,23 @@ namespace TravelPlanner.Resources.Strings {
                 return ResourceManager.GetString("Home_SearchA11y", resourceCulture);
             }
         }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Yazarken çıkan önerilerden bir şehir seç..
+        /// </summary>
+        public static string TripForm_PickCity {
+            get {
+                return ResourceManager.GetString("TripForm_PickCity", resourceCulture);
+            }
+        }
+    
+        /// <summary>
+        ///   Looks up a localized string similar to Listeden bir şehir seç..
+        /// </summary>
+        public static string Dashboard_PickCity {
+            get {
+                return ResourceManager.GetString("Dashboard_PickCity", resourceCulture);
+            }
+        }
 }
 }

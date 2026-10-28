@@ -55,8 +55,8 @@
                                     <Label FontSize="13.5" TextColor="{DynamicResource tp-hero-muted}" VerticalOptions="Center">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{x:Static res:AppResources.Weather_Humidity}" />
-                                                <Span Text=" " />
+                                                <Span TextColor="{DynamicResource tp-hero-muted}" Text="{x:Static res:AppResources.Weather_Humidity}" />
+                                                <Span TextColor="{DynamicResource tp-hero-muted}" Text=" " />
                                                 <Span Text="{Binding Weather.Humidity, StringFormat='%{0}'}" FontFamily="InterBold" TextColor="{DynamicResource tp-on-hero}" />
                                             </FormattedString>
                                         </Label.FormattedText>
@@ -67,8 +67,8 @@
                                     <Label FontSize="13.5" TextColor="{DynamicResource tp-hero-muted}" VerticalOptions="Center">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{x:Static res:AppResources.Weather_Wind}" />
-                                                <Span Text=" " />
+                                                <Span TextColor="{DynamicResource tp-hero-muted}" Text="{x:Static res:AppResources.Weather_Wind}" />
+                                                <Span TextColor="{DynamicResource tp-hero-muted}" Text=" " />
                                                 <Span Text="{Binding Weather.WindSpeed, StringFormat='{0:F1} m/s'}" FontFamily="InterBold" TextColor="{DynamicResource tp-on-hero}" />
                                             </FormattedString>
                                         </Label.FormattedText>

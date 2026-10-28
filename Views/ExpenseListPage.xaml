@@ -144,7 +144,7 @@
                                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:ExpenseListViewModel}}, Path=Selection.IsActive}" />
                                     <Border Grid.Column="1" WidthRequest="40" HeightRequest="40" StrokeThickness="0" StrokeShape="RoundRectangle 12" VerticalOptions="Center"
                                             BackgroundColor="{Binding Category, Converter={StaticResource CategoryColorConverter}, ConverterParameter=Soft}">
-                                        <Label Style="{StaticResource Icon}" FontSize="19" HorizontalOptions="Center" VerticalOptions="Center"
+                                        <Label Style="{StaticResource Icon}" FontSize="19"
                                                Text="{Binding Category, Converter={StaticResource CategoryGlyphConverter}}"
                                                TextColor="{Binding Category, Converter={StaticResource CategoryColorConverter}}" />
                                     </Border>

@@ -239,25 +239,25 @@
                            Margin="0,20,0,0">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Text="{x:Static res:AppResources.Auth_LegalText1}" />
+                                <Span TextColor="{DynamicResource tp-text-3}" Text="{x:Static res:AppResources.Auth_LegalText1}" />
                                 <Span Text="{x:Static res:AppResources.Auth_LegalTerms}" TextColor="{DynamicResource tp-accent-text}" FontFamily="InterMedium" TextDecorations="Underline">
                                     <Span.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnTermsTapped" />
                                     </Span.GestureRecognizers>
                                 </Span>
-                                <Span Text="{x:Static res:AppResources.Auth_LegalText2}" />
+                                <Span TextColor="{DynamicResource tp-text-3}" Text="{x:Static res:AppResources.Auth_LegalText2}" />
                                 <Span Text="{x:Static res:AppResources.Auth_LegalPrivacy}" TextColor="{DynamicResource tp-accent-text}" FontFamily="InterMedium" TextDecorations="Underline">
                                     <Span.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnPrivacyTapped" />
                                     </Span.GestureRecognizers>
                                 </Span>
-                                <Span Text="{x:Static res:AppResources.Auth_LegalAnd}" />
+                                <Span TextColor="{DynamicResource tp-text-3}" Text="{x:Static res:AppResources.Auth_LegalAnd}" />
                                 <Span Text="{x:Static res:AppResources.Auth_LegalKvkk}" TextColor="{DynamicResource tp-accent-text}" FontFamily="InterMedium" TextDecorations="Underline">
                                     <Span.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnKvkkTapped" />
                                     </Span.GestureRecognizers>
                                 </Span>
-                                <Span Text="{x:Static res:AppResources.Auth_LegalText3}" />
+                                <Span TextColor="{DynamicResource tp-text-3}" Text="{x:Static res:AppResources.Auth_LegalText3}" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>

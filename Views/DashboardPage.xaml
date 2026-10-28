@@ -5,6 +5,7 @@
              xmlns:controls="clr-namespace:TravelPlanner.Controls"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
+             xmlns:models="clr-namespace:TravelPlanner.Models"
              x:Class="TravelPlanner.Views.DashboardPage"
              x:DataType="vm:DashboardViewModel"
              BackgroundColor="{DynamicResource tp-bg}"
@@ -37,8 +38,8 @@
                                 <Label Grid.Column="1" VerticalOptions="Center" FontSize="19" TextColor="{StaticResource White}">
                                     <Label.FormattedText>
                                         <FormattedString>
-                                            <Span Text="Travel" FontFamily="InterBold" />
-                                            <Span Text="Planner" FontFamily="InterMedium" />
+                                            <Span TextColor="{StaticResource White}" Text="Travel" FontFamily="InterBold" />
+                                            <Span TextColor="{StaticResource White}" Text="Planner" FontFamily="InterMedium" />
                                         </FormattedString>
                                     </Label.FormattedText>
                                 </Label>
@@ -82,9 +83,9 @@
                                 </Label.Triggers>
                                 <Label.FormattedText>
                                     <FormattedString>
-                                        <Span Text="{Binding HeroBefore}" />
+                                        <Span TextColor="{StaticResource White}" Text="{Binding HeroBefore}" />
                                         <Span Text="{Binding HeroHighlight}" TextColor="{DynamicResource tp-hero-accent}" />
-                                        <Span Text="{Binding HeroAfter}" />
+                                        <Span TextColor="{StaticResource White}" Text="{Binding HeroAfter}" />
                                     </FormattedString>
                                 </Label.FormattedText>
                             </Label>
@@ -110,6 +111,30 @@
                                         </Border>
                                     </Grid>
                                 </Border>
+                                <!-- A trip starts only from one of these suggestions (a plain stack: no scroll inside the page's scroll). -->
+                                <Border Style="{StaticResource SuggestionsBorder}" StrokeThickness="0" StrokeShape="RoundRectangle 16" Margin="0,8,0,0"
+                                        IsVisible="{Binding IsCitySuggestionsVisible}">
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding CitySuggestions}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="models:CitySuggestion">
+                                                <Grid Padding="12,10" ColumnDefinitions="Auto,*" ColumnSpacing="12" BackgroundColor="Transparent">
+                                                    <Grid.GestureRecognizers>
+                                                        <TapGestureRecognizer
+                                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DashboardViewModel}}, Path=SelectCityCommand}"
+                                                            CommandParameter="{Binding .}" />
+                                                    </Grid.GestureRecognizers>
+                                                    <Label Grid.Column="0" Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-text-3}" />
+                                                    <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                                        <Label Text="{Binding Name}" FontFamily="InterMedium" FontSize="14.5" TextColor="{DynamicResource tp-text}" />
+                                                        <Label Text="{Binding DisplayRegion}" FontSize="12.5" TextColor="{DynamicResource tp-text-3}" />
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </Border>
+                                <Label Text="{x:Static res:AppResources.Dashboard_PickCity}" IsVisible="{Binding ShowsCityHint}"
+                                       FontSize="13" TextColor="{StaticResource White}" Margin="4,8,0,0" />
                             </VerticalStackLayout>
 
                             <!-- TP-48: join with an invite code (on Home with trips it moves to the bottom) -->
@@ -121,9 +146,9 @@
                                 <Label VerticalOptions="Center" FontSize="14" TextColor="{StaticResource White}">
                                     <Label.FormattedText>
                                         <FormattedString>
-                                            <Span Text="{x:Static res:AppResources.Home_InviteQuestion}" FontFamily="InterSemiBold" />
-                                            <Span Text="  " />
-                                            <Span Text="{x:Static res:AppResources.Join_Short}" FontFamily="InterBold" TextDecorations="Underline" />
+                                            <Span TextColor="{StaticResource White}" Text="{x:Static res:AppResources.Home_InviteQuestion}" FontFamily="InterSemiBold" />
+                                            <Span TextColor="{StaticResource White}" Text="  " />
+                                            <Span TextColor="{StaticResource White}" Text="{x:Static res:AppResources.Join_Short}" FontFamily="InterBold" TextDecorations="Underline" />
                                         </FormattedString>
                                     </Label.FormattedText>
                                 </Label>
@@ -407,8 +432,8 @@
                                     <Label VerticalOptions="Center" FontSize="14" TextColor="{DynamicResource tp-text-2}">
                                         <Label.FormattedText>
                                             <FormattedString>
-                                                <Span Text="{x:Static res:AppResources.Home_InviteQuestion}" />
-                                                <Span Text=" " />
+                                                <Span TextColor="{DynamicResource tp-text-2}" Text="{x:Static res:AppResources.Home_InviteQuestion}" />
+                                                <Span TextColor="{DynamicResource tp-text-2}" Text=" " />
                                                 <Span Text="{x:Static res:AppResources.Join_Short}" FontFamily="InterBold" TextColor="{DynamicResource tp-nav-active}" />
                                             </FormattedString>
                                         </Label.FormattedText>

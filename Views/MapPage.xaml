@@ -62,14 +62,14 @@
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnZoomIn" />
                         </Grid.GestureRecognizers>
-                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Plus}" TextColor="{DynamicResource tp-text}" />
                     </Grid>
                     <BoxView Style="{StaticResource Divider}" />
                     <Grid WidthRequest="40" HeightRequest="40" SemanticProperties.Description="{x:Static res:AppResources.Map_ZoomOut}">
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnZoomOut" />
                         </Grid.GestureRecognizers>
-                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Minus}" TextColor="{DynamicResource tp-text}" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Label Style="{StaticResource Icon}" FontSize="18" Text="{StaticResource Ic.Minus}" TextColor="{DynamicResource tp-text}" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
@@ -102,7 +102,7 @@
                                 <Setter Property="BackgroundColor" Value="{DynamicResource tp-success-soft}" />
                             </DataTrigger>
                         </Border.Triggers>
-                        <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-accent-text}" HorizontalOptions="Center" VerticalOptions="Center">
+                        <Label Style="{StaticResource Icon}" FontSize="20" Text="{StaticResource Ic.Pin}" TextColor="{DynamicResource tp-accent-text}">
                             <Label.Triggers>
                                 <DataTrigger TargetType="Label" Binding="{Binding SelectedPlace.IsVisited, FallbackValue=False}" Value="True">
                                     <Setter Property="TextColor" Value="{DynamicResource tp-success}" />
