@@ -137,18 +137,6 @@
   <data name="A11y_Loading" xml:space="preserve">
     <value>Yükleniyor</value>
   </data>
-  <data name="Dashboard_Greeting" xml:space="preserve">
-    <value>Merhaba {0}</value>
-  </data>
-  <data name="Dashboard_GreetingNoName" xml:space="preserve">
-    <value>Merhaba</value>
-  </data>
-  <data name="Dashboard_TodayFormat" xml:space="preserve">
-    <value>Bugün {0}</value>
-  </data>
-  <data name="Dashboard_Subtitle" xml:space="preserve">
-    <value>Seyahatlerini planlamaya hazır mısın?</value>
-  </data>
   <data name="Dashboard_WeatherShort" xml:space="preserve">
     <value>Hava</value>
   </data>
@@ -158,23 +146,8 @@
   <data name="Dashboard_Details" xml:space="preserve">
     <value>Detaylar</value>
   </data>
-  <data name="Dashboard_BudgetHeader" xml:space="preserve">
-    <value>Bütçe</value>
-  </data>
-  <data name="Dashboard_EmptyTitle" xml:space="preserve">
-    <value>Henüz seyahatin yok</value>
-  </data>
-  <data name="Dashboard_EmptyBody" xml:space="preserve">
-    <value>Rotanı, bütçeni ve planını tek yerde topla.</value>
-  </data>
   <data name="Dashboard_CreateTrip" xml:space="preserve">
     <value>Yeni Seyahat Oluştur</value>
-  </data>
-  <data name="Dashboard_EmptyBadge" xml:space="preserve">
-    <value>İlk seyahat</value>
-  </data>
-  <data name="Dashboard_EmptyWhere" xml:space="preserve">
-    <value>Nereye?</value>
   </data>
   <data name="Dashboard_FeaturesTitle" xml:space="preserve">
     <value>Neler yapabilirsin</value>
@@ -195,31 +168,13 @@
     <value>Birlikte planla</value>
   </data>
   <data name="Dashboard_FeatureShareBody" xml:space="preserve">
-    <value>Arkadaşlarını seyahate davet et</value>
+    <value>Arkadaşlarını seyahate ekle</value>
   </data>
   <data name="Dashboard_FeatureAi" xml:space="preserve">
     <value>Yapay zekâ planı</value>
   </data>
   <data name="Dashboard_FeatureAiBody" xml:space="preserve">
-    <value>Sana özel rota önerisi al</value>
-  </data>
-  <data name="Dashboard_TotalTrips" xml:space="preserve">
-    <value>Toplam Seyahat</value>
-  </data>
-  <data name="Dashboard_VisitedCountries" xml:space="preserve">
-    <value>Gezilen Ülke</value>
-  </data>
-  <data name="Dashboard_TotalExpenses" xml:space="preserve">
-    <value>Harcamalarım</value>
-  </data>
-  <data name="Dashboard_BadgeOngoing" xml:space="preserve">
-    <value>Devam eden seyahat</value>
-  </data>
-  <data name="Dashboard_BadgeUpcoming" xml:space="preserve">
-    <value>Yaklaşan seyahat</value>
-  </data>
-  <data name="Dashboard_EndsIn" xml:space="preserve">
-    <value>Bitmesine</value>
+    <value>İlgi alanına ve tempona göre gün gün rota önerisi.</value>
   </data>
   <data name="Dashboard_StartsIn" xml:space="preserve">
     <value>Kalan süre</value>
@@ -1559,9 +1514,6 @@ Bu politikayı uygulama değiştikçe güncelleyebiliriz. Önemli değişiklikle
   </data>
   <data name="Place_FromMapHint" xml:space="preserve">
     <value>Konum haritadan seçildi. Bir ad yazın veya önerilerden birini seçin.</value>
-  </data>
-  <data name="Dashboard_Overview" xml:space="preserve">
-    <value>Genel bakış</value>
   </data>
   <data name="Profile_Account" xml:space="preserve">
     <value>Hesap</value>
@@ -3143,9 +3095,6 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   <data name="Explore_AddError" xml:space="preserve">
     <value>Seyahat eklenemedi.</value>
   </data>
-  <data name="Dashboard_VisitedCities" xml:space="preserve">
-    <value>Gezilen Şehir</value>
-  </data>
   <data name="Sharing_ErrorInviteTripDeleted" xml:space="preserve">
     <value>Bu seyahat silinmiş, kod artık geçersiz.</value>
   </data>
@@ -3280,9 +3229,6 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="Common_Close" xml:space="preserve">
     <value>Kapat</value>
-  </data>
-  <data name="Dashboard_StatsRule" xml:space="preserve">
-    <value>Ülke ve şehirler başlamış seyahatlerden sayılır. Harcamalarım: senin payın.</value>
   </data>
   <data name="Sync_BadgeA11y" xml:space="preserve">
     <value>Eşitleme durumu</value>
@@ -3529,5 +3475,89 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="Help_ContactShort" xml:space="preserve">
     <value>Genellikle birkaç iş günü içinde dönüyoruz.</value>
+  </data>
+  <data name="Home_GreetingFormat" xml:space="preserve">
+    <value>Merhaba {0},</value>
+  </data>
+  <data name="Home_GreetingNoName" xml:space="preserve">
+    <value>Merhaba,</value>
+  </data>
+  <data name="Home_CountdownFormat" xml:space="preserve">
+    <value>{0} {1} kaldı</value>
+  </data>
+  <data name="Home_OngoingFormat" xml:space="preserve">
+    <value>{0} {1}</value>
+  </data>
+  <data name="Home_DayNumberFormat" xml:space="preserve">
+    <value>{0}. gün</value>
+  </data>
+  <data name="Home_EmptyTitle" xml:space="preserve">
+    <value>Bir sonraki durağın neresi?</value>
+  </data>
+  <data name="Home_EmptyBody" xml:space="preserve">
+    <value>Rotanı, gün gün planını ve görevlerini tek yerde topla.</value>
+  </data>
+  <data name="Home_CityPlaceholder" xml:space="preserve">
+    <value>Gidilecek şehri yaz...</value>
+  </data>
+  <data name="Home_InviteQuestion" xml:space="preserve">
+    <value>Davet kodun mu var?</value>
+  </data>
+  <data name="Home_StepsTitle" xml:space="preserve">
+    <value>3 adımda yola hazır</value>
+  </data>
+  <data name="Home_Step1" xml:space="preserve">
+    <value>Oluştur</value>
+  </data>
+  <data name="Home_Step1Body" xml:space="preserve">
+    <value>Yer ve tarih</value>
+  </data>
+  <data name="Home_Step2" xml:space="preserve">
+    <value>Planla</value>
+  </data>
+  <data name="Home_Step2Body" xml:space="preserve">
+    <value>Gün gün rota</value>
+  </data>
+  <data name="Home_Step3" xml:space="preserve">
+    <value>Hazırlan</value>
+  </data>
+  <data name="Home_Step3Body" xml:space="preserve">
+    <value>Bavul ve belgeler</value>
+  </data>
+  <data name="Home_ReadyPlans" xml:space="preserve">
+    <value>Hazır planlarla başla</value>
+  </data>
+  <data name="Home_Open" xml:space="preserve">
+    <value>Aç</value>
+  </data>
+  <data name="Home_ChipPlan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="Home_ChipTasks" xml:space="preserve">
+    <value>Görevler</value>
+  </data>
+  <data name="Home_CalendarTitle" xml:space="preserve">
+    <value>Seyahat takvimin</value>
+  </data>
+  <data name="Home_InDaysFormat" xml:space="preserve">
+    <value>{0} gün sonra</value>
+  </data>
+  <data name="Home_StatsTitle" xml:space="preserve">
+    <value>Seyahat karnen</value>
+  </data>
+  <data name="Home_StatTrips" xml:space="preserve">
+    <value>seyahat</value>
+  </data>
+  <data name="Home_StatCountries" xml:space="preserve">
+    <value>ülke</value>
+  </data>
+  <data name="Home_StatCities" xml:space="preserve">
+    <value>şehir</value>
+  </data>
+  <data name="Home_ProfileA11y" xml:space="preserve">
+    <value>Profil</value>
+  </data>
+  <data name="Home_SearchA11y" xml:space="preserve">
+    <value>Bu şehre seyahat oluştur</value>
   </data>
 </root>

@@ -23,6 +23,7 @@
             <helpers:CurrencyConverter x:Key="CurrencyConverter" />
             <helpers:WeatherGlyphConverter x:Key="WeatherGlyphConverter" />
             <helpers:CategoryGlyphConverter x:Key="CategoryGlyphConverter" />
+            <helpers:UpperTextConverter x:Key="UpperText" />
             <helpers:CategoryColorConverter x:Key="CategoryColorConverter" />
             <helpers:InvertBoolConverter x:Key="InvertBoolConverter" />
             <helpers:ListPositionShapeConverter x:Key="ListPositionShapeConverter" />

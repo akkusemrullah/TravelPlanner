@@ -8,7 +8,8 @@
              xmlns:views="clr-namespace:TravelPlanner.Views"
              x:Class="TravelPlanner.Views.TripListPage"
              x:DataType="vm:TripListViewModel"
-             Shell.NavBarIsVisible="False">
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
 
     <!-- Tab root (Trips). -->
     <Grid RowDefinitions="Auto,Auto,Auto,*">
@@ -117,7 +118,7 @@
             <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding LoadTripsCommand}" IsVisible="{Binding HasTrips}">
                 <CollectionView x:Name="TripsCollectionView" ItemsSource="{Binding Trips}" SelectionMode="None">
                     <CollectionView.Footer>
-                        <BoxView HeightRequest="24" Color="Transparent" />
+                        <BoxView HeightRequest="104" Color="Transparent" /> <!-- room for the floating menu -->
                     </CollectionView.Footer>
                     <CollectionView.ItemTemplate>
                         <!-- TP-102: the rows form one card (see Helpers/ListPositions.cs): each row is a slice of it -->
@@ -198,5 +199,8 @@
                         Style="{StaticResource Btn.Secondary}" HorizontalOptions="Center" Margin="0,20,0,0" />
             </VerticalStackLayout>
         </Grid>
+
+        <!-- ════════ TP-106: floating bottom menu (hidden while selecting) ════════ -->
+        <controls:FloatingTabBar Grid.RowSpan="4" Current="TripList" IsVisible="{Binding Selection.IsInactive}" />
     </Grid>
 </ContentPage>

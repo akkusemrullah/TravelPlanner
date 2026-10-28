@@ -9,6 +9,7 @@ using TravelPlanner.Services;
 namespace TravelPlanner.ViewModels
 {
     [QueryProperty(nameof(TripId), "TripId")]
+    [QueryProperty(nameof(InitialCity), "City")]
     public partial class TripFormViewModel : ViewModelBase
     {
         private readonly ITripService _tripService;
@@ -181,6 +182,21 @@ namespace TravelPlanner.ViewModels
 
         private SettingsOption<string> FindCurrency(string? code) =>
             Currencies.FirstOrDefault(c => string.Equals(c.Value, MoneyFormatter.Normalize(code), StringComparison.OrdinalIgnoreCase)) ?? Currencies[0];
+
+        /// <summary>
+        /// TP-106: the city typed into Home's box. A new trip starts with it; setting City starts the usual search, so
+        /// the suggestions let the user pick the right one (and its country).
+        /// </summary>
+        public string? InitialCity
+        {
+            get => null;
+            set
+            {
+                var city = (value ?? string.Empty).Trim();
+                if (TripId == 0 && city.Length > 0)
+                    City = city.Length > NameMaxLength ? city[..NameMaxLength] : city;
+            }
+        }
 
         partial void OnTripIdChanged(int value)
         {

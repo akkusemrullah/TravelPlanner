@@ -38,6 +38,28 @@ namespace TravelPlanner
             }
         }
 
+        /// <summary>TP-106: only the status bar in an explicit colour (Home's blue hero), white icons; the navigation bar stays.</summary>
+        public static void ApplyStatusBar(Activity? activity, Microsoft.Maui.Graphics.Color color)
+        {
+            var window = activity?.Window;
+            if (window is null)
+                return;
+
+            try
+            {
+#pragma warning disable CA1422 // still honoured below Android 15; harmless no-op above
+                window.SetStatusBarColor(Android.Graphics.Color.ParseColor(color.ToArgbHex()));
+#pragma warning restore CA1422
+                var controller = WindowCompat.GetInsetsController(window, window.DecorView);
+                if (controller is not null)
+                    controller.AppearanceLightStatusBars = false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SystemBars] {ex}");
+            }
+        }
+
         public static void Apply(Activity? activity, bool dark)
         {
             var window = activity?.Window;

@@ -34,6 +34,9 @@ namespace TravelPlanner.ViewModels
             EndDay = end.ToString("dd", culture);
             EndMonth = end.ToString("MMM yyyy", culture);
             EndWeekday = end.ToString("dddd", culture);
+            // TP-106: the Home card's line under the day - "Kas, Pzt"
+            StartShort = start.ToString("MMM, ddd", culture);
+            EndShort = end.ToString("MMM, ddd", culture);
 
             var days = (end - start).Days + 1;
             DurationText = string.Format(culture, AppResources.Common_DaysFormat, days);
@@ -90,6 +93,11 @@ namespace TravelPlanner.ViewModels
         public string EndDay { get; }
         public string EndMonth { get; }
         public string EndWeekday { get; }
+        public string StartShort { get; }
+        public string EndShort { get; }
+
+        /// <summary>TP-106: top right of the Home card - the trip's own name, or the country when the name is just the city.</summary>
+        public string Caption => ShowName ? Name.Trim() : Country;
 
         public string DurationText { get; }
         public string CountdownLabel { get; }

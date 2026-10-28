@@ -70,7 +70,7 @@ namespace TravelPlanner.Tests
         [Fact]
         public void FormatStrings_HaveTheirPlaceholders()
         {
-            Assert.Equal("Merhaba Emrullah", string.Format(AppResources.Dashboard_Greeting, "Emrullah"));
+            Assert.Equal("Merhaba Emrullah,", string.Format(AppResources.Home_GreetingFormat, "Emrullah"));
             Assert.Equal("5 Gün", string.Format(AppResources.Common_DaysFormat, 5));
         }
 

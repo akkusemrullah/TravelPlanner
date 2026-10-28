@@ -63,7 +63,13 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
 * `Tag` + `Tag.Text` (pill), `Chip` (filters, may carry a count), `Banner.Info/Warning/Error/Accent/Success`, `Divider`, `Divider.Inset`, `EmptyIcon`
 * Dialogs (`AppDialogPage`): centred card with icon tile, title, message and stacked buttons; bottom sheet with handle,
   title + close button and roomy option rows
-* Android tab bar: the selected tab sits on a `tp-accent-soft` pill (`Platforms/Android/TabBarShellRenderer.cs`)
+* `Controls/FloatingTabBar` (TP-106): the bottom menu - a rounded surface bar 16 from the edges (Ana Sayfa · Seyahatler ·
+  Keşfet · Profil, selected item in `tp-nav-active`) with a round `tp-accent` "+" (new trip) standing 20 above its middle.
+  Each tab root page sets `Shell.TabBarIsVisible="False"`, puts the bar last in its root Grid and leaves ~104 at the bottom of
+  its scroll content. Tabs switch through `Helpers/TabNavigation` (same as a Shell tab tap; TP-90 back history still works)
+* Upper case (TP-106): never `TextTransform="Uppercase"` (MAUI uses the invariant culture: "GIDIŞ"). Use
+  `{helpers:Upper Key}` for resource strings, `Converter={StaticResource UpperText}` for bindings or `TextCase.Upper` in
+  code; Turkish casing unless the app language is English. A unit test fails on any `TextTransform` in XAML
 * Controls (TP-100): `ListRow` (tinted icon tile, title, subtitle, chevron, optional trailing view), `Avatar` (initials on a
   soft tone picked from the name, `PersonName.ToneIndex`), `Badge` (24 high pill, tone + optional icon), `CheckMark`
   (square or round tick), `SelectCircle` (selection mode), `ProgressPill` (thin bar, `Tone` or `FillColor`)
@@ -77,5 +83,9 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
 * 4-pt grid: 4 / 8 / 12 / 16 / 20 / 24. Page gutters 16, section gap 24, card padding 16 (12 compact).
 * Radii: 22 ticket, 20 hero, 16 cards, 12 controls / buttons / icon tiles, pill tags and chips.
 * Flat surfaces with 1 px borders; the boarding pass and `Card.Hero` are the only gradients, the ticket and FAB the only shadows. No emoji in UI text.
-* Navigation: bottom tab bar (Home · Trips · Explore · Profile); every other page is pushed and hides the tab bar.
+* Navigation: floating bottom menu (Home · Trips · + · Explore · Profile) on the tab roots; every other page is pushed and hides it.
+* Home (TP-106): blue hero (`tp-hero`, rings + dashed flight path) with "Roma'ya **12 gün** kaldı" (`tp-hero-accent`,
+  Turkish endings from `Helpers/PlaceSuffix`), a white boarding-pass card over its edge, quick-link chips, "Seyahat
+  takvimin" (date tiles), "Seyahat karnen". Without a coming trip: "Bir sonraki durağın neresi?" + city box (opens the
+  trip form with `?City=`), and with no trips at all "3 adımda yola hazır", Keşfet plans (no budget) and feature cards.
 * Forms end with a sticky action bar: secondary *Cancel* + primary *Save*, validation banner above.

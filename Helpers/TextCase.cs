@@ -1,4 +1,5 @@
 using System.Globalization;
+using TravelPlanner.Resources.Strings;
 
 namespace TravelPlanner.Helpers
 {
@@ -48,5 +49,27 @@ namespace TravelPlanner.Helpers
                 words[i] = CapitalizeFirst(words[i], culture) ?? words[i];
             return string.Join(' ', words);
         }
+
+        /// <summary>
+        /// TP-106: the culture upper-casing follows - the language the texts are shown in, not the device's region. The
+        /// neutral resources are Turkish, so anything but English gets Turkish rules ("Gidiş" → "GİDİŞ", not "GIDIŞ").
+        /// </summary>
+        public static CultureInfo UiCulture
+        {
+            get
+            {
+                var ui = AppResources.Culture ?? CultureInfo.CurrentUICulture;
+                return ui.TwoLetterISOLanguageName == "en" ? ui : Turkish;
+            }
+        }
+
+        private static readonly CultureInfo Turkish = new("tr-TR");
+
+        /// <summary>
+        /// TP-106: "Gidiş" → "GİDİŞ". Used instead of TextTransform="Uppercase", which MAUI applies with the invariant
+        /// culture (dotless I for every i).
+        /// </summary>
+        public static string Upper(string? text, CultureInfo? culture = null) =>
+            string.IsNullOrEmpty(text) ? string.Empty : text.ToUpper(culture ?? UiCulture);
     }
 }

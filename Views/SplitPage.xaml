@@ -42,7 +42,7 @@
 
                     <!-- ════════ Who owes whom ════════ -->
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding HasParticipants}">
-                        <Label Text="{x:Static res:AppResources.Split_WhoOwesWhom}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
+                        <Label Text="{helpers:Upper Split_WhoOwesWhom}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
                         <Border Style="{StaticResource Card.List}">
                             <VerticalStackLayout Spacing="0">
                                 <Grid IsVisible="{Binding HasSettlements, Converter={StaticResource InvertBoolConverter}}" ColumnDefinitions="Auto,*" ColumnSpacing="8" Padding="16">
@@ -85,7 +85,7 @@
 
                     <!-- ════════ Participants ════════ -->
                     <VerticalStackLayout Spacing="8">
-                        <Label Text="{x:Static res:AppResources.Split_ParticipantsTitle}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
+                        <Label Text="{helpers:Upper Split_ParticipantsTitle}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" IsVisible="{Binding CanEdit}">
                             <Border Grid.Column="0" Style="{StaticResource Input}">
                                 <Entry Keyboard="{x:Static helpers:AppKeyboards.Words}" Text="{Binding NewParticipantName}" Placeholder="{x:Static res:AppResources.Split_AddPlaceholder}" MaxLength="60"

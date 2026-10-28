@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              xmlns:controls="clr-namespace:TravelPlanner.Controls"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
@@ -87,7 +88,7 @@
 
                     <!-- ════════ Trip forecast ════════ -->
                     <VerticalStackLayout Spacing="8" IsVisible="{Binding HasTripForecast}">
-                        <Label Text="{x:Static res:AppResources.Forecast_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
+                        <Label Text="{helpers:Upper Forecast_Title}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
                         <Border Style="{StaticResource Card.List}">
                             <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding TripForecast}">
                                 <BindableLayout.ItemTemplate>

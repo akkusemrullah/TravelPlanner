@@ -5,6 +5,7 @@
 -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:helpers="clr-namespace:TravelPlanner.Helpers"
              xmlns:res="clr-namespace:TravelPlanner.Resources.Strings"
              xmlns:vm="clr-namespace:TravelPlanner.ViewModels"
              xmlns:controls="clr-namespace:TravelPlanner.Controls"
@@ -44,7 +45,7 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="vm:HelpCategoryView">
                             <VerticalStackLayout Spacing="8">
-                                <Label Text="{Binding Title}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
+                                <Label Text="{Binding Title, Converter={StaticResource UpperText}}" Style="{StaticResource Text.Overline}" Margin="4,0" SemanticProperties.HeadingLevel="Level2" />
                                 <Border Style="{StaticResource Card.List}">
                                     <VerticalStackLayout Spacing="0" BindableLayout.ItemsSource="{Binding Items}">
                                         <BindableLayout.ItemTemplate>
@@ -110,7 +111,7 @@
 
                 <!-- ════════ Legal documents ════════ -->
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="{x:Static res:AppResources.Profile_Legal}" Style="{StaticResource Text.Overline}" Margin="4,0" />
+                    <Label Text="{helpers:Upper Profile_Legal}" Style="{StaticResource Text.Overline}" Margin="4,0" />
                     <Border Style="{StaticResource Card.List}">
                         <VerticalStackLayout Spacing="0">
                             <controls:ListRow Icon="{StaticResource Ic.ShieldPlain}" Tone="info" Title="{x:Static res:AppResources.Privacy_Title}"
