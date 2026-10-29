@@ -52,33 +52,35 @@
                     </Border>
 
                     <!-- ════════ Header (TP-112): cover photo (or the brand gradient) with status, countdown, city ════════ -->
-                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 20" HeightRequest="164"
+                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 20" HeightRequest="164" BackgroundColor="{DynamicResource tp-hero}"
                             IsVisible="{Binding Ticket, Converter={StaticResource ObjectNotNullConverter}}">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="{DynamicResource tp-ticket-start}" Offset="0" />
-                                <GradientStop Color="{DynamicResource tp-ticket-end}" Offset="1" />
-                            </LinearGradientBrush>
-                        </Border.Background>
                         <Border.Triggers>
                             <DataTrigger TargetType="Border" Binding="{Binding HasCoverFile}" Value="True">
                                 <Setter Property="HeightRequest" Value="212" />
                             </DataTrigger>
                         </Border.Triggers>
+                        <!-- the gradient sits on a Grid like TripTicketView's: on Android a Border/BoxView brush with
+                             DynamicResource stops drew nothing, and the scrim BoxView painted grey over the photo -->
                         <Grid>
+                            <Grid.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="{DynamicResource tp-ticket-start}" Offset="0" />
+                                    <GradientStop Color="{DynamicResource tp-ticket-end}" Offset="1" />
+                                </LinearGradientBrush>
+                            </Grid.Background>
                             <!-- no photo: a large faint plane, so the blue doesn't look empty -->
                             <Label Style="{StaticResource Icon}" Text="{StaticResource Ic.Plane}" FontSize="132" TextColor="#1AFFFFFF"
                                    HorizontalOptions="End" VerticalOptions="Start" Margin="0,-6,-14,0" IsVisible="{Binding HasCoverFile, Converter={StaticResource InvertBoolConverter}}" />
                             <Image Source="{Binding CoverFile}" Aspect="AspectFill" IsVisible="{Binding HasCoverFile}" />
-                            <BoxView IsVisible="{Binding HasCoverFile}">
-                                <BoxView.Background>
+                            <Grid IsVisible="{Binding HasCoverFile}">
+                                <Grid.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                                         <GradientStop Color="#330B1220" Offset="0" />
                                         <GradientStop Color="#000B1220" Offset="0.35" />
                                         <GradientStop Color="#B30B1220" Offset="1" />
                                     </LinearGradientBrush>
-                                </BoxView.Background>
-                            </BoxView>
+                                </Grid.Background>
+                            </Grid>
 
                             <Grid Padding="16" RowDefinitions="Auto,*,Auto">
                                 <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
