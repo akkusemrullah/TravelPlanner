@@ -409,6 +409,28 @@ namespace TravelPlanner.ViewModels
             await AfterDuplicateAction(copy.Id);
         }, AppResources.TripDuplicate_Error);
 
+        /// <summary>
+        /// TP-112: the app bar's "⋮" menu - share, duplicate and (owner only) delete, so the page itself ends with
+        /// its content instead of a row of big buttons.
+        /// </summary>
+        [RelayCommand]
+        private async Task MoreAsync()
+        {
+            if (Trip is null) return;
+
+            var options = new List<string> { AppResources.A11y_Share, AppResources.TripDetail_Duplicate };
+            if (IsOwner)
+                options.Add(AppResources.TripDetail_Delete);
+
+            var choice = await Dialogs.ChooseAsync(Trip.Name, options, AppResources.Common_Cancel);
+            if (choice == AppResources.A11y_Share)
+                await ShareAsync();
+            else if (choice == AppResources.TripDetail_Duplicate)
+                await DuplicateTripAsync();
+            else if (choice == AppResources.TripDetail_Delete)
+                await DeleteTripAsync();
+        }
+
         /// <summary>"Roma Tatili" → "Roma Tatili (kopya)", kept within the 100-character name limit.</summary>
         internal static string DuplicateName(string name)
         {

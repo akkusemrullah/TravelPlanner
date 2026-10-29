@@ -77,6 +77,18 @@ namespace TravelPlanner.ViewModels
 
             // TP-97: one line under the city - "Türkiye · Kapadokya Balon Turu"
             SubLine = string.Join(" · ", new[] { Country, ShowName ? Name.Trim() : string.Empty }.Where(part => part.Length > 0));
+
+            // TP-112: the trip page's date strip ("12 Haz" · "Cuma") and the photo header's countdown pill
+            StartText = start.ToString("d MMM", culture);
+            EndText = end.ToString("d MMM", culture);
+            HeroChip = Status switch
+            {
+                TripStatus.Upcoming => (start - now).Days == 1
+                    ? AppResources.Ticket_Tomorrow
+                    : string.Format(culture, AppResources.Ticket_DaysLeftFormat, (start - now).Days),
+                TripStatus.Ongoing => CountdownValue,
+                _ => string.Empty, // the status pill already says "Tamamlandı"
+            };
         }
 
         public string Name { get; }
@@ -113,6 +125,15 @@ namespace TravelPlanner.ViewModels
         public string SubLine { get; }
 
         public bool HasSubLine => SubLine.Length > 0;
+
+        /// <summary>TP-112: "12 Haz" / "16 Haz" in the trip page's date strip.</summary>
+        public string StartText { get; }
+        public string EndText { get; }
+
+        /// <summary>TP-112: the countdown pill on the trip page's header ("12 gün kaldı", "3 gün daha"); empty once over.</summary>
+        public string HeroChip { get; }
+
+        public bool HasHeroChip => HeroChip.Length > 0;
 
         /// <summary>
         /// TP-97: AbsoluteLayout bounds of the route line's filled part (proportional x/y/width): from the departure

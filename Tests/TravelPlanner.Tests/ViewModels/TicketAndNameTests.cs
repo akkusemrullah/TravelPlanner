@@ -54,6 +54,24 @@ namespace TravelPlanner.Tests
         }
 
         [Fact]
+        public void TripPage_HeaderTexts()
+        {
+            var tr = new CultureInfo("tr-TR");
+            var upcoming = new TripTicket(Roma(), today: Start.AddDays(-12), culture: tr);
+            Assert.Equal("12 gün kaldı", upcoming.HeroChip);
+            Assert.Equal("20 Ağu", upcoming.StartText);
+            Assert.Equal("27 Ağu", upcoming.EndText);
+            Assert.Equal(AppResources.Ticket_Tomorrow, new TripTicket(Roma(), today: Start.AddDays(-1)).HeroChip);
+
+            var ongoing = new TripTicket(Roma(), today: Start.AddDays(2));
+            Assert.Equal(ongoing.CountdownValue, ongoing.HeroChip);
+
+            // the status pill already says "Tamamlandı": no second pill
+            var done = new TripTicket(Roma(), today: Start.AddDays(30));
+            Assert.False(done.HasHeroChip);
+        }
+
+        [Fact]
         public void DayBefore_SaysTomorrow()
         {
             Assert.Equal(AppResources.Ticket_Tomorrow, new TripTicket(Roma(), today: Start.AddDays(-1)).CountdownValue);

@@ -72,6 +72,20 @@ namespace TravelPlanner.Tests
         {
             Assert.Equal("Merhaba Emrullah,", string.Format(AppResources.Home_GreetingFormat, "Emrullah"));
             Assert.Equal("5 Gün", string.Format(AppResources.Common_DaysFormat, 5));
+            Assert.Equal("Roma, İtalya · şu an", string.Format(AppResources.Weather_NowFormat, "Roma, İtalya"));
+        }
+
+        [Fact]
+        public void NoString_UsesPrintfPlaceholders()
+        {
+            // TP-112: "%s · şu an" showed literally on the weather page - .NET formats with {0}
+            var offenders = typeof(AppResources).GetProperties()
+                .Where(p => p.PropertyType == typeof(string))
+                .SelectMany(p => new[] { AppResources.ResourceManager.GetString(p.Name, AppResources.Culture), AppResources.ResourceManager.GetString(p.Name, new System.Globalization.CultureInfo("en")) }
+                    .Where(v => v is not null && System.Text.RegularExpressions.Regex.IsMatch(v, "%[sd]"))
+                    .Select(_ => p.Name))
+                .ToList();
+            Assert.Empty(offenders);
         }
 
         [Theory]

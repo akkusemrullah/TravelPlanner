@@ -231,7 +231,7 @@
     <value>Bütçenizi aştınız</value>
   </data>
   <data name="TripDetail_Delete" xml:space="preserve">
-    <value>Seyahati Sil</value>
+    <value>Seyahati sil</value>
   </data>
   <data name="TripDetail_LoadError" xml:space="preserve">
     <value>Seyahat detayları yüklenemedi.</value>
@@ -3375,7 +3375,7 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
     <value>Konum yalnızca öneri listesinden seçilerek gelir.</value>
   </data>
   <data name="Weather_NowFormat" xml:space="preserve">
-    <value>%s · şu an</value>
+    <value>{0} · şu an</value>
   </data>
   <data name="Weather_Source" xml:space="preserve">
     <value>Veriler: Open-Meteo</value>
@@ -3574,5 +3574,14 @@ Verilerine erişme, düzeltme, silme ve diğer taleplerin için {email} adresine
   </data>
   <data name="AiPlan_HistoryApplied" xml:space="preserve">
     <value>Eklendi</value>
+  </data>
+  <data name="TripDetail_More" xml:space="preserve">
+    <value>Diğer işlemler</value>
+  </data>
+  <data name="TripDetail_TilePlan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="TripDetail_TileWeather" xml:space="preserve">
+    <value>Hava</value>
   </data>
 </root>

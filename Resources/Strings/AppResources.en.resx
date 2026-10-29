@@ -3374,7 +3374,7 @@ For access, correction, deletion and other requests, write to {email} from your 
     <value>The location only comes from picking a suggestion.</value>
   </data>
   <data name="Weather_NowFormat" xml:space="preserve">
-    <value>%s · now</value>
+    <value>{0} · now</value>
   </data>
   <data name="Weather_Source" xml:space="preserve">
     <value>Data: Open-Meteo</value>
@@ -3573,5 +3573,14 @@ For access, correction, deletion and other requests, write to {email} from your 
   </data>
   <data name="AiPlan_HistoryApplied" xml:space="preserve">
     <value>Added</value>
+  </data>
+  <data name="TripDetail_More" xml:space="preserve">
+    <value>More actions</value>
+  </data>
+  <data name="TripDetail_TilePlan" xml:space="preserve">
+    <value>Plan</value>
+  </data>
+  <data name="TripDetail_TileWeather" xml:space="preserve">
+    <value>Weather</value>
   </data>
 </root>

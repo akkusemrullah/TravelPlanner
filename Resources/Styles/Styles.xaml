@@ -445,6 +445,15 @@
         <Setter Property="VerticalOptions" Value="Start" />
     </Style>
 
+    <!-- TP-112: pill on the trip page's photo header - dark glass, readable on any photo and on the blue fallback -->
+    <Style x:Key="Hero.Pill" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="#590B1220" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 13" />
+        <Setter Property="Padding" Value="10,5" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
     <Style x:Key="Ticket.PillText" TargetType="Label">
         <Setter Property="FontFamily" Value="InterSemiBold" />
         <Setter Property="FontSize" Value="12" />

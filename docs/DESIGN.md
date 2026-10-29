@@ -53,7 +53,7 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
 ## Components
 
 * `Card` (16), `Card.Compact`, `Card.List` (rows with inset dividers), `Card.Hero` (royal blue, 20), `Card.Flat` (12), `Card.Ticket` (22)
-* `Views/TripTicketView` — the boarding pass (Home featured trip, Trip detail): gradient top with status pill, countdown,
+* `Views/TripTicketView` — the boarding pass (Home featured trip; Trip detail has its own header since TP-112): gradient top with status pill, countdown,
   city, departure ✈ return (the plane rides the route line with the trip's progress), perforated tear line with notches,
   stub with duration / budget and Hava · Harita · Detaylar buttons (only those with a command show)
 * `AppBar` (pushed pages: back/close · title · actions) and `PageHeader` (tab roots: large title on the page colour)
@@ -70,6 +70,8 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
 * Upper case (TP-106): never `TextTransform="Uppercase"` (MAUI uses the invariant culture: "GIDIŞ"). Use
   `{helpers:Upper Key}` for resource strings, `Converter={StaticResource UpperText}` for bindings or `TextCase.Upper` in
   code; Turkish casing unless the app language is English. A unit test fails on any `TextTransform` in XAML
+* `Controls/FeatureTile` (TP-112): shortcut tile - 36 tinted icon tile, one-line title and caption, bordered surface card;
+  three per row in a Grid (spacing 8). `Hero.Pill`: dark-glass pill on a photo or the blue gradient
 * Controls (TP-100): `ListRow` (tinted icon tile, title, subtitle, chevron, optional trailing view), `Avatar` (initials on a
   soft tone picked from the name, `PersonName.ToneIndex`), `Badge` (24 high pill, tone + optional icon), `CheckMark`
   (square or round tick), `SelectCircle` (selection mode), `ProgressPill` (thin bar, `Tone` or `FillColor`)
@@ -88,4 +90,8 @@ come from lucide-static 1.62.0 and sit at U+E900+ so they never clash with the o
   Turkish endings from `Helpers/PlaceSuffix`), a white boarding-pass card over its edge, quick-link chips, "Seyahat
   takvimin" (date tiles), "Seyahat karnen". Without a coming trip: "Bir sonraki durağın neresi?" + city box (opens the
   trip form with `?City=`), and with no trips at all Keşfet plans (no budget) and feature cards.
+* Trip detail (TP-112): app bar back · title · edit · ⋮ (Paylaş, Seyahati kopyala, Seyahati sil - owner only). Then a photo
+  header (cover, or the ticket gradient with a faint plane) with status + countdown pills and the city; a Gidiş | Dönüş |
+  Süre strip with the trip's note; today card (ongoing); AI card; "Planlama" 3 x 2 `FeatureTile` grid (Plan, Görevler,
+  Yerler, Harita, Hava, Belgeler); budget card with Harcamalar · Analiz · Bölüşme links; members card. No big buttons at the end.
 * Forms end with a sticky action bar: secondary *Cancel* + primary *Save*, validation banner above.

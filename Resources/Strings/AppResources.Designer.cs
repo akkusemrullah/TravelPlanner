@@ -3740,7 +3740,7 @@ namespace TravelPlanner.Resources.Strings {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Seyahati Sil.
+        ///   Looks up a localized string similar to Seyahati sil.
         /// </summary>
         public static string TripDetail_Delete {
             get {
@@ -9606,6 +9606,33 @@ namespace TravelPlanner.Resources.Strings {
         public static string AiPlan_HistoryApplied {
             get {
                 return ResourceManager.GetString("AiPlan_HistoryApplied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Diğer işlemler.
+        /// </summary>
+        public static string TripDetail_More {
+            get {
+                return ResourceManager.GetString("TripDetail_More", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Plan.
+        /// </summary>
+        public static string TripDetail_TilePlan {
+            get {
+                return ResourceManager.GetString("TripDetail_TilePlan", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Hava.
+        /// </summary>
+        public static string TripDetail_TileWeather {
+            get {
+                return ResourceManager.GetString("TripDetail_TileWeather", resourceCulture);
             }
         }
     }
