@@ -57,7 +57,7 @@ Plan your trip in one place. Travel Planner keeps your day-by-day plan, budget, 
 
 **Category:** Travel & Local · **Content rating:** Everyone · **Target audience:** 13 and over
 **Keywords (App Store, 100):** travel,trip,planner,itinerary,budget,expenses,packing,map,vacation,ai
-**Privacy policy:** public URL of `docs/PRIVACY.md` · **Account deletion:** public URL of `docs/ACCOUNT_DELETION.md` · **Support e-mail:** emrullahakkus@gmail.com
+**Website:** https://akkusemrullah.github.io/ · **Privacy policy:** https://akkusemrullah.github.io/privacy-policy.html · **Account deletion:** https://akkusemrullah.github.io/hesap-ve-veri-silme.html · **Support e-mail:** emrullahakkus@gmail.com
 
 ## ASO keywords (use naturally in the Google Play description; App Store field above, 100 characters)
 - **Primary:** trip planner, travel planner, itinerary, travel budget, expense tracker

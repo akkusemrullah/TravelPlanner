@@ -53,6 +53,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build-signed-apk.ps1
 
 Betik şifreleri gizli sorar, önce şifreyi ve alias'ı doğrular, eski Release çıktısını siler (yoksa MSBuild eski, debug imzalı APK'yı kopyalayabilir) ve `publish\com.eaksoft.travelplanner-Signed.apk` üretir. Keystore başka yerdeyse: `-KeyStore C:\yol\travelplanner.keystore`.
 
+**Play Store için imzalı `.aab` (Windows, en kolayı):** aynı betik `-Aab` ile App Bundle üretir; `-VersionCode` her yüklemede bir öncekinden büyük olmalıdır (ilk yükleme 1, sonra 2, 3…):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build-signed-apk.ps1 -Aab -VersionCode 1
+```
+
+Çıktı: `publish\com.eaksoft.travelplanner-Signed.aab`. Play Console'a bu dosya yüklenir.
+
 **Elle (Play Store için `.aab`, csproj varsayılanı; APK için `-p:AndroidPackageFormat=apk` ekleyin):**
 
 ```bash
@@ -78,21 +86,26 @@ Play Console'a otomatik yükleme bilinçli olarak eklenmedi; ilk sürümler elle
 - [ ] Açık ve koyu temada ekranlar kontrol edildi
 - [ ] Mağaza metinleri ve ekran görüntüleri güncel (`docs/store/`)
 - [ ] Yasal metinler güncel ve yayında: `docs/PRIVACY.md`, `docs/KVKK.md`, `docs/TERMS.md`, `docs/ACCOUNT_DELETION.md`, `docs/HELP.md` (uygulamadaki metinlerle aynı; metin değiştiyse `DocumentText.LastUpdated` da güncellendi)
-- [ ] Play Console: gizlilik politikası ve hesap silme bağlantıları doğru, *Veri güvenliği* formu aşağıdaki tabloya uygun
+- [ ] Play Console: gizlilik politikası ve hesap silme bağlantıları doğru (aşağıdaki tablo), *Veri güvenliği* formu [store/DATA_SAFETY.md](store/DATA_SAFETY.md) ile uyumlu
+- [ ] `versionCode` (`ApplicationVersion`) Play'e yüklenen son sürümden büyük
 - [ ] İletişim bilgileri doğru (`Helpers/AppConstants.cs` → `SupportEmail`, `DataController*`)
 - [ ] Git etiketi atıldı
 
-## Yasal sayfaların yayınlanması (GitHub Pages)
+## Yasal sayfalar (tanıtım sitesi)
 
-Depo → *Settings → Pages* → *Deploy from a branch* → `main` / `/docs`. Birkaç dakika sonra sayfalar şu adreslerde açılır:
+Yasal metinlerin yayındaki hâli tanıtım sitesindedir (depo `akkusemrullah/akkusemrullah.github.io`, GitHub Pages; aynı dosyalar `https://emrullahakkus.com.tr/travelplanner/` altında da yayınlanır). Play Console'a her zaman güncel olan GitHub Pages adreslerini girin:
 
 | Sayfa | Adres | Nerede kullanılır |
 | --- | --- | --- |
-| Gizlilik politikası | `https://<kullanıcı>.github.io/TravelPlanner/PRIVACY` | Play Console → *Uygulama içeriği → Gizlilik politikası*, App Store |
-| Hesap ve veri silme | `https://<kullanıcı>.github.io/TravelPlanner/ACCOUNT_DELETION` | Play Console → *Veri güvenliği → Hesap silme bağlantısı* |
-| KVKK aydınlatma metni | `https://<kullanıcı>.github.io/TravelPlanner/KVKK` | Mağaza açıklaması / web sitesi |
-| Kullanım koşulları | `https://<kullanıcı>.github.io/TravelPlanner/TERMS` | Mağaza açıklaması / web sitesi |
-| Yardım merkezi | `https://<kullanıcı>.github.io/TravelPlanner/HELP` | Play Console → *Mağaza ayarları → Web sitesi* |
+| Web sitesi | `https://akkusemrullah.github.io/` | Play Console → *Mağaza ayarları → Web sitesi* |
+| Gizlilik politikası | `https://akkusemrullah.github.io/gizlilik-politikasi.html` (EN: `privacy-policy.html`) | Play Console → *Uygulama içeriği → Gizlilik politikası*, App Store |
+| Hesap ve veri silme | `https://akkusemrullah.github.io/hesap-ve-veri-silme.html` | Play Console → *Veri güvenliği → Hesap silme bağlantısı* |
+| KVKK aydınlatma metni | `https://akkusemrullah.github.io/kvkk-aydinlatma-metni.html` | Mağaza açıklaması / web sitesi |
+| Kullanım koşulları | `https://akkusemrullah.github.io/kullanim-kosullari.html` | Mağaza açıklaması / web sitesi |
+| Yapay zekâ uyarısı | `https://akkusemrullah.github.io/yapay-zeka-feragatnamesi.html` | AI içerik politikası |
+| Tüm yasal belgeler | `https://akkusemrullah.github.io/yasal.html` | Web sitesi |
+
+`docs/` altındaki `.md` dosyaları kaynak/arşiv kopyasıdır; metin değişince site deposundaki `src/pages/*.html` de güncellenir.
 
 ## Play Console *Veri güvenliği* formu
 

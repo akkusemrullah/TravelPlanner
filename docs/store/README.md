@@ -2,7 +2,7 @@
 
 | Dosya | Kullanım | Durum |
 | --- | --- | --- |
-| `icon-512.png` | Google Play uygulama ikonu (512×512) | ✅ hazır |
+| `icon-512.png` | Google Play uygulama ikonu (512×512, 32 bit PNG) | ✅ hazır |
 | `icon-source.svg` | İkon kaynağı (Kraliyet Mavisi #1E3A8A zemin, beyaz iğne + kâğıt uçak) | ✅ hazır |
 | `feature-graphic-1024x500.png` | Google Play öne çıkan görsel | ⏳ yeni logo/renklerle yenilenmeli |
 | `listing-tr.md`, `listing-en.md` | Mağaza adı, kısa/uzun açıklama, anahtar kelimeler | ✅ hazır |
@@ -11,4 +11,4 @@
 Önerilen ekran görüntüsü sırası: 1) Ana sayfa (öne çıkan seyahat) 2) Gün gün plan 3) Hava tahmini 4) Harcama analizi 5) Bölüşme özeti 6) Harita ve rota 7) Belgeler 8) Koyu tema.
 Ekran görüntülerini örnek (kurgusal) verilerle alın; gerçek kişi adları ve belgeler kullanmayın.
 
-Mağaza kaydında istenen bağlantılar (GitHub Pages ile `docs/` yayınlandıktan sonra, bkz. `docs/RELEASE.md`): gizlilik politikası → `PRIVACY`, hesap ve veri silme → `ACCOUNT_DELETION`, web sitesi / destek → `HELP`; destek e-postası `Helpers/AppConstants.SupportEmail`.
+Mağaza kaydında istenen bağlantılar (tanıtım sitesi, bkz. `docs/RELEASE.md` → *Yasal sayfalar*): web sitesi `https://akkusemrullah.github.io/`, gizlilik politikası `https://akkusemrullah.github.io/gizlilik-politikasi.html`, hesap ve veri silme `https://akkusemrullah.github.io/hesap-ve-veri-silme.html`; destek e-postası `Helpers/AppConstants.SupportEmail` (emrullahakkus@gmail.com).
