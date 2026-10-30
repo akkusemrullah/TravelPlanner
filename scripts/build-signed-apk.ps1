@@ -1,8 +1,14 @@
-# Builds a release APK signed with the upload keystore (docs/RELEASE.md).
+# Builds a release APK (or, with -Aab, the Play Store App Bundle) signed with the upload keystore (docs/RELEASE.md).
 # Usage (from anywhere):  powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build-signed-apk.ps1
+# Play Store:             ... -File scripts\build-signed-apk.ps1 -Aab -VersionCode 2
 # Optional: -KeyStore <path> (default: travelplanner.keystore in the repo root, which .gitignore keeps out of git).
+# -VersionCode overrides ApplicationVersion (Android versionCode); every Play upload needs a higher one than the last.
 # Passwords are asked for hidden and only kept in environment variables for the duration of the build.
-param([string]$KeyStore = (Join-Path $PSScriptRoot '..\travelplanner.keystore'))
+param(
+    [string]$KeyStore = (Join-Path $PSScriptRoot '..\travelplanner.keystore'),
+    [switch]$Aab,
+    [int]$VersionCode = 0
+)
 
 $ErrorActionPreference = 'Stop'
 Set-Location (Join-Path $PSScriptRoot '..')
@@ -36,8 +42,12 @@ try {
     # Clear old Release output: otherwise MSBuild may copy an earlier (e.g. debug-signed) APK instead of re-signing.
     Remove-Item -Recurse -Force bin\Release\net10.0-android, obj\Release\net10.0-android, publish -ErrorAction SilentlyContinue
 
+    $format = if ($Aab) { 'aab' } else { 'apk' }
+    $versionArgs = @()
+    if ($VersionCode -gt 0) { $versionArgs += "-p:ApplicationVersion=$VersionCode" }
+
     dotnet publish TravelPlanner.csproj -c Release -f net10.0-android `
-        -p:AndroidPackageFormat=apk `
+        -p:AndroidPackageFormat=$format @versionArgs `
         -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="$KeyStore" `
         -p:AndroidSigningKeyAlias=$alias `
         -p:AndroidSigningStorePass=env:ANDROID_KEYSTORE_PASSWORD `
@@ -45,10 +55,10 @@ try {
         -o publish
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-    $apk = Resolve-Path 'publish\com.eaksoft.travelplanner-Signed.apk'
+    $pkg = Resolve-Path "publish\com.eaksoft.travelplanner-Signed.$format"
     Write-Host ''
-    & $kt -printcert -jarfile $apk | Select-String 'Owner:' | Select-Object -First 1 | Write-Host
-    Write-Host "Imzali APK: $apk"
+    & $kt -printcert -jarfile $pkg | Select-String 'Owner:' | Select-Object -First 1 | Write-Host
+    Write-Host "Imzali $($format.ToUpper()): $pkg"
 }
 finally {
     Remove-Item Env:ANDROID_KEYSTORE_PASSWORD, Env:ANDROID_KEY_PASSWORD -ErrorAction SilentlyContinue

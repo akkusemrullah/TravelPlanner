@@ -1,6 +1,6 @@
 # Veri Güvenliği ve Uygulama Gizliliği Beyanları / Data Safety & App Privacy Declarations
 
-Son güncelleme: 18 Ekim 2026 · Kaynak: kod (bkz. [ARCHITECTURE.md](../../ARCHITECTURE.md), [DATA_MODEL.md](../DATA_MODEL.md)) ve [Gizlilik Politikası](../PRIVACY.md). Bir özellik veri toplamayı değiştirirse bu dosya, Play Console formu ve App Store Connect beyanı birlikte güncellenir.
+Son güncelleme: 30 Ekim 2026 · Kaynak: kod (bkz. [ARCHITECTURE.md](../../ARCHITECTURE.md), [DATA_MODEL.md](../DATA_MODEL.md)) ve [Gizlilik Politikası](../PRIVACY.md). Bir özellik veri toplamayı değiştirirse bu dosya, Play Console formu ve App Store Connect beyanı birlikte güncellenir.
 
 ## Temel gerçekler (koddan)
 
@@ -25,12 +25,13 @@ Hizmet sağlayıcılar (Supabase, OpenAI, Cloudflare) bizim adımıza işler; se
 | Fotoğraflar ve videolar → Fotoğraflar | Evet | İsteğe bağlı | Uygulama işlevselliği | Belge olarak eklenen fotoğraflar ve seyahat kapak fotoğrafı |
 | Dosyalar ve belgeler | Evet | İsteğe bağlı | Uygulama işlevselliği | PDF bilet/rezervasyon |
 | Uygulama etkinliği → Kullanıcının oluşturduğu diğer içerik | Evet | İsteğe bağlı | Uygulama işlevselliği | Seyahat, plan, notlar, yapay zekâ isteği ve cevabı |
+| Uygulama etkinliği → Uygulama etkileşimleri | Evet | İsteğe bağlı (hesap) | Dolandırıcılığı önleme, güvenlik ve uyumluluk | İşlem kaydı: hesap silme, yapay zekâ plan isteği özeti (zaman, sonuç, süre, model), 1 yıl |
 | Cihaz veya diğer kimlikler | Evet | İsteğe bağlı (hesap) | Dolandırıcılığı önleme, güvenlik ve uyumluluk | Tuzlu SHA-256 cihaz özeti: AI kotası ve aynı cihazdaki hesapları görme (kötüye kullanım) |
 | Konum (yaklaşık / kesin) | **Hayır** | – | – | |
 | Kişiler, mesajlar, ses, sağlık, web geçmişi | **Hayır** | – | – | |
 
 - Veriler aktarım sırasında şifreleniyor mu? **Evet.**
-- Kullanıcı verilerinin silinmesini isteyebilir mi? **Evet** (uygulama içi ve web bağlantısı – `ACCOUNT_DELETION`).
+- Kullanıcı verilerinin silinmesini isteyebilir mi? **Evet** (uygulama içi ve web bağlantısı – https://akkusemrullah.github.io/hesap-ve-veri-silme.html).
 - Hesap oluşturma: e-posta + şifre veya Google ile giriş; **hesap silme bağlantısı** zorunlu alan için hesap silme sayfası.
 - Bağımsız güvenlik incelemesi: yok. Aile politikası / çocuklara yönelik: **Hayır** (13 yaş ve üzeri).
 - **Yapay zekâ ile üretilen içerik** (AI-Generated Content politikası): kullanıcılar uygunsuz öneriyi plan ekranındaki *Bildir* bağlantısıyla bildirir; uyarı metni: [AI_DISCLAIMER](../legal/AI_DISCLAIMER.md).
